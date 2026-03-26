@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Correção de Testes | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div><div class="brand-name">Equilibrium</div><div class="brand-sub">Neuropsicologia</div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a class="nav-item" href="/#pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+        <a class="nav-item active" href="/Correcao_testes/"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
+        <a class="nav-item" href="/Aplicacao_testes/"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
+        <a class="nav-item" href="/#relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
+        <a class="nav-item" href="/check_list/"><span class="nav-icon">✅</span><span>Checklist</span></a>
+        <a class="nav-item" href="/#config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info"><div class="user-avatar">W</div><div><div class="user-name">Wessilon</div><div class="user-role">Profissional</div></div></div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Correção de Testes</h1>
+          <p class="page-subtitle">Selecione o instrumento para iniciar</p>
+        </div>
+      </div>
+
+      <div class="test-grid">
+        
+        <div class="test-card" onclick="location.href='/Correcao_testes/WAIS/index.html'">
+          <div class="test-name" style="color: var(--blue)">WAIS-III</div>
+          <div class="test-desc">Adultos (16-89 anos)</div>
+          <div class="test-status"><span class="badge badge-green">Ativo</span></div>
+        </div>
+        
+        <div class="test-card" onclick="location.href='/Correcao_testes/WISC_IV/index.html'">
+          <div class="test-name" style="color: var(--blue)">WISC-IV</div>
+          <div class="test-desc">Crianças e adolescentes (6-16 anos)</div>
+          <div class="test-status"><span class="badge badge-green">Ativo</span></div>
+        </div>
+        
+        <div class="test-card" onclick="location.href='/Correcao_testes/SRS2/index.html'">
+          <div class="test-name" style="color: var(--blue)">SRS-2</div>
+          <div class="test-desc">Responsividade Social (2.5-65 anos)</div>
+          <div class="test-status"><span class="badge badge-green">Ativo</span></div>
+        </div>
+        
+        <div class="test-card" onclick="location.href='/Correcao_testes/Vineland3/index.html'">
+          <div class="test-name" style="color: var(--blue)">Vineland 3</div>
+          <div class="test-desc">Escala de Comportamentos Adaptativos (3-90 anos)</div>
+          <div class="test-status"><span class="badge badge-green">Ativo</span></div>
+        </div>
+        
+        <div class="test-card disabled">
+          <div class="test-name" style="color: var(--green)">ADOS-2 MÓDULOS</div>
+          <div class="test-desc">Avaliação Diagnóstica de TEA</div>
+          <div class="test-status"><span class="badge badge-green">Em breve</span></div>
+        </div>
+        
+        <div class="test-card disabled">
+          <div class="test-name" style="color: var(--text-muted)">SON-R 2½-7</div>
+          <div class="test-desc">Inteligência Não-Verbal</div>
+          <div class="test-status"><span class="badge badge-gray">Em breve</span></div>
+        </div>
+        
+        <div class="test-card disabled">
+          <div class="test-name" style="color: var(--text-muted)">CPM-RAVEN</div>
+          <div class="test-desc">Inteligência Não-Verbal (Fator G)</div>
+          <div class="test-status"><span class="badge badge-gray">Em breve</span></div>
+        </div>
+        
+        <div class="test-card disabled">
+          <div class="test-name" style="color: var(--text-muted)">ESCALA COLUMBIA</div>
+          <div class="test-desc">Maturidade Mental / Raciocínio</div>
+          <div class="test-status"><span class="badge badge-gray">Em breve</span></div>
+        </div>
+        
+        <div class="test-card disabled">
+          <div class="test-name" style="color: var(--text-muted)">WMT-2 (Matrizes de Viena)</div>
+          <div class="test-desc">Inteligência Geral</div>
+          <div class="test-status"><span class="badge badge-gray">Em breve</span></div>
+        </div>
+        
+        <div class="test-card disabled">
+          <div class="test-name" style="color: var(--text-muted)">ESCALA BINAUT</div>
+          <div class="test-desc">Maturidade Mental</div>
+          <div class="test-status"><span class="badge badge-gray">Em breve</span></div>
+        </div>
+
+      </div> </main>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script>if (!isAuthed()) location.href = '/login.html';</script>
+</body>
+</html>

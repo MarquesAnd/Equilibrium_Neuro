@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login | Equilibrium Neuro</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="login-screen">
+    <div class="login-card">
+      <img class="login-logo" src="/logo3.png" alt="Equilibrium" onerror="this.style.display='none'" />
+      <p class="login-subtitle">Acesso restrito</p>
+      <div class="login-form">
+        <div class="field">
+          <label for="loginUser">E-mail</label>
+          <input type="email" id="loginUser" placeholder="Digite seu e-mail" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="loginPass">Senha</label>
+          <input type="password" id="loginPass" placeholder="Digite sua senha" autocomplete="current-password" />
+        </div>
+        <button class="btn-primary w-full" id="btnLogin">Entrar</button>
+        <div id="loginError" class="login-error"></div>
+        <div style="text-align:center;margin-top:8px;">
+          <button onclick="resetStorage()" style="background:none;border:none;color:rgba(255,255,255,0.3);font-size:11px;cursor:pointer;text-decoration:underline;">
+            Problemas para entrar? Clique aqui
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <!-- Config e DB -->
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script>
+    // Inicializar Firebase
+    if (window.FIREBASE_CONFIGURED && window.DB) { DB.init(); }
+
+    // Limpar chaves antigas de versões anteriores que possam causar conflito
+    ['equilibrium_auth_v2','equilibrium_auth_user_v2','equilibrium_users_v2',
+     'equilibrium_auth_v1','equilibrium_auth_user_v1'].forEach(k => localStorage.removeItem(k));
+
+    // Se já logado, redirecionar direto para home
+    if (isAuthed()) { location.href = '/'; }
+
+    function resetStorage() {
+      if (!confirm("Isso vai redefinir os dados do sistema. Continuar?")) return;
+      // Remover todas as chaves do Equilibrium
+      Object.keys(localStorage).filter(k => k.startsWith("equilibrium_")).forEach(k => localStorage.removeItem(k));
+      sessionStorage.clear();
+      location.reload();
+    }
+
+    async function handleLogin() {
+      const err = document.getElementById('loginError');
+      const btn = document.getElementById('btnLogin');
+      err.textContent = '';
+      btn.disabled = true;
+      btn.textContent = 'Entrando...';
+      const email    = document.getElementById('loginUser').value;
+      const password = document.getElementById('loginPass').value;
+      const res = await doLogin(email, password);
+      btn.disabled = false;
+      btn.textContent = 'Entrar';
+      if (!res.ok) {
+        err.textContent = res.message;
+        document.getElementById('loginPass').value = '';
+        document.getElementById('loginPass').focus();
+        return;
+      }
+      location.href = '/';
+    }
+
+    document.getElementById('btnLogin').addEventListener('click', handleLogin);
+    document.getElementById('loginPass').addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleLogin();
+    });
+    document.getElementById('loginUser').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('loginPass').focus();
+    });
+  </script>
+</body>
+</html>

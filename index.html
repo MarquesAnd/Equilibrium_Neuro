@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Equilibrium | Neuropsicologia</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="loginScreen" class="login-screen" style="display:none;"></div>
+  <div id="appShell" class="app-shell" style="display:none;">
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display=&apos;none&apos;" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav"></nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">A</div>
+          <div>
+            <div class="user-name" id="userName">Carregando...</div>
+            <div class="user-role" id="userRole">Profissional</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title" id="pageTitle">Dashboard</h1>
+          <p class="page-subtitle" id="pageSubtitle">Bem-vindo ao sistema</p>
+        </div>
+        <div class="header-actions" id="headerActions"></div>
+      </div>
+      <div class="page-body" id="pageBody"></div>
+    </main>
+  </div>
+  <script src="/js/auth.js"></script>
+  <script src="/js/pages.js"></script>
+  <script src="/js/app.js"></script>
+  <script>
+    // Inicializar Firebase antes de tudo
+    if (window.FIREBASE_CONFIGURED) {
+      DB.init().then(() => { if(typeof initApp === "function") initApp(); });
+    }
+  </script>
+</body>
+</html>

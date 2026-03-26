@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vineland-3 — Correção | NeuroEquilibrium</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/Correcao_testes/Vineland3/styles.css" />
+    <link rel="icon" type="image/png" href="/logo.png" />
+</head>
+<body>
+    <div class="app-shell">
+        
+        <aside class="sidebar no-print">
+            <div class="sidebar-brand">
+                <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+                <div><div class="brand-name">Equilibrium</div><div class="brand-sub">Neuropsicologia</div></div>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="nav-item" href="/"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+                <a class="nav-item" href="/#pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+                <a class="nav-item active" href="/Correcao_testes/"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
+                <a class="nav-item" href="/Aplicacao_testes/"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
+                <a class="nav-item" href="/#relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
+                <a class="nav-item" href="/check_list/"><span class="nav-icon">✅</span><span>Checklist</span></a>
+                <a class="nav-item" href="/#config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">W</div>
+                    <div><div class="user-name">Wessilon</div><div class="user-role">Profissional</div></div>
+                </div>
+                <button class="btn-logout" onclick="doLogout()">Sair</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="container">
+
+                <div class="page-header">
+                    <div class="breadcrumb">
+                        <a href="/Correcao_testes/">Correção de Testes</a> &rarr; <span>Vineland-3</span>
+                    </div>
+                    
+                    <div class="title-row">
+                        <h1>Vineland-3 — Formulário de Pais/Cuidadores</h1>
+                        
+                        <div class="header-actions">
+                            <button class="btn btn-primary" onclick="gerarRelatorio()">🖨️ Gerar Relatório</button>
+                            <button class="btn btn-danger" onclick="limparFormulario()">🗑️ Limpar</button>
+                            <button class="btn btn-outline" onclick="window.history.back()">← Voltar</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-alert">
+                    <span class="info-icon">🧠</span>
+                    <p>O <strong>Vineland-3</strong> avalia o comportamento adaptativo do indivíduo. Insira os dados do paciente abaixo, selecione as abas de domínios para preencher as pontuações brutas e, em seguida, verifique os <strong>Resultados</strong>.</p>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <div class="icon" style="background:#ede9fe;color:#7c3aed;">👤</div>
+                        Identificação do Paciente
+                    </div>
+                    <div class="card-body">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Nome do Examinado</label>
+                                <input type="text" id="nomeExaminado" placeholder="Nome completo">
+                            </div>
+                            <div class="form-group">
+                                <label>Data de Nascimento</label>
+                                <input type="date" id="dataNascimento" onchange="processarResultados()">
+                            </div>
+                            <div class="form-group">
+                                <label>Data do Teste</label>
+                                <input type="date" id="dataTeste" onchange="processarResultados()">
+                            </div>
+                            <div class="form-group">
+                                <label>Sexo</label>
+                                <select id="sexo">
+                                    <option value="">Selecione</option>
+                                    <option value="M">Masculino</option>
+                                    <option value="F">Feminino</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Nome do Respondente</label>
+                                <input type="text" id="nomeRespondente" placeholder="Pais/Cuidador">
+                            </div>
+                            <div class="form-group">
+                                <label>Relacionamento</label>
+                                <select id="relacionamento">
+                                    <option value="">Selecione</option>
+                                    <option value="mae">Mãe</option>
+                                    <option value="pai">Pai</option>
+                                    <option value="outro">Outro</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Avaliador</label>
+                                <input type="text" id="avaliador" placeholder="Nome do profissional">
+                            </div>
+                        </div>
+                        <div class="idade-display">
+                            <span>Idade: <strong id="idadeAnos">—</strong> anos</span>
+                            <span>e <strong id="idadeMeses">—</strong> meses</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-secao="secao_COM" onclick="mostrarSecao('secao_COM')">📝 Comunicação</button>
+                    <button class="tab-btn" data-secao="secao_AVD" onclick="mostrarSecao('secao_AVD')">🏠 Atividade de Vida Diária</button>
+                    <button class="tab-btn" data-secao="secao_SOC" onclick="mostrarSecao('secao_SOC')">🤝 Socialização</button>
+                    <button class="tab-btn" data-secao="secao_HMOT" onclick="mostrarSecao('secao_HMOT')">🏃 Habilidades Motoras</button>
+                    <button class="tab-btn" data-secao="secao_COMP" onclick="mostrarSecao('secao_COMP')">⚠️ Comportamento</button>
+                    <button class="tab-btn" data-secao="secao_RESULT" onclick="mostrarSecao('secao_RESULT')">📊 Resultados</button>
+                </div>
+
+                <div id="secao_COM" class="secao-conteudo ativa">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h2>Comunicação (COM)</h2>
+                            <div class="scoring-legend">
+                                <span><span class="legend-dot" style="background:var(--green)"></span> 2 = Usualmente</span>
+                                <span><span class="legend-dot" style="background:var(--amber)"></span> 1 = Às vezes</span>
+                                <span><span class="legend-dot" style="background:var(--red)"></span> 0 = Nunca</span>
+                                <span style="font-weight:600;">Est.</span>
+                            </div>
+                        </div>
+                        <div class="items-list" id="items_COM"></div>
+                        <div class="section-footer">
+                            <span class="score-label">Estimativas:</span>
+                            <span id="est_count_COM">0 (0%)</span>
+                            <span class="score-label">Pontuação Bruta:</span>
+                            <span class="score-value" id="bruta_COM">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="secao_AVD" class="secao-conteudo">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h2>Atividade de Vida Diária (AVD)</h2>
+                            <div class="scoring-legend">
+                                <span><span class="legend-dot" style="background:var(--green)"></span> 2 = Usualmente</span>
+                                <span><span class="legend-dot" style="background:var(--amber)"></span> 1 = Às vezes</span>
+                                <span><span class="legend-dot" style="background:var(--red)"></span> 0 = Nunca</span>
+                                <span style="font-weight:600;">Est.</span>
+                            </div>
+                        </div>
+                        <div class="items-list" id="items_AVD"></div>
+                        <div class="section-footer">
+                            <span class="score-label">Estimativas:</span>
+                            <span id="est_count_AVD">0 (0%)</span>
+                            <span class="score-label">Pontuação Bruta:</span>
+                            <span class="score-value" id="bruta_AVD">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="secao_SOC" class="secao-conteudo">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h2>Habilidades Sociais e Relacionamentos (SOC)</h2>
+                            <div class="scoring-legend">
+                                <span><span class="legend-dot" style="background:var(--green)"></span> 2 = Usualmente</span>
+                                <span><span class="legend-dot" style="background:var(--amber)"></span> 1 = Às vezes</span>
+                                <span><span class="legend-dot" style="background:var(--red)"></span> 0 = Nunca</span>
+                                <span style="font-weight:600;">Est.</span>
+                            </div>
+                        </div>
+                        <div class="items-list" id="items_SOC"></div>
+                        <div class="section-footer">
+                            <span class="score-label">Estimativas:</span>
+                            <span id="est_count_SOC">0 (0%)</span>
+                            <span class="score-label">Pontuação Bruta:</span>
+                            <span class="score-value" id="bruta_SOC">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="secao_HMOT" class="secao-conteudo">
+                    <div class="section-card">
+                        <div class="section-header">
+                            <h2>Atividade Física / Habilidades Motoras (HMOT)</h2>
+                            <div class="scoring-legend">
+                                <span><span class="legend-dot" style="background:var(--green)"></span> 2 = Usualmente</span>
+                                <span><span class="legend-dot" style="background:var(--amber)"></span> 1 = Às vezes</span>
+                                <span><span class="legend-dot" style="background:var(--red)"></span> 0 = Nunca</span>
+                                <span style="font-weight:600;">Est.</span>
+                            </div>
+                        </div>
+                        <div class="behavior-notice">
+                            ⚠️ <strong>Domínio Opcional:</strong> Aplicável para crianças de 0 a 9 anos. Incluir quando houver suspeita sobre o desenvolvimento motor.
+                        </div>
+                        <div class="items-list" id="items_HMOT"></div>
+                        <div class="section-footer">
+                            <span class="score-label">Estimativas:</span>
+                            <span id="est_count_HMOT">0 (0%)</span>
+                            <span class="score-label">Pontuação Bruta:</span>
+                            <span class="score-value" id="bruta_HMOT">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="secao_COMP" class="secao-conteudo">
+                    <div class="behavior-notice">
+                        ⚠️ <strong>Atenção:</strong> Nesta seção, pontuações mais altas significam mais <strong>problemas</strong> de comportamento (inversão da escala dos domínios adaptativos). Aplica-se a partir de 3 anos de idade.
+                    </div>
+
+                    <div class="section-card" style="border-top: 1px solid var(--border); border-radius: var(--radius);">
+                        <div class="section-header">
+                            <h2>Seção A — Internalizante</h2>
+                            <div class="scoring-legend">
+                                <span>2 = Frequentemente</span>
+                                <span>1 = Às vezes</span>
+                                <span>0 = Nunca</span>
+                            </div>
+                        </div>
+                        <div class="items-list" id="items_sectionA"></div>
+                        <div class="section-footer">
+                            <span class="score-label">Soma Seção A:</span>
+                            <span class="score-value" id="soma_sectionA">0</span>
+                        </div>
+                    </div>
+
+                    <div class="section-card" style="border-top: 1px solid var(--border); border-radius: var(--radius); margin-top: 1rem;">
+                        <div class="section-header">
+                            <h2>Seção B — Externalizante</h2>
+                            <div class="scoring-legend">
+                                <span>2 = Frequentemente</span>
+                                <span>1 = Às vezes</span>
+                                <span>0 = Nunca</span>
+                            </div>
+                        </div>
+                        <div class="items-list" id="items_sectionB"></div>
+                        <div class="section-footer">
+                            <span class="score-label">Soma Seção B:</span>
+                            <span class="score-value" id="soma_sectionB">0</span>
+                        </div>
+                    </div>
+
+                    <div class="section-card" style="border-top: 1px solid var(--border); border-radius: var(--radius); margin-top: 1rem;">
+                        <div class="section-header">
+                            <h2>Seção C — Outros</h2>
+                            <div class="scoring-legend">
+                                <span>2 = Frequentemente</span>
+                                <span>1 = Às vezes</span>
+                                <span>0 = Nunca</span>
+                            </div>
+                        </div>
+                        <div class="items-list" id="items_sectionC"></div>
+                        <div class="section-footer">
+                            <span class="score-label">Soma Seção C:</span>
+                            <span class="score-value" id="soma_sectionC">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="secao_RESULT" class="secao-conteudo">
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="icon" style="background:#dcfce7;color:#059669;">📊</div>
+                            Resumo da Pontuação — Domínios e Composto Adaptativo
+                        </div>
+                        <div class="card-body">
+                            <p style="font-size:0.82rem;color:var(--text-secondary);margin-bottom:1rem;">
+                                Insira a <strong>Pontuação Padrão</strong> (obtida na tabela C do manual) correspondente à idade e à pontuação bruta de cada domínio. A classificação do Nível Adaptativo será calculada automaticamente.
+                            </p>
+                            <div class="results-grid">
+                                <div class="result-card">
+                                    <h3>Comunicação (COM)</h3>
+                                    <div class="result-values">
+                                        <div class="result-row">
+                                            <span class="label">Pontuação Bruta</span>
+                                            <span class="value big" id="bruta_COM_res">0</span>
+                                        </div>
+                                        <div class="pp-input-row">
+                                            <label>Pont. Padrão:</label>
+                                            <input type="number" id="pp_COM" class="pp-input" min="20" max="160" onchange="processarResultados()">
+                                        </div>
+                                        <div class="result-row">
+                                            <span class="label">Nível Adaptativo</span>
+                                            <span class="nivel-label" id="nivel_COM">—</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="result-card">
+                                    <h3>Atividade de Vida Diária (AVD)</h3>
+                                    <div class="result-values">
+                                        <div class="result-row">
+                                            <span class="label">Pontuação Bruta</span>
+                                            <span class="value big" id="bruta_AVD_res">0</span>
+                                        </div>
+                                        <div class="pp-input-row">
+                                            <label>Pont. Padrão:</label>
+                                            <input type="number" id="pp_AVD" class="pp-input" min="20" max="160" onchange="processarResultados()">
+                                        </div>
+                                        <div class="result-row">
+                                            <span class="label">Nível Adaptativo</span>
+                                            <span class="nivel-label" id="nivel_AVD">—</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="result-card">
+                                    <h3>Socialização (SOC)</h3>
+                                    <div class="result-values">
+                                        <div class="result-row">
+                                            <span class="label">Pontuação Bruta</span>
+                                            <span class="value big" id="bruta_SOC_res">0</span>
+                                        </div>
+                                        <div class="pp-input-row">
+                                            <label>Pont. Padrão:</label>
+                                            <input type="number" id="pp_SOC" class="pp-input" min="20" max="160" onchange="processarResultados()">
+                                        </div>
+                                        <div class="result-row">
+                                            <span class="label">Nível Adaptativo</span>
+                                            <span class="nivel-label" id="nivel_SOC">—</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="result-card">
+                                    <h3>Habilidades Motoras (HMOT)</h3>
+                                    <div class="result-values">
+                                        <div class="result-row">
+                                            <span class="label">Pontuação Bruta</span>
+                                            <span class="value big" id="bruta_HMOT_res">0</span>
+                                        </div>
+                                        <div class="pp-input-row">
+                                            <label>Pont. Padrão:</label>
+                                            <input type="number" id="pp_HMOT" class="pp-input" min="20" max="160" onchange="processarResultados()">
+                                        </div>
+                                        <div class="result-row">
+                                            <span class="label">Nível Adaptativo</span>
+                                            <span class="nivel-label" id="nivel_HMOT">—</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card" style="background:#f5f3ff;border-color:#c4b5fd;margin-top:1rem;">
+                                <div class="card-body" style="padding:1.2rem;">
+                                    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+                                        <div>
+                                            <h3 style="font-size:1rem;font-weight:800;color:#4c1d95;">Composto de Comportamento Adaptativo (CCA)</h3>
+                                            <p style="font-size:0.78rem;color:#6d28d9;margin-top:0.25rem;">Soma das Pontuações Padrão (COM + AVD + SOC) → Consultar Tabela D.3</p>
+                                        </div>
+                                        <div style="display:flex;align-items:center;gap:1.5rem;">
+                                            <div style="text-align:center;">
+                                                <div style="font-size:0.7rem;color:#7c3aed;font-weight:600;">SOMA PP</div>
+                                                <div style="font-size:1.5rem;font-weight:800;color:#4c1d95;" id="soma_pp">0</div>
+                                            </div>
+                                            <div class="pp-input-row">
+                                                <label style="color:#6d28d9;">CCA:</label>
+                                                <input type="number" id="pp_CCA" class="pp-input" style="border-color:#c4b5fd;" min="20" max="160" onchange="processarResultados()">
+                                            </div>
+                                            <div>
+                                                <span class="nivel-label" id="nivel_CCA" style="font-size:0.95rem;">—</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grafico-container">
+                        <canvas id="perfilGrafico" width="800" height="400"></canvas>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="icon" style="background:#fef3c7;color:#d97706;">⚠️</div>
+                            Comportamento Mal-Adaptativo — Resumo
+                        </div>
+                        <div class="card-body">
+                            <div class="behavior-summary">
+                                <div class="behavior-card">
+                                    <h4>Seção A — Internalizante</h4>
+                                    <div class="soma" id="soma_sectionA_res">0</div>
+                                    <div class="pp-input-row" style="justify-content:center;margin-top:0.5rem;">
+                                        <label>V-escala:</label>
+                                        <input type="number" id="ve_sectionA" class="pp-input" min="0" max="30">
+                                    </div>
+                                </div>
+                                <div class="behavior-card">
+                                    <h4>Seção B — Externalizante</h4>
+                                    <div class="soma" id="soma_sectionB_res">0</div>
+                                    <div class="pp-input-row" style="justify-content:center;margin-top:0.5rem;">
+                                        <label>V-escala:</label>
+                                        <input type="number" id="ve_sectionB" class="pp-input" min="0" max="30">
+                                    </div>
+                                </div>
+                                <div class="behavior-card">
+                                    <h4>Seção C — Outros</h4>
+                                    <div class="soma" id="soma_sectionC_res">0</div>
+                                </div>
+                            </div>
+
+                            <div style="margin-top:1rem;">
+                                <h3 style="font-size:0.9rem;font-weight:700;margin-bottom:0.75rem;">Itens Críticos (pontuação ≥ 1 em Problemas de Comportamento)</h3>
+                                <div id="itensCriticos">
+                                    <p class="no-criticos">Nenhum item crítico identificado.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="icon" style="background:#e0e7ff;color:#4338ca;">📝</div>
+                            Comentários Gerais
+                        </div>
+                        <div class="card-body">
+                            <textarea id="comentarios" rows="4" style="width:100%;padding:0.8rem;border:1px solid var(--border);border-radius:var(--radius-sm);font-family:inherit;font-size:0.88rem;resize:vertical;outline:none;" placeholder="Utilize esse espaço para qualquer comentário geral sobre o indivíduo ou sobre o formulário..."></textarea>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Observer para sincronizar valores duplicados nos resultados
+        const originalProcessar = typeof processarResultados === 'function' ? processarResultados : null;
+        
+        function syncResults() {
+            // Sincronizar pontuação bruta nos cards de resultado
+            ['COM', 'AVD', 'SOC', 'HMOT'].forEach(key => {
+                const bruta = document.getElementById(`bruta_${key}`);
+                const brutaRes = document.getElementById(`bruta_${key}_res`);
+                if (bruta && brutaRes) brutaRes.textContent = bruta.textContent;
+            });
+            // Sincronizar comportamento
+            ['sectionA', 'sectionB', 'sectionC'].forEach(key => {
+                const soma = document.getElementById(`soma_${key}`);
+                const somaRes = document.getElementById(`soma_${key}_res`);
+                if (soma && somaRes) somaRes.textContent = soma.textContent;
+            });
+        }
+
+        // Intercept processarResultados para adicionar sync
+        const _origInterval = setInterval(() => {
+            if (typeof processarResultados === 'function' && typeof RULES !== 'undefined' && RULES) {
+                clearInterval(_origInterval);
+                const _orig = processarResultados;
+                window.processarResultados = function() {
+                    _orig();
+                    syncResults();
+                };
+            }
+        }, 200);
+    </script>
+
+    <script src="/Correcao_testes/Vineland3/vineland3.js"></script>
+
+</body>
+</html>

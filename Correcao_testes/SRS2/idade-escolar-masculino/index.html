@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SRS-2 Idade Escolar — Masculino | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/Correcao_testes/SRS2/srs2-shared.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div><div class="brand-name">Equilibrium</div><div class="brand-sub">Neuropsicologia</div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a class="nav-item" href="/#pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+        <a class="nav-item active" href="/Correcao_testes/"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
+        <a class="nav-item" href="/Aplicacao_testes/"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
+        <a class="nav-item" href="/#relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
+        <a class="nav-item" href="/check_list/"><span class="nav-icon">✅</span><span>Checklist</span></a>
+        <a class="nav-item" href="/#config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info"><div class="user-avatar">W</div><div><div class="user-name">Wessilon</div><div class="user-role">Profissional</div></div></div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <main class="main-content">
+
+      <!-- HEADER + TOOLBAR -->
+      <div class="srs-header no-print">
+        <div class="srs-header-top">
+          <div>
+            <p class="page-subtitle">
+              <a href="/Correcao_testes/" class="breadcrumb">Correção</a> →
+              <a href="/Correcao_testes/SRS2/" class="breadcrumb">SRS-2</a> →
+              Idade Escolar — Masculino
+            </p>
+            <h1 class="page-title">SRS-2 • Idade Escolar — Masculino</h1>
+            <div class="srs-badge-categoria">
+              <span class="dot"></span>
+              Idade Escolar — Masculino · 4 a 18 anos
+            </div>
+            <div class="srs-subtitle" id="subtitle">Carregando regras…</div>
+          </div>
+          <div class="srs-toolbar">
+            <span class="srs-pill">Formulário: <strong id="pillForm">—</strong></span>
+            <span class="srs-pill">Respondidos: <strong id="pillAnswered">0/0</strong></span>
+            <button class="btn-secondary" id="btnRecalc" type="button">📊 Recalcular</button>
+            <button class="btn-relatorio" id="btnRelatorio" type="button">📄 Gerar Relatório</button>
+            <button class="btn-danger" id="btnClear" type="button">🗑️ Limpar</button>
+          </div>
+        </div>
+        <!-- Barra de progresso -->
+        <div class="srs-progress-bar no-print" style="margin-top:12px;">
+          <div class="srs-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <!-- GRID 2 COLUNAS -->
+      <div class="srs-grid">
+
+        <!-- ESQUERDA: Dados + Itens -->
+        <section class="card srs-card-itens">
+          <h2 class="srs-card-title">Dados do Paciente</h2>
+          <div class="srs-meta">
+            <div class="field">
+              <label>Paciente</label>
+              <input id="paciente" type="text" placeholder="Nome do paciente" />
+            </div>
+            <div class="field">
+              <label>Data da Avaliação</label>
+              <input id="data" type="date" />
+            </div>
+            <div class="field">
+              <label>Avaliador</label>
+              <input id="avaliador" type="text" placeholder="Nome do avaliador" />
+            </div>
+          </div>
+
+          <div class="srs-status">
+            <span class="srs-hint" id="hintForm">—</span>
+            <span class="srs-hint">Escala 1–4 · pontos 0–3 (reversos invertidos)</span>
+          </div>
+
+          <hr class="srs-sep" />
+
+          <h2 class="srs-card-title">Itens do Formulário</h2>
+          <div id="itens" class="itens"></div>
+        </section>
+
+        <!-- DIREITA: Resultados -->
+        <aside class="card srs-card-resultados no-print">
+          <h2 class="srs-card-title">Resultados</h2>
+          <div class="srs-hint" id="summaryLine">Preencha os itens e clique em "Recalcular".</div>
+
+          <div class="srs-table-wrap" style="margin-top:14px;">
+            <table id="tblResultados">
+              <thead>
+                <tr>
+                  <th>Escala</th>
+                  <th class="right nowrap">Bruto</th>
+                  <th class="right nowrap">T</th>
+                  <th class="nowrap">Classificação</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+
+          <hr class="srs-sep" />
+
+          <h2 class="srs-card-title">Auditoria de Itens</h2>
+          <div class="srs-hint" style="margin-bottom:8px;">Conferência: resposta → pontos → reverso.</div>
+
+          <div class="srs-table-wrap srs-table-scroll">
+            <table id="tblItens">
+              <thead>
+                <tr>
+                  <th class="nowrap">Item</th>
+                  <th class="nowrap">Resp</th>
+                  <th class="right nowrap">Pontos</th>
+                  <th class="nowrap">Reverso</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </aside>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: Gerando Relatório -->
+  <div class="srs-modal-overlay no-print" id="modalGerando">
+    <div class="srs-modal-box">
+      <div class="srs-modal-spinner"></div>
+      <div class="srs-modal-title">Gerando Relatório…</div>
+      <div class="srs-modal-sub">Calculando escores e montando o laudo.</div>
+    </div>
+  </div>
+
+  <!-- OVERLAY: Relatório Completo -->
+  <div class="srs-report-overlay no-print" id="repOverlay">
+    <div class="srs-report-topbar">
+      <div class="srs-report-topbar-left">
+        <h2>📄 Relatório SRS-2 — Idade Escolar Masculino</h2>
+      </div>
+      <div class="srs-report-actions">
+        <button class="btn-print-rep" id="btnPrintRep">🖨️ Imprimir / Baixar PDF</button>
+        <button class="btn-close-rep" id="btnCloseRep">✕ Fechar</button>
+      </div>
+    </div>
+    <div class="srs-report-scroll">
+      <div class="srs-report-frame"></div>
+    </div>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script>if (!isAuthed()) location.href = '/login.html';</script>
+  <script>
+    const FORM_KEY = "idade_escolar_masculino";
+    const SRS_ACCENT_VAR = "--srs-escolar-m";
+  </script>
+  <script src="/Correcao_testes/SRS2/srs2-shared.js"></script>
+</body>
+</html>

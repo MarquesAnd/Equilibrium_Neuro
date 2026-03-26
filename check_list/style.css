@@ -1,0 +1,121 @@
+/* ═══════════════════════════════════
+   CHECKLIST v2 — Categorizado + Cores
+   ═══════════════════════════════════ */
+
+.cl-title{font-size:18px;font-weight:800;color:#0f172a;letter-spacing:-.3px;margin-bottom:4px}
+.cl-sub{font-size:13px;color:#64748b;margin-bottom:24px}
+
+/* Form */
+.cl-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;align-items:end;margin-bottom:24px;padding-bottom:24px;border-bottom:1px solid #e2e8f0}
+.cl-form label{display:block;font-size:11px;font-weight:700;color:#1e40af;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.cl-form input{width:100%;padding:10px 12px;border-radius:10px;border:1px solid #e2e8f0;font-size:14px;font-family:inherit;background:#fff;outline:none;transition:all .2s}
+.cl-form input:focus{border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.idade-group{display:flex;gap:8px}
+
+/* Tabs */
+.cl-tabs{display:flex;gap:0;margin-bottom:0;border-bottom:none}
+.cl-tab{flex:1;padding:14px 20px;background:#f1f5f9;border:none;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;color:#64748b;border-radius:12px 12px 0 0;position:relative;text-align:center}
+.cl-tab:hover{background:#e2e8f0}
+
+/* Tab colors */
+.cl-tab[data-target="pre-escolar"]{border-top:3px solid transparent}
+.cl-tab[data-target="escolar"]{border-top:3px solid transparent}
+.cl-tab[data-target="adultos"]{border-top:3px solid transparent}
+
+.cl-tab.active[data-target="pre-escolar"]{background:#faf5ff;color:#7c3aed;border-top:3px solid #7c3aed}
+.cl-tab.active[data-target="escolar"]{background:#f0fdfa;color:#0d9488;border-top:3px solid #0d9488}
+.cl-tab.active[data-target="adultos"]{background:#eff6ff;color:#1a56db;border-top:3px solid #1a56db}
+
+/* Tab counter badge */
+.cl-tab .tab-count{display:inline-block;margin-left:6px;font-size:11px;font-weight:800;padding:1px 7px;border-radius:10px;background:#e2e8f0;color:#64748b}
+.cl-tab.active[data-target="pre-escolar"] .tab-count{background:#ede9fe;color:#7c3aed}
+.cl-tab.active[data-target="escolar"] .tab-count{background:#ccfbf1;color:#0d9488}
+.cl-tab.active[data-target="adultos"] .tab-count{background:#dbeafe;color:#1a56db}
+
+/* Tab content */
+.cl-content{display:none;animation:clFade .3s ease}
+.cl-content.active{display:block}
+@keyframes clFade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+
+/* Tab content border colors */
+#pre-escolar.active{border:2px solid #ede9fe;border-top:none;border-radius:0 0 12px 12px;padding:0;overflow:hidden}
+#escolar.active{border:2px solid #ccfbf1;border-top:none;border-radius:0 0 12px 12px;padding:0;overflow:hidden}
+#adultos.active{border:2px solid #dbeafe;border-top:none;border-radius:0 0 12px 12px;padding:0;overflow:hidden}
+
+/* Category header rows */
+.cat-hdr td{padding:10px 12px!important;font-weight:800;font-size:12px;text-transform:uppercase;letter-spacing:.5px;border-bottom:2px solid!important}
+
+/* Pre-escolar categories */
+#pre-escolar .cat-hdr td{background:#faf5ff;color:#7c3aed;border-color:#d8b4fe!important}
+#escolar .cat-hdr td{background:#f0fdfa;color:#0d9488;border-color:#5eead4!important}
+#adultos .cat-hdr td{background:#eff6ff;color:#1a56db;border-color:#93c5fd!important}
+
+/* Table */
+.cl-tbl{width:100%;border-collapse:collapse;font-size:13px}
+.cl-tbl th{padding:8px 10px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0}
+
+/* Header colors per tab */
+#pre-escolar .cl-tbl th{background:#faf5ff;color:#7c3aed}
+#escolar .cl-tbl th{background:#f0fdfa;color:#0d9488}
+#adultos .cl-tbl th{background:#eff6ff;color:#1a56db}
+
+.cl-tbl td{padding:8px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.cl-tbl tr:hover td{background:rgba(0,0,0,.015)}
+.cl-tbl .col-sel{width:50px;text-align:center!important}
+.cl-tbl .col-data{width:150px}
+
+/* Checkbox */
+.cl-check{transform:scale(1.3);cursor:pointer;accent-color:#1a56db}
+#pre-escolar .cl-check{accent-color:#7c3aed}
+#escolar .cl-check{accent-color:#0d9488}
+#adultos .cl-check{accent-color:#1a56db}
+
+/* Data field */
+.cl-data{padding:6px 8px;border:1px solid #e2e8f0;border-radius:6px;min-height:30px;width:100%}
+
+/* Actions */
+.cl-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px;justify-content:flex-end}
+
+/* Stats bar */
+.cl-stats{display:flex;gap:16px;align-items:center;margin-bottom:20px;padding:12px 16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;font-size:13px;color:#64748b}
+.cl-stat-num{font-weight:800;font-size:18px;margin-right:3px}
+.cl-stat-pre{color:#7c3aed}
+.cl-stat-esc{color:#0d9488}
+.cl-stat-adu{color:#1a56db}
+
+/* ═══ MOBILE ═══ */
+@media(max-width:768px){
+  .cl-form{grid-template-columns:1fr!important;gap:12px!important}
+  .cl-tabs{flex-direction:column;gap:4px}
+  .cl-tab{border-radius:8px;border-top:none!important;border-left:3px solid transparent}
+  .cl-tab.active[data-target="pre-escolar"]{border-left:3px solid #7c3aed;border-top:none!important}
+  .cl-tab.active[data-target="escolar"]{border-left:3px solid #0d9488;border-top:none!important}
+  .cl-tab.active[data-target="adultos"]{border-left:3px solid #1a56db;border-top:none!important}
+  .cl-content.active{border:none!important;border-radius:0!important}
+  .cl-tbl{min-width:600px}
+  .cl-content{overflow-x:auto}
+}
+
+/* ═══ PRINT ═══ */
+@media print{
+  @page{size:A4 portrait;margin:10mm}
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  body{background:#fff!important}
+  .sidebar,.no-print,.page-header,.cl-tabs,.cl-actions,.cl-stats{display:none!important}
+  .main-content{margin:0!important;padding:0!important;max-width:100%!important}
+  .card{box-shadow:none!important;border:none!important;padding:0!important;margin:0!important}
+  .cl-content{display:none!important}
+  .cl-content.active{display:block!important;border:none!important;padding:0!important}
+  .cl-title{font-size:14px!important;margin-bottom:10px!important}
+  .cl-form{gap:8px 20px!important;margin-bottom:12px!important;padding-bottom:10px!important}
+  .cl-form label{font-size:9px!important}
+  .cl-form input{border:none!important;border-bottom:1px dashed #ccc!important;border-radius:0!important;padding:2px 0!important;font-size:11px!important;background:transparent!important}
+  .cl-tbl th,.cl-tbl td{padding:4px 6px!important;font-size:9px!important;border:1px solid rgba(0,0,0,.12)!important}
+  .cl-tbl th{font-size:8px!important}
+  .cat-hdr td{padding:6px 8px!important;font-size:9px!important}
+  .cl-check{transform:scale(.9)!important}
+  .cl-data{border:1px solid #999!important;height:14px!important;border-radius:3px!important;min-height:0!important;padding:0!important;display:flex!important;align-items:center!important;justify-content:center!important}
+  .cl-data::before{content:"/ /"!important;color:#999!important;font-size:8px!important;letter-spacing:8px!important;margin-left:8px!important}
+  .col-sel{width:40px!important}
+  .col-data{width:80px!important}
+}

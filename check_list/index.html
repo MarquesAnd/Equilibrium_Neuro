@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Check List | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/check_list/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div><div class="brand-name">Equilibrium</div><div class="brand-sub">Neuropsicologia</div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a class="nav-item" href="/#pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+        <a class="nav-item" href="/Correcao_testes/"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
+        <a class="nav-item" href="/Aplicacao_testes/"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
+        <a class="nav-item" href="/#relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
+        <a class="nav-item active" href="/check_list/"><span class="nav-icon">✅</span><span>Checklist</span></a>
+        <a class="nav-item" href="/#config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info"><div class="user-avatar">W</div><div><div class="user-name">Wessilon</div><div class="user-role">Profissional</div></div></div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header no-print">
+        <div>
+          <h1 class="page-title">Check List — Seleção de Instrumentos</h1>
+          <p class="page-subtitle">Organize por faixa etária, selecione os testes e imprima</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="cl-title">Check List — Seleção de Instrumentos</h2>
+        <p class="cl-sub">Testes organizados por categoria e faixa etária</p>
+
+        <div class="cl-form">
+          <div><label>Nome do Paciente:</label><input type="text" placeholder="Nome completo"></div>
+          <div><label>CPF:</label><input type="text" placeholder="000.000.000-00"></div>
+          <div><label>Idade (A / M / D):</label><div class="idade-group"><input type="number" placeholder="Anos"><input type="number" placeholder="Meses"><input type="number" placeholder="Dias"></div></div>
+          <div><label>Hipóteses:</label><input type="text" placeholder="Diagnósticos em investigação"></div>
+        </div>
+
+        <div class="cl-stats no-print"><span id="clStatTotal">0 selecionados</span></div>
+
+        <div class="cl-tabs">
+          <button class="cl-tab active" data-target="pre-escolar">🟣 Pré-Escolar <span class="tab-count">20</span></button>
+          <button class="cl-tab" data-target="escolar">🟢 Escolar <span class="tab-count">43</span></button>
+          <button class="cl-tab" data-target="adultos">🔵 Adultos <span class="tab-count">30</span></button>
+        </div>
+
+        <!-- PRÉ-ESCOLAR -->
+        <div id="pre-escolar" class="cl-content active">
+          <table class="cl-tbl"><thead><tr><th class="col-sel">✓</th><th>Instrumento</th><th>O que Avalia</th><th>Idade</th><th class="col-data">Data</th></tr></thead><tbody>
+            <tr class="cat-hdr"><td colspan="5">🧠 Inteligência / Raciocínio</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>SON-R 2½-7</td><td>Inteligência Não-Verbal</td><td>2a 6m – 7 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>CPM-RAVEN</td><td>Inteligência Não-Verbal (Fator G)</td><td>5 – 11 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ESCALA COLUMBIA</td><td>Maturidade Mental / Raciocínio</td><td>3a – 9a 11m</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>WMT-2 (Matrizes de Viena)</td><td>Inteligência Geral</td><td>7 – 80+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ESCALA BINAUT</td><td>Maturidade Mental</td><td>3 – 7 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">👶 Desenvolvimento Infantil</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>IDADI</td><td>Desenvolvimento Infantil</td><td>4 – 72 meses</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>BAYLEY-III</td><td>Desenvolvimento Global</td><td>1 – 42 meses</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>VINELAND-3</td><td>Comportamento Adaptativo</td><td>0 – 90 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">🧩 TEA / Autismo</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>PROTEA-R-NV</td><td>Sistema de Avaliação do TEA</td><td>2 – 5 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>SRS-2 (Pré-Escolar)</td><td>Responsividade e Habilidade Social</td><td>2a 5m – 4a 5m</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ESCALA M-CHAT</td><td>Rastreio Precoce de Autismo</td><td>18 – 24 meses</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ESCALA ATA</td><td>Traços Autísticos (Rastreio)</td><td>2 – 18 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ADOS-2 MÓDULO 2</td><td>Avaliação Diagnóstica de TEA</td><td>3 – 10 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">⚡ TDAH / Comportamento</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>SNAP-IV</td><td>Sintomas de TDAH e Opositor (TOD)</td><td>1 – 17 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ETDAH-PAIS</td><td>Sintomas de TDAH (Visão dos Pais)</td><td>2 – 17 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ESCALA ABC-ICA</td><td>Comportamento Infantil</td><td>3 – 14 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ETCD</td><td>Sintomas de TDAH, TOD e TC</td><td>6 – 17 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">💬 Linguagem / Memória / Sensorial</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ANELE Vol. 1 (PCFO)</td><td>Consciência Fonológica</td><td>3 – 9 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>TIME-R (Kit Completo)</td><td>Memória de Curto Prazo</td><td>3a – 6a 11m</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>PERFIL SENSORIAL 2</td><td>Processamento Sensorial</td><td>0 – 3a 11m</td><td class="col-data"><div class="cl-data"></div></td></tr>
+          </tbody></table>
+        </div>
+
+        <!-- ESCOLAR -->
+        <div id="escolar" class="cl-content">
+          <table class="cl-tbl"><thead><tr><th class="col-sel">✓</th><th>Instrumento</th><th>O que Avalia</th><th>Idade</th><th class="col-data">Data</th></tr></thead><tbody>
+            <tr class="cat-hdr"><td colspan="5">🧠 Inteligência / Raciocínio</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>WISC-IV</td><td>Inteligência Global (QI)</td><td>6a – 16a 11m</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>WAIS-III</td><td>Inteligência Global (QI)</td><td>16 – 89 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>SON-R 6-40</td><td>Inteligência Não-Verbal</td><td>6 – 40 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>CPM-RAVEN</td><td>Inteligência Não-Verbal</td><td>5 – 11 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ESCALA COLUMBIA</td><td>Maturidade Mental</td><td>Até 9a 11m</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>BETA-III</td><td>Inteligência Não-Verbal</td><td>14 – 33 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>TIAH/S</td><td>Inteligência e Habilidades Sociais</td><td>9 – 15 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>WMT-2 (Matrizes de Viena)</td><td>Inteligência Geral</td><td>7 – 80+</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">📖 Linguagem / Leitura / Escrita / Matemática</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>TISD</td><td>Sinais de Dislexia</td><td>6 – 11 anos (1º-5º)</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ANELE Vol. 1 (PCFO)</td><td>Consciência Fonológica</td><td>3 – 9 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ANELE Vol. 2 (T-NAR)</td><td>Nomeação Automática Rápida</td><td>6 – 14 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ANELE Vol. 3 (TEPPE)</td><td>Escrita de Palavras/Pseudopalavras</td><td>1º ao 9º ano</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ANELE Vol. 4 (TLPP)</td><td>Leitura de Palavras/Pseudopalavras</td><td>6 – 85 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>PROLEC (Kit Fund.)</td><td>Processos de Leitura</td><td>2º ao 5º ano</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>PROLEC-SE-R</td><td>Processos de Leitura</td><td>6º ano ao Médio</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>TDE-II</td><td>Desempenho Escolar (L/E/M)</td><td>1º ao 9º ano</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>PRONUMERO</td><td>Processamento Numérico</td><td>2º ao 5º ano</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">🎯 Atenção / Memória</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>BPA-2</td><td>Atenção Geral</td><td>6 – 94 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>TAVIS-4</td><td>Atenção Visual</td><td>6a – 17a 11m</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>TESTE D2-R</td><td>Atenção Concentrada</td><td>9 – 60 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>RAVLT</td><td>Memória Auditivo-Verbal</td><td>6 – 92 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>TEPIC-M-2</td><td>Memória Visual</td><td>15 – 92 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">⚙️ Funções Executivas</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>FDT (Cinco Dígitos)</td><td>Flexibilidade Cognitiva</td><td>6 – 90 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>TORRE DE LONDRES</td><td>Planejamento e Resolução de Problemas</td><td>10 – 59 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">🧩 TEA / Autismo</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ASSQ</td><td>Rastreio de Autismo</td><td>7 – 16 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ATA</td><td>Traços Autísticos</td><td>2 – 18 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>AQ (Versão Adolesc.)</td><td>Rastreio de Autismo</td><td>12 – 15 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>RAADS-R-BR SCREEN</td><td>Rastreio de Autismo</td><td>16+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>SRS-2 (Idade Escolar)</td><td>Responsividade Social</td><td>5 – 18 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>CAT-Q</td><td>Camuflagem de Traços Autísticos</td><td>16+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>PERFIL SENSORIAL 2</td><td>Processamento Sensorial (Criança)</td><td>3 – 14 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ADOS-2 MÓDULO 3</td><td>Avaliação Diagnóstica de TEA</td><td>11 – 16 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">⚡ TDAH</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>SNAP-IV</td><td>Sintomas TDAH e TOD</td><td>1 – 17 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ETDAH-PAIS</td><td>Sintomas TDAH (Pais)</td><td>2 – 17 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ETDAH-AD</td><td>Sintomas TDAH (Autoavaliação)</td><td>12 – 87 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ESCALA ASQ</td><td>Sintomas TDAH</td><td>7 – 12 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ETCD</td><td>Sintomas de TDAH, TOD e TC</td><td>6 – 17 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">💭 Humor / Ansiedade</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>SCARED AUTO</td><td>Transtornos de Ansiedade</td><td>9 – 18 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>SCARED HETERO</td><td>Transtornos de Ansiedade</td><td>7 – 18 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>EBADEP-IJ</td><td>Sintomas de Depressão</td><td>7 – 18 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>HUMOR-IJ</td><td>Avaliação do Humor</td><td>8 – 19 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">🎭 Personalidade / Comportamento Adaptativo</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>EPQ-IJ</td><td>Personalidade</td><td>10 – 16 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>BFP</td><td>Personalidade</td><td>16+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>QCP/PBQ</td><td>Conceitualização Cognitiva (Crenças)</td><td>15 – 94 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>VINELAND-3</td><td>Comportamento Adaptativo</td><td>0 – 90 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>EFA</td><td>Funcionamento Adaptativo</td><td>6 – 15 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+          </tbody></table>
+        </div>
+
+        <!-- ADULTOS -->
+        <div id="adultos" class="cl-content">
+          <table class="cl-tbl"><thead><tr><th class="col-sel">✓</th><th>Instrumento</th><th>O que Avalia</th><th>Idade</th><th class="col-data">Data</th></tr></thead><tbody>
+            <tr class="cat-hdr"><td colspan="5">🧠 Inteligência / Raciocínio</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>WAIS-III</td><td>Inteligência Global (QI)</td><td>16 – 89 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>BETA-III</td><td>Inteligência Não-Verbal</td><td>14 – 88 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>WMT-2 (Matrizes de Viena)</td><td>Inteligência Geral</td><td>7 – 80+</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">🎯 Atenção / Memória</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>BPA-2</td><td>Atenção Geral</td><td>6 – 94 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>TESTE D2-R</td><td>Atenção Concentrada</td><td>9 – 60 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>(TEACO/TEADI/TEALT)</td><td>Atenção Conc., Dividida e Alternada</td><td>18 – 72 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>TEPIC-M-2</td><td>Memória Visual</td><td>15 – 92 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>RAVLT</td><td>Memória Auditivo-Verbal</td><td>6 – 92 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">⚙️ Funções Executivas</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>BDEFS</td><td>Déficits na Função Executiva</td><td>18 – 70 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>FDT (Cinco Dígitos)</td><td>Flexibilidade Cognitiva</td><td>6 – 90 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>TORRE DE LONDRES</td><td>Planejamento e Resolução de Problemas</td><td>10 – 59 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">📖 Linguagem</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ANELE Vol. 4 (TLPP)</td><td>Leitura de Palavras/Pseudopalavras</td><td>6 – 85 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">🧩 TEA / Autismo</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>SRS-2 (Adulto)</td><td>Responsividade Social</td><td>19+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>CAT-Q</td><td>Camuflagem de Traços Autísticos</td><td>16+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>RAADS-R-BR SCREEN</td><td>Rastreio de Autismo</td><td>16+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>QA16+</td><td>Rastreio de Autismo</td><td>16+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ESC. DE CAMBRIDGE</td><td>Empatia vs. Sistematização</td><td>Adultos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>PERFIL SENSORIAL 2</td><td>Processamento Sensorial</td><td>Adolesc./Adulto</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ADOS-2 MÓDULO 4</td><td>Avaliação Diagnóstica de TEA</td><td>17 – 80+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">⚡ TDAH</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ASRS-18</td><td>TDAH (Rastreio OMS)</td><td>18+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>BAARS-IV</td><td>TDAH (Protocolo Barkley)</td><td>18+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>ETDAH-AD</td><td>TDAH (Autoavaliação)</td><td>12 – 87 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">💭 Humor / Ansiedade / Depressão</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>BAI</td><td>Sintomas de Ansiedade</td><td>17 – 80 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>BDI-II</td><td>Sintomas de Depressão</td><td>13 – 80 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>EBADEP-A</td><td>Sintomas de Depressão</td><td>Adultos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>HUMOR-U</td><td>Humor (Universitários)</td><td>18 – 29 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr class="cat-hdr"><td colspan="5">🎭 Personalidade / Habilidades Sociais / Adaptativo</td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>BFP</td><td>Personalidade</td><td>16+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>PFISTER</td><td>Personalidade (Projetivo)</td><td>18 – 66 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>QCP/PBQ</td><td>Conceitualização Cognitiva (Crenças)</td><td>15 – 94 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>IHS-2</td><td>Habilidades Sociais</td><td>16+ anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+            <tr><td class="col-sel"><input type="checkbox" class="cl-check"></td><td>VINELAND-3</td><td>Comportamento Adaptativo</td><td>0 – 90 anos</td><td class="col-data"><div class="cl-data"></div></td></tr>
+          </tbody></table>
+        </div>
+
+        <div class="cl-actions no-print">
+          <button class="btn-primary" onclick="window.print()" type="button">🖨️ Imprimir / Salvar PDF</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/js/auth.js"></script>
+  <script>if (!isAuthed()) location.href = '/login.html';</script>
+  <script src="/check_list/script.js"></script>
+</body>
+</html>
