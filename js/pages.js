@@ -129,7 +129,12 @@ function renderPacientes() {
 /* ══════════════════════════
    CORREÇÃO / APLICAÇÃO
    ══════════════════════════ */
-function renderCorrecao()  { location.href = '/Correcao_testes/index.html';  return ''; }
+//function renderCorrecao()  { location.href = '/Correcao_testes/index.html';  return ''; }
+// Em vez de mudar o endereço, retorne o conteúdo (exemplo usando iframe para manter limpo)
+function renderCorrecao() {
+    return `<iframe src="/Correcao_testes/index.html" style="width:100%; height:80vh; border:none;"></iframe>`;
+}
+
 function renderAplicacao() { location.href = '/Aplicacao_testes/index.html'; return ''; }
 function renderChecklist() { location.href = '/check_list/index.html';       return ''; }
 
