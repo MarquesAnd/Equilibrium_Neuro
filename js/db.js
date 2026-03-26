@@ -24,28 +24,28 @@ async function initFirebase() {
     console.warn("Firebase não configurado — usando localStorage como fallback.");
     return false;
   }
+  
   try {
     firebase.initializeApp(FIREBASE_CONFIG);
     _db   = firebase.firestore();
     _auth = firebase.auth();
     _fbReady = true;
 
-    // Habilitar persistência offline (cache local mesmo sem internet)
-    // Usando configuração de cache compatível com SDK v9 compat
+    /* --- BLOCO COMENTADO TEMPORARIAMENTE PARA TESTAR O CACHE --- 
     try {
       await _db.enableMultiTabIndexedDbPersistence();
     } catch(e) {
       if (e.code === 'failed-precondition') {
-        // Múltiplas abas abertas — usar persistência simples
         await _db.enablePersistence().catch(() => {});
       } else if (e.code === 'unimplemented') {
-        // Browser não suporta — continuar sem persistência offline
         console.info('Persistência offline não suportada neste navegador.');
       }
     }
+    -------------------------------------------------------------- */
 
     console.log("✅ Firebase conectado");
     return true;
+    
   } catch(e) {
     console.error("Erro ao inicializar Firebase:", e);
     return false;
