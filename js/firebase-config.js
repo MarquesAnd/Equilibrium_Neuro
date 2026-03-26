@@ -20,4 +20,4 @@ const FIREBASE_CONFIG = {
 };
 
 /* Detecta se as credenciais já foram preenchidas */
-window.FIREBASE_CONFIGURED = !FIREBASE_CONFIG.apiKey.startsWith("AIzaSyCRjDEX-N4eYkVTlvjegvdyx50D-UA28kE");
+window.FIREBASE_CONFIGURED = !FIREBASE_CONFIG.apiKey.startsWith("COLE AQUI");
