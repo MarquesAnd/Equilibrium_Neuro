@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configurações | Equilibrium Neuro</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ── Tabs ── */
+    .config-tabs { display:flex; gap:4px; margin-bottom:24px; border-bottom:2px solid var(--border); }
+    .tab-btn {
+      padding:10px 20px; border:none; background:transparent; font-family:'DM Sans',sans-serif;
+      font-size:13px; font-weight:700; color:var(--text-secondary); cursor:pointer;
+      border-bottom:2px solid transparent; margin-bottom:-2px; transition:color .15s,border-color .15s;
+    }
+    .tab-btn:hover  { color:var(--text); }
+    .tab-btn.active { color:var(--blue); border-bottom-color:var(--blue); }
+    .tab-panel      { display:none; }
+    .tab-panel.active { display:block; }
+
+    /* ── Formulário ── */
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .form-field { display:flex; flex-direction:column; gap:6px; }
+    .form-field label { font-size:12px; font-weight:700; color:var(--text-secondary); }
+    .form-field input, .form-field select {
+      padding:10px 13px; border:1.5px solid var(--border); border-radius:9px;
+      font-family:'DM Sans',sans-serif; font-size:14px; font-weight:500;
+      color:var(--text); background:var(--bg); outline:none;
+      transition:border-color .15s, box-shadow .15s;
+    }
+    .form-field input:focus, .form-field select:focus {
+      border-color:var(--blue); box-shadow:0 0 0 3px rgba(26,86,219,.1);
+    }
+    .form-field input::placeholder { color:var(--text-muted); }
+    .form-field.full { grid-column:1 / -1; }
+    .form-actions { display:flex; align-items:center; gap:12px; margin-top:20px; }
+    .save-msg { font-size:13px; color:var(--green); font-weight:600; opacity:0; transition:opacity .3s; }
+    .save-msg.show { opacity:1; }
+
+    /* ── Seção card ── */
+    .section-card {
+      background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+      padding:24px; margin-bottom:16px;
+    }
+    .section-card h3 { font-size:15px; font-weight:800; color:var(--text); margin-bottom:4px; }
+    .section-card p  { font-size:13px; color:var(--text-secondary); margin-bottom:20px; }
+
+    /* ── Usuários ── */
+    .user-list { display:flex; flex-direction:column; gap:8px; }
+    .user-row {
+      display:flex; align-items:center; gap:12px; padding:14px 16px;
+      background:var(--bg); border:1px solid var(--border); border-radius:10px;
+      transition:box-shadow .15s;
+    }
+    .user-row:hover { box-shadow:var(--shadow-lg); }
+    .user-avatar-sm {
+      width:38px; height:38px; border-radius:50%; background:var(--navy); color:#fff;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:800; font-size:15px; flex-shrink:0;
+    }
+    .user-info-col { flex:1; min-width:0; }
+    .user-info-name { font-weight:700; font-size:14px; color:var(--text); }
+    .user-info-email { font-size:12px; color:var(--text-secondary); margin-top:2px; }
+    .user-badges { display:flex; gap:6px; flex-shrink:0; }
+    .user-actions { display:flex; gap:6px; flex-shrink:0; }
+    .icon-btn {
+      width:34px; height:34px; border:1.5px solid var(--border); border-radius:8px;
+      background:#fff; cursor:pointer; font-size:15px;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .12s, border-color .12s;
+    }
+    .icon-btn:hover  { background:var(--bg); border-color:var(--blue); }
+    .icon-btn.danger:hover { background:var(--red-light); border-color:var(--red); }
+    .badge { display:inline-flex; align-items:center; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:700; }
+    .badge-blue   { background:var(--blue-light); color:var(--blue); }
+    .badge-gray   { background:#f1f5f9; color:#64748b; }
+    .badge-green  { background:var(--green-light); color:var(--green); }
+    .badge-red    { background:var(--red-light); color:var(--red); }
+    .badge-amber  { background:var(--amber-light); color:var(--amber); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:1000;
+      display:flex; align-items:center; justify-content:center; padding:20px;
+      opacity:0; pointer-events:none; transition:opacity .2s;
+    }
+    .modal-overlay.open { opacity:1; pointer-events:all; }
+    .modal {
+      background:#fff; border-radius:16px; padding:28px; width:100%; max-width:560px;
+      transform:translateY(12px); transition:transform .2s;
+      max-height:90vh; overflow-y:auto;
+    }
+    .modal-overlay.open .modal { transform:translateY(0); }
+    .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+    .modal-title  { font-size:17px; font-weight:800; color:var(--text); }
+    .modal-close  {
+      width:32px; height:32px; border:none; background:var(--bg); border-radius:8px;
+      cursor:pointer; font-size:18px; display:flex; align-items:center; justify-content:center;
+      color:var(--text-secondary); transition:background .12s;
+    }
+    .modal-close:hover { background:var(--border); }
+    .modal-error { color:var(--red); font-size:13px; margin-top:12px; min-height:18px; font-weight:600; }
+    .modal-footer { display:flex; gap:10px; margin-top:20px; }
+
+    /* ── Checkboxes de páginas ── */
+    .pages-grid { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .page-chip {
+      display:flex; align-items:center; gap:6px; padding:6px 13px;
+      background:#fff; border:1.5px solid var(--border); border-radius:20px;
+      font-size:13px; font-weight:600; cursor:pointer; user-select:none;
+      transition:border-color .12s, background .12s, color .12s;
+    }
+    .page-chip.on { border-color:var(--blue); background:var(--blue-light); color:var(--blue); }
+    .page-chip input { display:none; }
+
+    /* ── Spinner ── */
+    .spinner {
+      width:20px; height:20px; border:2px solid var(--border);
+      border-top-color:var(--blue); border-radius:50%;
+      animation:spin .6s linear infinite; display:inline-block; vertical-align:middle;
+    }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .loading-row { display:flex; align-items:center; gap:10px; padding:16px; color:var(--text-muted); font-size:13px; }
+
+    /* ── Botões ── */
+    .btn-primary {
+      padding:10px 22px; border:none; border-radius:9px; background:var(--blue);
+      color:#fff; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:700;
+      cursor:pointer; transition:background .15s;
+    }
+    .btn-primary:hover   { background:#1649c0; }
+    .btn-primary:disabled{ background:var(--text-muted); cursor:not-allowed; }
+    .btn-secondary {
+      padding:10px 22px; border:1.5px solid var(--border); border-radius:9px;
+      background:#fff; color:var(--text); font-family:'DM Sans',sans-serif;
+      font-size:14px; font-weight:700; cursor:pointer; transition:background .12s;
+    }
+    .btn-secondary:hover { background:var(--bg); }
+    .btn-danger {
+      padding:10px 22px; border:none; border-radius:9px; background:var(--red);
+      color:#fff; font-family:'DM Sans',sans-serif; font-size:14px; font-weight:700;
+      cursor:pointer; transition:background .15s;
+    }
+    .btn-danger:hover { background:#b91c1c; }
+
+    /* ── Senha toggle ── */
+    .pwd-wrap { position:relative; }
+    .pwd-wrap input { padding-right:42px; }
+    .pwd-toggle {
+      position:absolute; right:12px; top:50%; transform:translateY(-50%);
+      background:none; border:none; cursor:pointer; color:var(--text-muted);
+      font-size:16px; padding:0; line-height:1;
+    }
+
+    /* ── Responsivo ── */
+    @media(max-width:640px) { .form-grid { grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+      <div>
+        <div class="brand-name">Equilibrium</div>
+        <div class="brand-sub">Neuropsicologia</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav" id="sideNav">
+      <!-- preenchido pelo JS -->
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <div class="user-avatar" id="sideAvatar">?</div>
+        <div>
+          <div class="user-name" id="sideName">Carregando...</div>
+          <div class="user-role" id="sideRole">—</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Configurações</h1>
+        <p class="page-subtitle">Gerencie perfil, usuários e preferências do sistema</p>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="config-tabs">
+      <button class="tab-btn active" onclick="switchTab('perfil')">👤 Perfil do Profissional</button>
+      <button class="tab-btn" id="tabUsuarios" onclick="switchTab('usuarios')">👥 Usuários</button>
+    </div>
+
+    <!-- ══ TAB: PERFIL ══ -->
+    <div id="tab-perfil" class="tab-panel active">
+      <div class="section-card">
+        <h3>Dados do Profissional</h3>
+        <p>Estas informações aparecem automaticamente nos relatórios gerados.</p>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="cfgNome">Nome completo</label>
+            <input id="cfgNome" type="text" placeholder="Ex: Dr. João da Silva" />
+          </div>
+          <div class="form-field">
+            <label for="cfgCrp">CRP</label>
+            <input id="cfgCrp" type="text" placeholder="Ex: CRP 04/12345" />
+          </div>
+          <div class="form-field">
+            <label for="cfgEspecialidade">Especialidade</label>
+            <input id="cfgEspecialidade" type="text" placeholder="Ex: Neuropsicólogo" />
+          </div>
+          <div class="form-field">
+            <label for="cfgContato">E-mail de contato</label>
+            <input id="cfgContato" type="email" placeholder="Ex: contato@clinica.com" />
+          </div>
+          <div class="form-field">
+            <label for="cfgClinica">Clínica / Consultório</label>
+            <input id="cfgClinica" type="text" placeholder="Nome da clínica" />
+          </div>
+          <div class="form-field">
+            <label for="cfgCidade">Cidade / Estado</label>
+            <input id="cfgCidade" type="text" placeholder="Ex: Uberlândia – MG" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" id="btnSavePerfil" onclick="savePerfil()">💾 Salvar</button>
+          <span class="save-msg" id="perfilMsg">✓ Salvo com sucesso!</span>
+        </div>
+      </div>
+
+      <!-- Alterar minha senha -->
+      <div class="section-card">
+        <h3>Alterar Minha Senha</h3>
+        <p>Troque a senha da sua conta de acesso ao sistema.</p>
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="senhaAtual">Senha atual</label>
+            <div class="pwd-wrap">
+              <input id="senhaAtual" type="password" placeholder="Senha atual" autocomplete="current-password" />
+              <button class="pwd-toggle" type="button" onclick="togglePwd('senhaAtual',this)">👁</button>
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="senhaNova">Nova senha</label>
+            <div class="pwd-wrap">
+              <input id="senhaNova" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+              <button class="pwd-toggle" type="button" onclick="togglePwd('senhaNova',this)">👁</button>
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="senhaConfirm">Confirmar nova senha</label>
+            <div class="pwd-wrap">
+              <input id="senhaConfirm" type="password" placeholder="Repita a nova senha" autocomplete="new-password" />
+              <button class="pwd-toggle" type="button" onclick="togglePwd('senhaConfirm',this)">👁</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" id="btnSaveSenha" onclick="saveSenha()">🔒 Alterar Senha</button>
+          <span class="save-msg" id="senhaMsg"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ TAB: USUÁRIOS (apenas admin) ══ -->
+    <div id="tab-usuarios" class="tab-panel">
+      <div class="section-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <div>
+            <h3 style="margin-bottom:2px;">Usuários do Sistema</h3>
+            <p style="margin:0;">Gerencie acessos, permissões e senhas de cada usuário.</p>
+          </div>
+          <button class="btn-primary" onclick="openModalNovoUsuario()">+ Novo Usuário</button>
+        </div>
+        <div class="user-list" id="userList">
+          <div class="loading-row"><div class="spinner"></div> Carregando usuários...</div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══════════════════════════════════════
+     MODAL: Criar / Editar Usuário
+     ══════════════════════════════════════ -->
+<div class="modal-overlay" id="modalUsuario">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Novo Usuário</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+
+    <input type="hidden" id="modalUserId" value="" />
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="uNome">Nome de exibição</label>
+        <input id="uNome" type="text" placeholder="Ex: Maria Auxiliar" />
+      </div>
+      <div class="form-field">
+        <label for="uEmail">E-mail (usado para login)</label>
+        <input id="uEmail" type="email" placeholder="Ex: maria@clinica.com" autocomplete="off" />
+      </div>
+      <div class="form-field">
+        <label for="uSenha" id="uSenhaLabel">Senha</label>
+        <div class="pwd-wrap">
+          <input id="uSenha" type="password" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+          <button class="pwd-toggle" type="button" onclick="togglePwd('uSenha',this)">👁</button>
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="uPerfil">Perfil</label>
+        <select id="uPerfil">
+          <option value="user">Usuário</option>
+          <option value="admin">Administrador</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="uStatus">Status</label>
+        <select id="uStatus">
+          <option value="true">Ativo</option>
+          <option value="false">Inativo</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-field" style="margin-top:16px;">
+      <label>Páginas permitidas</label>
+      <div class="pages-grid" id="pagesGrid"></div>
+    </div>
+
+    <div class="modal-error" id="modalError"></div>
+
+    <div class="modal-footer">
+      <button class="btn-primary" id="btnSalvarUsuario" onclick="salvarUsuario()">Salvar</button>
+      <button class="btn-secondary" onclick="closeModal()">Cancelar</button>
+      <button class="btn-danger" id="btnDeletarUsuario" style="margin-left:auto;display:none" onclick="deletarUsuario()">Remover</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     SCRIPTS
+     ══════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-config.js"></script>
+<script src="/js/db.js"></script>
+<script src="/js/auth.js"></script>
+<script>
+/* ════════════════════════════════════════
+   INIT
+   ════════════════════════════════════════ */
+const PAGES_LIST = [
+  { id:"dashboard",  label:"Dashboard",          icon:"📊" },
+  { id:"pacientes",  label:"Pacientes",           icon:"👤" },
+  { id:"correcao",   label:"Correção de Testes",  icon:"✏️" },
+  { id:"aplicacao",  label:"Aplicação de Testes", icon:"🧠" },
+  { id:"relatorios", label:"Relatórios",          icon:"📄" },
+  { id:"checklist",  label:"Checklist",           icon:"✅" },
+  { id:"config",     label:"Configurações",       icon:"⚙️" },
+];
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // Inicializar Firebase se configurado
+  if (window.FIREBASE_CONFIGURED && window.DB) await DB.init();
+
+  // Verificar autenticação
+  if (!isAuthed()) { location.href = "/login.html"; return; }
+
+  // Preencher sidebar
+  buildSidebar();
+
+  // Carregar perfil
+  await carregarPerfil();
+
+  // Aba de usuários só aparece para admins
+  if (!isAdmin()) {
+    document.getElementById("tabUsuarios").style.display = "none";
+  } else {
+    await carregarUsuarios();
+  }
+});
+
+/* ════════════════════════════════════════
+   SIDEBAR
+   ════════════════════════════════════════ */
+function buildSidebar() {
+  const user  = getAuthUser();
+  const pages = getUserPages();
+
+  document.getElementById("sideAvatar").textContent = user ? user.label[0].toUpperCase() : "?";
+  document.getElementById("sideName").textContent   = user ? user.label : "—";
+  document.getElementById("sideRole").textContent   = user && user.role === "admin" ? "Administrador" : "Usuário";
+
+  const nav = document.getElementById("sideNav");
+  nav.innerHTML = pages.map(p => `
+    <a class="nav-item ${p.id === 'config' ? 'active' : ''}"
+       href="${p.id === 'config' ? '/configuracoes.html' : p.id === 'correcao' ? '/Correcao_testes/' : p.id === 'aplicacao' ? '/Aplicacao_testes/' : p.id === 'checklist' ? '/check_list/' : '/#' + p.id}">
+      <span class="nav-icon">${p.icon}</span>
+      <span>${p.label}</span>
+    </a>`).join("");
+}
+
+/* ════════════════════════════════════════
+   TABS
+   ════════════════════════════════════════ */
+function switchTab(tab) {
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  event.target.classList.add("active");
+  document.getElementById("tab-" + tab).classList.add("active");
+}
+
+/* ════════════════════════════════════════
+   PERFIL DO PROFISSIONAL
+   ════════════════════════════════════════ */
+async function carregarPerfil() {
+  const cfg = await loadConfig();
+  document.getElementById("cfgNome").value          = cfg.nome          || "";
+  document.getElementById("cfgCrp").value           = cfg.crp           || "";
+  document.getElementById("cfgEspecialidade").value = cfg.especialidade || "";
+  document.getElementById("cfgContato").value       = cfg.contato       || "";
+  document.getElementById("cfgClinica").value       = cfg.clinica       || "";
+  document.getElementById("cfgCidade").value        = cfg.cidade        || "";
+}
+
+async function savePerfil() {
+  const btn = document.getElementById("btnSavePerfil");
+  const msg = document.getElementById("perfilMsg");
+  btn.disabled = true; btn.textContent = "Salvando...";
+  await saveConfig({
+    nome:          document.getElementById("cfgNome").value.trim(),
+    crp:           document.getElementById("cfgCrp").value.trim(),
+    especialidade: document.getElementById("cfgEspecialidade").value.trim(),
+    contato:       document.getElementById("cfgContato").value.trim(),
+    clinica:       document.getElementById("cfgClinica").value.trim(),
+    cidade:        document.getElementById("cfgCidade").value.trim(),
+  });
+  btn.disabled = false; btn.textContent = "💾 Salvar";
+  msg.textContent = "✓ Salvo com sucesso!";
+  msg.classList.add("show");
+  setTimeout(() => msg.classList.remove("show"), 3000);
+}
+
+/* ════════════════════════════════════════
+   ALTERAR SENHA
+   ════════════════════════════════════════ */
+async function saveSenha() {
+  const btn     = document.getElementById("btnSaveSenha");
+  const msg     = document.getElementById("senhaMsg");
+  const atual   = document.getElementById("senhaAtual").value;
+  const nova    = document.getElementById("senhaNova").value;
+  const confirm = document.getElementById("senhaConfirm").value;
+
+  msg.textContent = "";
+  msg.style.color = "";
+
+  if (!atual)              { showSenhaMsg("Informe a senha atual.", "red"); return; }
+  if (!nova || nova.length < 6) { showSenhaMsg("A nova senha precisa ter ao menos 6 caracteres.", "red"); return; }
+  if (nova !== confirm)    { showSenhaMsg("As senhas não coincidem.", "red"); return; }
+
+  btn.disabled = true; btn.textContent = "Salvando...";
+
+  // Verificar senha atual fazendo re-login
+  const user = getAuthUser();
+  const check = await doLogin(user.email, atual);
+  if (!check.ok) {
+    btn.disabled = false; btn.textContent = "🔒 Alterar Senha";
+    showSenhaMsg("Senha atual incorreta.", "red"); return;
+  }
+
+  // Firebase: updatePassword
+  if (window.FIREBASE_CONFIGURED && window.DB && DB.isReady()) {
+    try {
+      await firebase.auth().currentUser.updatePassword(nova);
+    } catch(e) {
+      btn.disabled = false; btn.textContent = "🔒 Alterar Senha";
+      showSenhaMsg("Erro ao alterar: " + e.message, "red"); return;
+    }
+  } else {
+    // Fallback localStorage
+    await updateUser(user.id, { password: nova });
+  }
+
+  btn.disabled = false; btn.textContent = "🔒 Alterar Senha";
+  document.getElementById("senhaAtual").value  = "";
+  document.getElementById("senhaNova").value   = "";
+  document.getElementById("senhaConfirm").value= "";
+  showSenhaMsg("✓ Senha alterada com sucesso!", "green");
+}
+
+function showSenhaMsg(txt, color) {
+  const msg = document.getElementById("senhaMsg");
+  msg.textContent = txt;
+  msg.style.color = color === "red" ? "var(--red)" : "var(--green)";
+  msg.classList.add("show");
+  if (color !== "red") setTimeout(() => msg.classList.remove("show"), 3500);
+}
+
+/* ════════════════════════════════════════
+   LISTA DE USUÁRIOS
+   ════════════════════════════════════════ */
+async function carregarUsuarios() {
+  const list = document.getElementById("userList");
+  list.innerHTML = '<div class="loading-row"><div class="spinner"></div> Carregando...</div>';
+  const users = await getUsers();
+  if (!users.length) {
+    list.innerHTML = '<div class="loading-row">Nenhum usuário encontrado.</div>';
+    return;
+  }
+  list.innerHTML = users.map(u => renderUserRow(u)).join("");
+}
+
+function renderUserRow(u) {
+  const me        = getAuthUser();
+  const isMe      = me && me.id === u.id;
+  const roleBadge = u.role === "admin"
+    ? '<span class="badge badge-blue">Admin</span>'
+    : '<span class="badge badge-gray">Usuário</span>';
+  const statusBadge = u.active
+    ? '<span class="badge badge-green">Ativo</span>'
+    : '<span class="badge badge-red">Inativo</span>';
+  const pageCount = (u.pages || []).length;
+
+  return `
+    <div class="user-row">
+      <div class="user-avatar-sm">${(u.label || "?")[0].toUpperCase()}</div>
+      <div class="user-info-col">
+        <div class="user-info-name">
+          ${esc(u.label)}
+          ${isMe ? '<span style="font-size:11px;color:var(--text-muted);font-weight:500"> (você)</span>' : ""}
+        </div>
+        <div class="user-info-email">${esc(u.email || "")} · ${pageCount} página(s) permitida(s)</div>
+      </div>
+      <div class="user-badges">${roleBadge} ${statusBadge}</div>
+      <div class="user-actions">
+        <button class="icon-btn" onclick='openModalEditarUsuario(${JSON.stringify(u)})' title="Editar">✏️</button>
+      </div>
+    </div>`;
+}
+
+/* ════════════════════════════════════════
+   MODAL — ABRIR / FECHAR
+   ════════════════════════════════════════ */
+function openModalNovoUsuario() {
+  document.getElementById("modalTitle").textContent       = "Novo Usuário";
+  document.getElementById("modalUserId").value            = "";
+  document.getElementById("uNome").value                  = "";
+  document.getElementById("uEmail").value                 = "";
+  document.getElementById("uSenha").value                 = "";
+  document.getElementById("uSenhaLabel").textContent      = "Senha";
+  document.getElementById("uPerfil").value                = "user";
+  document.getElementById("uStatus").value                = "true";
+  document.getElementById("uStatus").closest(".form-field").style.display = "none";
+  document.getElementById("modalError").textContent       = "";
+  document.getElementById("btnDeletarUsuario").style.display = "none";
+  document.getElementById("btnSalvarUsuario").textContent = "Criar Usuário";
+  renderPagesGrid([]);
+  document.getElementById("modalUsuario").classList.add("open");
+}
+
+function openModalEditarUsuario(u) {
+  document.getElementById("modalTitle").textContent       = "Editar Usuário";
+  document.getElementById("modalUserId").value            = u.id;
+  document.getElementById("uNome").value                  = u.label  || "";
+  document.getElementById("uEmail").value                 = u.email  || "";
+  document.getElementById("uSenha").value                 = "";
+  document.getElementById("uSenhaLabel").textContent      = "Nova senha (em branco = manter)";
+  document.getElementById("uPerfil").value                = u.role   || "user";
+  document.getElementById("uStatus").value                = u.active ? "true" : "false";
+  document.getElementById("uStatus").closest(".form-field").style.display = "";
+  document.getElementById("modalError").textContent       = "";
+  document.getElementById("btnDeletarUsuario").style.display = "";
+  document.getElementById("btnSalvarUsuario").textContent = "Salvar Alterações";
+  renderPagesGrid(u.pages || []);
+  document.getElementById("modalUsuario").classList.add("open");
+}
+
+function closeModal() {
+  document.getElementById("modalUsuario").classList.remove("open");
+}
+
+// Fechar ao clicar fora
+document.getElementById("modalUsuario").addEventListener("click", e => {
+  if (e.target === document.getElementById("modalUsuario")) closeModal();
+});
+
+/* ════════════════════════════════════════
+   GRID DE PÁGINAS (chips)
+   ════════════════════════════════════════ */
+function renderPagesGrid(selected) {
+  const grid = document.getElementById("pagesGrid");
+  grid.innerHTML = PAGES_LIST.map(p => `
+    <div class="page-chip ${selected.includes(p.id) ? 'on' : ''}" id="chip_${p.id}" onclick="toggleChip('${p.id}')">
+      ${p.icon} ${p.label}
+    </div>`).join("");
+}
+
+function toggleChip(id) {
+  document.getElementById("chip_" + id).classList.toggle("on");
+}
+
+function getSelectedPages() {
+  return PAGES_LIST.filter(p => document.getElementById("chip_" + p.id)?.classList.contains("on")).map(p => p.id);
+}
+
+/* ════════════════════════════════════════
+   SALVAR USUÁRIO (criar ou editar)
+   ════════════════════════════════════════ */
+async function salvarUsuario() {
+  const btn    = document.getElementById("btnSalvarUsuario");
+  const errEl  = document.getElementById("modalError");
+  const id     = document.getElementById("modalUserId").value;
+  const nome   = document.getElementById("uNome").value.trim();
+  const email  = document.getElementById("uEmail").value.trim().toLowerCase();
+  const senha  = document.getElementById("uSenha").value;
+  const perfil = document.getElementById("uPerfil").value;
+  const ativo  = document.getElementById("uStatus").value === "true";
+  const pages  = getSelectedPages();
+
+  errEl.textContent = "";
+
+  // Validações
+  if (!nome)                         { errEl.textContent = "Informe o nome."; return; }
+  if (!email || !email.includes("@")){ errEl.textContent = "Informe um e-mail válido."; return; }
+  if (!id && senha.length < 6)       { errEl.textContent = "A senha precisa ter ao menos 6 caracteres."; return; }
+  if (id && senha && senha.length < 6){ errEl.textContent = "A nova senha precisa ter ao menos 6 caracteres."; return; }
+  if (pages.length === 0)            { errEl.textContent = "Selecione ao menos uma página."; return; }
+
+  btn.disabled = true; btn.textContent = "Salvando...";
+
+  let res;
+  if (!id) {
+    // Criar novo
+    res = await createUser({ label: nome, email, password: senha, role: perfil, pages });
+  } else {
+    // Editar existente
+    const upd = { label: nome, email, role: perfil, active: ativo, pages };
+    if (senha) upd.password = senha;
+    res = await updateUser(id, upd);
+  }
+
+  btn.disabled = false; btn.textContent = id ? "Salvar Alterações" : "Criar Usuário";
+
+  if (res && res.ok === false) {
+    errEl.textContent = res.message || "Erro ao salvar."; return;
+  }
+
+  closeModal();
+  await carregarUsuarios();
+}
+
+/* ════════════════════════════════════════
+   DELETAR USUÁRIO
+   ════════════════════════════════════════ */
+async function deletarUsuario() {
+  const id   = document.getElementById("modalUserId").value;
+  const nome = document.getElementById("uNome").value;
+  if (!confirm(`Remover "${nome}"?\n\nO histórico de relatórios será preservado, mas o usuário não conseguirá mais fazer login.`)) return;
+
+  const btn = document.getElementById("btnDeletarUsuario");
+  btn.disabled = true; btn.textContent = "Removendo...";
+
+  const res = await deleteUser(id);
+  btn.disabled = false; btn.textContent = "Remover";
+
+  if (res && res.ok === false) {
+    document.getElementById("modalError").textContent = res.message; return;
+  }
+  closeModal();
+  await carregarUsuarios();
+}
+
+/* ════════════════════════════════════════
+   UTILITÁRIOS
+   ════════════════════════════════════════ */
+function esc(s) {
+  return (s || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function togglePwd(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === "password") { input.type = "text"; btn.textContent = "🙈"; }
+  else                           { input.type = "password"; btn.textContent = "👁"; }
+}
+</script>
+</body>
+</html>
