@@ -231,7 +231,7 @@
     <!-- Cabeçalho -->
     <div class="p-header">
       <div class="p-brand">
-        <img src="/logo2.png" alt="Equilibrium" class="p-logo"
+        <img src="/logo3.png" alt="Equilibrium" class="p-logo"
              onerror="this.style.display='none'">
         <div>
           <div class="p-brand-name">Equilibrium</div>
@@ -302,6 +302,17 @@
 
   <!-- Campo avaliador oculto (referenciado pelo shared.js) -->
   <input id="avaliador" type="hidden" value="Paciente" />
+
+  <!-- SDKs do Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<!-- Configurações do Sistema -->
+<script src="/js/firebase-config.js"></script>
+<script src="/js/db.js"></script>
+<script src="/js/auth.js"></script>
+
 
   <script>
     const FORM_KEY               = "pre_escolar";
