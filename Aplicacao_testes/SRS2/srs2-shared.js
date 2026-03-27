@@ -741,6 +741,111 @@ document.addEventListener("DOMContentLoaded", async () => {
       $("#repOverlay")?.classList.remove("ativo");
     });
 
+    // ─── Botão Enviar (modo paciente) ─────────────────────────────────────────
+    const btnEnviar = $("#btnEnviar");
+    if(btnEnviar){
+      btnEnviar.addEventListener("click", async () => {
+
+        // 1. Valida nome do paciente
+        const nomePaciente = ($("#paciente")?.value || "").trim();
+        if(!nomePaciente){
+          alert("Por favor, preencha o nome do paciente antes de enviar.");
+          return;
+        }
+
+        // 2. Calcula resultados
+        const result = calcularEExibir();
+        if(!result) return;
+
+        // 3. Avisa se há itens sem resposta
+        if(result.missing > 0){
+          const ok = confirm(`Atenção: ${result.missing} item(s) sem resposta.\nDeseja enviar mesmo assim?`);
+          if(!ok) return;
+        }
+
+        // 4. Desabilita botão e mostra cortina de carregamento
+        btnEnviar.disabled = true;
+        const cortina    = $("#cortina");
+        const cortinaMsg = $("#cortinaMsg");
+        if(cortina) cortina.classList.add("ativa");
+        if(cortinaMsg) cortinaMsg.textContent = "Gerando relatório…";
+
+        try {
+          // 5. Gera o PDF como Blob usando a função robusta (container visível, fontes carregadas)
+          if(cortinaMsg) cortinaMsg.textContent = "Gerando PDF…";
+          const pdfBlob = await gerarPdfBlob(result);
+
+          // 6. Converte Blob → base64 para envio via Google Script
+          const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload  = () => resolve(reader.result.split(",")[1]);
+            reader.onerror = reject;
+            reader.readAsDataURL(pdfBlob);
+          });
+
+          // 7. Prepara dados para o Google Script
+          const form     = getForm();
+          const dataAval = ($("#data")?.value || new Date().toISOString().slice(0,10));
+          const payload  = {
+            paciente:   nomePaciente,
+            data:       dataAval,
+            avaliador:  ($("#avaliador")?.value || "Paciente"),
+            formulario: (form?.label || FORM_KEY),
+            brutos:     result.brutos,
+            tscores:    result.tscores,
+            pdfBase64:  base64,
+            filename:   `SRS2_${nomePaciente.replace(/\s+/g,"_")}_${dataAval}.pdf`,
+          };
+
+          // 8. Envia para o Google Script (Drive)
+          if(cortinaMsg) cortinaMsg.textContent = "Enviando para o Drive…";
+          if(typeof URL_DO_GOOGLE_SCRIPT !== "undefined" && URL_DO_GOOGLE_SCRIPT){
+            const resp = await fetch(URL_DO_GOOGLE_SCRIPT, {
+              method:  "POST",
+              headers: { "Content-Type": "application/json" },
+              body:    JSON.stringify(payload),
+            });
+            if(!resp.ok) throw new Error(`Erro HTTP ${resp.status} ao enviar para o Drive.`);
+          }
+
+          // 9. Salva registro no Firestore (se Firebase disponível)
+          if(typeof DB !== "undefined" && DB.isReady && DB.isReady()){
+            if(cortinaMsg) cortinaMsg.textContent = "Salvando registro…";
+            await DB.saveRelatorio({
+              paciente:   nomePaciente,
+              data:       dataAval,
+              formulario: (form?.label || FORM_KEY),
+              brutos:     result.brutos,
+              tscores:    result.tscores,
+              missing:    result.missing,
+            });
+          }
+
+          // 10. Sucesso — mostra tela de confirmação
+          if(cortina) cortina.classList.remove("ativa");
+          const appShell = $("#appShell");
+          if(appShell){
+            appShell.innerHTML = `
+              <div class="success-screen">
+                <div class="success-card">
+                  <div class="success-icon">✅</div>
+                  <h1>Respostas enviadas!</h1>
+                  <p>O relatório de <b>${escapeHtml(nomePaciente)}</b> foi gerado e salvo com sucesso.</p>
+                  <p class="success-note">Você já pode fechar esta página.</p>
+                </div>
+              </div>`;
+          }
+
+        } catch(err){
+          console.error("Erro ao enviar:", err);
+          if(cortina) cortina.classList.remove("ativa");
+          btnEnviar.disabled = false;
+          alert("Ocorreu um erro ao enviar o relatório:\n" + (err.message || String(err)));
+        }
+      });
+    }
+    // ──────────────────────────────────────────────────────────────────────────
+
   } catch(err){
     console.error(err);
     setSubtitle("Falha ao carregar regras.");
