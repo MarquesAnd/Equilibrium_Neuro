@@ -356,8 +356,12 @@ function svgProfileChart(rows){
   /* Fundo da área de plot */
   svg += `<rect x="${xOfT(20)}" y="${top}" width="${xOfT(80)-xOfT(20)}" height="${plotH}" fill="#f8fafc" rx="3"/>`;
 
-  /* Zona Normal (40-60) — destaque azul suave */
+  /* Zona Normal (40-60) */
   svg += `<rect x="${xOfT(40)}" y="${top}" width="${xOfT(60)-xOfT(40)}" height="${plotH}" fill="${accentLight}" opacity="0.5" rx="2"/>`;
+  /* Zonas de alerta */
+  svg += `<rect x="${xOfT(60)}" y="${top}" width="${xOfT(65)-xOfT(60)}" height="${plotH}" fill="#fef9c3" opacity="0.7"/>`;
+  svg += `<rect x="${xOfT(65)}" y="${top}" width="${xOfT(75)-xOfT(65)}" height="${plotH}" fill="#fed7aa" opacity="0.7"/>`;
+  svg += `<rect x="${xOfT(75)}" y="${top}" width="${xOfT(80)-xOfT(75)}" height="${plotH}" fill="#fecaca" opacity="0.7"/>`;
 
   /* Linhas verticais + labels de score T */
   for(let t = 20; t <= 80; t += 5){
@@ -368,10 +372,10 @@ function svgProfileChart(rows){
   }
 
   /* Labels de zona */
-  svg += `<text x="${xOfT(50)}" y="${top-28}" text-anchor="middle" font-size="9" fill="${accent}" font-weight="700">TÍPICO</text>`;
-  svg += `<text x="${xOfT(62)}" y="${top-28}" text-anchor="middle" font-size="9" fill="#64748b" font-weight="700">N1</text>`;
-  svg += `<text x="${xOfT(70)}" y="${top-28}" text-anchor="middle" font-size="9" fill="#64748b" font-weight="700">N2</text>`;
-  svg += `<text x="${xOfT(77)}" y="${top-28}" text-anchor="middle" font-size="9" fill="#64748b" font-weight="700">N3</text>`;
+  svg += `<text x="${xOfT(50)}" y="${top-28}" text-anchor="middle" font-size="9" fill="${accent}" font-weight="700">NORMAL</text>`;
+  svg += `<text x="${xOfT(62)}" y="${top-28}" text-anchor="middle" font-size="9" fill="#a16207" font-weight="700">LEVE</text>`;
+  svg += `<text x="${xOfT(70)}" y="${top-28}" text-anchor="middle" font-size="9" fill="#c2410c" font-weight="700">MOD</text>`;
+  svg += `<text x="${xOfT(77)}" y="${top-28}" text-anchor="middle" font-size="9" fill="#991b1b" font-weight="700">SEV</text>`;
 
   /* Headers de coluna esquerda */
   svg += `<text x="8"  y="${top-14}" font-size="10" fill="#64748b" font-weight="700">Bruto</text>`;
@@ -394,7 +398,7 @@ function svgProfileChart(rows){
   rows.forEach((r, i) => {
     const y = yOfI(i), x = xOfT(r.t ?? 50);
     const t = r.t == null ? null : Number(r.t);
-    const color = t == null ? '#94a3b8' : t <= 59 ? '#16a34a' : '#64748b';
+    const color = t == null ? '#94a3b8' : t <= 59 ? '#16a34a' : t <= 65 ? '#d97706' : t <= 75 ? '#ea580c' : '#dc2626';
 
     svg += `<text x="8"  y="${y+4}" font-size="11" fill="#374151" font-weight="700">${r.bruto ?? '—'}</text>`;
     svg += `<text x="52" y="${y+4}" font-size="11" fill="#374151" font-weight="700">${r.t ?? '—'}</text>`;
@@ -432,7 +436,7 @@ function svgBell(t){
 
   const tv = t ?? 50;
   const xt = xOfT(tv);
-  const color = tv <= 59 ? '#16a34a' : '#64748b';
+  const color = tv <= 59 ? '#16a34a' : tv <= 65 ? '#d97706' : tv <= 75 ? '#ea580c' : '#dc2626';
 
   /* Label T= colocado DENTRO do SVG (não acima) para não ser cortado */
   const labelY = Math.max(baseY - 78, 14);
@@ -718,7 +722,46 @@ async function finalizarEEnviar() {
     return;
   }
 
-  // ── 3. Mostrar cortina PRIMEIRO — cobre o captureWrap que vem a seguir ──────
+  // ── 3. Contentor de captura (invisível ao paciente) ───────────────────────
+  const captureWrap = document.createElement("div");
+  captureWrap.id = "__srs2_capture__";
+  captureWrap.style.cssText = [
+    "position:absolute",   // absolute, não fixed — sem corte de altura
+    "top:0",
+    "left:-9999px",        // fora do ecrã lateralmente
+    "width:794px",         // largura A4 a 96dpi
+    "background:#fff",
+    "font-family:'DM Sans',Arial,sans-serif",
+    "z-index:0",
+    "pointer-events:none"
+  ].join(";");
+
+  captureWrap.innerHTML = repFrame.innerHTML;
+
+  /* Injectar CSS variables resolvidas inline para garantir que o captureWrap
+     herda correctamente as cores mesmo fora do contexto normal do DOM */
+  const root = document.documentElement;
+  const cs   = getComputedStyle(root);
+  const inlineVars = [
+    '--srs-accent','--srs-accent-light','--srs-accent-dark',
+    '--text','--text-secondary','--bg','--border','--blue-mid'
+  ].map(v => `${v}:${cs.getPropertyValue(v).trim()}`).join(';');
+  captureWrap.style.setProperty('--srs-accent',      cs.getPropertyValue('--srs-accent').trim());
+  captureWrap.style.setProperty('--srs-accent-light', cs.getPropertyValue('--srs-accent-light').trim());
+  captureWrap.style.setProperty('--srs-accent-dark',  cs.getPropertyValue('--srs-accent-dark').trim());
+  captureWrap.style.setProperty('--text',              '#1e293b');
+  captureWrap.style.setProperty('--text-secondary',    '#64748b');
+  captureWrap.style.setProperty('--bg',                '#f8fafc');
+  captureWrap.style.setProperty('--border',            '#e2e8f0');
+
+  document.body.appendChild(captureWrap);
+
+  // Pausa para o browser calcular layout (scrollHeight) do captureWrap
+  await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
+
+  const captureHeight = captureWrap.scrollHeight;
+
+  // ── 4. Mostrar cortina (só agora — o layout já está calculado) ────────────
   const btnEnviar = document.getElementById("btnEnviar");
   if (btnEnviar) { btnEnviar.disabled = true; btnEnviar.textContent = "A processar…"; }
 
@@ -739,7 +782,7 @@ async function finalizarEEnviar() {
   `;
   document.body.appendChild(cortina);
 
-  // Pausa para a cortina ser pintada antes de adicionar o captureWrap
+  // Pausa para o browser pintar a cortina
   await new Promise(r => setTimeout(r, 120));
 
   const setMsg = (txt) => {
@@ -747,43 +790,17 @@ async function finalizarEEnviar() {
     if (el) el.textContent = txt;
   };
 
-  // ── 4. Contentor de captura — visível mas coberto pela cortina ────────────
-  const captureWrap = document.createElement("div");
-  captureWrap.id = "__srs2_capture__";
-  captureWrap.style.cssText = [
-    "position:fixed",
-    "top:0",
-    "left:0",
-    "width:794px",
-    "background:#fff",
-    "font-family:'DM Sans',Arial,sans-serif",
-    "z-index:1",           // atrás da cortina (z-index:999999) — invisible ao user
-    "pointer-events:none",
-    "overflow:visible"
-  ].join(";");
-
-  captureWrap.innerHTML = repFrame.innerHTML;
-
-  /* Injectar CSS variables resolvidas inline */
-  const root = document.documentElement;
-  const cs   = getComputedStyle(root);
-  captureWrap.style.setProperty('--srs-accent',       cs.getPropertyValue('--srs-accent').trim()       || '#1a56db');
-  captureWrap.style.setProperty('--srs-accent-light',  cs.getPropertyValue('--srs-accent-light').trim() || '#dbeafe');
-  captureWrap.style.setProperty('--srs-accent-dark',   cs.getPropertyValue('--srs-accent-dark').trim()  || '#1d4ed8');
-  captureWrap.style.setProperty('--text',               '#1e293b');
-  captureWrap.style.setProperty('--text-secondary',     '#64748b');
-  captureWrap.style.setProperty('--bg',                 '#f8fafc');
-  captureWrap.style.setProperty('--border',             '#e2e8f0');
-
-  document.body.appendChild(captureWrap);
-
-  // Aguardar 2 frames + pausa para layout completo e fontes
-  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  await document.fonts.ready;
-  await new Promise(r => setTimeout(r, 200));
-
   let tempDiv;
   try {
+
+    // ── 5. Mover conteúdo para div renderizável COM dimensões exactas ─────
+    //    Agora que a cortina está visível, podemos tornar o div visível
+    //    (left:0) para o html2canvas capturar correctamente.
+    captureWrap.style.left = "0";
+    captureWrap.style.top  = "0";
+
+    // Pausa extra para repintura
+    await new Promise(r => setTimeout(r, 150));
 
     setMsg("A formatar o relatório em PDF…");
 
@@ -797,13 +814,15 @@ async function finalizarEEnviar() {
         allowTaint: true,
         scrollX: 0,
         scrollY: 0,
-        width:       794,
-        windowWidth: 794,
-        logging: false,
-        backgroundColor: "#ffffff"
+        x: 0,
+        y: 0,
+        width:  794,
+        height: captureHeight,
+        windowWidth:  794,
+        windowHeight: captureHeight,
+        logging: false
       },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-      pagebreak: { mode: ["avoid-all", "css"] }
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
     };
 
     const pdfUri = await html2pdf().set(opt).from(captureWrap).outputPdf("datauristring");
