@@ -551,7 +551,7 @@ function abrirRelatorio(result){
   <div class="rep-wrapper">
     <div class="rep-header">
       <div class="rep-header-brand">
-        <img src="../logo.png" alt="Equilibrium" class="rep-logo">
+        <img src="/logo.png" alt="Equilibrium" class="rep-logo">
         <div>
           <div class="rep-brand-name">Equilibrium</div>
           <div class="rep-brand-sub">Neuropsicologia</div>
