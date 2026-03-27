@@ -32,10 +32,10 @@ function clamp(n,a,b){ return Math.max(a, Math.min(b, n)); }
 
 function classificarT(t){
   if(t == null || Number.isNaN(t)) return { label: "—", cls: "" };
-  if(t <= 59)  return { label: "Normal",   cls: "cls-normal" };
-  if(t <= 65)  return { label: "Leve",     cls: "cls-leve" };
-  if(t <= 75)  return { label: "Moderado", cls: "cls-moderado" };
-  return             { label: "Severo",   cls: "cls-severo" };
+  if(t <= 59)  return { label: "Típico",   cls: "cls-normal" };
+  if(t <= 65)  return { label: "N1",       cls: "cls-leve" };
+  if(t <= 75)  return { label: "N2",       cls: "cls-moderado" };
+  return             { label: "N3",       cls: "cls-severo" };
 }
 
 function setSubtitle(msg){
@@ -322,10 +322,8 @@ function svgProfileChart(rows){
   // Zona Normal (40-60) destacada
   svg += `<rect x="${xOfT(40)}" y="${top}" width="${xOfT(60)-xOfT(40)}" height="${plotH}" fill="${accentLight}" opacity="0.5" rx="2"/>`;
   
-  // Zonas de alerta
-  svg += `<rect x="${xOfT(60)}" y="${top}" width="${xOfT(65)-xOfT(60)}" height="${plotH}" fill="#fef9c3" opacity="0.7"/>`;
-  svg += `<rect x="${xOfT(65)}" y="${top}" width="${xOfT(75)-xOfT(65)}" height="${plotH}" fill="#fed7aa" opacity="0.7"/>`;
-  svg += `<rect x="${xOfT(75)}" y="${top}" width="${xOfT(80)-xOfT(75)}" height="${plotH}" fill="#fecaca" opacity="0.7"/>`;
+  // Zonas após 60 — sem cor (neutras)
+  svg += `<rect x="${xOfT(60)}" y="${top}" width="${xOfT(80)-xOfT(60)}" height="${plotH}" fill="#f1f5f9" opacity="0.5"/>`;
 
   // Linhas verticais de grade
   for(let t=20;t<=80;t+=5){
@@ -336,11 +334,11 @@ function svgProfileChart(rows){
     svg += `<text x="${x}" y="${top-12}" text-anchor="middle" font-size="11" fill="#64748b" font-weight="${t===50?'700':'400'}">${lbl}</text>`;
   }
 
-  // Labels de zona
-  svg += `<text x="${xOfT(50)}" y="${top-28}" text-anchor="middle" font-size="10" fill="${accent}" font-weight="700">NORMAL</text>`;
-  svg += `<text x="${xOfT(62)}" y="${top-28}" text-anchor="middle" font-size="10" fill="#a16207" font-weight="700">LEVE</text>`;
-  svg += `<text x="${xOfT(70)}" y="${top-28}" text-anchor="middle" font-size="10" fill="#c2410c" font-weight="700">MOD</text>`;
-  svg += `<text x="${xOfT(77)}" y="${top-28}" text-anchor="middle" font-size="10" fill="#991b1b" font-weight="700">SEV</text>`;
+  // Labels de zona (codificados para uso interno)
+  svg += `<text x="${xOfT(50)}" y="${top-28}" text-anchor="middle" font-size="10" fill="${accent}" font-weight="700">TÍPICO</text>`;
+  svg += `<text x="${xOfT(62)}" y="${top-28}" text-anchor="middle" font-size="10" fill="#64748b" font-weight="700">N1</text>`;
+  svg += `<text x="${xOfT(70)}" y="${top-28}" text-anchor="middle" font-size="10" fill="#64748b" font-weight="700">N2</text>`;
+  svg += `<text x="${xOfT(77)}" y="${top-28}" text-anchor="middle" font-size="10" fill="#64748b" font-weight="700">N3</text>`;
 
   // Headers laterais
   svg += `<text x="10" y="${top-12}" font-size="10" fill="#64748b" font-weight="700">Bruto</text>`;
@@ -363,7 +361,7 @@ function svgProfileChart(rows){
   rows.forEach((r,i)=>{
     const y=yOfI(i), x=xOfT(r.t??50);
     const t = r.t==null ? null : Number(r.t);
-    const color = t==null ? '#94a3b8' : t<=59 ? '#16a34a' : t<=65 ? '#d97706' : t<=75 ? '#ea580c' : '#dc2626';
+    const color = t==null ? '#94a3b8' : t<=59 ? '#16a34a' : '#64748b';
 
     // Valores numéricos
     svg += `<text x="10" y="${y+4}" font-size="11" fill="#374151" font-weight="700">${r.bruto??'—'}</text>`;
@@ -404,7 +402,7 @@ function svgBell(t){
 
   const tv = t ?? 50;
   const xt = xOfT(tv);
-  const color = tv<=59 ? '#16a34a' : tv<=65 ? '#d97706' : tv<=75 ? '#ea580c' : '#dc2626';
+  const color = tv<=59 ? '#16a34a' : '#64748b';
 
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
     <rect width="${W}" height="${H}" fill="#fff" rx="8"/>
