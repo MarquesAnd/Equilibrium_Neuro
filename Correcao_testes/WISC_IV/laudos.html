@@ -65,7 +65,26 @@
 
 
   <script src="/js/auth.js"></script>
-  <script>if (!isAuthed()) location.href = '/login.html';</script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      // 1. Acorda o Firebase primeiro e ESPERA
+      if (window.FIREBASE_CONFIGURED && window.DB) {
+        await DB.init();
+      }
+      
+      // 2. Agora sim, com o Firebase acordado, verifica se está logado
+      if (!isAuthed()) {
+        location.href = '/login.html'; // Ajuste o caminho se a pasta login estiver em outro nível
+      }
+      
+      // Bônus: Se você quiser injetar os dados do usuário na sidebar dessa página também:
+      const user = getAuthUser();
+      if (user) {
+        document.querySelector(".user-name").textContent = user.label;
+        document.querySelector(".user-avatar").textContent = user.label[0].toUpperCase();
+      }
+    });
+  </script>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="/Correcao_testes/WISC_IV/script.js"></script>
