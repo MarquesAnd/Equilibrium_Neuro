@@ -221,6 +221,34 @@ async function saveConfig(cfg) {
   return { ok: true };
 }
 
+/* Oculta menus não autorizados e preenche dados do usuário em páginas estáticas */
+function applySidebarPermissions() {
+  // 1. Pega a lista de IDs permitidos para o usuário logado
+  const allowedIds = getUserPages().map(p => p.id);
+
+  // 2. Varre todos os links do menu lateral
+  document.querySelectorAll(".sidebar-nav .nav-item").forEach(item => {
+    const pageId = item.getAttribute("data-page");
+    
+    // Se o link tem um ID, mas esse ID não está na lista de permitidos, apaga o link!
+    if (pageId && !allowedIds.includes(pageId)) {
+      item.remove(); 
+    }
+  });
+
+  // 3. Aproveita para injetar o Nome e Avatar reais do usuário no rodapé do menu
+  const user = getAuthUser();
+  if (user) {
+    const nameEl = document.querySelector(".user-name");
+    const avatarEl = document.querySelector(".user-avatar");
+    const roleEl = document.querySelector(".user-role");
+    
+    if (nameEl) nameEl.textContent = user.label;
+    if (avatarEl) avatarEl.textContent = user.label[0].toUpperCase();
+    if (roleEl) roleEl.textContent = user.role === "admin" ? "Administrador" : "Usuário";
+  }
+}
+
 /* ══════════════════════════════════════
    EXPOR GLOBALMENTE
    ══════════════════════════════════════ */
