@@ -718,48 +718,7 @@ async function finalizarEEnviar() {
     return;
   }
 
-  // ── 3. Contentor de captura (invisível ao paciente via opacity:0) ──────────
-  //    Usamos position:fixed + opacity:0 em vez de left:-9999px:
-  //    - position:fixed garante que o browser calcula o layout a 794px
-  //    - opacity:0 torna invisível SEM tirar do fluxo de renderização
-  //    - html2canvas captura correctamente elementos fixed visíveis no viewport
-  const captureWrap = document.createElement("div");
-  captureWrap.id = "__srs2_capture__";
-  captureWrap.style.cssText = [
-    "position:fixed",
-    "top:0",
-    "left:0",
-    "width:794px",
-    "background:#fff",
-    "font-family:'DM Sans',Arial,sans-serif",
-    "z-index:2147483646",  // abaixo da cortina (2147483647)
-    "pointer-events:none",
-    "opacity:0",           // invisível mas renderizável
-    "overflow:visible"
-  ].join(";");
-
-  captureWrap.innerHTML = repFrame.innerHTML;
-
-  /* Injectar CSS variables resolvidas inline para garantir herança correcta */
-  const root = document.documentElement;
-  const cs   = getComputedStyle(root);
-  captureWrap.style.setProperty('--srs-accent',       cs.getPropertyValue('--srs-accent').trim()       || '#1a56db');
-  captureWrap.style.setProperty('--srs-accent-light',  cs.getPropertyValue('--srs-accent-light').trim() || '#dbeafe');
-  captureWrap.style.setProperty('--srs-accent-dark',   cs.getPropertyValue('--srs-accent-dark').trim()  || '#1d4ed8');
-  captureWrap.style.setProperty('--text',               '#1e293b');
-  captureWrap.style.setProperty('--text-secondary',     '#64748b');
-  captureWrap.style.setProperty('--bg',                 '#f8fafc');
-  captureWrap.style.setProperty('--border',             '#e2e8f0');
-
-  document.body.appendChild(captureWrap);
-
-  // Aguardar 2 frames para o browser calcular o layout completo
-  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-  await new Promise(r => setTimeout(r, 80));
-
-  const captureHeight = captureWrap.scrollHeight;
-
-  // ── 4. Mostrar cortina (só agora — o layout já está calculado) ────────────
+  // ── 3. Mostrar cortina PRIMEIRO — cobre o captureWrap que vem a seguir ──────
   const btnEnviar = document.getElementById("btnEnviar");
   if (btnEnviar) { btnEnviar.disabled = true; btnEnviar.textContent = "A processar…"; }
 
@@ -780,7 +739,7 @@ async function finalizarEEnviar() {
   `;
   document.body.appendChild(cortina);
 
-  // Pausa para o browser pintar a cortina
+  // Pausa para a cortina ser pintada antes de adicionar o captureWrap
   await new Promise(r => setTimeout(r, 120));
 
   const setMsg = (txt) => {
@@ -788,15 +747,45 @@ async function finalizarEEnviar() {
     if (el) el.textContent = txt;
   };
 
+  // ── 4. Contentor de captura — visível mas coberto pela cortina ────────────
+  const captureWrap = document.createElement("div");
+  captureWrap.id = "__srs2_capture__";
+  captureWrap.style.cssText = [
+    "position:fixed",
+    "top:0",
+    "left:0",
+    "width:794px",
+    "background:#fff",
+    "font-family:'DM Sans',Arial,sans-serif",
+    "z-index:1",           // atrás da cortina (z-index:999999) — invisible ao user
+    "pointer-events:none",
+    "overflow:visible"
+  ].join(";");
+
+  captureWrap.innerHTML = repFrame.innerHTML;
+
+  /* Injectar CSS variables resolvidas inline */
+  const root = document.documentElement;
+  const cs   = getComputedStyle(root);
+  captureWrap.style.setProperty('--srs-accent',       cs.getPropertyValue('--srs-accent').trim()       || '#1a56db');
+  captureWrap.style.setProperty('--srs-accent-light',  cs.getPropertyValue('--srs-accent-light').trim() || '#dbeafe');
+  captureWrap.style.setProperty('--srs-accent-dark',   cs.getPropertyValue('--srs-accent-dark').trim()  || '#1d4ed8');
+  captureWrap.style.setProperty('--text',               '#1e293b');
+  captureWrap.style.setProperty('--text-secondary',     '#64748b');
+  captureWrap.style.setProperty('--bg',                 '#f8fafc');
+  captureWrap.style.setProperty('--border',             '#e2e8f0');
+
+  document.body.appendChild(captureWrap);
+
+  // Aguardar 2 frames + pausa para layout completo e fontes
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 200));
+
   let tempDiv;
   try {
 
     setMsg("A formatar o relatório em PDF…");
-
-    // Aguardar fontes carregadas (DM Sans via Google Fonts)
-    await document.fonts.ready;
-    // Pausa extra para repintura final
-    await new Promise(r => setTimeout(r, 150));
 
     const opt = {
       margin: [8, 0, 8, 0],
