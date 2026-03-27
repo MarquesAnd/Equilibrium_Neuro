@@ -130,13 +130,20 @@ async function dbGetUserById(uid) {
 async function dbCreateUser(data) {
   if (!_fbReady) return { ok: false, message: "Banco não inicializado." };
   try {
-    // 1. Criar no Firebase Authentication
-    const cred = await _auth.createUserWithEmailAndPassword(
+    // 1. Cria uma instância "fantasma" do Firebase para não derrubar a sessão do Admin
+    const ghostApp = firebase.initializeApp(FIREBASE_CONFIG, "SecondaryApp");
+
+    // 2. Cria o login no Auth usando APENAS o app fantasma
+    const cred = await ghostApp.auth().createUserWithEmailAndPassword(
       data.email.trim().toLowerCase(), data.password
     );
     const uid = cred.user.uid;
 
-    // 2. Salvar perfil no Firestore
+    // 3. Desloga do app fantasma e o destrói para limpar a memória
+    await ghostApp.auth().signOut();
+    await ghostApp.delete();
+
+    // 4. Prepara os dados do perfil
     const profile = {
       label:   data.label || "Novo Usuário",
       email:   data.email.trim().toLowerCase(),
@@ -145,15 +152,9 @@ async function dbCreateUser(data) {
       active:  true,
       criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
     };
+
+    // 5. Salva no banco de dados usando o App PRINCIPAL (onde o Admin continua logado com permissão!)
     await _db.collection(COL.USUARIOS).doc(uid).set(profile);
-
-    // 3. Fazer signOut do usuário recém-criado para não substituir sessão atual
-    // (admin continua logado)
-    await _auth.signOut();
-
-    // 4. Re-logar o admin (workaround para Firebase Web SDK)
-    // Nota: em produção, usar Admin SDK via Cloud Functions para criar usuários
-    // sem afetar a sessão atual. Por ora, salvar token do admin antes.
 
     return { ok: true, user: { id: uid, ...profile } };
   } catch(e) {
