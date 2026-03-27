@@ -299,15 +299,19 @@ function countMissingByScale(form){
 }
 
 // ─── SVG: Perfil ─────────────────────────────────────────────────────────────
-function svgProfileChart(rows){
+function svgProfileChart(rows, accentOverride, accentLightOverride){
   const W=860, H=420;
   const left=100, right=260, top=50, bottom=40;
   const plotW=W-left-right, plotH=H-top-bottom;
   const tMin=20, tMax=80;
 
-  // Usa CSS variables para respeitar o tema
-  const accent = getComputedStyle(document.documentElement).getPropertyValue('--srs-accent').trim() || '#1a56db';
-  const accentLight = getComputedStyle(document.documentElement).getPropertyValue('--srs-accent-light').trim() || '#dbeafe';
+  // Lê CSS variables — mas aceita valores pré-resolvidos para captura PDF (html2pdf não resolve vars)
+  const accent = accentOverride
+    || getComputedStyle(document.documentElement).getPropertyValue('--srs-accent').trim()
+    || '#1a56db';
+  const accentLight = accentLightOverride
+    || getComputedStyle(document.documentElement).getPropertyValue('--srs-accent-light').trim()
+    || '#dbeafe';
 
   function xOfT(t){ return left+((clamp(Number(t),tMin,tMax)-tMin)/(tMax-tMin))*plotW; }
   const yStep = plotH/Math.max(1,rows.length);
@@ -321,8 +325,8 @@ function svgProfileChart(rows){
 
   // Zona Normal (40-60) destacada
   svg += `<rect x="${xOfT(40)}" y="${top}" width="${xOfT(60)-xOfT(40)}" height="${plotH}" fill="${accentLight}" opacity="0.5" rx="2"/>`;
-  
-  // Zonas após 60 — sem cor (neutras)
+
+  // Zonas após 60 — neutras
   svg += `<rect x="${xOfT(60)}" y="${top}" width="${xOfT(80)-xOfT(60)}" height="${plotH}" fill="#f1f5f9" opacity="0.5"/>`;
 
   // Linhas verticais de grade
@@ -334,7 +338,7 @@ function svgProfileChart(rows){
     svg += `<text x="${x}" y="${top-12}" text-anchor="middle" font-size="11" fill="#64748b" font-weight="${t===50?'700':'400'}">${lbl}</text>`;
   }
 
-  // Labels de zona (codificados para uso interno)
+  // Labels de zona
   svg += `<text x="${xOfT(50)}" y="${top-28}" text-anchor="middle" font-size="10" fill="${accent}" font-weight="700">TÍPICO</text>`;
   svg += `<text x="${xOfT(62)}" y="${top-28}" text-anchor="middle" font-size="10" fill="#64748b" font-weight="700">N1</text>`;
   svg += `<text x="${xOfT(70)}" y="${top-28}" text-anchor="middle" font-size="10" fill="#64748b" font-weight="700">N2</text>`;
@@ -381,13 +385,17 @@ function svgProfileChart(rows){
 }
 
 // ─── SVG: Sino ───────────────────────────────────────────────────────────────
-function svgBell(t){
+function svgBell(t, accentOverride, accentLightOverride){
   const W=400, H=130;
   const tMin=20, tMax=80;
   const xPad=20, baseY=H-28, plotW=W-xPad*2;
 
-  const accent = getComputedStyle(document.documentElement).getPropertyValue('--srs-accent').trim() || '#1a56db';
-  const accentLight = getComputedStyle(document.documentElement).getPropertyValue('--srs-accent-light').trim() || '#dbeafe';
+  const accent = accentOverride
+    || getComputedStyle(document.documentElement).getPropertyValue('--srs-accent').trim()
+    || '#1a56db';
+  const accentLight = accentLightOverride
+    || getComputedStyle(document.documentElement).getPropertyValue('--srs-accent-light').trim()
+    || '#dbeafe';
 
   function xOfT(val){ return xPad+((clamp(Number(val),tMin,tMax)-tMin)/(tMax-tMin))*plotW; }
 
@@ -429,14 +437,27 @@ function buildInterpretation(){
     { cls: "moderado", range: "T 66–75 — Nível moderado",
       text: "Indicam prejuízos clinicamente significativos com interferência substancial nas interações. Típicos em TEA de gravidade moderada, incluindo diagnósticos DSM-IV (Autismo, TGD-SOE, Asperger) e DSM-5 (TEA, Transtorno de Comunicação Social)." },
     { cls: "severo",   range: "T ≥ 76 — Nível severo",
-      text: "Indicam prejuízos clinicamente severos com interferência marcante nas interações diárias. Fortemente associados a Transtorno do Autismo, Síndrome de Asperger e TGD-SOE mais severos. É comum que pontuações se atenuem entre a idade pré-escolar e escolar." }
+      text: "Indicam prejuízos clinicamente severos com interferência marcante nas interações diárias. Fortemente associados a Transtorno do Autismo, Síndrome de Asperger e TGD-SOE mais severos. É comum que pontuações se atenuem entre a idade pré-escolar e escolar." },
   ];
 }
 
-// ─── PREENCHER E ABRIR RELATÓRIO ─────────────────────────────────────────────
-function abrirRelatorio(result){
+// ─── RESOLVER CORES (necessário antes de gerar SVGs para PDF) ─────────────────
+function resolverCores(){
+  const root = document.documentElement;
+  return {
+    accent:      (getComputedStyle(root).getPropertyValue('--srs-accent').trim()       || '#1a56db'),
+    accentLight: (getComputedStyle(root).getPropertyValue('--srs-accent-light').trim() || '#dbeafe'),
+    accentDark:  (getComputedStyle(root).getPropertyValue('--srs-accent-dark').trim()  || '#1d4ed8'),
+  };
+}
+
+// ─── GERAR HTML DO RELATÓRIO (reutilizável pelo db.js para PDF) ───────────────
+function gerarHtmlRelatorio(result, cores){
   const form = getForm();
-  if(!form) return;
+  if(!form) return '';
+
+  // cores podem vir pré-resolvidas (para PDF) ou serem lidas ao vivo
+  const c = cores || resolverCores();
 
   const scalesSorted = sortScalesLikePdf(form.scales);
   const missingByScale = countMissingByScale(form);
@@ -451,15 +472,11 @@ function abrirRelatorio(result){
   const avaliador = ($("#avaliador")?.value || "—");
   const formLabel = form.label || FORM_KEY;
 
-  // Escore total (última escala ou busca por key)
   const totalRow = rows.find(r=>normalizeStr(r.label).includes("total")) || rows[rows.length-1];
   const tTotal = totalRow?.t;
   const { label: clsTotal, cls: clsCSS } = classificarT(tTotal);
 
-  const overlay = $("#repOverlay");
-  if(!overlay) return;
-
-  // Seções por escala
+  // Seções por escala — passa cores resolvidas para os SVGs
   const scaleSections = rows.map(r=>{
     const t = r.t==null ? null : Number(r.t);
     const ciA = t==null ? "—" : clamp(t-4,20,80);
@@ -469,125 +486,208 @@ function abrirRelatorio(result){
     const desc = SCALE_DESCRIPTIONS[descKey]||"";
     const { label: clsLbl, cls: clsCl } = classificarT(t);
     return `
-    <div class="rep-scale-card">
-      <div class="rep-scale-card-header">
-        <span class="rep-scale-card-title">${escapeHtml(r.label)}</span>
+    <div class="rep-scale-card" style="border:1.5px solid #e2e8f0;border-radius:14px;margin-bottom:16px;page-break-inside:avoid;break-inside:avoid;">
+      <div class="rep-scale-card-header" style="background:${c.accentLight};padding:12px 20px;display:flex;justify-content:space-between;align-items:center;border-bottom:1.5px solid ${c.accent};border-radius:13px 13px 0 0;">
+        <span style="font-size:14px;font-weight:800;color:${c.accentDark};">${escapeHtml(r.label)}</span>
         <span class="cls-badge ${clsCl}">${clsLbl}</span>
       </div>
-      <div class="rep-scale-card-body">
+      <div style="padding:14px 20px;display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:center;">
         <div>
-          <table class="rep-scale-mini-table">
-            <tr><td>Pontuação bruta</td><td>${r.bruto??'—'}</td></tr>
-            <tr><td>Escore T</td><td>${r.t??'—'}</td></tr>
-            <tr><td>Itens sem resposta</td><td>${missing}</td></tr>
-            <tr><td>Intervalo de confiança (±4)</td><td>[${ciA} – ${ciB}]</td></tr>
+          <table style="width:100%;border-collapse:collapse;font-size:13px;">
+            <tr><td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;">Pontuação bruta</td><td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:800;color:${c.accentDark};">${r.bruto??'—'}</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;">Escore T</td><td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:800;color:${c.accentDark};">${r.t??'—'}</td></tr>
+            <tr><td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;">Itens sem resposta</td><td style="padding:8px 10px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:800;color:${c.accentDark};">${missing}</td></tr>
+            <tr><td style="padding:8px 10px;">Intervalo de confiança (±4)</td><td style="padding:8px 10px;text-align:right;font-weight:800;color:${c.accentDark};">[${ciA} – ${ciB}]</td></tr>
           </table>
         </div>
-        <div>${svgBell(t)}</div>
-        ${desc ? `<div class="rep-scale-desc">${escapeHtml(desc)}</div>` : ''}
+        <div>${svgBell(t, c.accent, c.accentLight)}</div>
+        ${desc ? `<div style="font-size:13px;line-height:1.65;color:#374151;margin-top:12px;padding:14px 16px;background:#f8fafc;border-radius:10px;border-left:4px solid ${c.accent};grid-column:1 / -1;">${escapeHtml(desc)}</div>` : ''}
       </div>
     </div>`;
   }).join("");
 
-  // Cards de interpretação
-  const interpCards = buildInterpretation().map(i=>`
-    <div class="rep-interp-card ${i.cls}">
-      <div class="rep-interp-badge">${i.range.split('—')[0].trim()}</div>
-      <div class="rep-interp-range">${i.range.split('—')[1]?.trim()||''}</div>
-      <div class="rep-interp-text">${i.text}</div>
-    </div>`).join("");
+  // Cards de interpretação com estilos inline (seguro para PDF)
+  const interpStyles = {
+    normal:   { bg:'#f0fdf4', border:'#86efac', badgeColor:'#15803d' },
+    leve:     { bg:'#fefce8', border:'#fde047', badgeColor:'#a16207' },
+    moderado: { bg:'#fff7ed', border:'#fdba74', badgeColor:'#c2410c' },
+    severo:   { bg:'#fef2f2', border:'#fca5a5', badgeColor:'#b91c1c' },
+  };
+  const interpCards = buildInterpretation().map(i=>{
+    const s = interpStyles[i.cls]||interpStyles.normal;
+    return `
+    <div style="border-radius:12px;padding:14px 16px;border:1.5px solid ${s.border};background:${s.bg};">
+      <div style="display:inline-block;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;color:${s.badgeColor};">${i.range.split('—')[0].trim()}</div>
+      <div style="font-size:12px;font-weight:700;margin-bottom:4px;color:#111;">${i.range.split('—')[1]?.trim()||''}</div>
+      <div style="font-size:12px;line-height:1.6;color:#374151;">${i.text}</div>
+    </div>`;
+  }).join("");
 
-  // Tabela de scores resumo
+  // Tabela de scores com estilos inline
   const scoreRows = rows.map(r=>{
     const {label:clsLbl, cls:clsCls} = classificarT(r.t);
     const isTotal = normalizeStr(r.label).includes("total");
-    return `<tr class="${isTotal?'row-total':''}">
-      <td><b>${escapeHtml(r.label)}</b></td>
-      <td>${r.bruto??'—'}</td>
-      <td>${r.t??'—'}</td>
-      <td><span class="cls-badge ${clsCls}">${clsLbl}</span></td>
+    const rowBg = isTotal ? c.accentLight : '#fafafa';
+    const rowWeight = isTotal ? '800' : '400';
+    const rowColor = isTotal ? c.accentDark : 'inherit';
+    return `<tr style="background:${rowBg};font-weight:${rowWeight};color:${rowColor};">
+      <td style="padding:12px 14px;font-size:13px;vertical-align:middle;border-bottom:1px solid #e2e8f0;${isTotal?'border-top:2px solid '+c.accent+';':''}"><b>${escapeHtml(r.label)}</b></td>
+      <td style="padding:12px 14px;font-size:13px;text-align:center;font-weight:700;vertical-align:middle;border-bottom:1px solid #e2e8f0;">${r.bruto??'—'}</td>
+      <td style="padding:12px 14px;font-size:13px;text-align:center;font-weight:700;vertical-align:middle;border-bottom:1px solid #e2e8f0;">${r.t??'—'}</td>
+      <td style="padding:12px 14px;font-size:13px;text-align:center;vertical-align:middle;border-bottom:1px solid #e2e8f0;"><span class="cls-badge ${clsCls}">${clsLbl}</span></td>
     </tr>`;
   }).join("");
 
-  const html = `
-  <div class="rep-wrapper">
-    <div class="rep-header">
-      <div class="rep-header-brand">
-        <img src="/logo.png" alt="Equilibrium" class="rep-logo">
+  return `
+  <div class="rep-wrapper" style="background:#fff;font-family:'DM Sans',Arial,sans-serif;">
+    <div class="rep-header" style="background:linear-gradient(135deg,${c.accentDark} 0%,${c.accent} 100%);padding:32px 36px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:14px;">
+        <img src="/logo.png" alt="Equilibrium" style="height:52px;width:auto;filter:brightness(0) invert(1);opacity:0.9;" onerror="this.style.display='none'">
         <div>
-          <div class="rep-brand-name">Equilibrium</div>
-          <div class="rep-brand-sub">Neuropsicologia</div>
+          <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px;">Equilibrium</div>
+          <div style="font-size:13px;opacity:0.8;font-weight:500;">Neuropsicologia</div>
         </div>
       </div>
-      <div class="rep-header-info">
-        <div class="rep-test-name">SRS-2 — Escala de Responsividade Social</div>
-        <div class="rep-test-sub">${escapeHtml(formLabel)}</div>
+      <div style="text-align:right;">
+        <div style="font-size:18px;font-weight:800;letter-spacing:-0.3px;">SRS-2 — Escala de Responsividade Social</div>
+        <div style="font-size:13px;opacity:0.8;margin-top:3px;">${escapeHtml(formLabel)}</div>
       </div>
     </div>
 
-    <div class="rep-patient-strip">
-      <div class="rep-patient-field">
-        <label>Paciente</label>
-        <span>${escapeHtml(paciente)}</span>
+    <div style="background:${c.accentLight};border-bottom:2px solid ${c.accent};padding:16px 36px;display:flex;gap:32px;flex-wrap:wrap;">
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <label style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:${c.accentDark};">Paciente</label>
+        <span style="font-size:14px;font-weight:700;color:#111;">${escapeHtml(paciente)}</span>
       </div>
-      <div class="rep-patient-field">
-        <label>Data de Avaliação</label>
-        <span>${escapeHtml(data)}</span>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <label style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:${c.accentDark};">Data de Avaliação</label>
+        <span style="font-size:14px;font-weight:700;color:#111;">${escapeHtml(data)}</span>
       </div>
-      <div class="rep-patient-field">
-        <label>Avaliador</label>
-        <span>${escapeHtml(avaliador)}</span>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <label style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:${c.accentDark};">Avaliador</label>
+        <span style="font-size:14px;font-weight:700;color:#111;">${escapeHtml(avaliador)}</span>
       </div>
       ${tTotal != null ? `
-      <div class="rep-patient-field">
-        <label>Resultado Geral</label>
-        <span><span class="cls-badge ${clsCSS}" style="font-size:13px;">${clsTotal} (T=${tTotal})</span></span>
+      <div style="display:flex;flex-direction:column;gap:2px;">
+        <label style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:${c.accentDark};">Resultado Geral</label>
+        <span style="font-size:14px;font-weight:700;color:#111;"><span class="cls-badge ${clsCSS}" style="font-size:13px;">${clsTotal} (T=${tTotal})</span></span>
       </div>` : ''}
     </div>
 
-    <div class="rep-body">
+    <div style="padding:32px 36px;">
 
-      <div class="rep-section">
-        <div class="rep-section-title">Perfil de Escores T</div>
-        <div class="rep-chart-wrap">${svgProfileChart(rows)}</div>
+      <div style="margin-bottom:36px;">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:${c.accent};margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid ${c.accentLight};display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:20px;height:3px;border-radius:2px;background:${c.accent};flex-shrink:0;"></span>Perfil de Escores T</div>
+        <div style="border-radius:14px;border:1px solid #e2e8f0;background:#fff;">
+          ${svgProfileChart(rows, c.accent, c.accentLight)}
+        </div>
       </div>
 
-      <div class="rep-section">
-        <div class="rep-section-title">Tabela de Resultados</div>
-        <table class="rep-scores-table">
+      <div style="margin-bottom:36px;">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:${c.accent};margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid ${c.accentLight};display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:20px;height:3px;border-radius:2px;background:${c.accent};flex-shrink:0;"></span>Tabela de Resultados</div>
+        <table style="width:100%;border-collapse:separate;border-spacing:0 4px;">
           <thead>
             <tr>
-              <th>Escala</th>
-              <th>Bruto</th>
-              <th>Escore T</th>
-              <th>Classificação</th>
+              <th style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:${c.accentDark};padding:8px 14px;background:${c.accentLight};text-align:left;">Escala</th>
+              <th style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:${c.accentDark};padding:8px 14px;background:${c.accentLight};text-align:center;">Bruto</th>
+              <th style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:${c.accentDark};padding:8px 14px;background:${c.accentLight};text-align:center;">Escore T</th>
+              <th style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:${c.accentDark};padding:8px 14px;background:${c.accentLight};text-align:center;">Classificação</th>
             </tr>
           </thead>
           <tbody>${scoreRows}</tbody>
         </table>
       </div>
 
-      <div class="rep-section">
-        <div class="rep-section-title">Detalhamento por Escala</div>
+      <div style="margin-bottom:36px;">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:${c.accent};margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid ${c.accentLight};display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:20px;height:3px;border-radius:2px;background:${c.accent};flex-shrink:0;"></span>Detalhamento por Escala</div>
         ${scaleSections}
       </div>
 
-      <div class="rep-section">
-        <div class="rep-section-title">Interpretação Clínica do Escore T</div>
-        <div class="rep-interp-grid">${interpCards}</div>
+      <div style="margin-bottom:36px;">
+        <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:${c.accent};margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid ${c.accentLight};display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:20px;height:3px;border-radius:2px;background:${c.accent};flex-shrink:0;"></span>Interpretação Clínica do Escore T</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          ${interpCards}
+        </div>
       </div>
 
     </div>
 
-    <div class="rep-footer">
+    <div style="background:${c.accentLight};border-top:2px solid ${c.accent};padding:16px 36px;display:flex;justify-content:space-between;align-items:center;font-size:12px;color:${c.accentDark};font-weight:600;">
       <span>Equilibrium Neuropsicologia · Correção automatizada SRS-2</span>
       <span>Gerado em ${new Date().toLocaleDateString('pt-BR')}</span>
     </div>
   </div>`;
+}
+
+// ─── PREENCHER E ABRIR RELATÓRIO (visualização na tela) ───────────────────────
+function abrirRelatorio(result){
+  const overlay = $("#repOverlay");
+  if(!overlay) return;
+
+  const cores = resolverCores();
+  const html = gerarHtmlRelatorio(result, cores);
+  if(!html) return;
 
   const frame = overlay.querySelector(".srs-report-frame");
   if(frame) frame.innerHTML = html;
   overlay.classList.add("ativo");
+}
+
+// ─── GERAR PDF BLOB (para envio ao Drive via db.js) ───────────────────────────
+// Uso no db.js:
+//   const blob = await gerarPdfBlob(result);
+//   // blob é um Blob PDF pronto para upload
+async function gerarPdfBlob(result){
+  if(typeof html2pdf === 'undefined') throw new Error('html2pdf não carregado');
+
+  // 1. Resolve cores ANTES de criar o HTML (html2canvas não resolve CSS vars)
+  const cores = resolverCores();
+
+  // 2. Aguarda fontes carregadas
+  await document.fonts.ready;
+
+  // 3. Cria container temporário VISÍVEL e de tamanho fixo
+  //    (não pode estar off-screen — html2canvas falha com left:-99999px)
+  const wrap = document.createElement('div');
+  wrap.style.cssText = [
+    'position:fixed', 'top:0', 'left:0',
+    'width:794px',           // A4 @ 96dpi
+    'background:#fff',
+    'z-index:2147483647',    // acima de tudo
+    'pointer-events:none',
+    'overflow:visible',
+    'font-family:"DM Sans",Arial,sans-serif',
+  ].join(';');
+  wrap.innerHTML = gerarHtmlRelatorio(result, cores);
+  document.body.appendChild(wrap);
+
+  // 4. Pequena espera para render do DOM + imagens
+  await new Promise(r => setTimeout(r, 300));
+
+  try {
+    const blob = await html2pdf()
+      .set({
+        margin:        [10, 10, 10, 10],
+        filename:      'relatorio-srs2.pdf',
+        image:         { type: 'jpeg', quality: 0.97 },
+        html2canvas:   {
+          scale:           2,
+          useCORS:         true,
+          allowTaint:      true,
+          backgroundColor: '#ffffff',
+          scrollX:         0,
+          scrollY:         0,
+          windowWidth:     794,
+        },
+        jsPDF:         { unit: 'mm', format: 'a4', orientation: 'portrait' },
+        pagebreak:     { mode: ['avoid-all', 'css'] },
+      })
+      .from(wrap)
+      .outputPdf('blob');
+    return blob;
+  } finally {
+    document.body.removeChild(wrap);
+  }
 }
 
 // ─── MODAL DE LOADING ─────────────────────────────────────────────────────────
