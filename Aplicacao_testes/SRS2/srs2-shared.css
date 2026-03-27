@@ -565,13 +565,6 @@ body {
   display: flex;
 }
 
-/* Modo de aplicação (paciente): o overlay é apenas um container oculto
-   para o srs2-shared.js injetar o HTML. O gerarPdfBlob cria seu próprio
-   container temporário visível — NÃO usar left:-99999px aqui. */
-#repOverlay:not(.srs-report-overlay) {
-  display: none;
-}
-
 .srs-report-topbar {
   background: #fff;
   border-bottom: 1px solid var(--border);
