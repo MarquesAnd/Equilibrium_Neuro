@@ -79,7 +79,7 @@ function renderDashboard() {
       </div>
       <div class="stat-card">
         <div class="stat-icon">⚡</div>
-        <div class="stat-value" style="color:var(--purple)">3</div>
+        <div class="stat-value" style="color:var(--purple)">4</div>
         <div class="stat-label">Ativos</div>
       </div>
     </div>
