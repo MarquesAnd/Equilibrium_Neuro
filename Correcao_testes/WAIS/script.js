@@ -159,18 +159,24 @@ function calcularPontosFortesFracos(resultados) {
    ═══════════════════════════════════ */
 
 // Composição dos índices: quais subtestes PRINCIPAIS e quais SUPLEMENTARES
+// Composição definitiva dos índices fatoriais do WAIS-III:
+//
+// ICV (3 principais): SM, VC, IN — CO substitui apenas se faltar 1 dos 3
+// IOP (3 principais): CB, CF, RM — AF substitui apenas se faltar 1 dos 3
+// IMO (3 principais): AR, DG, SNL — SNL É PRINCIPAL, não suplementar
+// IVP (2 principais): CD, PS — sem suplementar
 const COMPOSICAO_INDICES = {
   ICV: {
-    principais: ["SM", "VC", "IN"],   // 3 obrigatórios
-    suplementares: ["CO"],            // entra se faltrar um principal
+    principais: ["SM", "VC", "IN"],
+    suplementares: ["CO"],
   },
   IOP: {
     principais: ["CB", "CF", "RM"],
     suplementares: ["AF"],
   },
   IMO: {
-    principais: ["AR", "DG"],
-    suplementares: ["SNL"],
+    principais: ["AR", "DG", "SNL"],   // SNL é principal do IMO
+    suplementares: [],
   },
   IVP: {
     principais: ["CD", "PS"],
@@ -179,16 +185,22 @@ const COMPOSICAO_INDICES = {
 };
 
 // QI Verbal = SM, VC, AR, DG, IN + CO (supl) + SNL (supl)
-// Para QI Verbal e QI Execução, TODOS os subtestes do grupo entram na soma —
-// inclusive CO, SNL, PS e AO, que são "suplementares" apenas para os ÍNDICES
-// fatoriais (ICV, IOP, IMO, IVP), mas contam normalmente para QIV e QIE.
+// Regra definitiva do WAIS-III para QI Verbal e QI de Execução:
+//
+// QI VERBAL (6 subtestes fixos): VC, SM, AR, DG, IN, CO
+//   → SNL é suplementar do IMO mas NUNCA entra na soma do QIV
+//
+// QI EXECUÇÃO (5 subtestes fixos): CF, CD, CB, RM, AF
+//   → PS entra só no IVP; AO é suplementar do IOP — nenhum entra no QIE
+//
+// Esses 6+5=11 subtestes geram o QIT. PS, SNL e AO só contribuem para índices fatoriais.
 const COMPOSICAO_QI = {
   QI_VERBAL: {
-    principais: ["SM", "VC", "AR", "DG", "IN", "CO", "SNL"],
+    principais: ["VC", "SM", "AR", "DG", "IN", "CO"],
     suplementares: [],
   },
   QI_EXECUCAO: {
-    principais: ["CF", "CD", "CB", "RM", "AF", "PS", "AO"],
+    principais: ["CF", "CD", "CB", "RM", "AF"],
     suplementares: [],
   },
 };
@@ -627,11 +639,16 @@ function renderMatrizHTML(resultados, indicesInfo, somas) {
     icv: new Set(indicesInfo?.ICV?.usados || []), iop: new Set(indicesInfo?.IOP?.usados || []),
     imo: new Set(indicesInfo?.IMO?.usados || []), ivp: new Set(indicesInfo?.IVP?.usados || []),
   };
-  // Todos os possiveis (principal OU suplementar) que pertencem a cada grupo
+  // possib define quais subtestes APARECEM em cada coluna (usados = sem parênteses, resto = com parênteses)
+  // Coluna Verbal: os 6 do QIV (sem parênteses) + SNL (com parênteses, pois pertence ao grupo verbal mas não soma QIV)
+  // Coluna Exec:   os 5 do QIE (sem parênteses) + PS e AO (com parênteses, pois pertencem ao grupo exec mas não somam QIE)
   const possib = {
-    verbal: new Set(["VC","SM","AR","DG","IN","CO","SNL"]), exec: new Set(["CF","CD","CB","RM","AF","PS","AO"]),
-    icv: new Set(["SM","VC","IN","CO"]), iop: new Set(["CB","CF","RM","AF"]),
-    imo: new Set(["AR","DG","SNL"]), ivp: new Set(["CD","PS"]),
+    verbal: new Set(["VC","SM","AR","DG","IN","CO","SNL"]),
+    exec:   new Set(["CF","CD","CB","RM","AF","PS","AO"]),
+    icv: new Set(["SM","VC","IN","CO"]),
+    iop: new Set(["CB","CF","RM","AF"]),
+    imo: new Set(["AR","DG","SNL"]),
+    ivp: new Set(["CD","PS"]),
   };
   const keys = ["verbal","exec","icv","iop","imo","ivp"];
   const labels = ["Verbal","Exec.","ICV","IOP","IMO","IVP"];
