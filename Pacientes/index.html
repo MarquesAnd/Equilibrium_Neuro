@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Pacientes | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/Pacientes/pacientes.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard">
+          <span class="nav-icon">📊</span><span>Dashboard</span>
+        </a>
+        <a class="nav-item active" href="/pacientes/" data-page="pacientes">
+          <span class="nav-icon">👤</span><span>Pacientes</span>
+        </a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao">
+          <span class="nav-icon">✏️</span><span>Correção de Testes</span>
+        </a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao">
+          <span class="nav-icon">🧠</span><span>Aplicação de Testes</span>
+        </a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios">
+          <span class="nav-icon">📄</span><span>Relatórios</span>
+        </a>
+        <a class="nav-item" href="/check_list/" data-page="checklist">
+          <span class="nav-icon">✅</span><span>Checklist</span>
+        </a>
+        <a class="nav-item" href="/Config/" data-page="config">
+          <span class="nav-icon">⚙️</span><span>Configurações</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="userAvatar">W</div>
+          <div>
+            <div class="user-name" id="userName">Carregando...</div>
+            <div class="user-role" id="userRole">Profissional</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Pacientes</h1>
+          <p class="page-subtitle">Gerencie seus pacientes e testes aplicados</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="abrirModalNovoPaciente()">
+            + Novo Paciente
+          </button>
+        </div>
+      </div>
+
+      <div class="page-body">
+        <!-- BARRA DE BUSCA -->
+        <div class="card search-card">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input 
+              type="text" 
+              id="searchInput" 
+              placeholder="Buscar por nome, CPF ou idade..."
+              onkeyup="filtrarPacientes()"
+            />
+          </div>
+        </div>
+
+        <!-- LISTA DE PACIENTES -->
+        <div class="card">
+          <div id="pacientesList">
+            <!-- Preenchido via JavaScript -->
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       MODAL: NOVO/EDITAR PACIENTE
+       ═══════════════════════════════════════════════ -->
+  <div id="modalPaciente" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Novo Paciente</h2>
+        <button class="modal-close" onclick="fecharModalPaciente()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="formPaciente" onsubmit="salvarPaciente(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nome Completo *</label>
+              <input type="text" id="inputNome" required placeholder="Nome do paciente" />
+            </div>
+            
+            <div class="form-group">
+              <label>CPF</label>
+              <input type="text" id="inputCpf" placeholder="000.000.000-00" maxlength="14" />
+            </div>
+            
+            <div class="form-group">
+              <label>Data de Nascimento *</label>
+              <input type="date" id="inputDataNasc" required />
+            </div>
+            
+            <div class="form-group">
+              <label>Telefone</label>
+              <input type="tel" id="inputTelefone" placeholder="(00) 00000-0000" />
+            </div>
+            
+            <div class="form-group full-width">
+              <label>E-mail</label>
+              <input type="email" id="inputEmail" placeholder="email@exemplo.com" />
+            </div>
+            
+            <div class="form-group full-width">
+              <label>Hipóteses Diagnósticas</label>
+              <textarea id="inputHipoteses" rows="3" placeholder="Diagnósticos em investigação..."></textarea>
+            </div>
+            
+            <div class="form-group full-width">
+              <label>Observações</label>
+              <textarea id="inputObservacoes" rows="3" placeholder="Informações adicionais relevantes..."></textarea>
+            </div>
+          </div>
+          
+          <input type="hidden" id="inputPacienteId" />
+          
+          <div class="modal-actions">
+            <button type="button" class="btn-secondary" onclick="fecharModalPaciente()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-primary">
+              Salvar Paciente
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       MODAL: DETALHES DO PACIENTE
+       ═══════════════════════════════════════════════ -->
+  <div id="modalDetalhesPaciente" class="modal">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h2 id="detalhesPacienteNome">Paciente</h2>
+        <button class="modal-close" onclick="fecharModalDetalhes()">✕</button>
+      </div>
+      <div class="modal-body">
+        <!-- INFORMAÇÕES DO PACIENTE -->
+        <div class="detalhes-header">
+          <div class="detalhes-avatar">
+            <div class="avatar-circle" id="detalhesAvatar">P</div>
+          </div>
+          <div class="detalhes-info">
+            <h3 id="detalhesNomeCompleto">Nome do Paciente</h3>
+            <div class="detalhes-meta">
+              <span id="detalhesIdade">-</span> • 
+              <span id="detalhesCpf">-</span>
+            </div>
+            <div class="detalhes-contato">
+              <span id="detalhesTelefone"></span>
+              <span id="detalhesEmail"></span>
+            </div>
+          </div>
+          <div class="detalhes-actions">
+            <button class="btn-icon" onclick="editarPacienteAtual()" title="Editar">
+              ✏️
+            </button>
+            <button class="btn-icon btn-danger" onclick="excluirPacienteAtual()" title="Excluir">
+              🗑️
+            </button>
+          </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+          <button class="tab active" onclick="trocarTab('testes')">
+            📋 Testes Selecionados
+          </button>
+          <button class="tab" onclick="trocarTab('realizados')">
+            ✅ Testes Realizados
+          </button>
+          <button class="tab" onclick="trocarTab('info')">
+            ℹ️ Informações
+          </button>
+        </div>
+
+        <!-- TAB: TESTES SELECIONADOS -->
+        <div id="tabTestes" class="tab-content active">
+          <div class="tab-header">
+            <h4>Selecione os testes a serem aplicados</h4>
+            <button class="btn-secondary btn-sm" onclick="abrirSeletorTestes()">
+              + Adicionar Testes
+            </button>
+          </div>
+          
+          <div id="listaTestesSeleccionados" class="testes-grid">
+            <!-- Preenchido via JS -->
+          </div>
+        </div>
+
+        <!-- TAB: TESTES REALIZADOS -->
+        <div id="tabRealizados" class="tab-content">
+          <div class="tab-header">
+            <h4>Histórico de testes aplicados</h4>
+          </div>
+          
+          <div id="listaTestesRealizados">
+            <!-- Preenchido via JS -->
+          </div>
+        </div>
+
+        <!-- TAB: INFORMAÇÕES -->
+        <div id="tabInfo" class="tab-content">
+          <div class="info-section">
+            <h4>Hipóteses Diagnósticas</h4>
+            <p id="infoHipoteses" class="info-text">-</p>
+          </div>
+          
+          <div class="info-section">
+            <h4>Observações</h4>
+            <p id="infoObservacoes" class="info-text">-</p>
+          </div>
+          
+          <div class="info-section">
+            <h4>Dados Cadastrais</h4>
+            <div class="info-grid">
+              <div>
+                <strong>Cadastrado em:</strong>
+                <span id="infoCriadoEm">-</span>
+              </div>
+              <div>
+                <strong>Última atualização:</strong>
+                <span id="infoAtualizadoEm">-</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       MODAL: SELETOR DE TESTES
+       ═══════════════════════════════════════════════ -->
+  <div id="modalSeletorTestes" class="modal">
+    <div class="modal-content modal-large">
+      <div class="modal-header">
+        <h2>Selecionar Testes para Aplicação</h2>
+        <button class="modal-close" onclick="fecharSeletorTestes()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-subtitle">
+          Marque os testes que serão aplicados neste paciente (organizados por faixa etária)
+        </p>
+        
+        <!-- TABS DE FAIXA ETÁRIA -->
+        <div class="faixa-tabs">
+          <button class="faixa-tab active" onclick="trocarFaixa('pre-escolar')">
+            🟣 Pré-Escolar
+          </button>
+          <button class="faixa-tab" onclick="trocarFaixa('escolar')">
+            🟢 Escolar
+          </button>
+          <button class="faixa-tab" onclick="trocarFaixa('adultos')">
+            🔵 Adultos
+          </button>
+        </div>
+
+        <!-- CONTEÚDO POR FAIXA ETÁRIA -->
+        <div id="faixaPreEscolar" class="faixa-content active">
+          <div id="testesPreEscolar" class="testes-checklist">
+            <!-- Preenchido via JS -->
+          </div>
+        </div>
+
+        <div id="faixaEscolar" class="faixa-content">
+          <div id="testesEscolar" class="testes-checklist">
+            <!-- Preenchido via JS -->
+          </div>
+        </div>
+
+        <div id="faixaAdultos" class="faixa-content">
+          <div id="testesAdultos" class="testes-checklist">
+            <!-- Preenchido via JS -->
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="fecharSeletorTestes()">
+            Cancelar
+          </button>
+          <button type="button" class="btn-primary" onclick="salvarTestesSeleccionados()">
+            Salvar Seleção
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SDKs do Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Configurações do Sistema -->
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+
+  <!-- Script da página de pacientes -->
+  <script src="/Pacientes/pacientes.js"></script>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.FIREBASE_CONFIGURED && window.DB) {
+        await DB.init();
+      }
+      
+      if (!isAuthed()) {
+        location.href = '/login.html'; 
+      } else {
+        applySidebarPermissions();
+        carregarPacientes();
+      }
+    });
+  </script>
+</body>
+</html>
