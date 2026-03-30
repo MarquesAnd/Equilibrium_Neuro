@@ -660,14 +660,34 @@
 @media print {
   @page { size: A4 portrait; margin: 10mm; }
 
-  /* Esconde todo o site */
-  body > * { display: none !important; }
+  /* Esconde estrutura do site */
+  .sidebar,
+  .page-header,
+  .no-print,
+  .cl-tabs,
+  .cl-actions,
+  .cl-stats,
+  .cl-content,
+  .card {
+    display: none !important;
+  }
 
-  /* Exibe só o overlay do relatório */
-  .cl-report-overlay {
+  /* Garante que o app-shell e main não bloqueiem */
+  .app-shell,
+  .main-content {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  /* Exibe o overlay do relatório normalmente */
+  .cl-report-overlay.ativo {
     display: block !important;
     position: static !important;
     background: #fff !important;
+    inset: auto !important;
+    z-index: auto !important;
   }
 
   .cl-report-topbar { display: none !important; }
