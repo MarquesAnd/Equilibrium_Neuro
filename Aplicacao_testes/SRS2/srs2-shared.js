@@ -719,10 +719,10 @@ async function finalizarEEnviar() {
   const captureWrap = document.createElement("div");
   captureWrap.id = "__srs2_capture__";
   captureWrap.style.cssText = [
-    "position:absolute",   // absolute, não fixed — sem corte de altura
+    "position:absolute",
     "top:0",
-    "left:-9999px",        // fora do ecrã lateralmente
-    "width:794px",         // largura A4 a 96dpi
+    "left:-9999px",
+    "width:740px",        // A4 útil: 210mm - 2×12mm margens ≈ 740px @96dpi — sem corte lateral
     "background:#fff",
     "font-family:'DM Sans',Arial,sans-serif",
     "z-index:0",
@@ -803,20 +803,20 @@ async function finalizarEEnviar() {
     setMsg("A formatar o relatório em PDF…");
 
     const opt = {
-      margin: [10, 10, 10, 10],  // margens iguais em todos os lados — centraliza o conteúdo
+      margin: [12, 12, 12, 12],  // 12mm em todos os lados — simétrico, sem corte
       filename: "resultado.pdf",
       image: { type: "jpeg", quality: 0.97 },
       html2canvas: {
-        scale: 1.9,              // escala próxima do original mas com margem para respirar
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         scrollX: 0,
         scrollY: 0,
         x: 0,
         y: 0,
-        width:  794,
-        height: captureHeight,
-        windowWidth:  794,
+        width:        740,
+        height:       captureHeight,
+        windowWidth:  740,
         windowHeight: captureHeight,
         logging: false
       },
