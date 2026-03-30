@@ -32,7 +32,7 @@ async function initFirebase() {
   }
   
   try {
-    const configUsuarios = window.FIREBASE_CONFIG;
+    const configUsuarios = window.FIREBASE_CONFIG_USUARIOS;
     const configPacientes = window.FIREBASE_CONFIG_PACIENTES;
     
     if (!configUsuarios || !configPacientes) {
@@ -148,7 +148,7 @@ async function dbGetUserById(uid) {
 async function dbCreateUser(data) {
   if (!_fbReady) return { ok: false, message: "Banco não inicializado." };
   try {
-    const configUsuarios = window.FIREBASE_CONFIG;
+    const configUsuarios = window.FIREBASE_CONFIG_USUARIOS;
     
     // Criar usuário no Auth usando app fantasma
     const ghostApp = firebase.initializeApp(configUsuarios, "SecondaryApp");
