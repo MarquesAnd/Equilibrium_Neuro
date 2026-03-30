@@ -108,31 +108,13 @@ function renderDashboard() {
 }
 
 /* ══════════════════════════
-   PACIENTES
-   ══════════════════════════ */
-function renderPacientes() {
-  return `
-    <div class="action-row">
-      <button class="btn-primary">+ Novo Paciente</button>
-    </div>
-    ${MOCK_PACIENTES.map(p => `
-      <div class="paciente-item">
-        <div class="paciente-avatar">${p.nome[0]}</div>
-        <div class="paciente-info">
-          <div class="paciente-nome">${p.nome}</div>
-          <div class="paciente-meta">${p.idade} · ${p.testes} teste(s) · Último: ${p.ultimo}</div>
-        </div>
-        <span class="paciente-arrow">→</span>
-      </div>`).join("")}`;
-}
-
-/* ══════════════════════════
    CORREÇÃO / APLICAÇÃO
    ══════════════════════════ */
 function renderCorrecao()  { location.href = '/Correcao_testes/index.html';  return ''; }
 function renderAplicacao() { location.href = '/Aplicacao_testes/index.html'; return ''; }
 function renderChecklist() { location.href = '/check_list/index.html';       return ''; }
 function renderConfig()    { location.href = '/Config/index.html';           return ''; }
+function renderPacientes() { location.href = '/Pacientes/index.html';        return ''; }
 
 
 /* ══════════════════════════
