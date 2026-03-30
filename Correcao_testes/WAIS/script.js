@@ -152,6 +152,151 @@ function calcularPontosFortesFracos(resultados) {
 }
 
 /* ═══════════════════════════════════
+   RECALCULO LOCAL DAS SOMAS
+   Garante que todos os pontos ponderados
+   sejam somados corretamente, incluindo
+   subtestes suplementares quando presentes.
+   ═══════════════════════════════════ */
+
+// Composição dos índices: quais subtestes PRINCIPAIS e quais SUPLEMENTARES
+const COMPOSICAO_INDICES = {
+  ICV: {
+    principais: ["SM", "VC", "IN"],   // 3 obrigatórios
+    suplementares: ["CO"],            // entra se faltrar um principal
+  },
+  IOP: {
+    principais: ["CB", "CF", "RM"],
+    suplementares: ["AF"],
+  },
+  IMO: {
+    principais: ["AR", "DG"],
+    suplementares: ["SNL"],
+  },
+  IVP: {
+    principais: ["CD", "PS"],
+    suplementares: [],
+  },
+};
+
+// QI Verbal = SM, VC, AR, DG, IN + CO (supl) + SNL (supl)
+// Para QI Verbal e QI Execução, TODOS os subtestes do grupo entram na soma —
+// inclusive CO, SNL, PS e AO, que são "suplementares" apenas para os ÍNDICES
+// fatoriais (ICV, IOP, IMO, IVP), mas contam normalmente para QIV e QIE.
+const COMPOSICAO_QI = {
+  QI_VERBAL: {
+    principais: ["SM", "VC", "AR", "DG", "IN", "CO", "SNL"],
+    suplementares: [],
+  },
+  QI_EXECUCAO: {
+    principais: ["CF", "CD", "CB", "RM", "AF", "PS", "AO"],
+    suplementares: [],
+  },
+};
+
+/**
+ * Recalcula todas as somas localmente a partir dos resultados retornados pela API.
+ * Retorna um objeto com as somas corrigidas para cada índice/QI,
+ * incluindo a lista completa de subtestes usados.
+ */
+function recalcularSomasLocalmente(resultados, somasAPI, indicesInfoAPI) {
+  // Helper: obtém ponderado de um subteste (ou null se não disponível)
+  function getPond(codigo) {
+    const v = resultados?.[codigo]?.ponderado;
+    if (v == null || v === "") return null;
+    const n = Number(v);
+    return isNaN(n) ? null : n;
+  }
+
+  // Helper: soma subtestes de um grupo, respeitando a regra:
+  // usa todos os principais disponíveis; suplementar entra se algum principal falta.
+  function somarGrupo(principais, suplementares) {
+    const usados = [];
+    let soma = 0;
+    let faltando = 0;
+
+    for (const cod of principais) {
+      const p = getPond(cod);
+      if (p != null) {
+        usados.push(cod);
+        soma += p;
+      } else {
+        faltando++;
+      }
+    }
+
+    // Para cada principal faltando, tenta substituir por suplementar
+    let supIdx = 0;
+    for (let i = 0; i < faltando && supIdx < suplementares.length; i++, supIdx++) {
+      const cod = suplementares[supIdx];
+      const p = getPond(cod);
+      if (p != null) {
+        usados.push(cod);
+        soma += p;
+      }
+    }
+
+    // Subtestes suplementares disponíveis mas NÃO usados (exibe entre parênteses)
+    const naoUsados = [];
+    for (const cod of suplementares) {
+      if (!usados.includes(cod) && getPond(cod) != null) {
+        naoUsados.push(cod);
+      }
+    }
+
+    return { soma, usados, naoUsados };
+  }
+
+  // Recalcula índices (ICV, IOP, IMO, IVP)
+  const indicesRecalc = {};
+  for (const [idx, comp] of Object.entries(COMPOSICAO_INDICES)) {
+    const { soma, usados, naoUsados } = somarGrupo(comp.principais, comp.suplementares);
+    // Preserva soma/compostos da API se existir; substitui apenas a soma e usados
+    const apiInfo = indicesInfoAPI?.[idx] || {};
+    indicesRecalc[idx] = {
+      ...apiInfo,
+      soma: usados.length > 0 ? soma : (apiInfo.soma ?? "—"),
+      usados,
+      naoUsados,
+    };
+  }
+
+  // Recalcula QI Verbal e QI de Execução
+  const somasRecalc = { ...somasAPI };
+  for (const [qi, comp] of Object.entries(COMPOSICAO_QI)) {
+    const { soma, usados, naoUsados } = somarGrupo(comp.principais, comp.suplementares);
+    somasRecalc[qi] = {
+      ...(somasAPI?.[qi] || {}),
+      soma: usados.length > 0 ? soma : (somasAPI?.[qi]?.soma ?? "—"),
+      usados,
+      naoUsados,
+    };
+  }
+
+  // QI Total = QI Verbal + QI de Execução (somas locais)
+  const somaVerbal = somasRecalc.QI_VERBAL?.soma;
+  const somaExec   = somasRecalc.QI_EXECUCAO?.soma;
+  if (typeof somaVerbal === "number" && typeof somaExec === "number") {
+    somasRecalc.QI_TOTAL = {
+      ...(somasAPI?.QI_TOTAL || {}),
+      soma: somaVerbal + somaExec,
+      usados: [...(somasRecalc.QI_VERBAL?.usados || []), ...(somasRecalc.QI_EXECUCAO?.usados || [])],
+    };
+  }
+
+  // Soma geral de TODOS os pontos ponderados disponíveis
+  const todosCodigos = Object.keys(resultados);
+  let somaTotal = 0;
+  const todosUsados = [];
+  for (const cod of todosCodigos) {
+    const p = getPond(cod);
+    if (p != null) { somaTotal += p; todosUsados.push(cod); }
+  }
+  somasRecalc._SOMA_TOTAL_GERAL = { soma: somaTotal, usados: todosUsados };
+
+  return { somasRecalc, indicesRecalc };
+}
+
+/* ═══════════════════════════════════
    RENDER HELPERS (mantidos / melhorados)
    ═══════════════════════════════════ */
 function cellIndice(codigo, usadosSet, possiveisSet, resultados) {
@@ -398,15 +543,24 @@ async function calcular(salvar) {
     const data = await response.json();
     if (!response.ok || !data.ok) throw new Error(data.error || "Erro desconhecido.");
 
-    const { idade, faixa, resultados, somas, compostos, indicesInfo, qiInfo } = data.resultado;
-    montarRelatorio({ nome, cpf, sexo, escolaridade, nasc, apl, idade, faixa, resultados, indicesInfo, qiInfo, somas, compostos, profNome, profCRP, profEspecialidade, motivo, obsComportamentais, recomendacoes });
+    const { idade, faixa, resultados, somas: somasAPI, compostos, indicesInfo: indicesInfoAPI, qiInfo } = data.resultado;
+
+    // ► RECALCULO LOCAL: garante que todos os pontos ponderados sejam somados,
+    //   incluindo suplementares quando disponíveis. Corrige erros de soma da API.
+    const { somasRecalc, indicesRecalc } = recalcularSomasLocalmente(resultados, somasAPI, indicesInfoAPI);
+
+    montarRelatorio({ nome, cpf, sexo, escolaridade, nasc, apl, idade, faixa, resultados,
+      indicesInfo: indicesRecalc, qiInfo, somas: somasRecalc, compostos,
+      profNome, profCRP, profEspecialidade, motivo, obsComportamentais, recomendacoes });
 
     if (salvar) {
       const rel = document.getElementById("relatorio");
       await esperarImagensCarregarem(rel);
       await new Promise(r => setTimeout(r, 150));
       const laudos = getLaudos();
-      laudos.unshift({ nome, dataAplicacao: apl, faixa, createdAt: new Date().toISOString(), htmlRelatorio: rel.outerHTML });
+      laudos.unshift({ nome, dataAplicacao: apl, faixa, createdAt: new Date().toISOString(), htmlRelatorio: rel.outerHTML,
+        // Salva também somas recalculadas para referência
+        somasRecalc, indicesRecalc });
       setLaudos(laudos);
     }
 
@@ -473,6 +627,7 @@ function renderMatrizHTML(resultados, indicesInfo, somas) {
     icv: new Set(indicesInfo?.ICV?.usados || []), iop: new Set(indicesInfo?.IOP?.usados || []),
     imo: new Set(indicesInfo?.IMO?.usados || []), ivp: new Set(indicesInfo?.IVP?.usados || []),
   };
+  // Todos os possiveis (principal OU suplementar) que pertencem a cada grupo
   const possib = {
     verbal: new Set(["VC","SM","AR","DG","IN","CO","SNL"]), exec: new Set(["CF","CD","CB","RM","AF","PS","AO"]),
     icv: new Set(["SM","VC","IN","CO"]), iop: new Set(["CB","CF","RM","AF"]),
@@ -499,14 +654,27 @@ function renderMatrizHTML(resultados, indicesInfo, somas) {
     </tr>`;
   }).join("");
 
-  const somaVals = [somas?.QI_VERBAL?.soma, somas?.QI_EXECUCAO?.soma, indicesInfo?.ICV?.soma, indicesInfo?.IOP?.soma, indicesInfo?.IMO?.soma, indicesInfo?.IVP?.soma];
+  // Somas calculadas localmente (recalcularSomasLocalmente já foi chamado antes)
+  const somaVals = [
+    somas?.QI_VERBAL?.soma,
+    somas?.QI_EXECUCAO?.soma,
+    indicesInfo?.ICV?.soma,
+    indicesInfo?.IOP?.soma,
+    indicesInfo?.IMO?.soma,
+    indicesInfo?.IVP?.soma,
+  ];
+
+  // Subteste TODOS: soma geral de todos os ponderados disponíveis (para referência interna apenas)
+  const somaGeralTodos = somas?._SOMA_TOTAL_GERAL?.soma;
 
   return `<div style="overflow-x:auto;border-radius:10px;border:1px solid #e2e8f0">
     <table class="rpt-matrix"><thead>
       <tr><th class="sub-name" rowspan="2">Subtestes</th><th class="ctr" rowspan="2" style="width:45px">PB</th><th class="ctr" rowspan="2" style="width:55px">Pond.</th><th class="ctr" colspan="6" style="border-bottom:1px solid rgba(59,130,246,.25)">Contribuição (Pontos Ponderados)</th></tr>
       <tr>${labels.map(l => `<th class="ctr" style="width:48px;font-size:9px">${l}</th>`).join("")}</tr>
     </thead><tbody>${rows}</tbody>
-    <tfoot><tr><td class="lbl" colspan="3">Soma dos Pontos Ponderados</td>${somaVals.map(v => `<td class="ctr">${v ?? "—"}</td>`).join("")}</tr></tfoot>
+    <tfoot>
+      <tr><td class="lbl" colspan="3">Soma dos Pontos Ponderados</td>${somaVals.map(v => `<td class="ctr">${v ?? "—"}</td>`).join("")}</tr>
+    </tfoot>
     </table></div>`;
 }
 
@@ -601,9 +769,14 @@ function montarRelatorio(data) {
   // Tabela de índices
   const idxItems = [["QIV","QI_VERBAL"],["QIE","QI_EXECUCAO"],["QIT","QI_TOTAL"],["ICV","ICV"],["IOP","IOP"],["IMO","IMO"],["IVP","IVP"]];
   const idxRows = idxItems.map(([rotulo, chave], i) => {
-    const s = somas?.[chave]; const c = compostos?.[chave];
+    // Para índices (ICV, IOP, IMO, IVP) a soma vem de indicesInfo; para QIs vem de somas
+    const s = (chave === "ICV" || chave === "IOP" || chave === "IMO" || chave === "IVP")
+      ? indicesInfo?.[chave]
+      : somas?.[chave];
+    const c = compostos?.[chave];
     const cl = c?.composto ? classByComposite(c.composto) : "—";
-    return `<tr${i % 2 ? ' class="alt"' : ''}><td style="font-weight:700">${rotulo}</td><td class="ctr">${s?.soma ?? "—"}</td><td class="ctr" style="font-weight:800;font-size:15px;color:${icColor(c?.composto || 0)}">${c?.composto ?? "—"}</td><td class="ctr">${c?.percentil ?? "—"}</td><td class="ctr">${fmtIC(c?.ic90)}</td><td class="ctr">${fmtIC(c?.ic95)}</td><td>${clBadge(cl)}</td></tr>`;
+    const somaExibir = s?.soma ?? "—";
+    return `<tr${i % 2 ? ' class="alt"' : ''}><td style="font-weight:700">${rotulo}</td><td class="ctr">${somaExibir}</td><td class="ctr" style="font-weight:800;font-size:15px;color:${icColor(c?.composto || 0)}">${c?.composto ?? "—"}</td><td class="ctr">${c?.percentil ?? "—"}</td><td class="ctr">${fmtIC(c?.ic90)}</td><td class="ctr">${fmtIC(c?.ic95)}</td><td>${clBadge(cl)}</td></tr>`;
   }).join("");
 
   // Tabela de detalhamento
