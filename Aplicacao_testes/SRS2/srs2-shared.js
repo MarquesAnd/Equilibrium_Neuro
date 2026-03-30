@@ -708,113 +708,75 @@ async function finalizarEEnviar() {
   const form = getForm();
   if (!form) return;
 
-  // ── 2. Gerar HTML do relatório num contentor de renderização ──────────────
-  //    Usamos um div FORA do ecrã horizontalmente (left: -9999px) mas com
-  //    posição absolute (não fixed) para que o browser possa calcular a altura
-  //    completa do documento sem corte. O html2canvas consegue capturar
-  //    elementos fora do viewport se usarmos o método .from() com a opção
-  //    windowWidth e height explícita calculada pelo scrollHeight.
+  // ── 2. Gerar HTML do relatório no repOverlay (oculto ao paciente) ─────────
   abrirRelatorio(result);
-
   const repFrame = document.querySelector("#repOverlay .srs-report-frame");
   if (!repFrame || !repFrame.innerHTML.trim()) {
     alert("Erro interno: relatório vazio. Tente novamente.");
     return;
   }
 
-  // ── 3. Contentor de captura (invisível ao paciente) ───────────────────────
+  // ── 3. Desabilitar botão e mostrar modal (mesmo design da Correção) ───────
+  const btnEnviar = document.getElementById("btnEnviar");
+  if (btnEnviar) { btnEnviar.disabled = true; btnEnviar.textContent = "A processar…"; }
+
+  const modal = document.getElementById("modalGerando");
+  const titleEl = modal?.querySelector(".srs-modal-title");
+  const subEl   = modal?.querySelector(".srs-modal-sub");
+
+  const setMsg = (title, sub) => {
+    if (titleEl) titleEl.textContent = title;
+    if (subEl)   subEl.textContent   = sub;
+  };
+
+  setMsg("A processar…", "Por favor, não feche esta página.");
+  modal?.classList.add("ativo");
+
+  // Pausa para o modal ser pintado antes de qualquer trabalho pesado
+  await new Promise(r => setTimeout(r, 160));
+
+  // ── 4. Contentor de captura — SEMPRE fora do ecrã, NUNCA visível ─────────
+  //    Fica permanentemente em left:-9999px.
+  //    O html2canvas recebe width/height/windowWidth/windowHeight explícitos
+  //    calculados a partir do scrollHeight — não precisa estar no viewport.
   const captureWrap = document.createElement("div");
   captureWrap.id = "__srs2_capture__";
   captureWrap.style.cssText = [
-    "position:absolute",   // absolute, não fixed — sem corte de altura
+    "position:absolute",
     "top:0",
-    "left:-9999px",        // fora do ecrã lateralmente
-    "width:794px",         // largura A4 a 96dpi
+    "left:-9999px",   // NUNCA move para left:0 — paciente nunca vê
+    "width:794px",
     "background:#fff",
     "font-family:'DM Sans',Arial,sans-serif",
     "z-index:0",
-    "pointer-events:none"
+    "pointer-events:none",
+    "overflow:visible"
   ].join(";");
 
   captureWrap.innerHTML = repFrame.innerHTML;
 
-  /* Injectar CSS variables resolvidas inline para garantir que o captureWrap
-     herda correctamente as cores mesmo fora do contexto normal do DOM */
-  const root = document.documentElement;
-  const cs   = getComputedStyle(root);
-  const inlineVars = [
-    '--srs-accent','--srs-accent-light','--srs-accent-dark',
-    '--text','--text-secondary','--bg','--border','--blue-mid'
-  ].map(v => `${v}:${cs.getPropertyValue(v).trim()}`).join(';');
-  captureWrap.style.setProperty('--srs-accent',      cs.getPropertyValue('--srs-accent').trim());
-  captureWrap.style.setProperty('--srs-accent-light', cs.getPropertyValue('--srs-accent-light').trim());
-  captureWrap.style.setProperty('--srs-accent-dark',  cs.getPropertyValue('--srs-accent-dark').trim());
-  captureWrap.style.setProperty('--text',              '#1e293b');
-  captureWrap.style.setProperty('--text-secondary',    '#64748b');
-  captureWrap.style.setProperty('--bg',                '#f8fafc');
-  captureWrap.style.setProperty('--border',            '#e2e8f0');
+  // Injectar CSS variables resolvidas (necessário fora do contexto normal)
+  const cs = getComputedStyle(document.documentElement);
+  captureWrap.style.setProperty("--srs-accent",       cs.getPropertyValue("--srs-accent").trim()       || "#1a56db");
+  captureWrap.style.setProperty("--srs-accent-light",  cs.getPropertyValue("--srs-accent-light").trim() || "#dbeafe");
+  captureWrap.style.setProperty("--srs-accent-dark",   cs.getPropertyValue("--srs-accent-dark").trim()  || "#1d4ed8");
+  captureWrap.style.setProperty("--text",               "#1e293b");
+  captureWrap.style.setProperty("--text-secondary",     "#64748b");
+  captureWrap.style.setProperty("--bg",                 "#f8fafc");
+  captureWrap.style.setProperty("--border",             "#e2e8f0");
 
   document.body.appendChild(captureWrap);
 
-  // Pausa para o browser calcular layout (scrollHeight) do captureWrap
-  await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
+  // Aguardar 2 frames + fontes para o browser calcular o layout completo
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  await document.fonts.ready;
+  await new Promise(r => setTimeout(r, 100));
 
   const captureHeight = captureWrap.scrollHeight;
 
-  // ── 4. Mostrar modal de loading (mesmo padrão da Correção) ───────────────
-  const btnEnviar = document.getElementById("btnEnviar");
-  if (btnEnviar) { btnEnviar.disabled = true; btnEnviar.textContent = "A processar…"; }
-
-  // Reutilizar o #modalGerando se já existir no HTML (mesmo padrão da Correção)
-  // ou criar um equivalente programaticamente
-  let modal = document.getElementById("modalGerando");
-  if (!modal) {
-    modal = document.createElement("div");
-    modal.id = "modalGerando";
-    modal.className = "srs-modal-overlay";
-    modal.innerHTML = `
-      <div class="srs-modal-box">
-        <div class="srs-modal-spinner"></div>
-        <div class="srs-modal-title" id="__srs2_modal_title__">A processar…</div>
-        <div class="srs-modal-sub"  id="__srs2_modal_sub__">Por favor, não feche esta página.</div>
-      </div>`;
-    document.body.appendChild(modal);
-  } else {
-    // Garantir que os elementos de texto existem para podermos actualizá-los
-    if (!modal.querySelector("#__srs2_modal_title__")) {
-      const t = modal.querySelector(".srs-modal-title");
-      if (t) t.id = "__srs2_modal_title__";
-    }
-    if (!modal.querySelector("#__srs2_modal_sub__")) {
-      const s = modal.querySelector(".srs-modal-sub");
-      if (s) s.id = "__srs2_modal_sub__";
-    }
-  }
-  modal.classList.add("ativo");
-
-  // Pausa para o modal ser pintado
-  await new Promise(r => setTimeout(r, 150));
-
-  const setMsg = (title, sub) => {
-    const t = document.getElementById("__srs2_modal_title__") || modal.querySelector(".srs-modal-title");
-    const s = document.getElementById("__srs2_modal_sub__")   || modal.querySelector(".srs-modal-sub");
-    if (t && title !== undefined) t.textContent = title;
-    if (s && sub   !== undefined) s.textContent = sub;
-  };
-
-  let tempDiv;
   try {
 
-    // ── 5. Mover conteúdo para div renderizável COM dimensões exactas ─────
-    //    Agora que a cortina está visível, podemos tornar o div visível
-    //    (left:0) para o html2canvas capturar correctamente.
-    captureWrap.style.left = "0";
-    captureWrap.style.top  = "0";
-
-    // Pausa extra para repintura
-    await new Promise(r => setTimeout(r, 150));
-
-    setMsg("Gerando PDF…", "A formatar o relatório em PDF…");
+    setMsg("Gerando Relatório…", "Calculando escores e montando o laudo.");
 
     const opt = {
       margin: [8, 0, 8, 0],
@@ -828,24 +790,24 @@ async function finalizarEEnviar() {
         scrollY: 0,
         x: 0,
         y: 0,
-        width:  794,
-        height: captureHeight,
+        width:        794,
+        height:       captureHeight,
         windowWidth:  794,
         windowHeight: captureHeight,
-        logging: false
+        logging: false,
+        backgroundColor: "#ffffff"
       },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
     };
 
     const pdfUri = await html2pdf().set(opt).from(captureWrap).outputPdf("datauristring");
 
-    // Remove div de captura
     document.body.removeChild(captureWrap);
 
-    // ── 6. Enviar ao Drive ─────────────────────────────────────────────────
+    // ── 5. Enviar ao Drive ──────────────────────────────────────────────────
     setMsg("Enviando…", "A enviar com segurança para o servidor.");
 
-    const base64 = pdfUri.split(",")[1];
+    const base64       = pdfUri.split(",")[1];
     const nomePaciente = (document.getElementById("paciente")?.value?.trim() || "Paciente_Sem_Nome");
     const formKey      = (typeof FORM_KEY !== "undefined" ? FORM_KEY : "srs2");
     const urlScript    = (typeof URL_DO_GOOGLE_SCRIPT !== "undefined") ? URL_DO_GOOGLE_SCRIPT : null;
@@ -862,13 +824,12 @@ async function finalizarEEnviar() {
       document.body.innerHTML = `
         <div class="success-screen">
           <div class="success-card">
-            <div class="s-icon">✅</div>
+            <div class="success-icon">✅</div>
             <h1>Avaliação Finalizada!</h1>
             <p>As suas respostas foram processadas e enviadas com segurança.</p>
-            <p class="s-note">Já pode fechar esta janela.</p>
+            <p class="success-note">Já pode fechar esta janela.</p>
           </div>
-        </div>
-      `;
+        </div>`;
     } else {
       throw new Error(data.mensagem || "Resposta inesperada do servidor.");
     }
@@ -876,8 +837,8 @@ async function finalizarEEnviar() {
   } catch (err) {
     console.error("Erro ao enviar:", err);
     const cw = document.getElementById("__srs2_capture__");
-    if (cw && cw.parentNode) document.body.removeChild(cw);
-    modal.classList.remove("ativo");
+    if (cw?.parentNode) document.body.removeChild(cw);
+    modal?.classList.remove("ativo");
     if (btnEnviar) { btnEnviar.disabled = false; btnEnviar.textContent = "📤 Enviar Respostas"; }
     alert("Não foi possível enviar as respostas.\n\nVerifique a sua ligação à internet e tente novamente.\n\nDetalhe: " + err.message);
   }
