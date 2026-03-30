@@ -1,22 +1,28 @@
 /* ═══════════════════════════════════════════════════════════
    DB — Camada de acesso ao Firestore
-   Todas as operações de banco passam por aqui.
-   auth.js e pages.js chamam estas funções.
+   VERSÃO: DOIS BANCOS FIREBASE SEPARADOS
+   
+   Firebase 1 (equilibrium-neuro-2de9b): Usuários e Autenticação
+   Firebase 2 (pacientes-sistema): Pacientes, Testes e Relatórios
    ═══════════════════════════════════════════════════════════ */
 
 /* ── Referências das coleções ── */
 const COL = {
+  // Banco de Usuários
   USUARIOS:  "usuarios",
+  CONFIG:    "config",
+  
+  // Banco de Pacientes
   PACIENTES: "pacientes",
   RELATORIOS:"relatorios",
-  CONFIG:    "config",
 };
 
 /* ══════════════════════════════════════
-   INICIALIZAÇÃO
+   INICIALIZAÇÃO DOS DOIS FIREBASE
    ══════════════════════════════════════ */
-let _db  = null;
-let _auth = null;
+let _dbUsuarios  = null;  // Firestore do banco de usuários
+let _dbPacientes = null;  // Firestore do banco de pacientes
+let _auth = null;         // Auth (no banco de usuários)
 let _fbReady = false;
 
 async function initFirebase() {
@@ -24,27 +30,42 @@ async function initFirebase() {
     console.warn("Firebase não configurado — usando localStorage como fallback.");
     return false;
   }
+  
   try {
-    firebase.initializeApp(FIREBASE_CONFIG);
-    _db   = firebase.firestore();
-    _auth = firebase.auth();
+    const configUsuarios = window.FIREBASE_CONFIG_USUARIOS;
+    const configPacientes = window.FIREBASE_CONFIG_PACIENTES;
+    
+    if (!configUsuarios || !configPacientes) {
+      console.error("Configurações do Firebase não encontradas.");
+      return false;
+    }
+    
+    // Inicializar Firebase de USUÁRIOS (principal)
+    const appUsuarios = firebase.initializeApp(configUsuarios, "usuarios");
+    _dbUsuarios = appUsuarios.firestore();
+    _auth = appUsuarios.auth();
+    
+    // Inicializar Firebase de PACIENTES (secundário)
+    const appPacientes = firebase.initializeApp(configPacientes, "pacientes");
+    _dbPacientes = appPacientes.firestore();
+    
     _fbReady = true;
 
-    // Habilitar persistência offline (cache local mesmo sem internet)
-    // Usando configuração de cache compatível com SDK v9 compat
+    // Habilitar persistência offline em ambos
     try {
-      await _db.enableMultiTabIndexedDbPersistence();
+      await _dbUsuarios.enableMultiTabIndexedDbPersistence();
+      await _dbPacientes.enableMultiTabIndexedDbPersistence();
     } catch(e) {
       if (e.code === 'failed-precondition') {
-        // Múltiplas abas abertas — usar persistência simples
-        await _db.enablePersistence().catch(() => {});
+        await _dbUsuarios.enablePersistence().catch(() => {});
+        await _dbPacientes.enablePersistence().catch(() => {});
       } else if (e.code === 'unimplemented') {
-        // Browser não suporta — continuar sem persistência offline
         console.info('Persistência offline não suportada neste navegador.');
       }
     }
 
-    console.log("✅ Firebase conectado");
+    console.log("✅ Firebase Usuários conectado (equilibrium-neuro-2de9b)");
+    console.log("✅ Firebase Pacientes conectado (pacientes-sistema)");
     return true;
   } catch(e) {
     console.error("Erro ao inicializar Firebase:", e);
@@ -55,18 +76,17 @@ async function initFirebase() {
 function isFirebaseReady() { return _fbReady; }
 
 /* ══════════════════════════════════════
-   AUTENTICAÇÃO (Firebase Auth)
+   AUTENTICAÇÃO (Firebase Auth - Usuários)
    ══════════════════════════════════════ */
 
-/* Login com email + senha via Firebase Auth */
 async function dbLogin(email, password) {
   if (!_fbReady) return { ok: false, message: "Banco não inicializado." };
   try {
     const cred = await _auth.signInWithEmailAndPassword(email.trim().toLowerCase(), password);
     const uid  = cred.user.uid;
 
-    // Buscar perfil do usuário no Firestore
-    const doc = await _db.collection(COL.USUARIOS).doc(uid).get();
+    // Buscar perfil do usuário no Firestore de USUÁRIOS
+    const doc = await _dbUsuarios.collection(COL.USUARIOS).doc(uid).get();
     if (!doc.exists) return { ok: false, message: "Perfil de usuário não encontrado." };
 
     const userData = doc.data();
@@ -110,40 +130,37 @@ function dbGetAuthUser() {
 }
 
 /* ══════════════════════════════════════
-   USUÁRIOS
+   USUÁRIOS (Banco de Usuários)
    ══════════════════════════════════════ */
 
-/* Listar todos os usuários (apenas admin) */
 async function dbGetUsers() {
   if (!_fbReady) return [];
-  const snap = await _db.collection(COL.USUARIOS).orderBy("label").get();
+  const snap = await _dbUsuarios.collection(COL.USUARIOS).orderBy("label").get();
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
 async function dbGetUserById(uid) {
   if (!_fbReady) return null;
-  const doc = await _db.collection(COL.USUARIOS).doc(uid).get();
+  const doc = await _dbUsuarios.collection(COL.USUARIOS).doc(uid).get();
   return doc.exists ? { id: doc.id, ...doc.data() } : null;
 }
 
-/* Criar usuário: cria no Firebase Auth + salva perfil no Firestore */
 async function dbCreateUser(data) {
   if (!_fbReady) return { ok: false, message: "Banco não inicializado." };
   try {
-    // 1. Cria uma instância "fantasma" do Firebase para não derrubar a sessão do Admin
-    const ghostApp = firebase.initializeApp(FIREBASE_CONFIG, "SecondaryApp");
-
-    // 2. Cria o login no Auth usando APENAS o app fantasma
+    const configUsuarios = window.FIREBASE_CONFIG_USUARIOS;
+    
+    // Criar usuário no Auth usando app fantasma
+    const ghostApp = firebase.initializeApp(configUsuarios, "SecondaryApp");
     const cred = await ghostApp.auth().createUserWithEmailAndPassword(
       data.email.trim().toLowerCase(), data.password
     );
     const uid = cred.user.uid;
 
-    // 3. Desloga do app fantasma e o destrói para limpar a memória
     await ghostApp.auth().signOut();
     await ghostApp.delete();
 
-    // 4. Prepara os dados do perfil
+    // Salvar perfil no Firestore de USUÁRIOS
     const profile = {
       label:   data.label || "Novo Usuário",
       email:   data.email.trim().toLowerCase(),
@@ -153,9 +170,7 @@ async function dbCreateUser(data) {
       criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
     };
 
-    // 5. Salva no banco de dados usando o App PRINCIPAL (onde o Admin continua logado com permissão!)
-    await _db.collection(COL.USUARIOS).doc(uid).set(profile);
-
+    await _dbUsuarios.collection(COL.USUARIOS).doc(uid).set(profile);
     return { ok: true, user: { id: uid, ...profile } };
   } catch(e) {
     if (e.code === "auth/email-already-in-use")
@@ -164,7 +179,6 @@ async function dbCreateUser(data) {
   }
 }
 
-/* Atualizar perfil (sem alterar senha) */
 async function dbUpdateUser(uid, data) {
   if (!_fbReady) return { ok: false, message: "Banco não inicializado." };
   const update = {};
@@ -173,7 +187,7 @@ async function dbUpdateUser(uid, data) {
   if (data.pages  !== undefined) update.pages  = data.pages;
   if (data.active !== undefined) update.active = data.active;
   update.atualizadoEm = firebase.firestore.FieldValue.serverTimestamp();
-  await _db.collection(COL.USUARIOS).doc(uid).update(update);
+  await _dbUsuarios.collection(COL.USUARIOS).doc(uid).update(update);
 
   // Atualizar sessão se for o usuário logado
   const current = dbGetAuthUser();
@@ -183,36 +197,33 @@ async function dbUpdateUser(uid, data) {
   return { ok: true };
 }
 
-/* Desativar usuário (não deleta do Auth para preservar histórico) */
 async function dbDeleteUser(uid) {
   if (!_fbReady) return { ok: false, message: "Banco não inicializado." };
 
-  // Verificar se é o único admin
   const users  = await dbGetUsers();
   const target = users.find(u => u.id === uid);
   const admins = users.filter(u => u.role === "admin" && u.active);
   if (target && target.role === "admin" && admins.length <= 1)
     return { ok: false, message: "Não é possível remover o único administrador." };
 
-  // Desativar em vez de deletar (preserva histórico de relatórios)
-  await _db.collection(COL.USUARIOS).doc(uid).update({ active: false });
+  await _dbUsuarios.collection(COL.USUARIOS).doc(uid).update({ active: false });
   return { ok: true };
 }
 
 /* ══════════════════════════════════════
-   PACIENTES
+   PACIENTES (Banco de Pacientes)
    ══════════════════════════════════════ */
 
 async function dbGetPacientes() {
   if (!_fbReady) return [];
-  const snap = await _db.collection(COL.PACIENTES)
+  const snap = await _dbPacientes.collection(COL.PACIENTES)
     .orderBy("nome").get();
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
 async function dbGetPacienteById(id) {
   if (!_fbReady) return null;
-  const doc = await _db.collection(COL.PACIENTES).doc(id).get();
+  const doc = await _dbPacientes.collection(COL.PACIENTES).doc(id).get();
   return doc.exists ? { id: doc.id, ...doc.data() } : null;
 }
 
@@ -225,29 +236,146 @@ async function dbSavePaciente(data, id = null) {
     atualizadoEm:  firebase.firestore.FieldValue.serverTimestamp(),
   };
   if (id) {
-    await _db.collection(COL.PACIENTES).doc(id).set(record, { merge: true });
+    await _dbPacientes.collection(COL.PACIENTES).doc(id).set(record, { merge: true });
     return { ok: true, id };
   } else {
     record.criadoEm = firebase.firestore.FieldValue.serverTimestamp();
     record.criadoPor = user ? user.id : null;
-    const ref = await _db.collection(COL.PACIENTES).add(record);
+    const ref = await _dbPacientes.collection(COL.PACIENTES).add(record);
     return { ok: true, id: ref.id };
   }
 }
 
 async function dbDeletePaciente(id) {
   if (!_fbReady) return { ok: false };
-  await _db.collection(COL.PACIENTES).doc(id).delete();
+  await _dbPacientes.collection(COL.PACIENTES).doc(id).delete();
   return { ok: true };
 }
 
 /* ══════════════════════════════════════
-   RELATÓRIOS / LAUDOS
+   TESTES DO PACIENTE (Subcoleção no Banco de Pacientes)
+   ══════════════════════════════════════ */
+
+async function dbGetTestesPaciente(pacienteId) {
+  if (!_fbReady) return [];
+  const snap = await _dbPacientes
+    .collection(COL.PACIENTES)
+    .doc(pacienteId)
+    .collection('testes')
+    .orderBy('criadoEm', 'desc')
+    .get();
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+async function dbGetTestePacienteById(pacienteId, testeId) {
+  if (!_fbReady) return null;
+  const doc = await _dbPacientes
+    .collection(COL.PACIENTES)
+    .doc(pacienteId)
+    .collection('testes')
+    .doc(testeId)
+    .get();
+  return doc.exists ? { id: doc.id, ...doc.data() } : null;
+}
+
+async function dbSalvarTestePaciente(pacienteId, data, testeId = null) {
+  if (!_fbReady) return { ok: false, message: "Banco não inicializado." };
+  
+  const user = dbGetAuthUser();
+  const record = {
+    ...data,
+    atualizadoPor: user ? user.id : null,
+    atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+  };
+
+  try {
+    if (testeId) {
+      await _dbPacientes
+        .collection(COL.PACIENTES)
+        .doc(pacienteId)
+        .collection('testes')
+        .doc(testeId)
+        .set(record, { merge: true });
+      return { ok: true, id: testeId };
+    } else {
+      record.criadoEm = firebase.firestore.FieldValue.serverTimestamp();
+      record.criadoPor = user ? user.id : null;
+      
+      const ref = await _dbPacientes
+        .collection(COL.PACIENTES)
+        .doc(pacienteId)
+        .collection('testes')
+        .add(record);
+      
+      return { ok: true, id: ref.id };
+    }
+  } catch (error) {
+    console.error('Erro ao salvar teste do paciente:', error);
+    return { ok: false, message: error.message };
+  }
+}
+
+async function dbDeletarTestePaciente(pacienteId, testeId) {
+  if (!_fbReady) return { ok: false };
+  await _dbPacientes
+    .collection(COL.PACIENTES)
+    .doc(pacienteId)
+    .collection('testes')
+    .doc(testeId)
+    .delete();
+  return { ok: true };
+}
+
+async function dbGetTestesPorTipo(pacienteId, tipoTeste) {
+  if (!_fbReady) return [];
+  const snap = await _dbPacientes
+    .collection(COL.PACIENTES)
+    .doc(pacienteId)
+    .collection('testes')
+    .where('tipo', '==', tipoTeste)
+    .orderBy('criadoEm', 'desc')
+    .get();
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+async function dbGetTestesPorStatus(pacienteId, status) {
+  if (!_fbReady) return [];
+  const snap = await _dbPacientes
+    .collection(COL.PACIENTES)
+    .doc(pacienteId)
+    .collection('testes')
+    .where('status', '==', status)
+    .orderBy('criadoEm', 'desc')
+    .get();
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+async function dbContarTestesPaciente(pacienteId) {
+  if (!_fbReady) return { total: 0, aplicados: 0, corrigidos: 0 };
+  
+  const snap = await _dbPacientes
+    .collection(COL.PACIENTES)
+    .doc(pacienteId)
+    .collection('testes')
+    .get();
+  
+  const testes = snap.docs.map(d => d.data());
+  
+  return {
+    total: testes.length,
+    aplicados: testes.filter(t => t.status === 'aplicado' || t.status === 'corrigido').length,
+    corrigidos: testes.filter(t => t.status === 'corrigido').length,
+    emAndamento: testes.filter(t => t.status === 'em-aplicacao').length
+  };
+}
+
+/* ══════════════════════════════════════
+   RELATÓRIOS (Banco de Pacientes)
    ══════════════════════════════════════ */
 
 async function dbGetRelatorios(pacienteId = null) {
   if (!_fbReady) return [];
-  let query = _db.collection(COL.RELATORIOS).orderBy("criadoEm", "desc");
+  let query = _dbPacientes.collection(COL.RELATORIOS).orderBy("criadoEm", "desc");
   if (pacienteId) query = query.where("pacienteId", "==", pacienteId);
   const snap = await query.get();
   return snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -262,37 +390,37 @@ async function dbSaveRelatorio(data, id = null) {
     atualizadoEm:  firebase.firestore.FieldValue.serverTimestamp(),
   };
   if (id) {
-    await _db.collection(COL.RELATORIOS).doc(id).set(record, { merge: true });
+    await _dbPacientes.collection(COL.RELATORIOS).doc(id).set(record, { merge: true });
     return { ok: true, id };
   } else {
     record.criadoEm  = firebase.firestore.FieldValue.serverTimestamp();
     record.criadoPor = user ? user.id : null;
-    const ref = await _db.collection(COL.RELATORIOS).add(record);
+    const ref = await _dbPacientes.collection(COL.RELATORIOS).add(record);
     return { ok: true, id: ref.id };
   }
 }
 
 async function dbDeleteRelatorio(id) {
   if (!_fbReady) return { ok: false };
-  await _db.collection(COL.RELATORIOS).doc(id).delete();
+  await _dbPacientes.collection(COL.RELATORIOS).doc(id).delete();
   return { ok: true };
 }
 
 /* ══════════════════════════════════════
-   CONFIGURAÇÕES DO PROFISSIONAL
+   CONFIGURAÇÕES DO PROFISSIONAL (Banco de Usuários)
    ══════════════════════════════════════ */
 
 const CONFIG_DOC_ID = "profissional";
 
 async function dbLoadConfig() {
   if (!_fbReady) return { nome:"", crp:"", especialidade:"", contato:"", clinica:"", cidade:"" };
-  const doc = await _db.collection(COL.CONFIG).doc(CONFIG_DOC_ID).get();
+  const doc = await _dbUsuarios.collection(COL.CONFIG).doc(CONFIG_DOC_ID).get();
   return doc.exists ? doc.data() : { nome:"", crp:"", especialidade:"", contato:"", clinica:"", cidade:"" };
 }
 
 async function dbSaveConfig(cfg) {
   if (!_fbReady) return { ok: false };
-  await _db.collection(COL.CONFIG).doc(CONFIG_DOC_ID).set({
+  await _dbUsuarios.collection(COL.CONFIG).doc(CONFIG_DOC_ID).set({
     ...cfg,
     atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(),
   }, { merge: true });
@@ -305,27 +433,41 @@ async function dbSaveConfig(cfg) {
 window.DB = {
   init:           initFirebase,
   isReady:        isFirebaseReady,
+  
   // Auth
   login:          dbLogin,
   logout:         dbLogout,
   isAuthed:       dbIsAuthed,
   getAuthUser:    dbGetAuthUser,
-  // Usuários
+  
+  // Usuários (Banco de Usuários)
   getUsers:       dbGetUsers,
   getUserById:    dbGetUserById,
   createUser:     dbCreateUser,
   updateUser:     dbUpdateUser,
   deleteUser:     dbDeleteUser,
-  // Pacientes
+  
+  // Pacientes (Banco de Pacientes)
   getPacientes:   dbGetPacientes,
   getPaciente:    dbGetPacienteById,
   savePaciente:   dbSavePaciente,
   deletePaciente: dbDeletePaciente,
-  // Relatórios
+  
+  // Testes do Paciente (Subcoleção no Banco de Pacientes)
+  getTestesPaciente:      dbGetTestesPaciente,
+  getTestePaciente:       dbGetTestePacienteById,
+  salvarTestePaciente:    dbSalvarTestePaciente,
+  deletarTestePaciente:   dbDeletarTestePaciente,
+  getTestesPorTipo:       dbGetTestesPorTipo,
+  getTestesPorStatus:     dbGetTestesPorStatus,
+  contarTestesPaciente:   dbContarTestesPaciente,
+  
+  // Relatórios (Banco de Pacientes)
   getRelatorios:  dbGetRelatorios,
   saveRelatorio:  dbSaveRelatorio,
   deleteRelatorio:dbDeleteRelatorio,
-  // Config
+  
+  // Config (Banco de Usuários)
   loadConfig:     dbLoadConfig,
   saveConfig:     dbSaveConfig,
 };
