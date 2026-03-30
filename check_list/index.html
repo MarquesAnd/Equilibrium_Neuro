@@ -195,9 +195,33 @@
         </div>
 
         <div class="cl-actions no-print">
-          <button class="btn-primary" onclick="window.print()" type="button">🖨️ Imprimir / Salvar PDF</button>
+          <button class="btn-primary" id="btnGerarRelatorio" type="button">📋 Gerar Relatório</button>
         </div>
       </div>
+
+    <!-- ═══════════════════════════════════════════════
+         OVERLAY DO RELATÓRIO — estilo SRS-2
+         ═══════════════════════════════════════════════ -->
+    <div id="clReportOverlay" class="cl-report-overlay">
+      <div class="cl-report-topbar">
+        <div class="cl-report-topbar-left">
+          <span style="font-size:20px">📋</span>
+          <h2>Check List — Relatório de Instrumentos</h2>
+        </div>
+        <div class="cl-report-actions">
+          <button class="btn-print-rep" id="btnImprimirRelatorio" type="button">🖨️ Imprimir / Salvar PDF</button>
+          <button class="btn-close-rep" id="btnFecharRelatorio" type="button">✕ Fechar</button>
+        </div>
+      </div>
+      <div class="cl-report-scroll">
+        <div class="cl-report-frame">
+          <div class="rep-cl-wrapper" id="repClWrapper">
+            <!-- preenchido via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
     </main>
   </div>
 
