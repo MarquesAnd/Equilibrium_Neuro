@@ -803,11 +803,11 @@ async function finalizarEEnviar() {
     setMsg("A formatar o relatório em PDF…");
 
     const opt = {
-      margin: [8, 0, 8, 0],
+      margin: [12, 14, 12, 14],  // [top, right, bottom, left] em mm — espaçamento uniforme
       filename: "resultado.pdf",
       image: { type: "jpeg", quality: 0.97 },
       html2canvas: {
-        scale: 2,
+        scale: 1.6,              // ~80% da escala original (era 2)
         useCORS: true,
         allowTaint: true,
         scrollX: 0,
