@@ -1,8 +1,7 @@
 /* ═══════════════════════════════════════════════════════
    CHECKLIST v3 — Lógica + Relatório estilo SRS-2
-   Abas · Checkbox · Contador · Overlay de Relatório
-   Relatório exibe TODOS os instrumentos de todas as abas,
-   com selecionados destacados e não-selecionados visíveis.
+   Gera relatório da aba ATIVA com todos os instrumentos:
+   selecionados em destaque, não selecionados visíveis.
    ═══════════════════════════════════════════════════════ */
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -62,18 +61,35 @@ document.addEventListener("DOMContentLoaded", function () {
   var btnFechar = document.getElementById("btnFecharRelatorio");
   if (btnFechar) {
     btnFechar.addEventListener("click", function () {
-      document.getElementById("clReportOverlay")?.classList.remove("ativo");
+      document.getElementById("clReportOverlay").classList.remove("ativo");
     });
   }
 
-  /* ── 5. IMPRIMIR DENTRO DO OVERLAY ───────────────── */
+  /* ── 5. IMPRIMIR ──────────────────────────────────── */
   var btnImprimir = document.getElementById("btnImprimirRelatorio");
   if (btnImprimir) {
     btnImprimir.addEventListener("click", function () { window.print(); });
   }
 
-  /* ── 6. LÓGICA DE GERAÇÃO DO RELATÓRIO ────────────── */
+  /* ── 6. GERAÇÃO DO RELATÓRIO ──────────────────────── */
   function abrirRelatorio() {
+
+    /* Descobre qual aba está ativa */
+    var tabAtiva = document.querySelector(".cl-tab.active");
+    var abaId    = tabAtiva ? tabAtiva.getAttribute("data-target") : "pre-escolar";
+
+    var abaInfo = {
+      "pre-escolar": { label: "🟣 Pré-Escolar",  cls: "rep-section-pre" },
+      "escolar":     { label: "🟢 Escolar",       cls: "rep-section-esc" },
+      "adultos":     { label: "🔵 Adultos",        cls: "rep-section-adu" }
+    };
+    var pillInfo = {
+      "pre-escolar": "pre",
+      "escolar":     "esc",
+      "adultos":     "adu"
+    };
+
+    /* Dados do paciente */
     var paciente  = document.querySelector('.cl-form input[placeholder="Nome completo"]')?.value.trim() || "—";
     var cpf       = document.querySelector('.cl-form input[placeholder="000.000.000-00"]')?.value.trim() || "—";
     var idadeA    = document.querySelector('.idade-group input:nth-child(1)')?.value.trim() || "";
@@ -81,43 +97,40 @@ document.addEventListener("DOMContentLoaded", function () {
     var idadeD    = document.querySelector('.idade-group input:nth-child(3)')?.value.trim() || "";
     var hipoteses = document.querySelector('.cl-form input[placeholder="Diagnósticos em investigação"]')?.value.trim() || "—";
 
-    var idadeStr = [idadeA && idadeA+"a", idadeM && idadeM+"m", idadeD && idadeD+"d"]
+    var idadeStr = [idadeA && idadeA + "a", idadeM && idadeM + "m", idadeD && idadeD + "d"]
       .filter(Boolean).join(" ") || "—";
 
     var hoje = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
 
-    /* Coleta TODOS os instrumentos (sel ou não) de cada aba */
-    var dados    = { "pre-escolar": [], escolar: [], adultos: [] };
-    var totalSel = { "pre-escolar": 0, escolar: 0, adultos: 0 };
+    /* Coleta TODOS os instrumentos da aba ativa */
+    var panel    = document.getElementById(abaId);
+    var lista    = [];
+    var totalSel = 0;
+    var catAtual = "";
 
-    ["pre-escolar", "escolar", "adultos"].forEach(function (id) {
-      var panel = document.getElementById(id);
-      if (!panel) return;
-      var catAtual = "";
-      panel.querySelectorAll("tr").forEach(function (tr) {
-        if (tr.classList.contains("cat-hdr")) {
-          catAtual = tr.querySelector("td")?.textContent.trim() || "";
-          return;
-        }
-        var cb = tr.querySelector(".cl-check");
-        if (!cb) return;
-        var cells = tr.querySelectorAll("td");
-        var sel   = cb.checked;
-        if (sel) totalSel[id]++;
-        dados[id].push({
-          cat:         catAtual,
-          instrumento: cells[1]?.textContent.trim() || "",
-          avalia:      cells[2]?.textContent.trim() || "",
-          idade:       cells[3]?.textContent.trim() || "",
-          data:        tr.querySelector(".cl-data")?.textContent.trim() || "",
-          sel:         sel
-        });
+    panel.querySelectorAll("tr").forEach(function (tr) {
+      if (tr.classList.contains("cat-hdr")) {
+        catAtual = tr.querySelector("td")?.textContent.trim() || "";
+        return;
+      }
+      var cb = tr.querySelector(".cl-check");
+      if (!cb) return;
+      var sel = cb.checked;
+      if (sel) totalSel++;
+      var cells = tr.querySelectorAll("td");
+      lista.push({
+        cat:         catAtual,
+        instrumento: cells[1]?.textContent.trim() || "",
+        avalia:      cells[2]?.textContent.trim() || "",
+        idade:       cells[3]?.textContent.trim() || "",
+        data:        tr.querySelector(".cl-data")?.textContent.trim() || "",
+        sel:         sel
       });
     });
 
-    var totalSelGeral = totalSel["pre-escolar"] + totalSel.escolar + totalSel.adultos;
-
     /* ─── Monta HTML ─── */
+    var info = abaInfo[abaId];
+    var pill = pillInfo[abaId];
     var html = "";
 
     /* Cabeçalho */
@@ -128,8 +141,8 @@ document.addEventListener("DOMContentLoaded", function () {
           + '  </div>'
           + '  <div class="rep-cl-header-info">'
           + '    <div class="rep-cl-doc-name">Check List de Instrumentos</div>'
-          + '    <div class="rep-cl-doc-sub">Seleção de Testes Neuropsicológicos</div>'
-          + '    <div class="rep-cl-badge"><span class="dot"></span>' + totalSelGeral + ' instrumento' + (totalSelGeral !== 1 ? 's' : '') + ' a realizar</div>'
+          + '    <div class="rep-cl-doc-sub">' + info.label + '</div>'
+          + '    <div class="rep-cl-badge"><span class="dot"></span>' + totalSel + ' instrumento' + (totalSel !== 1 ? 's' : '') + ' a realizar</div>'
           + '  </div>'
           + '</div>';
 
@@ -147,19 +160,13 @@ document.addEventListener("DOMContentLoaded", function () {
     /* Hipóteses */
     html += '<div class="rep-cl-hipoteses"><strong>Hipóteses Diagnósticas</strong>' + escHtml(hipoteses) + '</div>';
 
-    /* Pills de totais */
-    html += '<div class="rep-cl-totais">';
-    [
-      { id: "pre-escolar", label: "Pré-Escolar", cls: "pre" },
-      { id: "escolar",     label: "Escolar",      cls: "esc" },
-      { id: "adultos",     label: "Adultos",       cls: "adu" }
-    ].forEach(function (f) {
-      var s = totalSel[f.id], t = dados[f.id].length;
-      if (t === 0) return;
-      html += '<div class="rep-cl-total-pill ' + f.cls + '"><span class="num">' + s + '</span>'
-            + '<span>/ ' + t + ' &nbsp;<small style="font-weight:600;opacity:.75">' + f.label + '</small></span></div>';
-    });
-    html += '</div>';
+    /* Pill de total */
+    html += '<div class="rep-cl-totais">'
+          + '  <div class="rep-cl-total-pill ' + pill + '">'
+          + '    <span class="num">' + totalSel + '</span>'
+          + '    <span>/ ' + lista.length + ' &nbsp;<small style="font-weight:600;opacity:.75">' + info.label.replace(/^.{2}/, '').trim() + '</small></span>'
+          + '  </div>'
+          + '</div>';
 
     /* Legenda */
     html += '<div style="display:flex;gap:20px;align-items:center;margin-bottom:20px;font-size:12px;color:#64748b;">'
@@ -168,72 +175,59 @@ document.addEventListener("DOMContentLoaded", function () {
           + '    Instrumento a realizar'
           + '  </span>'
           + '  <span style="display:flex;align-items:center;gap:6px;opacity:.55;">'
-          + '    <span style="display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;border:2px solid #cbd5e1;background:#f8fafc;"></span>'
+          + '    <span style="display:inline-flex;width:16px;height:16px;border-radius:4px;border:2px solid #cbd5e1;background:#f8fafc;"></span>'
           + '    Não selecionado'
           + '  </span>'
           + '</div>';
 
-    /* Seções por faixa */
-    var faixas = [
-      { id: "pre-escolar", label: "🟣 Pré-Escolar",  cls: "rep-section-pre" },
-      { id: "escolar",     label: "🟢 Escolar",       cls: "rep-section-esc" },
-      { id: "adultos",     label: "🔵 Adultos",        cls: "rep-section-adu" }
-    ];
+    /* Tabela da aba ativa */
+    html += '<div class="rep-cl-section ' + info.cls + '">'
+          + '  <div class="rep-cl-section-title">' + info.label
+          + '    <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:none;letter-spacing:0">'
+          + '      — ' + totalSel + ' de ' + lista.length + ' selecionado' + (totalSel !== 1 ? 's' : '')
+          + '    </span>'
+          + '  </div>';
 
-    faixas.forEach(function (f) {
-      var lista = dados[f.id];
-      if (!lista || lista.length === 0) return;
-      var s = totalSel[f.id];
-
-      html += '<div class="rep-cl-section ' + f.cls + '">'
-            + '  <div class="rep-cl-section-title">' + f.label
-            + '    <span style="font-size:11px;font-weight:600;color:#64748b;text-transform:none;letter-spacing:0">'
-            + '      — ' + s + ' de ' + lista.length + ' selecionado' + (s !== 1 ? 's' : '')
-            + '    </span>'
-            + '  </div>';
-
-      /* Agrupa por categoria */
-      var porCat = {}, catOrder = [];
-      lista.forEach(function (item) {
-        if (!porCat[item.cat]) { porCat[item.cat] = []; catOrder.push(item.cat); }
-        porCat[item.cat].push(item);
-      });
-
-      html += '<table class="rep-cl-table"><thead><tr>'
-            + '  <th style="width:36px;text-align:center">✓</th>'
-            + '  <th>Instrumento</th>'
-            + '  <th>O que Avalia</th>'
-            + '  <th style="white-space:nowrap">Faixa Etária</th>'
-            + '  <th style="width:80px">Data</th>'
-            + '</tr></thead><tbody>';
-
-      catOrder.forEach(function (cat) {
-        html += '<tr class="rep-cat-hdr"><td colspan="5">' + escHtml(cat) + '</td></tr>';
-        porCat[cat].forEach(function (item) {
-          var dim = item.sel ? '' : 'opacity:.4;';
-          html += '<tr style="' + dim + '">';
-          html += '  <td style="text-align:center"><div class="rep-cl-check-box' + (item.sel ? ' checked' : '') + '">' + (item.sel ? '✓' : '') + '</div></td>';
-          html += '  <td>' + (item.sel ? '<strong>' : '') + escHtml(item.instrumento) + (item.sel ? '</strong>' : '') + '</td>';
-          html += '  <td style="color:#64748b">' + escHtml(item.avalia) + '</td>';
-          html += '  <td style="white-space:nowrap;font-size:11px;color:#94a3b8">' + escHtml(item.idade) + '</td>';
-          html += '  <td>' + escHtml(item.data) + '</td>';
-          html += '</tr>';
-        });
-      });
-
-      html += '</tbody></table></div>';
+    /* Agrupa por categoria */
+    var porCat = {}, catOrder = [];
+    lista.forEach(function (item) {
+      if (!porCat[item.cat]) { porCat[item.cat] = []; catOrder.push(item.cat); }
+      porCat[item.cat].push(item);
     });
 
+    html += '<table class="rep-cl-table"><thead><tr>'
+          + '  <th style="width:36px;text-align:center">✓</th>'
+          + '  <th>Instrumento</th>'
+          + '  <th>O que Avalia</th>'
+          + '  <th style="white-space:nowrap">Faixa Etária</th>'
+          + '  <th style="width:80px">Data</th>'
+          + '</tr></thead><tbody>';
+
+    catOrder.forEach(function (cat) {
+      html += '<tr class="rep-cat-hdr"><td colspan="5">' + escHtml(cat) + '</td></tr>';
+      porCat[cat].forEach(function (item) {
+        var dim = item.sel ? '' : 'opacity:.4;';
+        html += '<tr style="' + dim + '">'
+              + '  <td style="text-align:center"><div class="rep-cl-check-box' + (item.sel ? ' checked' : '') + '">' + (item.sel ? '✓' : '') + '</div></td>'
+              + '  <td>' + (item.sel ? '<strong>' : '') + escHtml(item.instrumento) + (item.sel ? '</strong>' : '') + '</td>'
+              + '  <td style="color:#64748b">' + escHtml(item.avalia) + '</td>'
+              + '  <td style="white-space:nowrap;font-size:11px;color:#94a3b8">' + escHtml(item.idade) + '</td>'
+              + '  <td>' + escHtml(item.data) + '</td>'
+              + '</tr>';
+      });
+    });
+
+    html += '</tbody></table></div>';
     html += '</div>'; /* /rep-cl-body */
 
     /* Rodapé */
     html += '<div class="rep-cl-footer">'
           + '  <span>Equilibrium Neuropsicologia</span>'
-          + '  <span>' + hoje + '  ·  ' + totalSelGeral + ' instrumento' + (totalSelGeral !== 1 ? 's' : '') + ' a realizar</span>'
+          + '  <span>' + hoje + '  ·  ' + totalSel + ' instrumento' + (totalSel !== 1 ? 's' : '') + ' a realizar</span>'
           + '</div>';
 
     document.getElementById("repClWrapper").innerHTML = html;
-    document.getElementById("clReportOverlay")?.classList.add("ativo");
+    document.getElementById("clReportOverlay").classList.add("ativo");
   }
 
   /* ── 7. UTILITÁRIO ────────────────────────────────── */
