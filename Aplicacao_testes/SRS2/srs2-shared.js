@@ -769,15 +769,13 @@ async function finalizarEEnviar() {
   cortina.id = "__srs2_cortina__";
   cortina.style.cssText = [
     "position:fixed","inset:0",
-    "background:rgba(0,0,0,0.55)",
-    "backdrop-filter:blur(4px)",
-    "-webkit-backdrop-filter:blur(4px)",
+    "background:#1e3a5f",   // azul sólido — cobre completamente o relatório
     "z-index:999999",
     "display:flex","align-items:center","justify-content:center"
   ].join(";");
   cortina.innerHTML = `
     <div style="background:#fff;border-radius:20px;padding:40px 48px;text-align:center;
-                box-shadow:0 24px 60px rgba(0,0,0,0.25);max-width:340px;width:90%;">
+                box-shadow:0 24px 60px rgba(0,0,0,0.35);max-width:340px;width:90%;">
       <div style="width:52px;height:52px;border:5px solid #dbeafe;border-top-color:#1a56db;
                   border-radius:50%;animation:__srs2spin__ 0.8s linear infinite;margin:0 auto 20px;"></div>
       <div id="__srs2_msg__" style="font-size:16px;font-weight:800;color:#1d4ed8;margin-bottom:6px;">
@@ -855,15 +853,24 @@ async function finalizarEEnviar() {
 
     if (data.status === "sucesso") {
       document.body.innerHTML = `
-        <div class="success-screen">
-          <div class="success-card">
-            <div class="s-icon">✅</div>
-            <h1>Avaliação Finalizada!</h1>
-            <p>As suas respostas foram processadas e enviadas com segurança.</p>
-            <p class="s-note">Já pode fechar esta janela.</p>
+        <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;
+                    background:#1e3a5f;padding:24px;">
+          <div style="background:#fff;border-radius:20px;padding:56px 44px;text-align:center;
+                      max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+            <div style="width:72px;height:72px;background:#dbeafe;border-radius:50%;
+                        display:flex;align-items:center;justify-content:center;
+                        margin:0 auto 24px;font-size:32px;">✅</div>
+            <h1 style="font-size:22px;font-weight:800;color:#1d4ed8;margin:0 0 12px;">
+              Avaliação Finalizada!
+            </h1>
+            <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 8px;">
+              As suas respostas foram processadas e enviadas com segurança.
+            </p>
+            <p style="font-size:13px;color:#94a3b8;margin:24px 0 0;">
+              Já pode fechar esta janela.
+            </p>
           </div>
-        </div>
-      `;
+        </div>`;
     } else {
       throw new Error(data.mensagem || "Resposta inesperada do servidor.");
     }
