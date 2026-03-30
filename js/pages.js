@@ -114,7 +114,7 @@ function renderCorrecao()  { location.href = '/Correcao_testes/index.html';  ret
 function renderAplicacao() { location.href = '/Aplicacao_testes/index.html'; return ''; }
 function renderChecklist() { location.href = '/check_list/index.html';       return ''; }
 function renderConfig()    { location.href = '/Config/index.html';           return ''; }
-function renderPacientes() { location.href = '/pacientes/pacientes.html';        return ''; }
+function renderPacientes() { location.href = '/Pacientes/index.html';        return ''; }
 
 
 /* ══════════════════════════
