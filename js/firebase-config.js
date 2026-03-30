@@ -24,7 +24,7 @@
    FIREBASE 1 - USUÁRIOS
    Para: Autenticação e dados dos profissionais
    ────────────────────────────────────────────────────────── */
-const FIREBASE_CONFIG = {
+const FIREBASE_CONFIG_USUARIOS = {
   apiKey:            "AIzaSyCRjDEX-N4eYkVTlvjegvdyx50D-UA28kE",
   authDomain:        "equilibrium-neuro-2de9b.firebaseapp.com",
   projectId:         "equilibrium-neuro-2de9b",
@@ -50,11 +50,11 @@ const FIREBASE_CONFIG_PACIENTES = {
    Detecta se as credenciais já foram preenchidas
    ────────────────────────────────────────────────────────── */
 window.FIREBASE_CONFIGURED = 
-  !FIREBASE_CONFIG.apiKey.startsWith("COLE_AQUI") &&
+  !FIREBASE_CONFIG_USUARIOS.apiKey.startsWith("COLE_AQUI") &&
   !FIREBASE_CONFIG_PACIENTES.apiKey.startsWith("COLE_AQUI");
 
 /* ──────────────────────────────────────────────────────────
    Expor configurações para uso no db.js
    ────────────────────────────────────────────────────────── */
-window.FIREBASE_CONFIG = FIREBASE_CONFIG;
+window.FIREBASE_CONFIG_USUARIOS = FIREBASE_CONFIG_USUARIOS;
 window.FIREBASE_CONFIG_PACIENTES = FIREBASE_CONFIG_PACIENTES;
