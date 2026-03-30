@@ -6,12 +6,12 @@
 // TODO: Substitua com suas credenciais do Firebase Console
 // https://console.firebase.google.com/
 const firebaseConfig = {
-    apiKey: "SUA_API_KEY_AQUI",
-    authDomain: "seu-projeto.firebaseapp.com",
-    projectId: "seu-projeto-id",
-    storageBucket: "seu-projeto.appspot.com",
-    messagingSenderId: "123456789",
-    appId: "1:123456789:web:abc123",
+    apiKey: "AIzaSyDX4daG7maFvJ5A3xqTz-BFD8cSBZhFc84",
+    authDomain: "pacientes-sistema.firebaseapp.com",
+    projectId: "pacientes-sistema",
+    storageBucket: "pacientes-sistema.firebasestorage.app",
+    messagingSenderId: "893642723504",
+    appId: "1:893642723504:web:0a07e7a1457b7040f72b75",
     databaseURL: "https://seu-projeto.firebaseio.com"
 };
 
