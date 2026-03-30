@@ -1,10 +1,12 @@
 /* ═══════════════════════════════════════════════════════════
-   PACIENTES - GERENCIAMENTO COMPLETO
+   PACIENTES - VERSÃO ATUALIZADA
+   Com suporte a testes como subcoleções no Firebase
    ═══════════════════════════════════════════════════════════ */
 
 // Estado global
 let pacientes = [];
 let pacienteAtual = null;
+let testesAtuais = [];
 
 // Estrutura de testes organizados por faixa etária
 const TESTES_POR_FAIXA = {
@@ -185,6 +187,13 @@ const TESTES_POR_FAIXA = {
 async function carregarPacientes() {
   try {
     pacientes = await DB.getPacientes();
+    
+    // Carregar contadores de testes para cada paciente
+    for (let paciente of pacientes) {
+      const contadores = await DB.contarTestesPaciente(paciente.id);
+      paciente.contadorTestes = contadores;
+    }
+    
     renderizarListaPacientes();
   } catch (error) {
     console.error('Erro ao carregar pacientes:', error);
@@ -220,8 +229,8 @@ function renderizarListaPacientes() {
       <tbody>
         ${pacientes.map(p => {
           const idade = calcularIdade(p.dataNascimento);
-          const teslesSelecionados = p.testesSeleccionados || [];
-          const testesRealizados = p.testesRealizados || [];
+          const testesSeleccionados = p.testesSeleccionados || [];
+          const contadores = p.contadorTestes || { total: 0, corrigidos: 0 };
           
           return `
             <tr onclick="abrirDetalhesPaciente('${p.id}')">
@@ -231,13 +240,13 @@ function renderizarListaPacientes() {
               </td>
               <td>${idade}</td>
               <td>
-                <span class="testes-count ${teslesSelecionados.length === 0 ? 'zero' : ''}">
-                  ${teslesSelecionados.length} ${teslesSelecionados.length === 1 ? 'teste' : 'testes'}
+                <span class="testes-count ${testesSeleccionados.length === 0 ? 'zero' : ''}">
+                  ${testesSeleccionados.length} ${testesSeleccionados.length === 1 ? 'teste' : 'testes'}
                 </span>
               </td>
               <td>
-                <span class="testes-count ${testesRealizados.length === 0 ? 'zero' : ''}">
-                  ${testesRealizados.length} ${testesRealizados.length === 1 ? 'realizado' : 'realizados'}
+                <span class="testes-count ${contadores.corrigidos === 0 ? 'zero' : ''}">
+                  ${contadores.corrigidos} ${contadores.corrigidos === 1 ? 'corrigido' : 'corrigidos'}
                 </span>
               </td>
               <td class="center">
@@ -317,16 +326,14 @@ async function salvarPaciente(event) {
     observacoes: document.getElementById('inputObservacoes').value.trim(),
   };
 
-  // Preservar testes existentes se estiver editando
+  // Preservar testes selecionados se estiver editando
   if (id) {
     const pacienteExistente = pacientes.find(p => p.id === id);
     if (pacienteExistente) {
       dados.testesSeleccionados = pacienteExistente.testesSeleccionados || [];
-      dados.testesRealizados = pacienteExistente.testesRealizados || [];
     }
   } else {
     dados.testesSeleccionados = [];
-    dados.testesRealizados = [];
   }
 
   try {
@@ -346,7 +353,18 @@ async function salvarPaciente(event) {
 }
 
 async function excluirPaciente(id) {
-  if (!confirm('Tem certeza que deseja excluir este paciente? Esta ação não pode ser desfeita.')) {
+  const paciente = pacientes.find(p => p.id === id);
+  if (!paciente) return;
+  
+  // Verificar se há testes salvos
+  const contadores = await DB.contarTestesPaciente(id);
+  
+  let mensagem = `Tem certeza que deseja excluir o paciente "${paciente.nome}"?`;
+  if (contadores.total > 0) {
+    mensagem += `\n\nATENÇÃO: Este paciente possui ${contadores.total} teste(s) salvo(s) que também serão excluídos.`;
+  }
+  
+  if (!confirm(mensagem)) {
     return;
   }
 
@@ -368,11 +386,14 @@ async function excluirPaciente(id) {
 /* ═══════════════════════════════════
    MODAL DETALHES DO PACIENTE
    ═══════════════════════════════════ */
-function abrirDetalhesPaciente(id) {
+async function abrirDetalhesPaciente(id) {
   const paciente = pacientes.find(p => p.id === id);
   if (!paciente) return;
 
   pacienteAtual = paciente;
+  
+  // Carregar testes do paciente do Firebase
+  testesAtuais = await DB.getTestesPaciente(paciente.id);
   
   // Preencher informações do cabeçalho
   const iniciais = paciente.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
@@ -396,6 +417,7 @@ function abrirDetalhesPaciente(id) {
 function fecharModalDetalhes() {
   document.getElementById('modalDetalhesPaciente').classList.remove('active');
   pacienteAtual = null;
+  testesAtuais = [];
 }
 
 function editarPacienteAtual() {
@@ -453,16 +475,26 @@ function renderizarTestesSeleccionados() {
     const testeInfo = buscarInfoTeste(testeId);
     if (!testeInfo) return '';
 
+    // Verificar se já existe teste salvo deste tipo
+    const testeSalvo = testesAtuais.find(t => t.tipo === testeId);
+    const statusClass = testeSalvo ? (testeSalvo.status === 'corrigido' ? 'corrigido' : 'em-andamento') : '';
+
     return `
-      <div class="teste-card">
+      <div class="teste-card ${statusClass}">
         <div class="teste-card-header">
           <div class="teste-nome">${testeInfo.nome}</div>
           <span class="teste-faixa ${testeInfo.faixa}">${testeInfo.faixaTitulo}</span>
         </div>
         <div class="teste-desc">${testeInfo.desc} • ${testeInfo.idade}</div>
+        ${testeSalvo ? `
+          <div class="teste-status">
+            ${testeSalvo.status === 'corrigido' ? '✅ Corrigido' : '⏳ Em andamento'}
+            ${testeSalvo.dataCorrecao ? ` • ${formatarData(testeSalvo.dataCorrecao.toDate())}` : ''}
+          </div>
+        ` : ''}
         <div class="teste-actions">
           <button class="btn-sm btn-aplicar" onclick="aplicarTeste('${testeId}')">
-            🧠 Aplicar
+            🧠 ${testeSalvo ? 'Ver/Editar' : 'Aplicar'}
           </button>
           <button class="btn-sm btn-corrigir" onclick="corrigirTeste('${testeId}')">
             ✏️ Corrigir
@@ -499,6 +531,18 @@ function buscarInfoTeste(testeId) {
 async function removerTesteSeleccionado(testeId) {
   if (!pacienteAtual) return;
 
+  // Verificar se há teste salvo deste tipo
+  const testeSalvo = testesAtuais.find(t => t.tipo === testeId);
+  
+  let mensagem = 'Deseja remover este teste da lista?';
+  if (testeSalvo) {
+    mensagem = 'Este teste possui dados salvos. Deseja removê-lo da lista?\n\nOs dados salvos do teste serão mantidos na aba "Testes Realizados".';
+  }
+  
+  if (!confirm(mensagem)) {
+    return;
+  }
+
   const testes = pacienteAtual.testesSeleccionados || [];
   const novosTestes = testes.filter(id => id !== testeId);
 
@@ -511,7 +555,7 @@ async function removerTesteSeleccionado(testeId) {
     pacienteAtual.testesSeleccionados = novosTestes;
     renderizarTestesSeleccionados();
     await carregarPacientes();
-    mostrarMensagem('Teste removido com sucesso!', 'success');
+    mostrarMensagem('Teste removido da seleção!', 'success');
   } catch (error) {
     console.error('Erro ao remover teste:', error);
     mostrarMensagem('Erro ao remover teste', 'error');
@@ -519,64 +563,78 @@ async function removerTesteSeleccionado(testeId) {
 }
 
 function aplicarTeste(testeId) {
-  // Redirecionar para página de aplicação do teste específico
   const testeInfo = buscarInfoTeste(testeId);
   if (!testeInfo) return;
   
-  // Armazenar informações do paciente para uso na página de aplicação
+  // Armazenar informações para uso na página de aplicação
   sessionStorage.setItem('pacienteAtual', JSON.stringify(pacienteAtual));
   sessionStorage.setItem('testeAtual', testeId);
+  sessionStorage.setItem('testeNome', testeInfo.nome);
   
-  // Redirecionar baseado no teste
+  // Redirecionar para página de aplicação
   window.location.href = '/Aplicacao_testes/index.html';
 }
 
 function corrigirTeste(testeId) {
-  // Redirecionar para página de correção do teste específico
   const testeInfo = buscarInfoTeste(testeId);
   if (!testeInfo) return;
   
-  // Armazenar informações do paciente para uso na página de correção
+  // Armazenar informações para uso na página de correção
   sessionStorage.setItem('pacienteAtual', JSON.stringify(pacienteAtual));
   sessionStorage.setItem('testeAtual', testeId);
+  sessionStorage.setItem('testeNome', testeInfo.nome);
   
-  // Redirecionar baseado no teste
+  // Redirecionar para página de correção
   window.location.href = '/Correcao_testes/index.html';
 }
 
 /* ═══════════════════════════════════
-   TESTES REALIZADOS
+   TESTES REALIZADOS (da subcoleção)
    ═══════════════════════════════════ */
 function renderizarTestesRealizados() {
   const container = document.getElementById('listaTestesRealizados');
-  const testes = pacienteAtual.testesRealizados || [];
+  
+  // Filtrar apenas testes corrigidos
+  const testesCorrigidos = testesAtuais.filter(t => t.status === 'corrigido');
 
-  if (testes.length === 0) {
+  if (testesCorrigidos.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-icon">✅</div>
-        <div class="empty-title">Nenhum teste realizado ainda</div>
+        <div class="empty-title">Nenhum teste corrigido ainda</div>
         <div class="empty-desc">Os testes aplicados e corrigidos aparecerão aqui</div>
       </div>
     `;
     return;
   }
 
-  const html = testes.map(teste => {
-    const dataFormatada = formatarData(teste.data);
+  const html = testesCorrigidos.map(teste => {
+    const testeInfo = buscarInfoTeste(teste.tipo);
+    const nomeExibicao = testeInfo ? testeInfo.nome : teste.tipo;
+    const dataAplicacao = teste.dataAplicacao ? formatarData(teste.dataAplicacao.toDate()) : 'Data não registrada';
+    const dataCorrecao = teste.dataCorrecao ? formatarData(teste.dataCorrecao.toDate()) : dataAplicacao;
     
     return `
       <div class="teste-realizado">
         <div class="teste-realizado-info">
-          <h5>${teste.nome}</h5>
+          <h5>${nomeExibicao}</h5>
           <div class="teste-realizado-meta">
-            Realizado em ${dataFormatada}
-            ${teste.resultado ? ` • Resultado: ${teste.resultado}` : ''}
+            Aplicado em ${dataAplicacao} • Corrigido em ${dataCorrecao}
+            ${teste.resultados?.resumo ? ` • ${teste.resultados.resumo}` : ''}
           </div>
+          ${teste.observacoes ? `
+            <div class="teste-observacoes">${teste.observacoes}</div>
+          ` : ''}
         </div>
         <div class="teste-realizado-acoes">
-          <button class="btn-sm btn-secondary" onclick="visualizarRelatorio('${teste.id}')">
-            📄 Ver Relatório
+          <button class="btn-sm btn-secondary" onclick="visualizarTeste('${teste.id}')">
+            👁️ Visualizar
+          </button>
+          <button class="btn-sm btn-primary" onclick="editarTesteSalvo('${teste.id}')">
+            ✏️ Editar
+          </button>
+          <button class="btn-sm btn-danger" onclick="excluirTesteSalvo('${teste.id}')">
+            🗑️ Excluir
           </button>
         </div>
       </div>
@@ -586,9 +644,46 @@ function renderizarTestesRealizados() {
   container.innerHTML = html;
 }
 
-function visualizarRelatorio(testeId) {
-  // Implementar visualização de relatório
-  alert('Funcionalidade em desenvolvimento: Visualizar relatório do teste');
+function visualizarTeste(testeId) {
+  const teste = testesAtuais.find(t => t.id === testeId);
+  if (!teste) return;
+  
+  // Implementar visualização detalhada do teste
+  alert('Visualização detalhada em desenvolvimento\n\nTeste: ' + teste.tipo + '\nStatus: ' + teste.status);
+}
+
+function editarTesteSalvo(testeId) {
+  const teste = testesAtuais.find(t => t.id === testeId);
+  if (!teste) return;
+  
+  // Redirecionar para página de correção com ID do teste
+  sessionStorage.setItem('pacienteAtual', JSON.stringify(pacienteAtual));
+  sessionStorage.setItem('testeAtual', teste.tipo);
+  sessionStorage.setItem('testeId', testeId);
+  
+  window.location.href = '/Correcao_testes/index.html';
+}
+
+async function excluirTesteSalvo(testeId) {
+  if (!confirm('Tem certeza que deseja excluir este teste? Esta ação não pode ser desfeita.')) {
+    return;
+  }
+
+  try {
+    await DB.deletarTestePaciente(pacienteAtual.id, testeId);
+    
+    // Atualizar lista local
+    testesAtuais = testesAtuais.filter(t => t.id !== testeId);
+    
+    renderizarTestesRealizados();
+    renderizarTestesSeleccionados(); // Atualizar também a aba de selecionados
+    await carregarPacientes(); // Atualizar contadores
+    
+    mostrarMensagem('Teste excluído com sucesso!', 'success');
+  } catch (error) {
+    console.error('Erro ao excluir teste:', error);
+    mostrarMensagem('Erro ao excluir teste', 'error');
+  }
 }
 
 /* ═══════════════════════════════════
@@ -618,14 +713,11 @@ function fecharSeletorTestes() {
 }
 
 function trocarFaixa(faixaNome) {
-  // Remover active de todas as tabs e conteúdos
   document.querySelectorAll('.faixa-tab').forEach(t => t.classList.remove('active'));
   document.querySelectorAll('.faixa-content').forEach(c => c.classList.remove('active'));
 
-  // Ativar tab clicada
   event.target.classList.add('active');
   
-  // Ativar conteúdo correspondente
   const faixaMap = {
     'pre-escolar': 'faixaPreEscolar',
     'escolar': 'faixaEscolar',
@@ -678,7 +770,6 @@ function renderizarTestesDisponiveis() {
 async function salvarTestesSeleccionados() {
   if (!pacienteAtual) return;
 
-  // Coletar todos os checkboxes marcados
   const checkboxes = document.querySelectorAll('#modalSeletorTestes input[type="checkbox"]:checked');
   const testesIds = Array.from(checkboxes).map(cb => cb.value);
 
@@ -743,7 +834,6 @@ function formatarData(data) {
 }
 
 function mostrarMensagem(texto, tipo = 'success') {
-  // Criar elemento de notificação
   const notificacao = document.createElement('div');
   notificacao.className = `notificacao notificacao-${tipo}`;
   notificacao.textContent = texto;
@@ -770,29 +860,40 @@ function mostrarMensagem(texto, tipo = 'success') {
   }, 3000);
 }
 
-// Adicionar estilos de animação
 const style = document.createElement('style');
 style.textContent = `
   @keyframes slideIn {
-    from {
-      transform: translateX(400px);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
   }
-  
   @keyframes slideOut {
-    from {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    to {
-      transform: translateX(400px);
-      opacity: 0;
-    }
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(400px); opacity: 0; }
+  }
+  .teste-card.corrigido {
+    border-color: var(--green);
+    background: var(--green-light);
+  }
+  .teste-card.em-andamento {
+    border-color: var(--amber);
+    background: var(--amber-light);
+  }
+  .teste-status {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .teste-observacoes {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 8px;
+    padding: 8px;
+    background: rgba(0,0,0,0.02);
+    border-radius: 6px;
   }
 `;
 document.head.appendChild(style);
@@ -801,7 +902,6 @@ document.head.appendChild(style);
    MÁSCARAS DE INPUT
    ═══════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {
-  // Máscara de CPF
   const inputCpf = document.getElementById('inputCpf');
   if (inputCpf) {
     inputCpf.addEventListener('input', (e) => {
@@ -813,7 +913,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Máscara de telefone
   const inputTelefone = document.getElementById('inputTelefone');
   if (inputTelefone) {
     inputTelefone.addEventListener('input', (e) => {
