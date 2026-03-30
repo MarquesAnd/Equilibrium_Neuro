@@ -155,37 +155,7 @@
     .btn-enviar:active  { transform: translateY(0); opacity: 1; }
     .btn-enviar:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-    /* ── Máscara de envio ── */
-    .cortina {
-      position: fixed; inset: 0;
-      background: linear-gradient(145deg, #f0f4ff 0%, #ede9fe 100%);
-      z-index: 999999;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-    }
-    .cortina.ativa { display: flex; }
-    .cortina-icon {
-      font-size: 56px;
-      animation: c-pulse 1.6s ease-in-out infinite;
-    }
-    .cortina-msg {
-      font-size: 22px;
-      font-weight: 800;
-      color: #3730a3;
-      text-align: center;
-      padding: 0 20px;
-    }
-    .cortina-sub {
-      font-size: 14px;
-      color: #6d28d9;
-      text-align: center;
-    }
-    @keyframes c-pulse {
-      0%, 100% { transform: scale(1); }
-      50%       { transform: scale(1.1); }
+    
     }
 
     /* ── Tela de sucesso ── */
@@ -218,11 +188,13 @@
 </head>
 <body>
 
-  <!-- ━━ MÁSCARA DE ENVIO (inicialmente oculta) ━━ -->
-  <div class="cortina" id="cortina">
-    <div class="cortina-icon">⏳</div>
-    <div class="cortina-msg" id="cortinaMsg">A processar as suas respostas…</div>
-    <div class="cortina-sub">Por favor, não feche esta página.</div>
+  <!-- ━━ MODAL: Processando / Enviando ━━ -->
+  <div class="srs-modal-overlay" id="modalGerando">
+    <div class="srs-modal-box">
+      <div class="srs-modal-spinner"></div>
+      <div class="srs-modal-title" id="__srs2_modal_title__">A processar…</div>
+      <div class="srs-modal-sub"  id="__srs2_modal_sub__">Por favor, não feche esta página.</div>
+    </div>
   </div>
 
   <!-- ━━ CONTEÚDO PRINCIPAL ━━ -->

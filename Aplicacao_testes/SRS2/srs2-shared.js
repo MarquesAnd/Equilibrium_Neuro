@@ -761,33 +761,45 @@ async function finalizarEEnviar() {
 
   const captureHeight = captureWrap.scrollHeight;
 
-  // ── 4. Mostrar cortina (só agora — o layout já está calculado) ────────────
+  // ── 4. Mostrar modal de loading (mesmo padrão da Correção) ───────────────
   const btnEnviar = document.getElementById("btnEnviar");
   if (btnEnviar) { btnEnviar.disabled = true; btnEnviar.textContent = "A processar…"; }
 
-  const cortina = document.createElement("div");
-  cortina.id = "__srs2_cortina__";
-  cortina.style.cssText = [
-    "position:fixed","inset:0",
-    "background:linear-gradient(145deg,#f0f4ff 0%,#ede9fe 100%)",
-    "z-index:999999",
-    "display:flex","flex-direction:column",
-    "align-items:center","justify-content:center","gap:18px"
-  ].join(";");
-  cortina.innerHTML = `
-    <div style="font-size:52px;animation:srs2pulse 1.5s ease-in-out infinite">⏳</div>
-    <div id="__srs2_msg__" style="font-size:21px;font-weight:800;color:#3730a3;text-align:center;padding:0 20px">A processar as suas respostas…</div>
-    <div style="font-size:14px;color:#6d28d9;text-align:center">Por favor, não feche esta página.</div>
-    <style>@keyframes srs2pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}</style>
-  `;
-  document.body.appendChild(cortina);
+  // Reutilizar o #modalGerando se já existir no HTML (mesmo padrão da Correção)
+  // ou criar um equivalente programaticamente
+  let modal = document.getElementById("modalGerando");
+  if (!modal) {
+    modal = document.createElement("div");
+    modal.id = "modalGerando";
+    modal.className = "srs-modal-overlay";
+    modal.innerHTML = `
+      <div class="srs-modal-box">
+        <div class="srs-modal-spinner"></div>
+        <div class="srs-modal-title" id="__srs2_modal_title__">A processar…</div>
+        <div class="srs-modal-sub"  id="__srs2_modal_sub__">Por favor, não feche esta página.</div>
+      </div>`;
+    document.body.appendChild(modal);
+  } else {
+    // Garantir que os elementos de texto existem para podermos actualizá-los
+    if (!modal.querySelector("#__srs2_modal_title__")) {
+      const t = modal.querySelector(".srs-modal-title");
+      if (t) t.id = "__srs2_modal_title__";
+    }
+    if (!modal.querySelector("#__srs2_modal_sub__")) {
+      const s = modal.querySelector(".srs-modal-sub");
+      if (s) s.id = "__srs2_modal_sub__";
+    }
+  }
+  modal.classList.add("ativo");
 
-  // Pausa para o browser pintar a cortina
-  await new Promise(r => setTimeout(r, 120));
+  // Pausa para o modal ser pintado
+  await new Promise(r => setTimeout(r, 150));
 
-  const setMsg = (txt) => {
-    const el = document.getElementById("__srs2_msg__");
-    if (el) el.textContent = txt;
+  const setMsg = (title, sub) => {
+    const t = document.getElementById("__srs2_modal_title__") || modal.querySelector(".srs-modal-title");
+    const s = document.getElementById("__srs2_modal_sub__")   || modal.querySelector(".srs-modal-sub");
+    if (t && title !== undefined) t.textContent = title;
+    if (s && sub   !== undefined) s.textContent = sub;
   };
 
   let tempDiv;
@@ -802,7 +814,7 @@ async function finalizarEEnviar() {
     // Pausa extra para repintura
     await new Promise(r => setTimeout(r, 150));
 
-    setMsg("A formatar o relatório em PDF…");
+    setMsg("Gerando PDF…", "A formatar o relatório em PDF…");
 
     const opt = {
       margin: [8, 0, 8, 0],
@@ -831,7 +843,7 @@ async function finalizarEEnviar() {
     document.body.removeChild(captureWrap);
 
     // ── 6. Enviar ao Drive ─────────────────────────────────────────────────
-    setMsg("A enviar com segurança…");
+    setMsg("Enviando…", "A enviar com segurança para o servidor.");
 
     const base64 = pdfUri.split(",")[1];
     const nomePaciente = (document.getElementById("paciente")?.value?.trim() || "Paciente_Sem_Nome");
@@ -865,8 +877,7 @@ async function finalizarEEnviar() {
     console.error("Erro ao enviar:", err);
     const cw = document.getElementById("__srs2_capture__");
     if (cw && cw.parentNode) document.body.removeChild(cw);
-    const ct = document.getElementById("__srs2_cortina__");
-    if (ct) ct.remove();
+    modal.classList.remove("ativo");
     if (btnEnviar) { btnEnviar.disabled = false; btnEnviar.textContent = "📤 Enviar Respostas"; }
     alert("Não foi possível enviar as respostas.\n\nVerifique a sua ligação à internet e tente novamente.\n\nDetalhe: " + err.message);
   }
