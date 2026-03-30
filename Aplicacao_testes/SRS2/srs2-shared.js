@@ -769,16 +769,23 @@ async function finalizarEEnviar() {
   cortina.id = "__srs2_cortina__";
   cortina.style.cssText = [
     "position:fixed","inset:0",
-    "background:linear-gradient(145deg,#f0f4ff 0%,#ede9fe 100%)",
+    "background:rgba(0,0,0,0.55)",
+    "backdrop-filter:blur(4px)",
+    "-webkit-backdrop-filter:blur(4px)",
     "z-index:999999",
-    "display:flex","flex-direction:column",
-    "align-items:center","justify-content:center","gap:18px"
+    "display:flex","align-items:center","justify-content:center"
   ].join(";");
   cortina.innerHTML = `
-    <div style="font-size:52px;animation:srs2pulse 1.5s ease-in-out infinite">⏳</div>
-    <div id="__srs2_msg__" style="font-size:21px;font-weight:800;color:#3730a3;text-align:center;padding:0 20px">A processar as suas respostas…</div>
-    <div style="font-size:14px;color:#6d28d9;text-align:center">Por favor, não feche esta página.</div>
-    <style>@keyframes srs2pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}</style>
+    <div style="background:#fff;border-radius:20px;padding:40px 48px;text-align:center;
+                box-shadow:0 24px 60px rgba(0,0,0,0.25);max-width:340px;width:90%;">
+      <div style="width:52px;height:52px;border:5px solid #dbeafe;border-top-color:#1a56db;
+                  border-radius:50%;animation:__srs2spin__ 0.8s linear infinite;margin:0 auto 20px;"></div>
+      <div id="__srs2_msg__" style="font-size:16px;font-weight:800;color:#1d4ed8;margin-bottom:6px;">
+        A processar as suas respostas…
+      </div>
+      <div style="font-size:13px;color:#64748b;">Por favor, não feche esta página.</div>
+    </div>
+    <style>@keyframes __srs2spin__{to{transform:rotate(360deg)}}</style>
   `;
   document.body.appendChild(cortina);
 
