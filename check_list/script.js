@@ -212,7 +212,7 @@ document.addEventListener("DOMContentLoaded", function () {
               + '  <td>' + (item.sel ? '<strong>' : '') + escHtml(item.instrumento) + (item.sel ? '</strong>' : '') + '</td>'
               + '  <td style="color:#64748b">' + escHtml(item.avalia) + '</td>'
               + '  <td style="white-space:nowrap;font-size:11px;color:#94a3b8">' + escHtml(item.idade) + '</td>'
-              + '  <td>' + escHtml(item.data) + '</td>'
+              + '  <td style="text-align:center;">' + (item.data ? '<span style="font-weight:700;font-size:9px;">' + escHtml(item.data) + '</span>' : '<span style="display:block;border-bottom:1.5px dashed #cbd5e1;height:14px;margin:0 4px;"></span>') + '</td>'
               + '</tr>';
       });
     });
