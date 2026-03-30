@@ -668,6 +668,13 @@
   margin: 2px 8px;
 }
 
+.data-mask {
+  font-size: 10px;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 1px;
+}
+
 .data-val {
   font-weight: 700;
   font-size: 12px;
@@ -779,12 +786,12 @@
   .col-nome  { font-size: 9.5px !important; }
   .col-avalia{ font-size: 9px !important; }
 
-  /* Campo de data no print — linha pontilhada como no original */
-  .data-blank {
-    border-bottom: 1.5px dashed #aaa !important;
-    height: 12px !important;
-    margin: 2px 6px !important;
-    display: block !important;
+  /* Campo de data no print — máscara __/__/____ */
+  .data-mask {
+    font-size: 8.5px !important;
+    font-weight: 600 !important;
+    color: #888 !important;
+    letter-spacing: 0.5px !important;
   }
 
   .data-val { font-size: 9px !important; }

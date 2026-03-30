@@ -159,11 +159,11 @@ document.addEventListener("DOMContentLoaded", function () {
     catOrder.forEach(function (cat) {
       html += '<tr class="rep-cat-hdr"><td colspan="5">' + escHtml(cat) + '</td></tr>';
       porCat[cat].forEach(function (item) {
-        var dim = item.sel ? '' : 'opacity:.35;';
-        /* Campo de data: se preenchido mostra valor, senão linha pontilhada */
+        var dim = item.sel ? '' : 'opacity:.65;';
+        /* Campo de data: se preenchido mostra valor, senão máscara __/__/____ */
         var dataCell = item.data
           ? '<span class="data-val">' + escHtml(item.data) + '</span>'
-          : '<span class="data-blank"></span>';
+          : '<span class="data-mask">__/__/____</span>';
 
         html += '<tr style="' + dim + '">'
               + '<td class="col-chk"><div class="rep-cl-check-box' + (item.sel ? ' checked' : '') + '">' + (item.sel ? '✓' : '') + '</div></td>'
