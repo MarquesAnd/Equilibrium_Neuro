@@ -803,11 +803,11 @@ async function finalizarEEnviar() {
     setMsg("A formatar o relatório em PDF…");
 
     const opt = {
-      margin: [12, 14, 12, 14],  // [top, right, bottom, left] em mm — espaçamento uniforme
+      margin: [10, 10, 10, 10],  // margens iguais em todos os lados — centraliza o conteúdo
       filename: "resultado.pdf",
       image: { type: "jpeg", quality: 0.97 },
       html2canvas: {
-        scale: 1.6,              // ~80% da escala original (era 2)
+        scale: 1.9,              // escala próxima do original mas com margem para respirar
         useCORS: true,
         allowTaint: true,
         scrollX: 0,
