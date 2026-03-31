@@ -48,6 +48,10 @@
     /* OVERLAY DE RELATÓRIO */
     .raadsr-report-overlay { position: fixed; inset: 0; background: #f1f5f9; z-index: 8000; display: none; flex-direction: column; }
     .raadsr-report-overlay.ativo { display: flex; }
+    
+    @media print {
+      .raadsr-report-overlay { position: relative !important; inset: auto !important; }
+    }
     .raadsr-report-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
     .raadsr-report-topbar-left { display: flex; align-items: center; gap: 12px; }
     .raadsr-report-topbar h2 { font-size: 16px; font-weight: 800; color: #5b21b6; margin: 0; }
@@ -93,17 +97,52 @@
     .rep-footer-confidencial { font-size: 11px !important; color: #cbd5e1 !important; }
 
     @media print {
-      .sidebar, .raadsr-report-topbar, .no-print { display: none !important; }
-      .app-shell { display: block !important; }
-      .main-content { display: none !important; }
-      .raadsr-report-overlay { display: block !important; position: static !important; background: #fff !important; }
-      .raadsr-report-scroll { padding: 0 !important; overflow: visible !important; }
-      .raadsr-report-frame { max-width: 100% !important; }
-      .rep-wrapper { box-shadow: none; border-radius: 0; }
-      .rep-header { break-inside: avoid; }
-      .rep-section { break-inside: avoid; }
-      .rep-chart-container { break-inside: avoid; }
-      body { margin: 0; padding: 0; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+      html, body { margin: 0 !important; padding: 0 !important; height: auto !important; }
+      .sidebar, .raadsr-report-topbar, .no-print, .main-content, .app-shell { display: none !important; }
+      .raadsr-report-overlay { 
+        display: block !important; 
+        position: static !important; 
+        background: #fff !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+      }
+      .raadsr-report-scroll { 
+        padding: 0 !important; 
+        overflow: visible !important;
+        height: auto !important;
+      }
+      .raadsr-report-frame { 
+        max-width: 100% !important;
+        margin: 0 !important;
+      }
+      .rep-wrapper { 
+        box-shadow: none !important; 
+        border-radius: 0 !important;
+        margin: 0 !important;
+        page-break-before: avoid !important;
+      }
+      .rep-header { 
+        break-inside: avoid;
+        page-break-inside: avoid;
+        -webkit-column-break-inside: avoid;
+      }
+      .rep-section { 
+        break-inside: avoid;
+        page-break-inside: avoid;
+        -webkit-column-break-inside: avoid;
+      }
+      .rep-chart-container { 
+        break-inside: avoid;
+        page-break-inside: avoid;
+        -webkit-column-break-inside: avoid;
+      }
+      .rep-score-cards {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        -webkit-column-break-inside: avoid;
+      }
     }
   </style>
 </head>
