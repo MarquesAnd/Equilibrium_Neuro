@@ -446,7 +446,6 @@ document.getElementById('btnSend').addEventListener('click',async()=>{
     try {
       const res = await fetch(URL_DO_GOOGLE_SCRIPT, {
         method: 'POST',
-        headers: {'Content-Type': 'text/plain'},
         body: payload,
         redirect: 'follow'
       });
