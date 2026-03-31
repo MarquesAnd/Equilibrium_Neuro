@@ -11,7 +11,7 @@ let RAADSR_RULES = null;
 const $ = (sel) => document.querySelector(sel);
 
 // Caminho para o JSON — pode ser sobrescrito em cada index.html
-if (typeof DATA_PATH === "undefined") { var DATA_PATH = "/Aplicacao_testes/RAADS-R/data/raadsr_rules.json"; }
+//if (typeof DATA_PATH === "undefined") { var DATA_PATH = "/Aplicacao_testes/RAADS-R/data/raadsr_rules.json"; }
 
 // ─── INICIALIZAÇÃO DAS CORES ─────────────────────────────────────────────────
 function aplicarAcento(){
