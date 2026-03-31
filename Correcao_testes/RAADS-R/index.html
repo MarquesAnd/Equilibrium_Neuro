@@ -7,10 +7,10 @@
   <link rel="stylesheet" href="/style.css" />
   <link rel="icon" type="image/png" href="/logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
+    :root { --raadsr-accent: #7c3aed; --raadsr-accent-light: #a78bfa; --raadsr-accent-dark: #5b21b6; }
     .form-section { margin-bottom: 32px; }
     .form-section h2 { font-size: 16px; font-weight: 700; color: #7c3aed; margin-bottom: 16px; text-transform: uppercase; letter-spacing: .05em; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
@@ -30,30 +30,6 @@
     .option-btn { padding: 8px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; font-size: 13px; text-align: center; transition: all .2s; font-family: inherit; font-weight: 500; color: #64748b; }
     .option-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
     .option-btn.active { background: #ede9fe; border-color: #7c3aed; color: #5b21b6; font-weight: 700; }
-    #relatorio { display: none; }
-    #relatorio.show { display: block; }
-    .report-header { text-align: center; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 3px solid #7c3aed; }
-    .report-header h1 { color: #7c3aed; font-size: 26px; font-weight: 800; margin-bottom: 10px; }
-    .report-header p { color: #64748b; font-size: 14px; }
-    .report-info { background: #f8fafc; border-radius: 12px; padding: 24px; margin-bottom: 30px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .report-info-item label { font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 6px; }
-    .report-info-item div { font-size: 16px; color: #1e293b; font-weight: 600; }
-    .report-section { margin-bottom: 30px; }
-    .report-section h2 { color: #1e293b; font-size: 18px; font-weight: 700; margin-bottom: 16px; }
-    .report-section p { color: #475569; font-size: 14px; line-height: 1.7; margin-bottom: 12px; }
-    .score-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
-    @media (max-width: 640px) { .score-cards { grid-template-columns: 1fr; } }
-    .score-card { border-radius: 12px; padding: 20px; color: white; text-align: center; }
-    .score-card.patient { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-    .score-card.cutoff { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-    .score-card.max { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
-    .score-card-label { font-size: 12px; opacity: 0.9; margin-bottom: 8px; }
-    .score-card-value { font-size: 32px; font-weight: 800; }
-    .interpretation-box { background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 20px; margin-top: 20px; }
-    .interpretation-box p { color: #1e293b; line-height: 1.8; margin: 0; }
-    #graficoContainer { margin: 30px 0; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
-    .report-footer { border-top: 2px solid #e2e8f0; padding-top: 24px; margin-top: 40px; text-align: center; }
-    .report-footer p { color: #94a3b8; font-size: 12px; margin-bottom: 8px; }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 9999; }
     .modal-overlay.show { display: flex; }
     .modal-box { background: white; border-radius: 20px; padding: 48px 40px; text-align: center; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
@@ -68,6 +44,61 @@
     .btn-custom.secondary { background: white; color: #7c3aed; border: 2px solid #7c3aed; }
     .btn-custom.secondary:hover { background: #faf5ff; }
     .btn-custom:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+
+    /* OVERLAY DE RELATÓRIO */
+    .raadsr-report-overlay { position: fixed; inset: 0; background: #f1f5f9; z-index: 8000; display: none; flex-direction: column; }
+    .raadsr-report-overlay.ativo { display: flex; }
+    .raadsr-report-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .raadsr-report-topbar-left { display: flex; align-items: center; gap: 12px; }
+    .raadsr-report-topbar h2 { font-size: 16px; font-weight: 800; color: #5b21b6; margin: 0; }
+    .raadsr-report-actions { display: flex; gap: 8px; }
+    .btn-print-rep { background: #7c3aed; color: #fff; border: none; padding: 9px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .btn-print-rep:hover { background: #5b21b6; }
+    .btn-close-rep { background: #f1f5f9; color: #374151; border: 1.5px solid #e2e8f0; padding: 9px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .btn-close-rep:hover { background: #e2e8f0; }
+    .raadsr-report-scroll { flex: 1; overflow-y: auto; padding: 32px 24px; }
+    .raadsr-report-frame { max-width: 860px; margin: 0 auto; }
+
+    /* RELATÓRIO */
+    .rep-wrapper { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    .rep-header { background: linear-gradient(135deg, #5b21b6 0%, #7c3aed 100%); padding: 32px 36px; color: #fff; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+    .rep-header-brand { display: flex; align-items: center; gap: 14px; }
+    .rep-logo { height: 48px; border-radius: 8px; }
+    .rep-brand-name { font-size: 18px; font-weight: 800; }
+    .rep-brand-sub { font-size: 12px; opacity: 0.9; }
+    .rep-header-info { text-align: right; }
+    .rep-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .rep-subtitle { font-size: 13px; opacity: 0.9; }
+    .rep-body { padding: 36px; }
+    .rep-section { margin-bottom: 32px; }
+    .rep-section-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; }
+    .rep-text { font-size: 14px; color: #475569; line-height: 1.7; margin-bottom: 12px; }
+    .rep-text strong { color: #1e293b; font-weight: 700; }
+    .rep-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #f8fafc; padding: 20px; border-radius: 12px; }
+    .rep-meta-item { display: flex; flex-direction: column; gap: 6px; }
+    .rep-meta-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+    .rep-meta-value { font-size: 16px; font-weight: 700; color: #1e293b; }
+    .rep-score-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
+    .rep-score-card { border-radius: 12px; padding: 20px; color: #fff; text-align: center; }
+    .rep-score-card.patient { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
+    .rep-score-card.cutoff { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+    .rep-score-card.max { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
+    .rep-score-label { font-size: 12px; opacity: 0.9; margin-bottom: 8px; }
+    .rep-score-value { font-size: 32px; font-weight: 800; }
+    .rep-chart-container { margin: 24px 0; padding: 20px; background: #fafcff; border-radius: 12px; border: 1.5px solid #e2e8f0; }
+    .rep-interpretation-box { background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 20px; }
+    .rep-interpretation-box p { color: #1e293b; line-height: 1.8; margin: 0; }
+    .rep-footer { margin-top: 40px; padding-top: 24px; border-top: 2px solid #f1f5f9; text-align: center; }
+    .rep-footer p { font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
+    .rep-footer-confidencial { font-size: 11px !important; color: #cbd5e1 !important; }
+
+    @media print {
+      .raadsr-report-overlay { display: block !important; position: static !important; background: #fff !important; }
+      .raadsr-report-topbar { display: none !important; }
+      .raadsr-report-scroll { padding: 0 !important; overflow: visible !important; }
+      .raadsr-report-frame { max-width: 100% !important; }
+      .rep-wrapper { box-shadow: none; }
+    }
   </style>
 </head>
 <body>
@@ -91,6 +122,7 @@
         <button class="btn-logout" onclick="doLogout()">Sair</button>
       </div>
     </aside>
+
     <main class="main-content">
       <div class="page-header">
         <div>
@@ -98,6 +130,7 @@
           <h1 class="page-title">RAADS-R-BR Screen</h1>
         </div>
       </div>
+
       <div class="card" id="formulario">
         <div class="form-section">
           <h2>Dados do Paciente</h2>
@@ -116,47 +149,95 @@
           <button class="btn-custom secondary" id="btnLimpar">🔄 Limpar Tudo</button>
         </div>
       </div>
-      <div id="relatorio" class="card">
-        <div class="report-header">
-          <h1>RAADS-R-BR Screen</h1>
-          <p>Escala Ritvo para Diagnóstico de Autismo em Adultos - Versão Brasileira Reduzida</p>
-        </div>
-        <div class="report-info">
-          <div class="report-info-item"><label>Paciente</label><div id="reportPaciente">—</div></div>
-          <div class="report-info-item"><label>Data da Avaliação</label><div id="reportData">—</div></div>
-        </div>
-        <div class="report-section">
-          <h2>Sobre o RAADS-R-BR Screen</h2>
-          <p>O RAADS-R-BR Screen é uma escala de rastreio desenvolvida para identificar características do Transtorno do Espectro Autista (TEA) em adultos. A versão utilizada é composta por 20 itens que avaliam domínios centrais do perfil neurodivergente, incluindo: Interação Social, Linguagem, Sensório-Motor e Interesses Circunscritos.</p>
-          <p>O instrumento foi validado para o contexto brasileiro, apresentando evidências robustas de validade e confiabilidade, com <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para o ponto de corte estabelecido.</p>
-        </div>
-        <div class="report-section">
-          <h2>Resultados Obtidos</h2>
-          <div class="score-cards">
-            <div class="score-card patient"><div class="score-card-label">Pontuação da Paciente</div><div class="score-card-value" id="scorePatient">—</div></div>
-            <div class="score-card cutoff"><div class="score-card-label">Ponto de Corte</div><div class="score-card-value">46</div></div>
-            <div class="score-card max"><div class="score-card-label">Pontuação Máxima</div><div class="score-card-value">80</div></div>
-          </div>
-          <div id="graficoContainer"><canvas id="graficoCanvas"></canvas></div>
-        </div>
-        <div class="report-section">
-          <h2>Interpretação</h2>
-          <div class="interpretation-box"><p id="interpretacaoTexto">—</p></div>
-        </div>
-        <div class="report-footer">
-          <p>Relatório gerado por Equilibrium Neuropsicologia</p>
-          <p style="color: #cbd5e1; font-size: 11px;">Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados</p>
-        </div>
-        <div class="action-buttons" style="margin-top: 40px;">
-          <button class="btn-custom primary" id="btnBaixarPDF">💾 Baixar PDF</button>
-          <button class="btn-custom secondary" id="btnNovaCorrecao">← Nova Correção</button>
-        </div>
-      </div>
     </main>
   </div>
+
   <div class="modal-overlay" id="modalLoading">
     <div class="modal-box"><div class="spinner"></div><div class="modal-title">Gerando Relatório...</div><div class="modal-sub">Por favor, aguarde</div></div>
   </div>
+
+  <!-- OVERLAY: Relatório -->
+  <div class="raadsr-report-overlay no-print" id="repOverlay">
+    <div class="raadsr-report-topbar">
+      <div class="raadsr-report-topbar-left">
+        <h2>📄 Relatório RAADS-R-BR Screen</h2>
+      </div>
+      <div class="raadsr-report-actions">
+        <button class="btn-print-rep" id="btnPrintRep">🖨️ Imprimir / Baixar PDF</button>
+        <button class="btn-close-rep" id="btnCloseRep">✕ Fechar</button>
+      </div>
+    </div>
+    <div class="raadsr-report-scroll">
+      <div class="raadsr-report-frame">
+        <div class="rep-wrapper">
+          <div class="rep-header">
+            <div class="rep-header-brand">
+              <img src="/logo2.png" alt="Logo" class="rep-logo" onerror="this.style.display='none'" />
+              <div>
+                <div class="rep-brand-name">Equilibrium</div>
+                <div class="rep-brand-sub">Neuropsicologia</div>
+              </div>
+            </div>
+            <div class="rep-header-info">
+              <div class="rep-title">RAADS-R-BR Screen</div>
+              <div class="rep-subtitle">Escala Ritvo para Diagnóstico de Autismo em Adultos</div>
+            </div>
+          </div>
+          <div class="rep-body">
+            <div class="rep-section">
+              <h2 class="rep-section-title">Dados do Paciente</h2>
+              <div class="rep-meta-grid">
+                <div class="rep-meta-item">
+                  <span class="rep-meta-label">Paciente</span>
+                  <span class="rep-meta-value" id="repPaciente">—</span>
+                </div>
+                <div class="rep-meta-item">
+                  <span class="rep-meta-label">Data da Avaliação</span>
+                  <span class="rep-meta-value" id="repData">—</span>
+                </div>
+              </div>
+            </div>
+            <div class="rep-section">
+              <h2 class="rep-section-title">Sobre o Instrumento</h2>
+              <p class="rep-text">O RAADS-R-BR Screen é uma escala de rastreio desenvolvida para identificar características do Transtorno do Espectro Autista (TEA) em adultos. A versão utilizada é composta por 20 itens que avaliam domínios centrais do perfil neurodivergente, incluindo: Interação Social, Linguagem, Sensório-Motor e Interesses Circunscritos.</p>
+              <p class="rep-text">O instrumento foi validado para o contexto brasileiro, apresentando evidências robustas de validade e confiabilidade, com <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para o ponto de corte estabelecido.</p>
+            </div>
+            <div class="rep-section">
+              <h2 class="rep-section-title">Resultados Obtidos</h2>
+              <div class="rep-score-cards">
+                <div class="rep-score-card patient">
+                  <div class="rep-score-label">Pontuação da Paciente</div>
+                  <div class="rep-score-value" id="repScore">—</div>
+                </div>
+                <div class="rep-score-card cutoff">
+                  <div class="rep-score-label">Ponto de Corte</div>
+                  <div class="rep-score-value">46</div>
+                </div>
+                <div class="rep-score-card max">
+                  <div class="rep-score-label">Pontuação Máxima</div>
+                  <div class="rep-score-value">80</div>
+                </div>
+              </div>
+              <div class="rep-chart-container">
+                <canvas id="repGrafico" width="700" height="350"></canvas>
+              </div>
+            </div>
+            <div class="rep-section">
+              <h2 class="rep-section-title">Interpretação</h2>
+              <div class="rep-interpretation-box">
+                <p id="repInterpretacao">—</p>
+              </div>
+            </div>
+            <div class="rep-footer">
+              <p>Relatório gerado por <strong>Equilibrium Neuropsicologia</strong></p>
+              <p class="rep-footer-confidencial">Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -203,7 +284,7 @@
     }
 
     function gerarGrafico(pontuacaoPaciente, nomePaciente) {
-      const ctx = document.getElementById('graficoCanvas').getContext('2d');
+      const ctx = document.getElementById('repGrafico').getContext('2d');
       if (graficoInstance) graficoInstance.destroy();
       graficoInstance = new Chart(ctx, {
         type: 'bar',
@@ -212,7 +293,7 @@
           datasets: [{
             label: 'Pontuação',
             data: [pontuacaoPaciente, 46, 80],
-            backgroundColor: ['rgba(239,68,68,0.8)', 'rgba(59,130,246,0.8)', 'rgba(107,114,128,0.8)'],
+            backgroundColor: ['rgba(239,68,68,0.9)', 'rgba(59,130,246,0.9)', 'rgba(107,114,128,0.9)'],
             borderColor: ['#ef4444', '#3b82f6', '#6b7280'],
             borderWidth: 2
           }]
@@ -222,7 +303,7 @@
           maintainAspectRatio: true,
           aspectRatio: 2,
           plugins: {
-            title: { display: true, text: `Resultado do Rastreio: ${nomePaciente}`, font: { size: 18, weight: 'bold', family: 'DM Sans' }, color: '#1e293b', padding: 20 },
+            title: { display: true, text: `Resultado do Rastreio: ${nomePaciente}`, font: { size: 16, weight: 'bold', family: 'DM Sans' }, color: '#1e293b', padding: 20 },
             legend: { display: false }
           },
           scales: {
@@ -255,26 +336,32 @@
       if (!nome) { alert('Por favor, preencha o nome do paciente.'); return; }
       if (!data) { alert('Por favor, preencha a data da avaliação.'); return; }
       if (Object.keys(respostas).length < 20) { alert('Por favor, responda todas as 20 questões.'); return; }
+      
       const modalLoading = document.getElementById('modalLoading');
       modalLoading.classList.add('show');
+      
       try {
         const pontuacao = calcularPontuacao();
         const dataObj = new Date(data + 'T00:00:00');
         const dataFormatada = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+        
         let interpretacao = '';
         if (pontuacao >= 46) {
           interpretacao = `A pontuação de ${pontuacao} pontos encontra-se ACIMA do ponto de corte estabelecido (46) pelos estudos de validação. Este resultado indica que a participante reporta uma frequência de comportamentos e experiências compatível com o perfil do Espectro Autista. Estatisticamente, pontuações nesta faixa apresentam alta sensibilidade (90,1%) para a identificação do transtorno.`;
         } else {
           interpretacao = `A pontuação de ${pontuacao} pontos encontra-se ABAIXO do ponto de corte estabelecido (46) pelos estudos de validação. Este resultado indica que a participante reporta uma frequência de comportamentos abaixo do limiar clínico de rastreio para o Espectro Autista nesta escala.`;
         }
-        document.getElementById('reportPaciente').textContent = nome;
-        document.getElementById('reportData').textContent = dataFormatada;
-        document.getElementById('scorePatient').textContent = pontuacao;
-        document.getElementById('interpretacaoTexto').textContent = interpretacao;
+        
+        document.getElementById('repPaciente').textContent = nome;
+        document.getElementById('repData').textContent = dataFormatada;
+        document.getElementById('repScore').textContent = pontuacao;
+        document.getElementById('repInterpretacao').textContent = interpretacao;
+        
         gerarGrafico(pontuacao, nome);
+        
         modalLoading.classList.remove('show');
-        document.getElementById('formulario').style.display = 'none';
-        document.getElementById('relatorio').classList.add('show');
+        document.getElementById('repOverlay').classList.add('ativo');
+        
       } catch (error) {
         console.error('Erro ao processar:', error);
         modalLoading.classList.remove('show');
@@ -291,268 +378,17 @@
       }
     }
 
-    function novaCorrecao() {
-      document.getElementById('relatorio').classList.remove('show');
-      document.getElementById('formulario').style.display = 'block';
-      limparFormulario();
-    }
-
-    async function baixarPDF() {
-      try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p', 'mm', 'a4');
-        
-        const nome = document.getElementById('reportPaciente').textContent;
-        const data = document.getElementById('reportData').textContent;
-        const pontuacao = parseInt(document.getElementById('scorePatient').textContent);
-        const interpretacao = document.getElementById('interpretacaoTexto').textContent;
-        
-        // Cabeçalho roxo
-        doc.setFillColor(124, 58, 237);
-        doc.rect(0, 0, 210, 40, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(22);
-        doc.setFont('helvetica', 'bold');
-        doc.text('RAADS-R-BR Screen', 105, 18, { align: 'center' });
-        doc.setFontSize(11);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Escala Ritvo para Diagnóstico de Autismo em Adultos - Versão Brasileira Reduzida', 105, 28, { align: 'center' });
-        
-        // Dados do paciente
-        doc.setFillColor(248, 250, 252);
-        doc.roundedRect(15, 50, 180, 25, 3, 3, 'F');
-        
-        doc.setTextColor(148, 163, 184);
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'bold');
-        doc.text('PACIENTE', 20, 58);
-        doc.text('DATA DA AVALIAÇÃO', 115, 58);
-        
-        doc.setTextColor(30, 41, 59);
-        doc.setFontSize(13);
-        doc.setFont('helvetica', 'bold');
-        doc.text(nome, 20, 68);
-        doc.text(data, 115, 68);
-        
-        // Sobre o instrumento
-        doc.setFontSize(15);
-        doc.setTextColor(30, 41, 59);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Sobre o RAADS-R-BR Screen', 15, 88);
-        
-        doc.setFontSize(10);
-        doc.setTextColor(71, 85, 105);
-        doc.setFont('helvetica', 'normal');
-        const textoSobre = doc.splitTextToSize(
-          'O RAADS-R-BR Screen é uma escala de rastreio desenvolvida para identificar características do Transtorno do Espectro Autista (TEA) em adultos. A versão utilizada é composta por 20 itens que avaliam domínios centrais do perfil neurodivergente, incluindo: Interação Social, Linguagem, Sensório-Motor e Interesses Circunscritos.',
-          175
-        );
-        doc.text(textoSobre, 15, 96);
-        
-        const textoSobre2 = doc.splitTextToSize(
-          'O instrumento foi validado para o contexto brasileiro, apresentando evidências robustas de validade e confiabilidade, com sensibilidade de 90,1% e especificidade de 87,9% para o ponto de corte estabelecido.',
-          175
-        );
-        doc.text(textoSobre2, 15, 112);
-        
-        // Resultados Obtidos
-        doc.setFontSize(15);
-        doc.setTextColor(30, 41, 59);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Resultados Obtidos', 15, 133);
-        
-        // Cards de pontuação
-        // Card Vermelho - Paciente
-        doc.setFillColor(239, 68, 68);
-        doc.roundedRect(25, 142, 45, 25, 3, 3, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Pontuação da Paciente', 47.5, 150, { align: 'center' });
-        doc.setFontSize(24);
-        doc.setFont('helvetica', 'bold');
-        doc.text(pontuacao.toString(), 47.5, 162, { align: 'center' });
-        
-        // Card Azul - Corte
-        doc.setFillColor(59, 130, 246);
-        doc.roundedRect(82.5, 142, 45, 25, 3, 3, 'F');
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Ponto de Corte', 105, 150, { align: 'center' });
-        doc.setFontSize(24);
-        doc.setFont('helvetica', 'bold');
-        doc.text('46', 105, 162, { align: 'center' });
-        
-        // Card Cinza - Máxima
-        doc.setFillColor(107, 114, 128);
-        doc.roundedRect(140, 142, 45, 25, 3, 3, 'F');
-        doc.setFontSize(9);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Pontuação Máxima', 162.5, 150, { align: 'center' });
-        doc.setFontSize(24);
-        doc.setFont('helvetica', 'bold');
-        doc.text('80', 162.5, 162, { align: 'center' });
-        
-        // Visualização Gráfica
-        doc.setFont('helvetica', 'bold');
-        doc.setTextColor(30, 41, 59);
-        doc.setFontSize(12);
-        doc.text('Visualização Gráfica dos Dados', 105, 180, { align: 'center' });
-        
-        // Configurações do gráfico
-        const maxAltura = 55;
-        const larguraBarra = 35;
-        const espacamento = 15;
-        const baseY = 245;
-        const inicioX = 40;
-        
-        // Eixo Y (escala)
-        doc.setDrawColor(203, 213, 225);
-        doc.setLineWidth(0.3);
-        doc.line(inicioX - 5, baseY - maxAltura, inicioX - 5, baseY);
-        
-        // Marcações do eixo Y
-        doc.setFontSize(8);
-        doc.setTextColor(100, 116, 139);
-        doc.setFont('helvetica', 'normal');
-        for (let i = 0; i <= 80; i += 20) {
-          const y = baseY - (i / 80) * maxAltura;
-          doc.line(inicioX - 7, y, inicioX - 5, y);
-          doc.text(i.toString(), inicioX - 10, y + 1, { align: 'right' });
-        }
-        
-        // Grid horizontal
-        doc.setDrawColor(229, 231, 235);
-        doc.setLineWidth(0.2);
-        for (let i = 20; i <= 80; i += 20) {
-          const y = baseY - (i / 80) * maxAltura;
-          doc.line(inicioX, y, inicioX + (larguraBarra + espacamento) * 2 + larguraBarra, y);
-        }
-        
-        // Barra 1: Paciente (vermelho)
-        const alturaPaciente = (pontuacao / 80) * maxAltura;
-        doc.setFillColor(239, 68, 68);
-        doc.rect(inicioX, baseY - alturaPaciente, larguraBarra, alturaPaciente, 'F');
-        
-        // Valor no topo
-        doc.setTextColor(30, 41, 59);
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text(pontuacao.toString(), inicioX + larguraBarra/2, baseY - alturaPaciente - 3, { align: 'center' });
-        
-        // Label
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Pontuação', inicioX + larguraBarra/2, baseY + 5, { align: 'center' });
-        doc.text('da Paciente', inicioX + larguraBarra/2, baseY + 9, { align: 'center' });
-        
-        // Barra 2: Ponto de Corte (azul)
-        const alturaCorte = (46 / 80) * maxAltura;
-        const xCorte = inicioX + larguraBarra + espacamento;
-        doc.setFillColor(59, 130, 246);
-        doc.rect(xCorte, baseY - alturaCorte, larguraBarra, alturaCorte, 'F');
-        
-        // Valor no topo
-        doc.setTextColor(30, 41, 59);
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text('46', xCorte + larguraBarra/2, baseY - alturaCorte - 3, { align: 'center' });
-        
-        // Label
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Ponto de', xCorte + larguraBarra/2, baseY + 5, { align: 'center' });
-        doc.text('Corte', xCorte + larguraBarra/2, baseY + 9, { align: 'center' });
-        
-        // Barra 3: Pontuação Máxima (cinza)
-        const xMaxima = inicioX + (larguraBarra + espacamento) * 2;
-        doc.setFillColor(107, 114, 128);
-        doc.rect(xMaxima, baseY - maxAltura, larguraBarra, maxAltura, 'F');
-        
-        // Valor no topo
-        doc.setTextColor(30, 41, 59);
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text('80', xMaxima + larguraBarra/2, baseY - maxAltura - 3, { align: 'center' });
-        
-        // Label
-        doc.setFontSize(8);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Pontuação', xMaxima + larguraBarra/2, baseY + 5, { align: 'center' });
-        doc.text('Máxima', xMaxima + larguraBarra/2, baseY + 9, { align: 'center' });
-        
-        // Linha de base
-        doc.setDrawColor(203, 213, 225);
-        doc.setLineWidth(0.5);
-        doc.line(inicioX, baseY, xMaxima + larguraBarra, baseY);
-        
-        // Label do eixo Y
-        doc.setFontSize(10);
-        doc.setTextColor(71, 85, 105);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Pontuação', 10, 215, { angle: 90 });
-        
-        // Interpretação
-        doc.setFontSize(15);
-        doc.setTextColor(30, 41, 59);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Interpretação', 15, 263);
-        
-        // Caixa azul clara
-        doc.setFillColor(240, 249, 255);
-        doc.setDrawColor(59, 130, 246);
-        doc.setLineWidth(1);
-        doc.roundedRect(15, 268, 180, 15, 2, 2, 'FD');
-        
-        doc.setFontSize(9);
-        doc.setTextColor(30, 41, 59);
-        doc.setFont('helvetica', 'normal');
-        const textoInterpretacao = doc.splitTextToSize(interpretacao, 170);
-        doc.text(textoInterpretacao, 20, 273);
-        
-        // Rodapé
-        doc.setFontSize(10);
-        doc.setTextColor(148, 163, 184);
-        doc.setFont('helvetica', 'normal');
-        doc.text('Relatório gerado por Equilibrium Neuropsicologia', 105, 290, { align: 'center' });
-        doc.setFontSize(8);
-        doc.setTextColor(203, 213, 225);
-        doc.text('Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados', 105, 295, { align: 'center' });
-        
-        // Salvar
-        doc.save(`RAADS-R_${nome.replace(/\s+/g, '_')}.pdf`);
-        
-      } catch (error) {
-        console.error('Erro ao gerar PDF:', error);
-        alert('Erro ao gerar PDF: ' + error.message);
-      }
-    }
-
     document.addEventListener('DOMContentLoaded', async () => {
-      // Inicializar Firebase se disponível
-      if (window.FIREBASE_CONFIGURED && window.DB) {
-        await DB.init();
-      }
+      if (window.FIREBASE_CONFIGURED && window.DB) await DB.init();
+      if (typeof isAuthed === 'function' && !isAuthed()) { location.href = '/login.html'; return; }
+      if (typeof applySidebarPermissions === 'function') applySidebarPermissions();
       
-      // Verificar autenticação
-      if (typeof isAuthed === 'function' && !isAuthed()) {
-        location.href = '/login.html';
-        return;
-      }
-      
-      // Aplicar permissões da sidebar
-      if (typeof applySidebarPermissions === 'function') {
-        applySidebarPermissions();
-      }
-      
-      // Inicializar página
       renderizarQuestoes();
-      const hoje = new Date().toISOString().split('T')[0];
-      document.getElementById('dataAvaliacao').value = hoje;
+      document.getElementById('dataAvaliacao').value = new Date().toISOString().split('T')[0];
       document.getElementById('btnGerar').addEventListener('click', gerarRelatorio);
       document.getElementById('btnLimpar').addEventListener('click', limparFormulario);
-      document.getElementById('btnNovaCorrecao').addEventListener('click', novaCorrecao);
-      document.getElementById('btnBaixarPDF').addEventListener('click', baixarPDF);
+      document.getElementById('btnCloseRep').addEventListener('click', () => document.getElementById('repOverlay').classList.remove('ativo'));
+      document.getElementById('btnPrintRep').addEventListener('click', () => window.print());
     });
   </script>
 </body>
