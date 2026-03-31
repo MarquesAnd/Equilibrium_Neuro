@@ -6,96 +6,33 @@
       "description": "Escala Ritvo para Diagnóstico de Autismo em Adultos - Versão Brasileira Reduzida",
       "cutoff": 46,
       "max_score": 80,
-      "answer_labels": {
-        "1": "Isso é verdade agora e era verdade quando eu era jovem",
-        "2": "Isso é verdade apenas agora",
-        "3": "Isso é verdade apenas quando eu era mais jovem (16 anos ou menos)",
-        "4": "Isso nunca foi verdade"
-      },
+      "answer_labels": [
+        "Não é verdade",
+        "Às vezes é verdade",
+        "Muitas vezes é verdade",
+        "Quase sempre é verdade"
+      ],
       "items": [
-        {
-          "id": 1,
-          "text": "Eu sou uma pessoa altamente empática e sensível.",
-          "reverse": true
-        },
-        {
-          "id": 2,
-          "text": "Eu frequentemente uso palavras e frases de forma diferente dos outros."
-        },
-        {
-          "id": 3,
-          "text": "É difícil para mim entender como outras pessoas estão se sentindo quando estamos conversando."
-        },
-        {
-          "id": 4,
-          "text": "Algumas pessoas comuns não gostam de mim."
-        },
-        {
-          "id": 5,
-          "text": "Eu tenho facilidade em fazer novos amigos.",
-          "reverse": true
-        },
-        {
-          "id": 6,
-          "text": "É muito difícil para mim trabalhar e funcionar em grupos."
-        },
-        {
-          "id": 7,
-          "text": "Quando estou conversando com alguém, eu presto pouca atenção às expressões faciais da pessoa."
-        },
-        {
-          "id": 8,
-          "text": "Eu concentro minha atenção em detalhes ao invés de no quadro geral."
-        },
-        {
-          "id": 9,
-          "text": "Eu levo as coisas de forma muito mais literal do que outras pessoas."
-        },
-        {
-          "id": 10,
-          "text": "Não consigo imaginar como seria ser outra pessoa."
-        },
-        {
-          "id": 11,
-          "text": "Eu tenho sido rotulado como 'estranho' ou 'esquisito'."
-        },
-        {
-          "id": 12,
-          "text": "Eu tenho dificuldade em entender o que é esperado de mim."
-        },
-        {
-          "id": 13,
-          "text": "Eu gosto de estar com outras pessoas.",
-          "reverse": true
-        },
-        {
-          "id": 14,
-          "text": "É difícil para mim descobrir o que outras pessoas esperam de mim."
-        },
-        {
-          "id": 15,
-          "text": "Eu foco no todo ao invés de nos pequenos detalhes."
-        },
-        {
-          "id": 16,
-          "text": "É difícil para mim saber quando é minha vez de falar ao telefone ou em uma conversa em grupo."
-        },
-        {
-          "id": 17,
-          "text": "Fico desconfortável quando as pessoas me contam sobre seus sentimentos íntimos."
-        },
-        {
-          "id": 18,
-          "text": "Eu não sei como manter uma amizade."
-        },
-        {
-          "id": 19,
-          "text": "Situações sociais são fáceis para mim."
-        },
-        {
-          "id": 20,
-          "text": "Eu tenho que 'interpretar um papel' em situações sociais."
-        }
+        {"id": 1, "text": "Eu consigo \"me colocar no lugar do outro\".", "reverse": true},
+        {"id": 2, "text": "Eu acho difícil entender o que algumas frases significam, como \"você é a menina dos meus olhos\"."},
+        {"id": 3, "text": "Eu foco mais nos detalhes do que na ideia geral."},
+        {"id": 4, "text": "Eu sempre noto como a comida está disposta no meu prato. Fico incomodado se os alimentos se tocam."},
+        {"id": 5, "text": "Quando estou lendo uma história, acho difícil descobrir as intenções dos personagens."},
+        {"id": 6, "text": "Eu consigo me relacionar com outras pessoas facilmente.", "reverse": true},
+        {"id": 7, "text": "Se há uma interrupção, consigo voltar ao que estava fazendo rapidamente.", "reverse": true},
+        {"id": 8, "text": "Ler e ver televisão são mais agradáveis se estou sozinho."},
+        {"id": 9, "text": "Meus pais e professores costumavam me chamar de \"sonhador\"."},
+        {"id": 10, "text": "Tenho sido diagnosticado com Transtorno do Déficit de Atenção e Hiperatividade (TDAH) ou Transtorno do Déficit de Atenção (TDA)."},
+        {"id": 11, "text": "Eu percebo sons ou ruídos que outras pessoas não notam ou não incomodam."},
+        {"id": 12, "text": "Quando faço algo com outras pessoas eu acho difícil compreender o que elas esperam de mim."},
+        {"id": 13, "text": "Eu consigo conversar confortavelmente com as pessoas.", "reverse": true},
+        {"id": 14, "text": "Eu costumava ser visto como diferente ou estranho."},
+        {"id": 15, "text": "Eu gosto de fazer as coisas da mesma maneira repetidamente."},
+        {"id": 16, "text": "Muitas vezes, não consigo julgar se alguém está sendo grosseiro ou educado."},
+        {"id": 17, "text": "Quando estou estressado, balanço meu corpo ou faço movimentos repetitivos (p. ex., bater palmas, estalar os dedos, balançar as pernas)."},
+        {"id": 18, "text": "Às vezes, as pessoas acham que estou sendo rude quando não tinha intenção de ser."},
+        {"id": 19, "text": "Os únicos assuntos que me interessam em conversas são aqueles sobre os quais tenho um interesse especial."},
+        {"id": 20, "text": "Eu gosto de ter um grupo social ao qual pertenço.", "reverse": true}
       ]
     }
   ]
