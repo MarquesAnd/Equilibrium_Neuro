@@ -297,15 +297,55 @@
     }
 
     async function baixarPDF() {
-      const element = document.getElementById('relatorio');
-      const opt = {
-        margin: 10,
-        filename: `RAADS-R_${document.getElementById('reportPaciente').textContent}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
-      html2pdf().set(opt).from(element).save();
+      try {
+        // Converter gráfico em imagem antes de gerar PDF
+        const canvas = document.getElementById('graficoCanvas');
+        const graficoImg = canvas.toDataURL('image/png', 1.0);
+        
+        // Criar elemento img temporário
+        const imgElement = document.createElement('img');
+        imgElement.src = graficoImg;
+        imgElement.style.width = '100%';
+        imgElement.style.maxWidth = '700px';
+        imgElement.style.height = 'auto';
+        imgElement.style.display = 'block';
+        imgElement.style.margin = '0 auto';
+        
+        // Esconder canvas, mostrar imagem
+        const graficoContainer = document.getElementById('graficoContainer');
+        canvas.style.display = 'none';
+        graficoContainer.appendChild(imgElement);
+        
+        // Gerar PDF
+        const element = document.getElementById('relatorio');
+        const opt = {
+          margin: [10, 10, 10, 10],
+          filename: `RAADS-R_${document.getElementById('reportPaciente').textContent.replace(/\s+/g, '_')}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { 
+            scale: 2,
+            useCORS: true,
+            logging: false,
+            windowWidth: 800
+          },
+          jsPDF: { 
+            unit: 'mm', 
+            format: 'a4', 
+            orientation: 'portrait',
+            compress: true
+          }
+        };
+        
+        await html2pdf().set(opt).from(element).save();
+        
+        // Restaurar canvas
+        imgElement.remove();
+        canvas.style.display = 'block';
+        
+      } catch (error) {
+        console.error('Erro ao gerar PDF:', error);
+        alert('Erro ao gerar PDF. Tente novamente.');
+      }
     }
 
     document.addEventListener('DOMContentLoaded', async () => {
