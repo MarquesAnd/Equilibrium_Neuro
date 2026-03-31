@@ -3,58 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>RAADS-R-BR Screen - Correção | Equilibrium</title>
+  <title>RAADS-R-BR Screen | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
   <link rel="icon" type="image/png" href="/logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body {
-      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      background: #f8fafc;
-      color: #1e293b;
-      padding: 24px;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    /* ── Cabeçalho ── */
-    .header {
-      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
-      color: white;
-      border-radius: 16px;
-      padding: 32px;
-      margin-bottom: 24px;
-      box-shadow: 0 10px 30px rgba(124,58,237,.2);
-    }
-
-    .header h1 {
-      font-size: 28px;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .header p {
-      font-size: 14px;
-      opacity: 0.9;
-    }
-
-    /* ── Card de Entrada ── */
-    .card {
-      background: white;
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 1px 8px rgba(0,0,0,.08);
-      margin-bottom: 24px;
-    }
-
+    /* Estilos específicos da página de correção */
     .form-section {
-      margin-bottom: 24px;
+      margin-bottom: 32px;
     }
 
     .form-section h2 {
@@ -103,7 +60,7 @@
       box-shadow: 0 0 0 3px rgba(124,58,237,.1);
     }
 
-    /* ── Questões ── */
+    /* Questões */
     .questions {
       display: flex;
       flex-direction: column;
@@ -199,56 +156,7 @@
       font-weight: 700;
     }
 
-    /* ── Botões de Ação ── */
-    .action-buttons {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin-top: 32px;
-    }
-
-    .btn {
-      padding: 14px 32px;
-      border: none;
-      border-radius: 12px;
-      font-size: 15px;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all .2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
-      color: white;
-      box-shadow: 0 4px 14px rgba(124,58,237,.35);
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(124,58,237,.4);
-    }
-
-    .btn-secondary {
-      background: white;
-      color: #7c3aed;
-      border: 2px solid #7c3aed;
-    }
-
-    .btn-secondary:hover {
-      background: #faf5ff;
-    }
-
-    .btn:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-
-    /* ── Relatório ── */
+    /* Relatório */
     #relatorio {
       display: none;
       background: white;
@@ -402,7 +310,7 @@
       margin-bottom: 8px;
     }
 
-    /* ── Modal de Carregamento ── */
+    /* Modal de Carregamento */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -452,129 +360,203 @@
       font-size: 14px;
       color: #64748b;
     }
+
+    /* Estilo para os botões de ação */
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 32px;
+    }
+
+    .btn-custom {
+      padding: 14px 32px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-custom.primary {
+      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+      color: white;
+      box-shadow: 0 4px 14px rgba(124,58,237,.35);
+    }
+
+    .btn-custom.primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(124,58,237,.4);
+    }
+
+    .btn-custom.secondary {
+      background: white;
+      color: #7c3aed;
+      border: 2px solid #7c3aed;
+    }
+
+    .btn-custom.secondary:hover {
+      background: #faf5ff;
+    }
+
+    .btn-custom:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
   </style>
 </head>
 <body>
-
-  <div class="container">
+  <div class="app-shell">
     
-    <!-- Cabeçalho -->
-    <div class="header">
-      <h1>📋 RAADS-R-BR Screen - Correção</h1>
-      <p>Escala Ritvo para Diagnóstico de Autismo em Adultos</p>
-    </div>
+    <!-- Sidebar -->
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div><div class="brand-name">Equilibrium</div><div class="brand-sub">Neuropsicologia</div></div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a class="nav-item" href="/#pacientes" data-page="pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+        <a class="nav-item active" href="/Correcao_testes/" data-page="correcao"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
+        <a class="nav-item" href="/check_list/" data-page="checklist"><span class="nav-icon">✅</span><span>Checklist</span></a>
+        <a class="nav-item" href="/Config/" data-page="config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info"><div class="user-avatar">W</div><div><div class="user-name">Wessilon</div><div class="user-role">Profissional</div></div></div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
 
-    <!-- Formulário de Entrada -->
-    <div class="card" id="formulario">
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
       
-      <div class="form-section">
-        <h2>Dados do Paciente</h2>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Nome Completo</label>
-            <input type="text" id="pacienteNome" placeholder="Nome do paciente" />
-          </div>
-          <div class="form-group">
-            <label>Data da Avaliação</label>
-            <input type="date" id="dataAvaliacao" />
-          </div>
+      <div class="page-header">
+        <div>
+          <p class="page-subtitle"><a href="/Correcao_testes/" class="breadcrumb">Correção de Testes</a> → RAADS-R-BR Screen</p>
+          <h1 class="page-title">RAADS-R-BR Screen</h1>
         </div>
       </div>
 
-      <div class="form-section">
-        <h2>Respostas do Questionário</h2>
-        <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">
-          Clique nos botões abaixo para registrar as respostas do paciente. <strong>Questões 1, 5 e 13 são invertidas.</strong>
-        </p>
-        <div class="questions" id="questionsContainer"></div>
-      </div>
-
-      <div class="action-buttons">
-        <button class="btn btn-primary" id="btnGerar">
-          📊 Gerar Relatório
-        </button>
-        <button class="btn btn-secondary" id="btnLimpar">
-          🔄 Limpar Tudo
-        </button>
-      </div>
-
-    </div>
-
-    <!-- Relatório Gerado -->
-    <div id="relatorio">
-      <div class="report-header">
-        <h1>RAADS-R-BR Screen</h1>
-        <p>Escala Ritvo para Diagnóstico de Autismo em Adultos - Versão Brasileira Reduzida</p>
-      </div>
-
-      <div class="report-info">
-        <div class="report-info-item">
-          <label>Paciente</label>
-          <div id="reportPaciente">—</div>
-        </div>
-        <div class="report-info-item">
-          <label>Data da Avaliação</label>
-          <div id="reportData">—</div>
-        </div>
-      </div>
-
-      <div class="report-section">
-        <h2>Sobre o RAADS-R-BR Screen</h2>
-        <p>
-          O RAADS-R-BR Screen é uma escala de rastreio desenvolvida para identificar características do Transtorno do Espectro Autista (TEA) em adultos. A versão utilizada é composta por 20 itens que avaliam domínios centrais do perfil neurodivergente, incluindo: Interação Social, Linguagem, Sensório-Motor e Interesses Circunscritos.
-        </p>
-        <p>
-          O instrumento foi validado para o contexto brasileiro, apresentando evidências robustas de validade e confiabilidade, com <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para o ponto de corte estabelecido.
-        </p>
-      </div>
-
-      <div class="report-section">
-        <h2>Resultados Obtidos</h2>
+      <!-- Formulário de Entrada -->
+      <div class="card" id="formulario">
         
-        <div class="score-cards">
-          <div class="score-card patient">
-            <div class="score-card-label">Pontuação da Paciente</div>
-            <div class="score-card-value" id="scorePatient">—</div>
-          </div>
-          <div class="score-card cutoff">
-            <div class="score-card-label">Ponto de Corte</div>
-            <div class="score-card-value">46</div>
-          </div>
-          <div class="score-card max">
-            <div class="score-card-label">Pontuação Máxima</div>
-            <div class="score-card-value">80</div>
+        <div class="form-section">
+          <h2>Dados do Paciente</h2>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nome Completo</label>
+              <input type="text" id="pacienteNome" placeholder="Nome do paciente" />
+            </div>
+            <div class="form-group">
+              <label>Data da Avaliação</label>
+              <input type="date" id="dataAvaliacao" />
+            </div>
           </div>
         </div>
 
-        <div id="grafico">
-          <img id="graficoImg" src="" alt="Gráfico Comparativo" style="display:none;" />
+        <div class="form-section">
+          <h2>Respostas do Questionário</h2>
+          <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">
+            Clique nos botões abaixo para registrar as respostas do paciente. <strong>Questões 1, 5 e 13 são invertidas.</strong>
+          </p>
+          <div class="questions" id="questionsContainer"></div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-custom primary" id="btnGerar">
+            📊 Gerar Relatório
+          </button>
+          <button class="btn-custom secondary" id="btnLimpar">
+            🔄 Limpar Tudo
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Relatório Gerado -->
+      <div id="relatorio" class="card">
+        <div class="report-header">
+          <h1>RAADS-R-BR Screen</h1>
+          <p>Escala Ritvo para Diagnóstico de Autismo em Adultos - Versão Brasileira Reduzida</p>
+        </div>
+
+        <div class="report-info">
+          <div class="report-info-item">
+            <label>Paciente</label>
+            <div id="reportPaciente">—</div>
+          </div>
+          <div class="report-info-item">
+            <label>Data da Avaliação</label>
+            <div id="reportData">—</div>
+          </div>
+        </div>
+
+        <div class="report-section">
+          <h2>Sobre o RAADS-R-BR Screen</h2>
+          <p>
+            O RAADS-R-BR Screen é uma escala de rastreio desenvolvida para identificar características do Transtorno do Espectro Autista (TEA) em adultos. A versão utilizada é composta por 20 itens que avaliam domínios centrais do perfil neurodivergente, incluindo: Interação Social, Linguagem, Sensório-Motor e Interesses Circunscritos.
+          </p>
+          <p>
+            O instrumento foi validado para o contexto brasileiro, apresentando evidências robustas de validade e confiabilidade, com <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para o ponto de corte estabelecido.
+          </p>
+        </div>
+
+        <div class="report-section">
+          <h2>Resultados Obtidos</h2>
+          
+          <div class="score-cards">
+            <div class="score-card patient">
+              <div class="score-card-label">Pontuação da Paciente</div>
+              <div class="score-card-value" id="scorePatient">—</div>
+            </div>
+            <div class="score-card cutoff">
+              <div class="score-card-label">Ponto de Corte</div>
+              <div class="score-card-value">46</div>
+            </div>
+            <div class="score-card max">
+              <div class="score-card-label">Pontuação Máxima</div>
+              <div class="score-card-value">80</div>
+            </div>
+          </div>
+
+          <div id="grafico">
+            <img id="graficoImg" src="" alt="Gráfico Comparativo" style="display:none;" />
+          </div>
+        </div>
+
+        <div class="report-section">
+          <h2>Interpretação</h2>
+          <div class="interpretation-box">
+            <p id="interpretacaoTexto">—</p>
+          </div>
+        </div>
+
+        <div class="report-footer">
+          <p>Relatório gerado por Equilibrium Neuropsicologia</p>
+          <p style="color: #cbd5e1; font-size: 11px;">
+            Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados
+          </p>
+        </div>
+
+        <div class="action-buttons" style="margin-top: 40px;">
+          <button class="btn-custom primary" id="btnBaixarPDF">
+            💾 Baixar PDF
+          </button>
+          <button class="btn-custom secondary" id="btnNovaCorrecao">
+            ← Nova Correção
+          </button>
         </div>
       </div>
 
-      <div class="report-section">
-        <h2>Interpretação</h2>
-        <div class="interpretation-box">
-          <p id="interpretacaoTexto">—</p>
-        </div>
-      </div>
-
-      <div class="report-footer">
-        <p>Relatório gerado por Equilibrium Neuropsicologia</p>
-        <p style="color: #cbd5e1; font-size: 11px;">
-          Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados
-        </p>
-      </div>
-
-      <div class="action-buttons" style="margin-top: 40px;">
-        <button class="btn btn-primary" id="btnBaixarPDF">
-          💾 Baixar PDF
-        </button>
-        <button class="btn btn-secondary" id="btnNovaCorrecao">
-          ← Nova Correção
-        </button>
-      </div>
-    </div>
-
+    </main>
   </div>
 
   <!-- Modal de Carregamento -->
@@ -586,7 +568,19 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+  <!-- SDKs do Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Configurações do Sistema -->
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+
+  <!-- Pyodide para gráficos -->
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+
   <script>
     // Questões do RAADS-R-BR Screen
     const questoes = [
@@ -613,6 +607,7 @@
     ];
 
     const respostas = {};
+    let pyodideInstance = null;
 
     // Renderizar questões
     function renderizarQuestoes() {
@@ -682,14 +677,26 @@
       return total;
     }
 
+    // Inicializar Pyodide
+    async function initPyodide() {
+      if (pyodideInstance) return pyodideInstance;
+      
+      console.log('Inicializando Pyodide...');
+      pyodideInstance = await loadPyodide({
+        indexURL: "https://cdn.jsdelivr.net/pyodide/v0.25.0/full/"
+      });
+      
+      console.log('Carregando pacotes Python...');
+      await pyodideInstance.loadPackage(['matplotlib', 'numpy']);
+      console.log('Pyodide pronto!');
+      
+      return pyodideInstance;
+    }
+
     // Gerar gráfico com Python
     async function gerarGrafico(pontuacaoPaciente, nomePaciente) {
-      const modalLoading = document.getElementById('modalLoading');
-      modalLoading.classList.add('show');
-
       try {
-        const pyodide = await loadPyodide();
-        await pyodide.loadPackage(['matplotlib', 'numpy']);
+        const pyodide = await initPyodide();
 
         const pythonCode = `
 import matplotlib
@@ -706,6 +713,8 @@ cores = ['#ef4444', '#3b82f6', '#6b7280']
 
 # Criar figura
 fig, ax = plt.subplots(figsize=(10, 6))
+fig.patch.set_facecolor('white')
+ax.set_facecolor('white')
 
 # Criar barras
 barras = ax.bar(categorias, valores, color=cores, width=0.6, edgecolor='white', linewidth=2)
@@ -719,10 +728,10 @@ for barra in barras:
 
 # Configurar eixos
 ax.set_ylabel('Pontuação', fontsize=14, fontweight='bold', color='#475569')
-ax.set_title('Resultado do Rastreio: ${nomePaciente}', fontsize=16, fontweight='bold', color='#1e293b', pad=20)
+ax.set_title('Resultado do Rastreio: ${nomePaciente.replace(/'/g, "\\'")}', fontsize=16, fontweight='bold', color='#1e293b', pad=20)
 ax.set_ylim(0, 90)
 ax.spines['top'].set_visible(False)
-ax.spines('right').set_visible(False)
+ax.spines['right'].set_visible(False)
 ax.spines['left'].set_color('#cbd5e1')
 ax.spines['bottom'].set_color('#cbd5e1')
 ax.tick_params(colors='#64748b', labelsize=12)
@@ -730,7 +739,7 @@ ax.set_axisbelow(True)
 ax.grid(axis='y', alpha=0.3, linestyle='--', linewidth=0.7)
 
 # Adicionar linha de referência no ponto de corte
-ax.axhline(y=46, color='#3b82f6', linestyle='--', linewidth=2, alpha=0.5, label='Ponto de Corte')
+ax.axhline(y=46, color='#3b82f6', linestyle='--', linewidth=2, alpha=0.5)
 
 plt.tight_layout()
 
@@ -745,15 +754,11 @@ image_base64
 `;
 
         const result = await pyodide.runPythonAsync(pythonCode);
-        
-        modalLoading.classList.remove('show');
         return `data:image/png;base64,${result}`;
         
       } catch (error) {
-        modalLoading.classList.remove('show');
         console.error('Erro ao gerar gráfico:', error);
-        alert('Erro ao gerar o gráfico. Verifique o console para mais detalhes.');
-        return null;
+        throw error;
       }
     }
 
@@ -777,40 +782,51 @@ image_base64
         return;
       }
 
-      const pontuacao = calcularPontuacao();
-      
-      // Formatar data
-      const dataObj = new Date(data + 'T00:00:00');
-      const dataFormatada = dataObj.toLocaleDateString('pt-BR', {
-        day: '2-digit',
-        month: 'long',
-        year: 'numeric'
-      });
+      const modalLoading = document.getElementById('modalLoading');
+      modalLoading.classList.add('show');
 
-      // Interpretação
-      let interpretacao = '';
-      if (pontuacao >= 46) {
-        interpretacao = `A pontuação de ${pontuacao} pontos encontra-se ACIMA do ponto de corte estabelecido (46) pelos estudos de validação. Este resultado indica que a participante reporta uma frequência de comportamentos e experiências compatível com o perfil do Espectro Autista. Estatisticamente, pontuações nesta faixa apresentam alta sensibilidade (90,1%) para a identificação do transtorno.`;
-      } else {
-        interpretacao = `A pontuação de ${pontuacao} pontos encontra-se ABAIXO do ponto de corte estabelecido (46) pelos estudos de validação. Este resultado indica que a participante reporta uma frequência de comportamentos abaixo do limiar clínico de rastreio para o Espectro Autista nesta escala.`;
-      }
+      try {
+        const pontuacao = calcularPontuacao();
+        
+        // Formatar data
+        const dataObj = new Date(data + 'T00:00:00');
+        const dataFormatada = dataObj.toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric'
+        });
 
-      // Preencher relatório
-      document.getElementById('reportPaciente').textContent = nome;
-      document.getElementById('reportData').textContent = dataFormatada;
-      document.getElementById('scorePatient').textContent = pontuacao;
-      document.getElementById('interpretacaoTexto').textContent = interpretacao;
+        // Interpretação
+        let interpretacao = '';
+        if (pontuacao >= 46) {
+          interpretacao = `A pontuação de ${pontuacao} pontos encontra-se ACIMA do ponto de corte estabelecido (46) pelos estudos de validação. Este resultado indica que a participante reporta uma frequência de comportamentos e experiências compatível com o perfil do Espectro Autista. Estatisticamente, pontuações nesta faixa apresentam alta sensibilidade (90,1%) para a identificação do transtorno.`;
+        } else {
+          interpretacao = `A pontuação de ${pontuacao} pontos encontra-se ABAIXO do ponto de corte estabelecido (46) pelos estudos de validação. Este resultado indica que a participante reporta uma frequência de comportamentos abaixo do limiar clínico de rastreio para o Espectro Autista nesta escala.`;
+        }
 
-      // Gerar gráfico
-      const graficoBase64 = await gerarGrafico(pontuacao, nome);
-      if (graficoBase64) {
+        // Preencher relatório
+        document.getElementById('reportPaciente').textContent = nome;
+        document.getElementById('reportData').textContent = dataFormatada;
+        document.getElementById('scorePatient').textContent = pontuacao;
+        document.getElementById('interpretacaoTexto').textContent = interpretacao;
+
+        // Gerar gráfico
+        console.log('Gerando gráfico...');
+        const graficoBase64 = await gerarGrafico(pontuacao, nome);
         document.getElementById('graficoImg').src = graficoBase64;
         document.getElementById('graficoImg').style.display = 'block';
-      }
 
-      // Mostrar relatório, esconder formulário
-      document.getElementById('formulario').style.display = 'none';
-      document.getElementById('relatorio').classList.add('show');
+        modalLoading.classList.remove('show');
+
+        // Mostrar relatório, esconder formulário
+        document.getElementById('formulario').style.display = 'none';
+        document.getElementById('relatorio').classList.add('show');
+
+      } catch (error) {
+        console.error('Erro ao processar:', error);
+        modalLoading.classList.remove('show');
+        alert('Ocorreu um erro ao gerar o relatório. Erro: ' + error.message + '\n\nPor favor, tente novamente.');
+      }
     }
 
     // Limpar formulário
@@ -859,6 +875,17 @@ image_base64
       document.getElementById('btnLimpar').addEventListener('click', limparFormulario);
       document.getElementById('btnNovaCorrecao').addEventListener('click', novaCorrecao);
       document.getElementById('btnBaixarPDF').addEventListener('click', baixarPDF);
+
+      // Pré-carregar Pyodide em background
+      console.log('Pré-carregando Pyodide em background...');
+      initPyodide().catch(err => console.warn('Erro ao pré-carregar Pyodide:', err));
+
+      // Autenticação
+      if (typeof isAuthed === 'function' && !isAuthed()) {
+        location.href = '/login.html';
+      } else if (typeof applySidebarPermissions === 'function') {
+        applySidebarPermissions();
+      }
     });
   </script>
 
