@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RAADS-R-BR Screen - Correção | Equilibrium</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background: #f8fafc;
+      color: #1e293b;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* ── Cabeçalho ── */
+    .header {
+      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+      color: white;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(124,58,237,.2);
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    /* ── Card de Entrada ── */
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.08);
+      margin-bottom: 24px;
+    }
+
+    .form-section {
+      margin-bottom: 24px;
+    }
+
+    .form-section h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #7c3aed;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 640px) {
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: all .2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #7c3aed;
+      box-shadow: 0 0 0 3px rgba(124,58,237,.1);
+    }
+
+    /* ── Questões ── */
+    .questions {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .question {
+      background: #fafcff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      transition: all .2s;
+    }
+
+    .question:hover {
+      background: white;
+      border-color: #cbd5e1;
+    }
+
+    .question-header {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .question-num {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+    }
+
+    .question-text {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1e293b;
+      padding-top: 6px;
+    }
+
+    .question-reverse {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      margin-left: 8px;
+    }
+
+    .question-options {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 640px) {
+      .question-options { grid-template-columns: 1fr 1fr; }
+    }
+
+    .option-btn {
+      padding: 8px 12px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      text-align: center;
+      transition: all .2s;
+      font-family: inherit;
+      font-weight: 500;
+      color: #64748b;
+    }
+
+    .option-btn:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    .option-btn.active {
+      background: #ede9fe;
+      border-color: #7c3aed;
+      color: #5b21b6;
+      font-weight: 700;
+    }
+
+    /* ── Botões de Ação ── */
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-top: 32px;
+    }
+
+    .btn {
+      padding: 14px 32px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+      color: white;
+      box-shadow: 0 4px 14px rgba(124,58,237,.35);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(124,58,237,.4);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #7c3aed;
+      border: 2px solid #7c3aed;
+    }
+
+    .btn-secondary:hover {
+      background: #faf5ff;
+    }
+
+    .btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    /* ── Relatório ── */
+    #relatorio {
+      display: none;
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.08);
+    }
+
+    #relatorio.show {
+      display: block;
+    }
+
+    .report-header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 30px;
+      border-bottom: 3px solid #7c3aed;
+    }
+
+    .report-header h1 {
+      color: #7c3aed;
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .report-header p {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .report-info {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 30px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .report-info-item label {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 700;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .report-info-item div {
+      font-size: 16px;
+      color: #1e293b;
+      font-weight: 600;
+    }
+
+    .report-section {
+      margin-bottom: 30px;
+    }
+
+    .report-section h2 {
+      color: #1e293b;
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .report-section p {
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    .score-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 24px 0;
+    }
+
+    @media (max-width: 640px) {
+      .score-cards { grid-template-columns: 1fr; }
+    }
+
+    .score-card {
+      border-radius: 12px;
+      padding: 20px;
+      color: white;
+      text-align: center;
+    }
+
+    .score-card.patient {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .score-card.cutoff {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .score-card.max {
+      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    }
+
+    .score-card-label {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-bottom: 8px;
+    }
+
+    .score-card-value {
+      font-size: 32px;
+      font-weight: 800;
+    }
+
+    .interpretation-box {
+      background: #f0f9ff;
+      border-left: 4px solid #3b82f6;
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .interpretation-box p {
+      color: #1e293b;
+      line-height: 1.8;
+      margin: 0;
+    }
+
+    #grafico {
+      margin: 30px 0;
+      text-align: center;
+    }
+
+    #grafico img {
+      max-width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.1);
+    }
+
+    .report-footer {
+      border-top: 2px solid #e2e8f0;
+      padding-top: 24px;
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .report-footer p {
+      color: #94a3b8;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    /* ── Modal de Carregamento ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal-box {
+      background: white;
+      border-radius: 20px;
+      padding: 48px 40px;
+      text-align: center;
+      max-width: 440px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+
+    .spinner {
+      width: 52px;
+      height: 52px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #7c3aed;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+
+    .modal-sub {
+      font-size: 14px;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    
+    <!-- Cabeçalho -->
+    <div class="header">
+      <h1>📋 RAADS-R-BR Screen - Correção</h1>
+      <p>Escala Ritvo para Diagnóstico de Autismo em Adultos</p>
+    </div>
+
+    <!-- Formulário de Entrada -->
+    <div class="card" id="formulario">
+      
+      <div class="form-section">
+        <h2>Dados do Paciente</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome Completo</label>
+            <input type="text" id="pacienteNome" placeholder="Nome do paciente" />
+          </div>
+          <div class="form-group">
+            <label>Data da Avaliação</label>
+            <input type="date" id="dataAvaliacao" />
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2>Respostas do Questionário</h2>
+        <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">
+          Clique nos botões abaixo para registrar as respostas do paciente. <strong>Questões 1, 5 e 13 são invertidas.</strong>
+        </p>
+        <div class="questions" id="questionsContainer"></div>
+      </div>
+
+      <div class="action-buttons">
+        <button class="btn btn-primary" id="btnGerar">
+          📊 Gerar Relatório
+        </button>
+        <button class="btn btn-secondary" id="btnLimpar">
+          🔄 Limpar Tudo
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Relatório Gerado -->
+    <div id="relatorio">
+      <div class="report-header">
+        <h1>RAADS-R-BR Screen</h1>
+        <p>Escala Ritvo para Diagnóstico de Autismo em Adultos - Versão Brasileira Reduzida</p>
+      </div>
+
+      <div class="report-info">
+        <div class="report-info-item">
+          <label>Paciente</label>
+          <div id="reportPaciente">—</div>
+        </div>
+        <div class="report-info-item">
+          <label>Data da Avaliação</label>
+          <div id="reportData">—</div>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <h2>Sobre o RAADS-R-BR Screen</h2>
+        <p>
+          O RAADS-R-BR Screen é uma escala de rastreio desenvolvida para identificar características do Transtorno do Espectro Autista (TEA) em adultos. A versão utilizada é composta por 20 itens que avaliam domínios centrais do perfil neurodivergente, incluindo: Interação Social, Linguagem, Sensório-Motor e Interesses Circunscritos.
+        </p>
+        <p>
+          O instrumento foi validado para o contexto brasileiro, apresentando evidências robustas de validade e confiabilidade, com <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para o ponto de corte estabelecido.
+        </p>
+      </div>
+
+      <div class="report-section">
+        <h2>Resultados Obtidos</h2>
+        
+        <div class="score-cards">
+          <div class="score-card patient">
+            <div class="score-card-label">Pontuação da Paciente</div>
+            <div class="score-card-value" id="scorePatient">—</div>
+          </div>
+          <div class="score-card cutoff">
+            <div class="score-card-label">Ponto de Corte</div>
+            <div class="score-card-value">46</div>
+          </div>
+          <div class="score-card max">
+            <div class="score-card-label">Pontuação Máxima</div>
+            <div class="score-card-value">80</div>
+          </div>
+        </div>
+
+        <div id="grafico">
+          <img id="graficoImg" src="" alt="Gráfico Comparativo" style="display:none;" />
+        </div>
+      </div>
+
+      <div class="report-section">
+        <h2>Interpretação</h2>
+        <div class="interpretation-box">
+          <p id="interpretacaoTexto">—</p>
+        </div>
+      </div>
+
+      <div class="report-footer">
+        <p>Relatório gerado por Equilibrium Neuropsicologia</p>
+        <p style="color: #cbd5e1; font-size: 11px;">
+          Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados
+        </p>
+      </div>
+
+      <div class="action-buttons" style="margin-top: 40px;">
+        <button class="btn btn-primary" id="btnBaixarPDF">
+          💾 Baixar PDF
+        </button>
+        <button class="btn btn-secondary" id="btnNovaCorrecao">
+          ← Nova Correção
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal de Carregamento -->
+  <div class="modal-overlay" id="modalLoading">
+    <div class="modal-box">
+      <div class="spinner"></div>
+      <div class="modal-title">Gerando Relatório...</div>
+      <div class="modal-sub">Por favor, aguarde</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+  <script>
+    // Questões do RAADS-R-BR Screen
+    const questoes = [
+      { id: 1, text: "Eu sou uma pessoa altamente empática e sensível.", reverse: true },
+      { id: 2, text: "Eu frequentemente uso palavras e frases de forma diferente dos outros." },
+      { id: 3, text: "É difícil para mim entender como outras pessoas estão se sentindo quando estamos conversando." },
+      { id: 4, text: "Algumas pessoas comuns não gostam de mim." },
+      { id: 5, text: "Eu tenho facilidade em fazer novos amigos.", reverse: true },
+      { id: 6, text: "É muito difícil para mim trabalhar e funcionar em grupos." },
+      { id: 7, text: "Quando estou conversando com alguém, eu presto pouca atenção às expressões faciais da pessoa." },
+      { id: 8, text: "Eu concentro minha atenção em detalhes ao invés de no quadro geral." },
+      { id: 9, text: "Eu levo as coisas de forma muito mais literal do que outras pessoas." },
+      { id: 10, text: "Não consigo imaginar como seria ser outra pessoa." },
+      { id: 11, text: "Eu tenho sido rotulado como 'estranho' ou 'esquisito'." },
+      { id: 12, text: "Eu tenho dificuldade em entender o que é esperado de mim." },
+      { id: 13, text: "Eu gosto de estar com outras pessoas.", reverse: true },
+      { id: 14, text: "É difícil para mim descobrir o que outras pessoas esperam de mim." },
+      { id: 15, text: "Eu foco no todo ao invés de nos pequenos detalhes." },
+      { id: 16, text: "É difícil para mim saber quando é minha vez de falar ao telefone ou em uma conversa em grupo." },
+      { id: 17, text: "Fico desconfortável quando as pessoas me contam sobre seus sentimentos íntimos." },
+      { id: 18, text: "Eu não sei como manter uma amizade." },
+      { id: 19, text: "Situações sociais são fáceis para mim." },
+      { id: 20, text: "Eu tenho que 'interpretar um papel' em situações sociais." }
+    ];
+
+    const respostas = {};
+
+    // Renderizar questões
+    function renderizarQuestoes() {
+      const container = document.getElementById('questionsContainer');
+      container.innerHTML = '';
+
+      questoes.forEach(q => {
+        const questionDiv = document.createElement('div');
+        questionDiv.className = 'question';
+        
+        const reverseTag = q.reverse ? '<span class="question-reverse">⚠️ Invertida</span>' : '';
+        
+        questionDiv.innerHTML = `
+          <div class="question-header">
+            <div class="question-num">${q.id}</div>
+            <div class="question-text">${q.text} ${reverseTag}</div>
+          </div>
+          <div class="question-options">
+            <button class="option-btn" data-q="${q.id}" data-v="1">1</button>
+            <button class="option-btn" data-q="${q.id}" data-v="2">2</button>
+            <button class="option-btn" data-q="${q.id}" data-v="3">3</button>
+            <button class="option-btn" data-q="${q.id}" data-v="4">4</button>
+          </div>
+        `;
+        
+        container.appendChild(questionDiv);
+      });
+
+      // Adicionar listeners
+      document.querySelectorAll('.option-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+          const qId = this.dataset.q;
+          const value = parseInt(this.dataset.v);
+          
+          // Remover active de todos os botões da mesma questão
+          document.querySelectorAll(`[data-q="${qId}"]`).forEach(b => {
+            b.classList.remove('active');
+          });
+          
+          // Adicionar active no botão clicado
+          this.classList.add('active');
+          
+          // Salvar resposta
+          respostas[qId] = value;
+        });
+      });
+    }
+
+    // Calcular pontuação
+    function calcularPontuacao() {
+      const diretos = [2, 3, 4, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20];
+      const invertidos = [1, 5, 13];
+      
+      let total = 0;
+      
+      for (const qId in respostas) {
+        const valor = respostas[qId];
+        const id = parseInt(qId);
+        
+        if (diretos.includes(id)) {
+          total += valor;
+        } else if (invertidos.includes(id)) {
+          total += (5 - valor);
+        }
+      }
+      
+      return total;
+    }
+
+    // Gerar gráfico com Python
+    async function gerarGrafico(pontuacaoPaciente, nomePaciente) {
+      const modalLoading = document.getElementById('modalLoading');
+      modalLoading.classList.add('show');
+
+      try {
+        const pyodide = await loadPyodide();
+        await pyodide.loadPackage(['matplotlib', 'numpy']);
+
+        const pythonCode = `
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+import numpy as np
+import base64
+from io import BytesIO
+
+# Dados
+categorias = ['Pontuação\\nda Paciente', 'Ponto de\\nCorte', 'Pontuação\\nMáxima']
+valores = [${pontuacaoPaciente}, 46, 80]
+cores = ['#ef4444', '#3b82f6', '#6b7280']
+
+# Criar figura
+fig, ax = plt.subplots(figsize=(10, 6))
+
+# Criar barras
+barras = ax.bar(categorias, valores, color=cores, width=0.6, edgecolor='white', linewidth=2)
+
+# Adicionar valores no topo das barras
+for barra in barras:
+    altura = barra.get_height()
+    ax.text(barra.get_x() + barra.get_width()/2., altura,
+            f'{int(altura)}',
+            ha='center', va='bottom', fontsize=20, fontweight='bold', color='#1e293b')
+
+# Configurar eixos
+ax.set_ylabel('Pontuação', fontsize=14, fontweight='bold', color='#475569')
+ax.set_title('Resultado do Rastreio: ${nomePaciente}', fontsize=16, fontweight='bold', color='#1e293b', pad=20)
+ax.set_ylim(0, 90)
+ax.spines['top'].set_visible(False)
+ax.spines('right').set_visible(False)
+ax.spines['left'].set_color('#cbd5e1')
+ax.spines['bottom'].set_color('#cbd5e1')
+ax.tick_params(colors='#64748b', labelsize=12)
+ax.set_axisbelow(True)
+ax.grid(axis='y', alpha=0.3, linestyle='--', linewidth=0.7)
+
+# Adicionar linha de referência no ponto de corte
+ax.axhline(y=46, color='#3b82f6', linestyle='--', linewidth=2, alpha=0.5, label='Ponto de Corte')
+
+plt.tight_layout()
+
+# Converter para base64
+buffer = BytesIO()
+plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight', facecolor='white')
+buffer.seek(0)
+image_base64 = base64.b64encode(buffer.read()).decode()
+plt.close()
+
+image_base64
+`;
+
+        const result = await pyodide.runPythonAsync(pythonCode);
+        
+        modalLoading.classList.remove('show');
+        return `data:image/png;base64,${result}`;
+        
+      } catch (error) {
+        modalLoading.classList.remove('show');
+        console.error('Erro ao gerar gráfico:', error);
+        alert('Erro ao gerar o gráfico. Verifique o console para mais detalhes.');
+        return null;
+      }
+    }
+
+    // Gerar relatório
+    async function gerarRelatorio() {
+      const nome = document.getElementById('pacienteNome').value.trim();
+      const data = document.getElementById('dataAvaliacao').value;
+
+      if (!nome) {
+        alert('Por favor, preencha o nome do paciente.');
+        return;
+      }
+
+      if (!data) {
+        alert('Por favor, preencha a data da avaliação.');
+        return;
+      }
+
+      if (Object.keys(respostas).length < 20) {
+        alert('Por favor, responda todas as 20 questões.');
+        return;
+      }
+
+      const pontuacao = calcularPontuacao();
+      
+      // Formatar data
+      const dataObj = new Date(data + 'T00:00:00');
+      const dataFormatada = dataObj.toLocaleDateString('pt-BR', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric'
+      });
+
+      // Interpretação
+      let interpretacao = '';
+      if (pontuacao >= 46) {
+        interpretacao = `A pontuação de ${pontuacao} pontos encontra-se ACIMA do ponto de corte estabelecido (46) pelos estudos de validação. Este resultado indica que a participante reporta uma frequência de comportamentos e experiências compatível com o perfil do Espectro Autista. Estatisticamente, pontuações nesta faixa apresentam alta sensibilidade (90,1%) para a identificação do transtorno.`;
+      } else {
+        interpretacao = `A pontuação de ${pontuacao} pontos encontra-se ABAIXO do ponto de corte estabelecido (46) pelos estudos de validação. Este resultado indica que a participante reporta uma frequência de comportamentos abaixo do limiar clínico de rastreio para o Espectro Autista nesta escala.`;
+      }
+
+      // Preencher relatório
+      document.getElementById('reportPaciente').textContent = nome;
+      document.getElementById('reportData').textContent = dataFormatada;
+      document.getElementById('scorePatient').textContent = pontuacao;
+      document.getElementById('interpretacaoTexto').textContent = interpretacao;
+
+      // Gerar gráfico
+      const graficoBase64 = await gerarGrafico(pontuacao, nome);
+      if (graficoBase64) {
+        document.getElementById('graficoImg').src = graficoBase64;
+        document.getElementById('graficoImg').style.display = 'block';
+      }
+
+      // Mostrar relatório, esconder formulário
+      document.getElementById('formulario').style.display = 'none';
+      document.getElementById('relatorio').classList.add('show');
+    }
+
+    // Limpar formulário
+    function limparFormulario() {
+      if (confirm('Tem certeza que deseja limpar todas as respostas?')) {
+        document.getElementById('pacienteNome').value = '';
+        document.getElementById('dataAvaliacao').value = '';
+        Object.keys(respostas).forEach(key => delete respostas[key]);
+        document.querySelectorAll('.option-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+      }
+    }
+
+    // Nova correção
+    function novaCorrecao() {
+      document.getElementById('relatorio').classList.remove('show');
+      document.getElementById('formulario').style.display = 'block';
+      limparFormulario();
+    }
+
+    // Baixar PDF
+    async function baixarPDF() {
+      const element = document.getElementById('relatorio');
+      const opt = {
+        margin: 10,
+        filename: `RAADS-R_${document.getElementById('reportPaciente').textContent}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save();
+    }
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+      renderizarQuestoes();
+      
+      // Definir data atual
+      const hoje = new Date().toISOString().split('T')[0];
+      document.getElementById('dataAvaliacao').value = hoje;
+
+      // Listeners
+      document.getElementById('btnGerar').addEventListener('click', gerarRelatorio);
+      document.getElementById('btnLimpar').addEventListener('click', limparFormulario);
+      document.getElementById('btnNovaCorrecao').addEventListener('click', novaCorrecao);
+      document.getElementById('btnBaixarPDF').addEventListener('click', baixarPDF);
+    });
+  </script>
+
+</body>
+</html>
