@@ -444,51 +444,41 @@ document.getElementById('btnSend').addEventListener('click',async()=>{
     let enviado = false;
     
     try {
+      // Enviar EXATAMENTE como o SRS2 faz — sem headers extras, sem redirect
       const res = await fetch(URL_DO_GOOGLE_SCRIPT, {
         method: 'POST',
-        body: payload,
-        redirect: 'follow'
+        body: payload
       });
+      const data = await res.json();
       
-      const text = await res.text();
-      console.log('Apps Script response status:', res.status);
-      console.log('Apps Script response body:', text.substring(0, 500));
+      console.log('Apps Script response:', data);
       
-      // Tentar parsear como JSON
-      let data = null;
-      try { data = JSON.parse(text); } catch(e) { /* não é JSON */ }
-      
-      if (data) {
-        // Aceitar qualquer variação de sucesso
-        const s = (data.status || data.result || '').toString().toLowerCase();
-        if (s === 'sucesso' || s === 'success' || s === 'ok') {
-          enviado = true;
-        } else if (data.url || data.fileId || data.id) {
-          // O script retornou um link/id do arquivo — sucesso
-          enviado = true;
-        } else {
-          console.warn('Resposta JSON inesperada:', data);
-          // Se o status HTTP foi 200, provavelmente deu certo
-          if (res.ok) enviado = true;
-        }
-      } else {
-        // Não é JSON — provavelmente HTML do redirect
-        // Se o status HTTP é 200, o envio funcionou
-        if (res.ok) enviado = true;
+      // Aceitar qualquer formato de sucesso
+      const s = (data.status || data.result || '').toString().toLowerCase();
+      if (s === 'sucesso' || s === 'success' || s === 'ok' || data.success === true) {
+        enviado = true;
+      } else if (res.ok && !data.error) {
+        enviado = true;
       }
       
+      if (!enviado) {
+        throw new Error(data.error || data.mensagem || 'O servidor retornou erro');
+      }
     } catch(fetchErr) {
-      console.warn('Fetch primário falhou, tentando no-cors:', fetchErr.message);
-      // Fallback: no-cors (não lemos resposta, mas o envio pode funcionar)
-      try {
-        await fetch(URL_DO_GOOGLE_SCRIPT, {
-          method: 'POST',
-          mode: 'no-cors',
-          body: payload
-        });
-        enviado = true; // Se não lançou exceção, provavelmente chegou
-      } catch(e2) {
-        throw new Error('Falha na conexão: ' + fetchErr.message);
+      // Se o fetch falhou completamente (CORS, rede), tentar no-cors
+      if (fetchErr.name === 'TypeError') {
+        try {
+          await fetch(URL_DO_GOOGLE_SCRIPT, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: payload
+          });
+          enviado = true;
+        } catch(e2) {
+          throw fetchErr;
+        }
+      } else {
+        throw fetchErr;
       }
     }
 
