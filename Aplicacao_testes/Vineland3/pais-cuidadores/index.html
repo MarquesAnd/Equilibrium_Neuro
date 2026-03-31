@@ -440,46 +440,46 @@ document.getElementById('btnSend').addEventListener('click',async()=>{
     btn.textContent='Enviando…';
     const base64=pdfUri.split(',')[1];
     
-    const payload = JSON.stringify({pdf:base64,nome:nome,form:'vineland3_pais_cuidadores'});
+    // DEBUG: log exatamente o que vamos enviar
+    console.log('=== VINELAND3 ENVIO DEBUG ===');
+    console.log('nome:', nome);
+    console.log('nome type:', typeof nome);
+    console.log('form:', 'vineland3_pais_cuidadores');
+    console.log('pdf length:', base64?.length);
+    
+    const payload = JSON.stringify({pdf:base64, nome:nome, form:'vineland3_pais_cuidadores'});
+    console.log('payload keys:', Object.keys(JSON.parse(payload)));
+    
     let enviado = false;
     
     try {
-      // Enviar EXATAMENTE como o SRS2 faz — sem headers extras, sem redirect
       const res = await fetch(URL_DO_GOOGLE_SCRIPT, {
         method: 'POST',
         body: payload
       });
-      const data = await res.json();
       
-      console.log('Apps Script response:', data);
+      const text = await res.text();
+      console.log('Response status:', res.status);
+      console.log('Response body:', text);
       
-      // Aceitar qualquer formato de sucesso
-      const s = (data.status || data.result || '').toString().toLowerCase();
-      if (s === 'sucesso' || s === 'success' || s === 'ok' || data.success === true) {
+      let data;
+      try { data = JSON.parse(text); } catch(e) { data = {}; }
+      
+      if (data.success === true || data.status === 'sucesso' || data.status === 'success') {
         enviado = true;
-      } else if (res.ok && !data.error) {
+      } else if (data.error) {
+        // O Apps Script retornou erro — mostrar detalhes
+        throw new Error('Apps Script erro: ' + data.error);
+      } else if (res.ok) {
         enviado = true;
-      }
-      
-      if (!enviado) {
-        throw new Error(data.error || data.mensagem || 'O servidor retornou erro');
       }
     } catch(fetchErr) {
-      // Se o fetch falhou completamente (CORS, rede), tentar no-cors
-      if (fetchErr.name === 'TypeError') {
-        try {
-          await fetch(URL_DO_GOOGLE_SCRIPT, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: payload
-          });
-          enviado = true;
-        } catch(e2) {
-          throw fetchErr;
-        }
-      } else {
-        throw fetchErr;
-      }
+      if (fetchErr.message.includes('Apps Script erro')) throw fetchErr;
+      console.warn('Fetch falhou, tentando no-cors:', fetchErr);
+      try {
+        await fetch(URL_DO_GOOGLE_SCRIPT, { method:'POST', mode:'no-cors', body:payload });
+        enviado = true;
+      } catch(e2) { throw fetchErr; }
     }
 
     if(enviado){
