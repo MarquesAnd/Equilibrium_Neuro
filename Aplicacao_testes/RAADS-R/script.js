@@ -6,7 +6,7 @@
 let RAADSR_RULES = null;
 const $ = (sel) => document.querySelector(sel);
 
-//if (typeof DATA_PATH === "undefined") { var DATA_PATH = "/Aplicacao_testes/RAADS-R/data/raadsr_rules.json"; }
+if (typeof DATA_PATH === "undefined") { var DATA_PATH = "/Aplicacao_testes/RAADS-R/data/raadsr_rules.json"; }
 
 function aplicarAcento(){
   if(!window.RAADSR_ACCENT_VAR) return;
