@@ -35,7 +35,7 @@ function setSubtitle(msg){
 
 // ─── CARREGAR JSON ────────────────────────────────────────────────────────────
 async function carregarRegras(){
-  const path = (typeof DATA_PATH !== "undefined") ? DATA_PATH : "../data/raadsr_rules.json";
+  const path = (typeof DATA_PATH !== "undefined") ? DATA_PATH : "/Aplicacao_testes/RAADS-R/data/raadsr_rules.json";
   let res;
   try {
     res = await fetch(path, { cache: "no-store" });
