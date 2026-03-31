@@ -77,26 +77,20 @@ function renderItens(){
       <div class="item-options">
         ${labels.map((label, idx) => {
           const value = idx + 1;
-          return `<label class="opt">
-            <input type="radio" name="q${item.id}" value="${value}" style="display:none" />
-            <span>${escapeHtml(label)}</span>
-          </label>`;
+          return `<div class="item-option">
+            <input type="radio" id="q${item.id}_${value}" name="q${item.id}" value="${value}" />
+            <label for="q${item.id}_${value}">${escapeHtml(label)}</label>
+          </div>`;
         }).join('')}
       </div>
     `;
     container.appendChild(itemDiv);
   }
 
-  container.querySelectorAll(".opt").forEach(opt => {
-    opt.addEventListener("click", function(){
-      const input = this.querySelector("input");
-      if(input){
-        input.checked = true;
-        const name = input.name;
-        this.closest(".item-options").querySelectorAll(".opt").forEach(o => o.classList.remove("active"));
-        this.classList.add("active");
-        atualizarProgresso();
-      }
+  // Listeners para as opções - não precisa mais, radio funciona nativamente
+  container.querySelectorAll('input[type="radio"]').forEach(radio => {
+    radio.addEventListener("change", function(){
+      atualizarProgresso();
     });
   });
 
