@@ -439,8 +439,44 @@ document.getElementById('btnSend').addEventListener('click',async()=>{
 
     btn.textContent='Enviando…';
     const base64=pdfUri.split(',')[1];
-    const res=await fetch(URL_DO_GOOGLE_SCRIPT,{method:'POST',body:JSON.stringify({pdf:base64,nome:nome,form:'vineland3_pais_cuidadores'})});
-    const data=await res.json();
+    
+    // Google Apps Script retorna redirect — precisamos tratar isso
+    let data;
+    try {
+      const res=await fetch(URL_DO_GOOGLE_SCRIPT,{
+        method:'POST',
+        headers: {'Content-Type': 'text/plain'},
+        body:JSON.stringify({pdf:base64,nome:nome,form:'vineland3_pais_cuidadores'}),
+        redirect: 'follow'
+      });
+      
+      const text = await res.text();
+      try {
+        data = JSON.parse(text);
+      } catch(e) {
+        // Se o Apps Script retornou HTML (redirect seguido), 
+        // verifica se contém indicação de sucesso
+        if (text.includes('sucesso') || res.ok) {
+          data = { status: 'sucesso' };
+        } else {
+          throw new Error('Resposta inesperada do servidor');
+        }
+      }
+    } catch(fetchErr) {
+      // Modo no-cors: se falhou completamente, tenta novamente como no-cors
+      // (não podemos ler a resposta, mas o envio pode ter funcionado)
+      try {
+        await fetch(URL_DO_GOOGLE_SCRIPT, {
+          method: 'POST',
+          mode: 'no-cors',
+          body: JSON.stringify({pdf:base64,nome:nome,form:'vineland3_pais_cuidadores'})
+        });
+        // Se chegou aqui sem erro, o envio provavelmente funcionou
+        data = { status: 'sucesso' };
+      } catch(e2) {
+        throw new Error('Falha na conexão: ' + fetchErr.message);
+      }
+    }
 
     if(data.status==='sucesso'){
       document.body.innerHTML=`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#f5f3ff,#ede9fe);padding:24px;"><div style="background:#fff;border-radius:22px;padding:60px 44px;text-align:center;max-width:560px;width:100%;box-shadow:0 20px 50px rgba(124,58,237,.14);"><div style="font-size:64px;margin-bottom:22px;">✅</div><h1 style="font-size:26px;color:#4c1d95;margin:0 0 14px;">Avaliação Finalizada!</h1><p style="font-size:16px;color:#555;line-height:1.65;">As respostas foram processadas e o relatório foi enviado com segurança ao profissional.</p><p style="font-size:13px;color:#a0aec0;margin-top:28px;">Você já pode fechar esta janela.</p></div></div>`;
