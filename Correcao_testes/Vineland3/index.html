@@ -18,7 +18,7 @@
             </div>
             <nav class="sidebar-nav">
                 <a class="nav-item" href="/"><span class="nav-icon">📊</span><span>Dashboard</span></a>
-                <a class="nav-item" href="/#pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+                <a class="nav-item" href="/Pacientes/"><span class="nav-icon">👤</span><span>Pacientes</span></a>
                 <a class="nav-item active" href="/Correcao_testes/"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
                 <a class="nav-item" href="/Aplicacao_testes/"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
                 <a class="nav-item" href="/#relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
@@ -55,7 +55,7 @@
 
                 <div class="info-alert">
                     <span class="info-icon">🧠</span>
-                    <p>O <strong>Vineland-3</strong> avalia o comportamento adaptativo do indivíduo. Insira os dados do paciente abaixo, selecione as abas de domínios para preencher as pontuações brutas e, em seguida, verifique os <strong>Resultados</strong>.</p>
+                    <p>O <strong>Vineland-3</strong> avalia o comportamento adaptativo do indivíduo. Insira a <strong>data de nascimento</strong> e a <strong>data do teste</strong>, preencha as pontuações dos itens em cada aba, e a <strong>correção é automática</strong> — Pontuação Padrão, CCA, V-Escala e Nível Adaptativo são calculados em tempo real usando as Tabelas C.3 e E.2.</p>
                 </div>
 
                 <div class="card">
@@ -106,6 +106,7 @@
                         <div class="idade-display">
                             <span>Idade: <strong id="idadeAnos">—</strong> anos</span>
                             <span>e <strong id="idadeMeses">—</strong> meses</span>
+                            <span style="margin-left:1rem;">Faixa Normativa: <strong id="faixaEtaria">—</strong></span>
                         </div>
                     </div>
                 </div>
@@ -347,7 +348,7 @@
                                     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
                                         <div>
                                             <h3 style="font-size:1rem;font-weight:800;color:#4c1d95;">Composto de Comportamento Adaptativo (CCA)</h3>
-                                            <p style="font-size:0.78rem;color:#6d28d9;margin-top:0.25rem;">Soma das Pontuações Padrão (COM + AVD + SOC) → Consultar Tabela D.3</p>
+                                            <p style="font-size:0.78rem;color:#6d28d9;margin-top:0.25rem;">Soma das Pontuações Padrão (COM + AVD + SOC) → Calculado automaticamente via Tabela C.3</p>
                                         </div>
                                         <div style="display:flex;align-items:center;gap:1.5rem;">
                                             <div style="text-align:center;">
@@ -384,20 +385,23 @@
                                     <div class="soma" id="soma_sectionA_res">0</div>
                                     <div class="pp-input-row" style="justify-content:center;margin-top:0.5rem;">
                                         <label>V-escala:</label>
-                                        <input type="number" id="ve_sectionA" class="pp-input" min="0" max="30">
+                                        <input type="number" id="ve_sectionA" class="pp-input" min="0" max="30" readonly>
                                     </div>
+                                    <div style="margin-top:0.4rem;font-size:0.8rem;font-weight:700;" id="ve_label_sectionA">—</div>
                                 </div>
                                 <div class="behavior-card">
                                     <h4>Seção B — Externalizante</h4>
                                     <div class="soma" id="soma_sectionB_res">0</div>
                                     <div class="pp-input-row" style="justify-content:center;margin-top:0.5rem;">
                                         <label>V-escala:</label>
-                                        <input type="number" id="ve_sectionB" class="pp-input" min="0" max="30">
+                                        <input type="number" id="ve_sectionB" class="pp-input" min="0" max="30" readonly>
                                     </div>
+                                    <div style="margin-top:0.4rem;font-size:0.8rem;font-weight:700;" id="ve_label_sectionB">—</div>
                                 </div>
                                 <div class="behavior-card">
                                     <h4>Seção C — Outros</h4>
                                     <div class="soma" id="soma_sectionC_res">0</div>
+                                    <div style="margin-top:0.8rem;font-size:0.75rem;color:var(--text-secondary);">Sem V-Escala normativa</div>
                                 </div>
                             </div>
 
