@@ -8,6 +8,7 @@
   <link rel="icon" type="image/png" href="/logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     .form-section { margin-bottom: 32px; }
@@ -17,8 +18,8 @@
     .form-group label { display: block; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
     .form-group input { width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 15px; font-family: inherit; transition: all .2s; }
     .form-group input:focus { outline: none; border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.1); }
-    .questions { display: flex; flex-direction: column; gap: 16px; }
-    .question { background: #fafcff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 20px; transition: all .2s; }
+    .questions { display: flex; flex-direction: column; gap: 16px; max-width: 700px; margin: 0 auto; }
+    .question { background: #fafcff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; transition: all .2s; }
     .question:hover { background: white; border-color: #cbd5e1; }
     .question-header { display: flex; gap: 12px; margin-bottom: 12px; }
     .question-num { flex-shrink: 0; width: 32px; height: 32px; background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; }
@@ -298,53 +299,232 @@
 
     async function baixarPDF() {
       try {
-        // Converter gráfico em imagem antes de gerar PDF
-        const canvas = document.getElementById('graficoCanvas');
-        const graficoImg = canvas.toDataURL('image/png', 1.0);
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('p', 'mm', 'a4');
         
-        // Criar elemento img temporário
-        const imgElement = document.createElement('img');
-        imgElement.src = graficoImg;
-        imgElement.style.width = '100%';
-        imgElement.style.maxWidth = '700px';
-        imgElement.style.height = 'auto';
-        imgElement.style.display = 'block';
-        imgElement.style.margin = '0 auto';
+        const nome = document.getElementById('reportPaciente').textContent;
+        const data = document.getElementById('reportData').textContent;
+        const pontuacao = parseInt(document.getElementById('scorePatient').textContent);
+        const interpretacao = document.getElementById('interpretacaoTexto').textContent;
         
-        // Esconder canvas, mostrar imagem
-        const graficoContainer = document.getElementById('graficoContainer');
-        canvas.style.display = 'none';
-        graficoContainer.appendChild(imgElement);
+        // Cabeçalho roxo
+        doc.setFillColor(124, 58, 237);
+        doc.rect(0, 0, 210, 40, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(22);
+        doc.setFont('helvetica', 'bold');
+        doc.text('RAADS-R-BR Screen', 105, 18, { align: 'center' });
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Escala Ritvo para Diagnóstico de Autismo em Adultos - Versão Brasileira Reduzida', 105, 28, { align: 'center' });
         
-        // Gerar PDF
-        const element = document.getElementById('relatorio');
-        const opt = {
-          margin: [10, 10, 10, 10],
-          filename: `RAADS-R_${document.getElementById('reportPaciente').textContent.replace(/\s+/g, '_')}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { 
-            scale: 2,
-            useCORS: true,
-            logging: false,
-            windowWidth: 800
-          },
-          jsPDF: { 
-            unit: 'mm', 
-            format: 'a4', 
-            orientation: 'portrait',
-            compress: true
-          }
-        };
+        // Dados do paciente
+        doc.setFillColor(248, 250, 252);
+        doc.roundedRect(15, 50, 180, 25, 3, 3, 'F');
         
-        await html2pdf().set(opt).from(element).save();
+        doc.setTextColor(148, 163, 184);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'bold');
+        doc.text('PACIENTE', 20, 58);
+        doc.text('DATA DA AVALIAÇÃO', 115, 58);
         
-        // Restaurar canvas
-        imgElement.remove();
-        canvas.style.display = 'block';
+        doc.setTextColor(30, 41, 59);
+        doc.setFontSize(13);
+        doc.setFont('helvetica', 'bold');
+        doc.text(nome, 20, 68);
+        doc.text(data, 115, 68);
+        
+        // Sobre o instrumento
+        doc.setFontSize(15);
+        doc.setTextColor(30, 41, 59);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Sobre o RAADS-R-BR Screen', 15, 88);
+        
+        doc.setFontSize(10);
+        doc.setTextColor(71, 85, 105);
+        doc.setFont('helvetica', 'normal');
+        const textoSobre = doc.splitTextToSize(
+          'O RAADS-R-BR Screen é uma escala de rastreio desenvolvida para identificar características do Transtorno do Espectro Autista (TEA) em adultos. A versão utilizada é composta por 20 itens que avaliam domínios centrais do perfil neurodivergente, incluindo: Interação Social, Linguagem, Sensório-Motor e Interesses Circunscritos.',
+          175
+        );
+        doc.text(textoSobre, 15, 96);
+        
+        const textoSobre2 = doc.splitTextToSize(
+          'O instrumento foi validado para o contexto brasileiro, apresentando evidências robustas de validade e confiabilidade, com sensibilidade de 90,1% e especificidade de 87,9% para o ponto de corte estabelecido.',
+          175
+        );
+        doc.text(textoSobre2, 15, 112);
+        
+        // Resultados Obtidos
+        doc.setFontSize(15);
+        doc.setTextColor(30, 41, 59);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Resultados Obtidos', 15, 133);
+        
+        // Cards de pontuação
+        // Card Vermelho - Paciente
+        doc.setFillColor(239, 68, 68);
+        doc.roundedRect(25, 142, 45, 25, 3, 3, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Pontuação da Paciente', 47.5, 150, { align: 'center' });
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text(pontuacao.toString(), 47.5, 162, { align: 'center' });
+        
+        // Card Azul - Corte
+        doc.setFillColor(59, 130, 246);
+        doc.roundedRect(82.5, 142, 45, 25, 3, 3, 'F');
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Ponto de Corte', 105, 150, { align: 'center' });
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text('46', 105, 162, { align: 'center' });
+        
+        // Card Cinza - Máxima
+        doc.setFillColor(107, 114, 128);
+        doc.roundedRect(140, 142, 45, 25, 3, 3, 'F');
+        doc.setFontSize(9);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Pontuação Máxima', 162.5, 150, { align: 'center' });
+        doc.setFontSize(24);
+        doc.setFont('helvetica', 'bold');
+        doc.text('80', 162.5, 162, { align: 'center' });
+        
+        // Visualização Gráfica
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(30, 41, 59);
+        doc.setFontSize(12);
+        doc.text('Visualização Gráfica dos Dados', 105, 180, { align: 'center' });
+        
+        // Configurações do gráfico
+        const maxAltura = 55;
+        const larguraBarra = 35;
+        const espacamento = 15;
+        const baseY = 245;
+        const inicioX = 40;
+        
+        // Eixo Y (escala)
+        doc.setDrawColor(203, 213, 225);
+        doc.setLineWidth(0.3);
+        doc.line(inicioX - 5, baseY - maxAltura, inicioX - 5, baseY);
+        
+        // Marcações do eixo Y
+        doc.setFontSize(8);
+        doc.setTextColor(100, 116, 139);
+        doc.setFont('helvetica', 'normal');
+        for (let i = 0; i <= 80; i += 20) {
+          const y = baseY - (i / 80) * maxAltura;
+          doc.line(inicioX - 7, y, inicioX - 5, y);
+          doc.text(i.toString(), inicioX - 10, y + 1, { align: 'right' });
+        }
+        
+        // Grid horizontal
+        doc.setDrawColor(229, 231, 235);
+        doc.setLineWidth(0.2);
+        for (let i = 20; i <= 80; i += 20) {
+          const y = baseY - (i / 80) * maxAltura;
+          doc.line(inicioX, y, inicioX + (larguraBarra + espacamento) * 2 + larguraBarra, y);
+        }
+        
+        // Barra 1: Paciente (vermelho)
+        const alturaPaciente = (pontuacao / 80) * maxAltura;
+        doc.setFillColor(239, 68, 68);
+        doc.rect(inicioX, baseY - alturaPaciente, larguraBarra, alturaPaciente, 'F');
+        
+        // Valor no topo
+        doc.setTextColor(30, 41, 59);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text(pontuacao.toString(), inicioX + larguraBarra/2, baseY - alturaPaciente - 3, { align: 'center' });
+        
+        // Label
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Pontuação', inicioX + larguraBarra/2, baseY + 5, { align: 'center' });
+        doc.text('da Paciente', inicioX + larguraBarra/2, baseY + 9, { align: 'center' });
+        
+        // Barra 2: Ponto de Corte (azul)
+        const alturaCorte = (46 / 80) * maxAltura;
+        const xCorte = inicioX + larguraBarra + espacamento;
+        doc.setFillColor(59, 130, 246);
+        doc.rect(xCorte, baseY - alturaCorte, larguraBarra, alturaCorte, 'F');
+        
+        // Valor no topo
+        doc.setTextColor(30, 41, 59);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('46', xCorte + larguraBarra/2, baseY - alturaCorte - 3, { align: 'center' });
+        
+        // Label
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Ponto de', xCorte + larguraBarra/2, baseY + 5, { align: 'center' });
+        doc.text('Corte', xCorte + larguraBarra/2, baseY + 9, { align: 'center' });
+        
+        // Barra 3: Pontuação Máxima (cinza)
+        const xMaxima = inicioX + (larguraBarra + espacamento) * 2;
+        doc.setFillColor(107, 114, 128);
+        doc.rect(xMaxima, baseY - maxAltura, larguraBarra, maxAltura, 'F');
+        
+        // Valor no topo
+        doc.setTextColor(30, 41, 59);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('80', xMaxima + larguraBarra/2, baseY - maxAltura - 3, { align: 'center' });
+        
+        // Label
+        doc.setFontSize(8);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Pontuação', xMaxima + larguraBarra/2, baseY + 5, { align: 'center' });
+        doc.text('Máxima', xMaxima + larguraBarra/2, baseY + 9, { align: 'center' });
+        
+        // Linha de base
+        doc.setDrawColor(203, 213, 225);
+        doc.setLineWidth(0.5);
+        doc.line(inicioX, baseY, xMaxima + larguraBarra, baseY);
+        
+        // Label do eixo Y
+        doc.setFontSize(10);
+        doc.setTextColor(71, 85, 105);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Pontuação', 10, 215, { angle: 90 });
+        
+        // Interpretação
+        doc.setFontSize(15);
+        doc.setTextColor(30, 41, 59);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Interpretação', 15, 263);
+        
+        // Caixa azul clara
+        doc.setFillColor(240, 249, 255);
+        doc.setDrawColor(59, 130, 246);
+        doc.setLineWidth(1);
+        doc.roundedRect(15, 268, 180, 15, 2, 2, 'FD');
+        
+        doc.setFontSize(9);
+        doc.setTextColor(30, 41, 59);
+        doc.setFont('helvetica', 'normal');
+        const textoInterpretacao = doc.splitTextToSize(interpretacao, 170);
+        doc.text(textoInterpretacao, 20, 273);
+        
+        // Rodapé
+        doc.setFontSize(10);
+        doc.setTextColor(148, 163, 184);
+        doc.setFont('helvetica', 'normal');
+        doc.text('Relatório gerado por Equilibrium Neuropsicologia', 105, 290, { align: 'center' });
+        doc.setFontSize(8);
+        doc.setTextColor(203, 213, 225);
+        doc.text('Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados', 105, 295, { align: 'center' });
+        
+        // Salvar
+        doc.save(`RAADS-R_${nome.replace(/\s+/g, '_')}.pdf`);
         
       } catch (error) {
         console.error('Erro ao gerar PDF:', error);
-        alert('Erro ao gerar PDF. Tente novamente.');
+        alert('Erro ao gerar PDF: ' + error.message);
       }
     }
 
