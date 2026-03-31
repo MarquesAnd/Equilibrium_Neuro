@@ -501,6 +501,378 @@ async function gerarPDFDrive(nome, data, pontuacao) {
     year: 'numeric'
   });
   
+  // Cores do tema AZUL Equilibrium
+  const azulPrimario = [26, 86, 219];      // #1a56db
+  const azulEscuro = [30, 58, 138];        // #1e3a8a
+  const azulClaro = [147, 197, 253];       // #93c5fd
+  const azulClarissimo = [239, 246, 255];  // #eff6ff
+  
+  // Determinar interpretação detalhada
+  let interpretacao = '';
+  let recomendacoes = '';
+  let nivelRisco = '';
+  let corNivel = [0, 0, 0];
+  
+  if (pontuacao >= 65) {
+    nivelRisco = 'ALTO';
+    corNivel = [220, 38, 38];
+    interpretacao = `A pontuação de ${pontuacao} pontos situa-se significativamente ACIMA do ponto de corte clínico (46 pontos), indicando presença marcante de características compatíveis com o Transtorno do Espectro Autista (TEA). Este resultado sugere padrões consistentes de comportamento, comunicação e interação social alinhados com o perfil neurodivergente do espectro autista.`;
+    recomendacoes = 'Recomenda-se avaliação diagnóstica especializada completa, incluindo entrevista clínica estruturada, observação comportamental e aplicação de instrumentos complementares (ADOS-2, ADI-R). A pontuação elevada indica necessidade de investigação aprofundada para diagnóstico diferencial e planejamento terapêutico individualizado.';
+  } else if (pontuacao >= 46) {
+    nivelRisco = 'MODERADO A ALTO';
+    corNivel = [245, 158, 11];
+    interpretacao = `A pontuação de ${pontuacao} pontos encontra-se ACIMA do ponto de corte estabelecido (46 pontos) pelos estudos de validação brasileira. Este resultado indica que a pessoa avaliada reporta frequência significativa de comportamentos e experiências compatíveis com características do Transtorno do Espectro Autista. Estatisticamente, pontuações nesta faixa apresentam sensibilidade de 90,1% para identificação do TEA.`;
+    recomendacoes = 'Indicada avaliação diagnóstica complementar por profissional especializado em TEA. Recomenda-se investigação de áreas específicas: comunicação social, padrões restritos/repetitivos de comportamento, processamento sensorial e funcionamento adaptativo. A pontuação sugere necessidade de acompanhamento clínico.';
+  } else if (pontuacao >= 32) {
+    nivelRisco = 'LIMÍTROFE';
+    corNivel = [234, 179, 8];
+    interpretacao = `A pontuação de ${pontuacao} pontos situa-se em zona limítrofe, abaixo do ponto de corte clínico (46 pontos), porém indicando presença de algumas características do espectro autista. Este resultado pode sugerir traços subclínicos, perfil neurodivergente sem necessariamente preencher critérios diagnósticos completos, ou possibilidade de diagnóstico diferencial.`;
+    recomendacoes = 'Sugere-se avaliação clínica para investigação de possíveis traços autistas, condições comórbidas (TDAH, ansiedade, depressão) ou outros perfis neurodivergentes. Considerar histórico de desenvolvimento, funcionalidade atual e impacto nas áreas de vida. Acompanhamento pode ser benéfico mesmo sem diagnóstico formal.';
+  } else {
+    nivelRisco = 'BAIXO';
+    corNivel = [34, 197, 94];
+    interpretacao = `A pontuação de ${pontuacao} pontos encontra-se ABAIXO do ponto de corte estabelecido (46 pontos), indicando ausência ou baixa frequência de características típicas do Transtorno do Espectro Autista conforme rastreadas por este instrumento. O resultado sugere padrão de respostas não compatível com o perfil autista na população clínica.`;
+    recomendacoes = 'Resultado não indica necessidade de investigação diagnóstica para TEA. Caso persistam dúvidas clínicas ou dificuldades significativas nas áreas de comunicação social, comportamento ou processamento sensorial, considerar avaliação neuropsicológica abrangente para investigação de outras condições ou perfis cognitivos.';
+  }
+  
+  // ═══════════════════════════════════════════════════════════════════
+  // PÁGINA 1 - CAPA E INFORMAÇÕES GERAIS
+  // ═══════════════════════════════════════════════════════════════════
+  
+  // Cabeçalho com gradiente azul (simulado com retângulos)
+  doc.setFillColor(...azulEscuro);
+  doc.rect(0, 0, 210, 60, 'F');
+  doc.setFillColor(...azulPrimario);
+  doc.rect(0, 0, 210, 55, 'F');
+  
+  // Elementos decorativos do cabeçalho
+  doc.setFillColor(255, 255, 255);
+  doc.setGState(new doc.GState({opacity: 0.1}));
+  doc.circle(200, 10, 25, 'F');
+  doc.circle(15, 50, 20, 'F');
+  doc.setGState(new doc.GState({opacity: 1}));
+  
+  // Texto do cabeçalho
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.text('RELATÓRIO DE RASTREAMENTO', 105, 15, { align: 'center' });
+  
+  doc.setFontSize(30);
+  doc.setFont('helvetica', 'bold');
+  doc.text('RAADS-R-BR SCREEN', 105, 28, { align: 'center' });
+  
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Escala Ritvo de Diagnóstico de Autismo em Adultos', 105, 37, { align: 'center' });
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'italic');
+  doc.text('Versão Brasileira Reduzida • 20 Itens', 105, 45, { align: 'center' });
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Equilibrium Neuropsicologia', 105, 52, { align: 'center' });
+  
+  // Card de dados do paciente
+  doc.setFillColor(248, 250, 252);
+  doc.setDrawColor(...azulClaro);
+  doc.setLineWidth(1);
+  doc.roundedRect(15, 70, 180, 32, 4, 4, 'FD');
+  
+  doc.setTextColor(...azulPrimario);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('DADOS DO PACIENTE', 20, 78);
+  
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.5);
+  doc.line(20, 80, 190, 80);
+  
+  doc.setTextColor(30, 41, 59);
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Paciente:', 20, 88);
+  doc.setFont('helvetica', 'normal');
+  doc.text(nome, 42, 88);
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Data da Avaliação:', 20, 95);
+  doc.setFont('helvetica', 'normal');
+  doc.text(dataFormatada, 60, 95);
+  
+  // Sobre o Instrumento
+  doc.setFontSize(15);
+  doc.setTextColor(...azulPrimario);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Sobre o Instrumento', 15, 115);
+  
+  doc.setDrawColor(...azulPrimario);
+  doc.setLineWidth(2);
+  doc.line(15, 117, 55, 117);
+  
+  doc.setFontSize(9.5);
+  doc.setTextColor(51, 65, 85);
+  doc.setFont('helvetica', 'normal');
+  
+  const textoSobre1 = 'O RAADS-R-BR Screen é um instrumento de rastreamento desenvolvido especificamente para identificar características do Transtorno do Espectro Autista (TEA) em adultos. Esta versão brasileira reduzida é composta por 20 itens criteriosamente selecionados que avaliam domínios centrais do perfil neurodivergente autista:';
+  const linhasSobre1 = doc.splitTextToSize(textoSobre1, 175);
+  doc.text(linhasSobre1, 15, 125);
+  
+  // Domínios com círculos azuis
+  doc.setFontSize(9);
+  doc.setFillColor(...azulClaro);
+  doc.circle(20, 148, 1.5, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...azulPrimario);
+  doc.text('Comunicação e Interação Social:', 25, 149);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(71, 85, 105);
+  doc.text('Habilidades de reciprocidade social e teoria da mente', 77, 149);
+  
+  doc.setFillColor(...azulClaro);
+  doc.circle(20, 155, 1.5, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...azulPrimario);
+  doc.text('Linguagem e Comunicação:', 25, 156);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(71, 85, 105);
+  doc.text('Compreensão literal e interpretação de expressões idiomáticas', 68, 156);
+  
+  doc.setFillColor(...azulClaro);
+  doc.circle(20, 162, 1.5, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...azulPrimario);
+  doc.text('Processamento Sensório-Motor:', 25, 163);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(71, 85, 105);
+  doc.text('Sensibilidades sensoriais e estereotipias motoras', 70, 163);
+  
+  doc.setFillColor(...azulClaro);
+  doc.circle(20, 169, 1.5, 'F');
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(...azulPrimario);
+  doc.text('Interesses e Rotinas:', 25, 170);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(71, 85, 105);
+  doc.text('Padrões repetitivos e rigidez comportamental', 58, 170);
+  
+  // Card de propriedades psicométricas
+  doc.setFillColor(...azulClarissimo);
+  doc.setDrawColor(...azulClaro);
+  doc.setLineWidth(1);
+  doc.roundedRect(15, 180, 180, 30, 4, 4, 'FD');
+  
+  doc.setFontSize(11);
+  doc.setTextColor(...azulEscuro);
+  doc.setFont('helvetica', 'bold');
+  doc.text('⚡ Propriedades Psicométricas da Versão Brasileira', 20, 188);
+  
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(...azulPrimario);
+  doc.text('• Sensibilidade: 90,1% (alta capacidade de identificar casos positivos)', 20, 196);
+  doc.text('• Especificidade: 87,9% (baixa taxa de falsos positivos)', 20, 201);
+  doc.text('• Ponto de corte: 46 pontos (validado em população brasileira)', 20, 206);
+  
+  // Nota importante
+  doc.setFillColor(254, 252, 232);
+  doc.setDrawColor(234, 179, 8);
+  doc.setLineWidth(1);
+  doc.roundedRect(15, 218, 180, 28, 4, 4, 'FD');
+  
+  doc.setFontSize(10);
+  doc.setTextColor(146, 64, 14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('⚠ IMPORTANTE', 20, 226);
+  
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(113, 63, 18);
+  doc.setFontSize(8.5);
+  const textoNota = 'Este é um instrumento de RASTREAMENTO, não diagnóstico. O diagnóstico de TEA deve ser realizado por profissional especializado, utilizando critérios do DSM-5 ou CID-11, avaliação clínica abrangente e instrumentos diagnósticos padronizados (ADOS-2, ADI-R).';
+  const linhasNota = doc.splitTextToSize(textoNota, 170);
+  doc.text(linhasNota, 20, 232);
+  
+  // Rodapé
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.5);
+  doc.line(15, 275, 195, 275);
+  
+  doc.setFontSize(8);
+  doc.setTextColor(148, 163, 184);
+  doc.setFont('helvetica', 'italic');
+  doc.text('Relatório gerado por Equilibrium Neuropsicologia', 105, 282, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  doc.text('Página 1 de 2', 195, 282, { align: 'right' });
+  
+  // ═══════════════════════════════════════════════════════════════════
+  // PÁGINA 2 - RESULTADOS
+  // ═══════════════════════════════════════════════════════════════════
+  
+  doc.addPage();
+  
+  // Cabeçalho página 2
+  doc.setFillColor(...azulPrimario);
+  doc.rect(0, 0, 210, 28, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Resultados da Avaliação', 15, 18);
+  
+  // Card de pontuação total
+  doc.setFillColor(255, 255, 255);
+  doc.setDrawColor(...azulClaro);
+  doc.setLineWidth(2);
+  doc.roundedRect(15, 38, 180, 50, 5, 5, 'FD');
+  
+  doc.setFontSize(11);
+  doc.setTextColor(100, 116, 139);
+  doc.setFont('helvetica', 'bold');
+  doc.text('PONTUAÇÃO TOTAL OBTIDA', 105, 48, { align: 'center' });
+  
+  // Pontuação grande
+  doc.setFontSize(52);
+  doc.setTextColor(...corNivel);
+  doc.setFont('helvetica', 'bold');
+  doc.text(pontuacao.toString(), 105, 70, { align: 'center' });
+  
+  // Classificação
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'bold');
+  doc.text(`NÍVEL DE RISCO: ${nivelRisco}`, 105, 81, { align: 'center' });
+  
+  // Referências
+  doc.setFontSize(8);
+  doc.setTextColor(71, 85, 105);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Ponto de Corte: 46 pts', 35, 81);
+  doc.text('Pontuação Máxima: 80 pts', 145, 81);
+  
+  // Gráfico
+  doc.setFontSize(13);
+  doc.setTextColor(...azulPrimario);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Comparativo de Pontuações', 15, 102);
+  
+  const graficoY = 110;
+  const graficoAltura = 60;
+  
+  // Fundo do gráfico
+  doc.setFillColor(248, 250, 252);
+  doc.rect(15, graficoY, 180, graficoAltura, 'F');
+  
+  // Grid
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.3);
+  for (let i = 0; i <= 80; i += 20) {
+    const y = graficoY + graficoAltura - (i / 80) * graficoAltura;
+    doc.line(15, y, 195, y);
+    doc.setFontSize(8);
+    doc.setTextColor(148, 163, 184);
+    doc.text(i.toString(), 12, y + 1.5, { align: 'right' });
+  }
+  
+  // Barras
+  const barWidth = 35;
+  const barSpacing = 20;
+  const startX = 45;
+  
+  // Barra 1 - Pontuação
+  const altura1 = (pontuacao / 80) * graficoAltura;
+  doc.setFillColor(...corNivel);
+  doc.roundedRect(startX, graficoY + graficoAltura - altura1, barWidth, altura1, 3, 3, 'F');
+  doc.setFontSize(18);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', 'bold');
+  doc.text(pontuacao.toString(), startX + barWidth/2, graficoY + graficoAltura - altura1 + 14, { align: 'center' });
+  
+  // Barra 2 - Corte
+  const altura2 = (46 / 80) * graficoAltura;
+  doc.setFillColor(...azulPrimario);
+  doc.roundedRect(startX + barWidth + barSpacing, graficoY + graficoAltura - altura2, barWidth, altura2, 3, 3, 'F');
+  doc.setFontSize(18);
+  doc.text('46', startX + barWidth + barSpacing + barWidth/2, graficoY + graficoAltura - altura2 + 14, { align: 'center' });
+  
+  // Barra 3 - Máxima
+  doc.setFillColor(148, 163, 184);
+  doc.roundedRect(startX + (barWidth + barSpacing) * 2, graficoY, barWidth, graficoAltura, 3, 3, 'F');
+  doc.setFontSize(18);
+  doc.text('80', startX + (barWidth + barSpacing) * 2 + barWidth/2, graficoY + 14, { align: 'center' });
+  
+  // Labels
+  doc.setFontSize(8);
+  doc.setTextColor(71, 85, 105);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Pontuação', startX + barWidth/2, graficoY + graficoAltura + 5, { align: 'center' });
+  doc.text('do Paciente', startX + barWidth/2, graficoY + graficoAltura + 9, { align: 'center' });
+  
+  doc.text('Ponto de', startX + barWidth + barSpacing + barWidth/2, graficoY + graficoAltura + 5, { align: 'center' });
+  doc.text('Corte', startX + barWidth + barSpacing + barWidth/2, graficoY + graficoAltura + 9, { align: 'center' });
+  
+  doc.text('Pontuação', startX + (barWidth + barSpacing) * 2 + barWidth/2, graficoY + graficoAltura + 5, { align: 'center' });
+  doc.text('Máxima', startX + (barWidth + barSpacing) * 2 + barWidth/2, graficoY + graficoAltura + 9, { align: 'center' });
+  
+  // Interpretação
+  doc.setFontSize(13);
+  doc.setTextColor(...azulPrimario);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Interpretação Clínica', 15, 191);
+  
+  doc.setFillColor(...azulClarissimo);
+  doc.setDrawColor(...azulClaro);
+  doc.setLineWidth(1);
+  doc.roundedRect(15, 196, 180, 35, 4, 4, 'FD');
+  
+  doc.setFontSize(9);
+  doc.setTextColor(...azulEscuro);
+  doc.setFont('helvetica', 'normal');
+  const linhasInterp = doc.splitTextToSize(interpretacao, 170);
+  doc.text(linhasInterp, 20, 201);
+  
+  // Recomendações
+  doc.setFontSize(13);
+  doc.setTextColor(...azulPrimario);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Recomendações', 15, 240);
+  
+  doc.setFillColor(254, 252, 232);
+  doc.setDrawColor(234, 179, 8);
+  doc.setLineWidth(1);
+  doc.roundedRect(15, 245, 180, 28, 4, 4, 'FD');
+  
+  doc.setFontSize(9);
+  doc.setTextColor(113, 63, 18);
+  doc.setFont('helvetica', 'normal');
+  const linhasRec = doc.splitTextToSize(recomendacoes, 170);
+  doc.text(linhasRec, 20, 250);
+  
+  // Rodapé
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.5);
+  doc.line(15, 278, 195, 278);
+  
+  doc.setFontSize(7);
+  doc.setTextColor(148, 163, 184);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Este relatório é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados.', 105, 283, { align: 'center' });
+  
+  doc.setFontSize(8);
+  doc.setFont('helvetica', 'italic');
+  doc.text('Equilibrium Neuropsicologia | Avaliação Neuropsicológica Especializada', 105, 288, { align: 'center' });
+  doc.setFont('helvetica', 'normal');
+  doc.text('Página 2 de 2', 195, 288, { align: 'right' });
+  
+  return doc.output('datauristring').split(',')[1];
+}
+
+  const doc = new jsPDF('p', 'mm', 'a4');
+  
+  const dataObj = new Date(data + 'T00:00:00');
+  const dataFormatada = dataObj.toLocaleDateString('pt-BR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric'
+  });
+  
   // Determinar interpretação detalhada
   let interpretacao = '';
   let recomendacoes = '';
