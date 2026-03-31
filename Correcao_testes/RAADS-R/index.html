@@ -93,11 +93,17 @@
     .rep-footer-confidencial { font-size: 11px !important; color: #cbd5e1 !important; }
 
     @media print {
+      .sidebar, .raadsr-report-topbar, .no-print { display: none !important; }
+      .app-shell { display: block !important; }
+      .main-content { display: none !important; }
       .raadsr-report-overlay { display: block !important; position: static !important; background: #fff !important; }
-      .raadsr-report-topbar { display: none !important; }
       .raadsr-report-scroll { padding: 0 !important; overflow: visible !important; }
       .raadsr-report-frame { max-width: 100% !important; }
-      .rep-wrapper { box-shadow: none; }
+      .rep-wrapper { box-shadow: none; border-radius: 0; }
+      .rep-header { break-inside: avoid; }
+      .rep-section { break-inside: avoid; }
+      .rep-chart-container { break-inside: avoid; }
+      body { margin: 0; padding: 0; }
     }
   </style>
 </head>
