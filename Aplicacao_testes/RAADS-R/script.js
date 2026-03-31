@@ -72,12 +72,14 @@ function renderItens(){
 
   setSubtitle(form.label || "RAADS-R-BR Screen");
 
-  const labels = form.answer_labels || {
-    "1": "Isso é verdade agora e era verdade quando eu era jovem",
-    "2": "Isso é verdade apenas agora",
-    "3": "Isso é verdade apenas quando eu era mais jovem (16 anos ou menos)",
-    "4": "Isso nunca foi verdade"
-  };
+  const labels = Array.isArray(form.answer_labels) 
+    ? form.answer_labels 
+    : [
+        "Isso é verdade agora e era verdade quando eu era jovem",
+        "Isso é verdade apenas agora",
+        "Isso é verdade apenas quando eu era mais jovem (16 anos ou menos)",
+        "Isso nunca foi verdade"
+      ];
 
   for(const item of form.items){
     const div = document.createElement("div");
@@ -89,10 +91,11 @@ function renderItens(){
     let optionsHtml = "";
     for(let val = 1; val <= 4; val++){
       const inputId = `q${item.id}_opt${val}`;
+      const labelText = labels[val - 1]; // Array começa em 0, mas valor é 1-4
       optionsHtml += `
         <div class="item-option">
           <input type="radio" name="q${item.id}" id="${inputId}" value="${val}">
-          <label for="${inputId}">${escapeHtml(labels[String(val)])}</label>
+          <label for="${inputId}">${escapeHtml(labelText)}</label>
         </div>
       `;
     }
