@@ -6,7 +6,7 @@
 let RAADSR_RULES = null;
 const $ = (sel) => document.querySelector(sel);
 
-//if (typeof DATA_PATH === "undefined") { var DATA_PATH = "/Aplicacao_testes/RAADS-R/data/raadsr_rules.json"; }
+if (typeof DATA_PATH === "undefined") { var DATA_PATH = "/Aplicacao_testes/RAADS-R/data/raadsr_rules.json"; }
 
 function aplicarAcento(){
   if(!window.RAADSR_ACCENT_VAR) return;
@@ -65,13 +65,17 @@ function renderItens(){
     const itemDiv = document.createElement("div");
     itemDiv.className = "item";
     const reverseTag = item.reverse ? '<span class="tag">⚠️ INVERTIDA</span>' : '';
+    
+    // Converter answer_labels de objeto para array
+    const labels = Object.keys(form.answer_labels).map(key => form.answer_labels[key]);
+    
     itemDiv.innerHTML = `
       <div class="item-header">
         <div class="item-num">${item.id}</div>
         <div class="item-text">${escapeHtml(item.text)} ${reverseTag}</div>
       </div>
       <div class="item-options">
-        ${form.answer_labels.map((label, idx) => {
+        ${labels.map((label, idx) => {
           const value = idx + 1;
           return `<label class="opt">
             <input type="radio" name="q${item.id}" value="${value}" style="display:none" />
