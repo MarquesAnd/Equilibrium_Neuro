@@ -406,29 +406,237 @@ document.getElementById('btnSend').addEventListener('click',async()=>{
     const veB=fe2?lkVE(fe2,'ext',somaB):null;
 
     const idStr=idade.anos+' anos e '+idade.meses+' meses';
-    const domRows=doms.map(k=>{const r=domResults[k];return`<tr><td style="padding:8px 12px;font-weight:600;">${RULES.domains[k].name} (${k})</td><td style="padding:8px 12px;text-align:center;font-weight:700;">${r.bruta}</td><td style="padding:8px 12px;text-align:center;font-weight:800;font-size:1.1em;color:#4c1d95;">${r.pp??'—'}</td><td style="padding:8px 12px;text-align:center;">${r.rank}</td><td style="padding:8px 12px;text-align:center;font-weight:700;color:${r.cor};">${r.nivel}</td></tr>`}).join('');
+    const ic=(pp)=>pp?`${pp-10}–${pp+10}`:'—';
 
-    const reportHTML=`<div style="font-family:'DM Sans',Arial,sans-serif;width:700px;margin:0 auto;background:#fff;">
-      <div style="background:linear-gradient(135deg,#1e1b4b,#4c1d95);color:#fff;padding:24px 32px;display:flex;justify-content:space-between;align-items:center;"><div><div style="font-size:18px;font-weight:800;">Equilibrium</div><div style="font-size:11px;color:#c4b5fd;">Neuropsicologia</div></div><div style="text-align:right;"><div style="font-size:20px;font-weight:800;">Vineland-3</div><div style="font-size:10px;color:#c4b5fd;">Pais/Cuidadores — Nível de Domínio</div></div></div>
-      <div style="padding:16px 32px;background:#f9fafb;border-bottom:1px solid #e2e5ea;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:13px;">
-        <div><div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;">Examinado(a)</div><div style="font-weight:600;">${nome}</div></div>
-        <div><div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;">Data Nasc.</div><div style="font-weight:600;">${fmtDate(dn)}</div></div>
-        <div><div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;">Idade</div><div style="font-weight:600;">${idStr}</div></div>
-        <div><div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;">Data Avaliação</div><div style="font-weight:600;">${fmtDate(dt)}</div></div>
-        <div><div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;">Respondente</div><div style="font-weight:600;">${resp||'—'}</div></div>
-        <div><div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;">Faixa Normativa</div><div style="font-weight:600;">${fc3||'—'}</div></div>
-      </div>
-      <div style="padding:24px 32px;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#4c1d95;border-bottom:2px solid #e2e5ea;padding-bottom:6px;margin-bottom:14px;">Pontuações por Domínio</div>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="background:#4c1d95;color:#fff;"><th style="padding:8px 12px;text-align:left;font-size:10px;text-transform:uppercase;">Domínio</th><th style="padding:8px;text-align:center;font-size:10px;">Bruta</th><th style="padding:8px;text-align:center;font-size:10px;">Padrão</th><th style="padding:8px;text-align:center;font-size:10px;">Rank %</th><th style="padding:8px;text-align:center;font-size:10px;">Nível</th></tr></thead><tbody>${domRows}<tr style="border-top:2px solid #7c3aed;"><td style="padding:8px 12px;font-weight:800;color:#4c1d95;">CCA (Composto)</td><td style="padding:8px;text-align:center;font-weight:700;">${somaPP}</td><td style="padding:8px;text-align:center;font-weight:800;font-size:1.1em;color:#4c1d95;">${ppCCA??'—'}</td><td style="padding:8px;text-align:center;">${rankP(ppCCA)}</td><td style="padding:8px;text-align:center;font-weight:800;color:${clCCA.color};">${clCCA.label}</td></tr></tbody></table>
-        <div style="margin-top:20px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#4c1d95;border-bottom:2px solid #e2e5ea;padding-bottom:6px;margin-bottom:14px;">Comportamento Mal-Adaptativo</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
-          <div style="border:1px solid #e2e5ea;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;">Internalizante</div><div style="font-size:24px;font-weight:800;color:#7c3aed;">${somaA}</div><div style="font-size:11px;color:#6b7280;">V-escala: <strong>${veA??'—'}</strong> — ${classVE(veA)}</div></div>
-          <div style="border:1px solid #e2e5ea;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;">Externalizante</div><div style="font-size:24px;font-weight:800;color:#7c3aed;">${somaB}</div><div style="font-size:11px;color:#6b7280;">V-escala: <strong>${veB??'—'}</strong> — ${classVE(veB)}</div></div>
-          <div style="border:1px solid #e2e5ea;border-radius:8px;padding:12px;text-align:center;"><div style="font-size:9px;font-weight:700;color:#6b7280;text-transform:uppercase;">Outros</div><div style="font-size:24px;font-weight:800;color:#7c3aed;">${somaC}</div><div style="font-size:11px;color:#6b7280;">Sem V-Escala</div></div>
+    // ── Itens críticos do comportamento ──
+    const criticos=[];
+    ['sectionA','sectionB','sectionC'].forEach(sk=>{
+      const sec=RULES.behavior[sk];
+      for(let i=1;i<=sec.maxItems;i++){
+        const inp=document.querySelector(`input[name="${sk}_${i}"]:checked`);
+        if(inp&&+inp.value>=1) criticos.push({section:sec.name,num:i,text:sec.items[i-1].text,value:+inp.value});
+      }
+    });
+
+    // ── Tabela de domínios ──
+    const domRows=doms.map(k=>{const r=domResults[k];return`<tr style="border-bottom:1px solid #f1f5f9;">
+      <td style="padding:10px 14px;font-weight:600;">${RULES.domains[k].name} (${k})</td>
+      <td style="padding:10px 8px;text-align:center;font-weight:700;">${r.bruta}</td>
+      <td style="padding:10px 8px;text-align:center;font-weight:800;font-size:1.15em;color:#4c1d95;">${r.pp??'—'}</td>
+      <td style="padding:10px 8px;text-align:center;font-size:12px;color:#6b7280;">${ic(r.pp)}</td>
+      <td style="padding:10px 8px;text-align:center;">${r.rank}</td>
+      <td style="padding:10px 8px;text-align:center;"><span style="font-weight:700;color:${r.cor};background:${r.cor}18;padding:3px 10px;border-radius:20px;font-size:11px;">${r.nivel}</span></td>
+    </tr>`}).join('');
+
+    // ── SVG Gráfico de Perfil ──
+    const svgW=660,svgH=280,pL=55,pR=25,pT=30,pB=55,cW=svgW-pL-pR,cH=svgH-pT-pB;
+    const yP=(v)=>pT+cH-((v-20)/(140-20))*cH;
+    let svg=`<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" style="font-family:'DM Sans',Arial,sans-serif;">`;
+    // Faixas
+    [{min:130,max:140,f:'#ecfdf5'},{min:115,max:129,f:'#f0fdf4'},{min:86,max:114,f:'#eff6ff'},{min:71,max:85,f:'#fffbeb'},{min:20,max:70,f:'#fef2f2'}].forEach(z=>{
+      svg+=`<rect x="${pL}" y="${yP(Math.min(z.max,140)).toFixed(1)}" width="${cW}" height="${(yP(Math.max(z.min,20))-yP(Math.min(z.max,140))).toFixed(1)}" fill="${z.f}"/>`;
+    });
+    // Linhas
+    [70,85,100,115,130].forEach(v=>{
+      const y=yP(v).toFixed(1);
+      svg+=`<line x1="${pL}" y1="${y}" x2="${pL+cW}" y2="${y}" stroke="${v===100?'#dc2626':'#d1d5db'}" stroke-width="${v===100?1.5:0.8}" ${v!==100?'stroke-dasharray="4,4"':''}/>`;
+      svg+=`<text x="${pL-8}" y="${(+y+4).toFixed(1)}" font-size="10" fill="#9ca3af" text-anchor="end" font-weight="500">${v}</text>`;
+    });
+    // Rótulos faixa
+    [{y:135,l:'Alto',c:'#059669'},{y:122,l:'Mod. Alto',c:'#16a34a'},{y:100,l:'Adequado',c:'#2563eb'},{y:78,l:'Mod. Baixo',c:'#d97706'},{y:50,l:'Baixo',c:'#dc2626'}].forEach(r=>{
+      svg+=`<text x="${pL+cW+6}" y="${yP(r.y).toFixed(1)}" font-size="8" fill="${r.c}" font-weight="600">${r.l}</text>`;
+    });
+    // Pontos e linha
+    const labs=['COM','AVD','SOC','CCA','HMOT'];const labsFull=['Comunicação','AVD','Socialização','CCA','Hab. Motoras'];
+    const ppV={COM:domResults.COM.pp,AVD:domResults.AVD.pp,SOC:domResults.SOC.pp,CCA:ppCCA,HMOT:domResults.HMOT.pp};
+    const colW=cW/labs.length;const pts=[];
+    labs.forEach((k,i)=>{
+      const x=pL+colW*i+colW/2;const v=ppV[k];
+      svg+=`<text x="${x.toFixed(1)}" y="${(pT+cH+18).toFixed(1)}" font-size="10" font-weight="700" fill="#374151" text-anchor="middle">${labsFull[i]}</text>`;
+      svg+=`<text x="${x.toFixed(1)}" y="${(pT+cH+30).toFixed(1)}" font-size="9" fill="#9ca3af" text-anchor="middle">(${k})</text>`;
+      if(v&&v>=20&&v<=140) pts.push({x,y:yP(v),v,c:classNivel(v).color});
+    });
+    if(pts.length>1){svg+=`<path d="${pts.map((p,i)=>(i?'L':'M')+p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ')}" stroke="#7c3aed" stroke-width="2.5" fill="none" stroke-linejoin="round"/>`;}
+    pts.forEach(p=>{
+      svg+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="7" fill="${p.c}" stroke="#fff" stroke-width="2.5"/>`;
+      svg+=`<text x="${p.x.toFixed(1)}" y="${(p.y-13).toFixed(1)}" font-size="11" font-weight="800" fill="#1f2937" text-anchor="middle">${p.v}</text>`;
+    });
+    svg+=`</svg>`;
+
+    // ── Análise descritiva automática por domínio ──
+    function descreverDominio(nome,pp,nivel){
+      if(!pp) return `<strong>${nome}:</strong> Não avaliado.`;
+      const desc={
+        'Alto':`os resultados indicam habilidades <strong>significativamente acima da média</strong> normativa, demonstrando funcionamento independente e competente.`,
+        'Mod. Alto':`os resultados indicam habilidades <strong>acima da média</strong> normativa, com bom nível de independência e competência.`,
+        'Adequado':`os resultados encontram-se <strong>dentro da faixa esperada</strong> para a idade, compatíveis com as expectativas normativas.`,
+        'Mod. Baixo':`os resultados encontram-se <strong>abaixo da média</strong> normativa, sugerindo limitações que podem interferir no funcionamento independente. Recomenda-se avaliação complementar.`,
+        'Baixo':`os resultados encontram-se <strong>significativamente abaixo da média</strong> normativa, indicando comprometimento substancial. Intervenção especializada é recomendada.`
+      };
+      return `<strong>${nome} (PP=${pp}, ${nivel}):</strong> ${desc[nivel]||''}`;
+    }
+
+    // ── Itens Críticos HTML ──
+    const criticosHTML=criticos.length===0
+      ?`<div style="padding:10px 14px;color:#059669;font-weight:600;font-size:12px;">✓ Nenhum item crítico identificado nas seções de comportamento mal-adaptativo.</div>`
+      :criticos.map(c=>`<div style="padding:8px 12px;margin-bottom:4px;border-radius:6px;font-size:11px;line-height:1.5;border-left:4px solid ${c.value===2?'#dc2626':'#d97706'};background:${c.value===2?'#fef2f2':'#fffbeb'};">
+        <span style="display:inline-block;padding:1px 8px;border-radius:12px;font-size:9px;font-weight:700;margin-right:6px;color:#fff;background:${c.value===2?'#dc2626':'#d97706'};">${c.value===2?'FREQUENTE':'ÀS VEZES'}</span>
+        <strong style="color:#4b5563;">${c.section}</strong> — Item ${c.num}: ${c.text}
+      </div>`).join('');
+
+    // ═══════════════════════════════════════════════
+    // RELATÓRIO HTML COMPLETO
+    // ═══════════════════════════════════════════════
+    const reportHTML=`<div style="font-family:'DM Sans',Arial,sans-serif;width:700px;margin:0 auto;background:#fff;color:#1e293b;">
+
+      <!-- HEADER -->
+      <div style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#4c1d95 100%);color:#fff;padding:22px 32px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="width:40px;height:40px;background:rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;">🧠</div>
+          <div><div style="font-size:16px;font-weight:800;">Equilibrium</div><div style="font-size:10px;color:#c4b5fd;">Neuropsicologia Clínica</div></div>
         </div>
-        <div style="margin-top:24px;font-size:10px;color:#94a3b8;text-align:center;">Relatório gerado automaticamente · Equilibrium Neuropsicologia · ${new Date().toLocaleDateString('pt-BR')}</div>
-      </div></div>`;
+        <div style="text-align:right;">
+          <div style="font-size:20px;font-weight:800;letter-spacing:-0.02em;">Vineland-3</div>
+          <div style="font-size:9px;color:#c4b5fd;margin-top:2px;">Escala de Comportamentos Adaptativos — 3ª Edição</div>
+          <div style="font-size:9px;color:#a78bfa;margin-top:1px;">Formulário de Pais/Cuidadores · Níveis de Domínio</div>
+        </div>
+      </div>
+
+      <!-- IDENTIFICAÇÃO -->
+      <div style="padding:14px 32px;background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px 16px;font-size:12px;">
+          <div><div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">Examinado(a)</div><div style="font-weight:700;font-size:13px;">${nome}</div></div>
+          <div><div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">Data de Nascimento</div><div style="font-weight:600;">${fmtDate(dn)}</div></div>
+          <div><div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">Data da Avaliação</div><div style="font-weight:600;">${fmtDate(dt)}</div></div>
+          <div><div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">Idade na Avaliação</div><div style="font-weight:600;">${idStr}</div></div>
+          <div><div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">Respondente</div><div style="font-weight:600;">${resp||'—'}</div></div>
+          <div><div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">Faixa Normativa</div><div style="font-weight:600;">${fc3||'—'}</div></div>
+          <div style="grid-column:span 2;"><div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;">Formulário</div><div style="font-weight:600;">Pais/Cuidadores — Nível de Domínio (Normas Americanas)</div></div>
+        </div>
+      </div>
+
+      <div style="padding:24px 32px;">
+
+        <!-- SEÇÃO 1: RESUMO DOS ESCORES -->
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#4c1d95;border-bottom:2px solid #ddd6fe;padding-bottom:5px;margin-bottom:14px;">1. Resumo das Pontuações por Domínio</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px;">
+          <thead><tr style="background:#4c1d95;color:#fff;">
+            <th style="padding:9px 14px;text-align:left;font-size:9px;text-transform:uppercase;letter-spacing:.05em;">Domínio</th>
+            <th style="padding:9px 6px;text-align:center;font-size:9px;text-transform:uppercase;">Pont. Bruta</th>
+            <th style="padding:9px 6px;text-align:center;font-size:9px;text-transform:uppercase;">Pont. Padrão</th>
+            <th style="padding:9px 6px;text-align:center;font-size:9px;text-transform:uppercase;">IC 95%</th>
+            <th style="padding:9px 6px;text-align:center;font-size:9px;text-transform:uppercase;">Percentil</th>
+            <th style="padding:9px 6px;text-align:center;font-size:9px;text-transform:uppercase;">Nível Adaptativo</th>
+          </tr></thead>
+          <tbody>${domRows}
+            <tr style="border-top:2.5px solid #7c3aed;background:#f5f3ff;">
+              <td style="padding:10px 14px;font-weight:800;color:#4c1d95;">Composto Adaptativo (CCA)</td>
+              <td style="padding:10px 8px;text-align:center;font-weight:700;color:#6b7280;font-size:11px;">${somaPP}</td>
+              <td style="padding:10px 8px;text-align:center;font-weight:800;font-size:1.2em;color:#4c1d95;">${ppCCA??'—'}</td>
+              <td style="padding:10px 8px;text-align:center;font-size:12px;color:#6b7280;">${ic(ppCCA)}</td>
+              <td style="padding:10px 8px;text-align:center;">${rankP(ppCCA)}</td>
+              <td style="padding:10px 8px;text-align:center;"><span style="font-weight:800;color:${clCCA.color};background:${clCCA.color}18;padding:3px 12px;border-radius:20px;font-size:11px;">${clCCA.label}</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-size:9px;color:#94a3b8;margin-bottom:20px;">Média=100 · DP=15 · IC 95% calculado com SEM estimado. Pontuação Padrão obtida via Tabela C.3 (Normas Americanas).</div>
+
+        <!-- SEÇÃO 2: PERFIL GRÁFICO -->
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#4c1d95;border-bottom:2px solid #ddd6fe;padding-bottom:5px;margin-bottom:12px;">2. Perfil da Pontuação Padrão</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;font-size:9px;">
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#059669;"></span>Alto (≥130)</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#16a34a;"></span>Mod. Alto (115–129)</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#2563eb;"></span>Adequado (86–114)</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#d97706;"></span>Mod. Baixo (71–85)</span>
+          <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:#dc2626;"></span>Baixo (≤70)</span>
+        </div>
+        <div style="border:1px solid #e2e8f0;border-radius:10px;padding:12px;margin-bottom:20px;overflow:hidden;">${svg}</div>
+
+        <!-- SEÇÃO 3: CCA DESTAQUE -->
+        <div style="background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1.5px solid #c4b5fd;border-radius:10px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div>
+            <div style="font-size:13px;font-weight:800;color:#4c1d95;">Composto de Comportamento Adaptativo (CCA)</div>
+            <div style="font-size:10px;color:#7c3aed;margin-top:3px;">Soma PP (COM+AVD+SOC) = ${somaPP} → Tabela C.3 → CCA</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;">
+            <div style="text-align:center;"><div style="font-size:9px;font-weight:700;color:#7c3aed;text-transform:uppercase;">Pont. Padrão</div><div style="font-size:28px;font-weight:800;color:#4c1d95;line-height:1;">${ppCCA??'—'}</div></div>
+            <div style="text-align:center;"><div style="font-size:9px;font-weight:700;color:#7c3aed;text-transform:uppercase;">Percentil</div><div style="font-size:16px;font-weight:700;color:#4c1d95;">${rankP(ppCCA)}</div></div>
+            <div><span style="font-weight:800;color:${clCCA.color};background:${clCCA.color}15;padding:6px 16px;border-radius:20px;font-size:12px;border:1.5px solid ${clCCA.color}40;">${clCCA.label}</span></div>
+          </div>
+        </div>
+
+        <!-- SEÇÃO 4: ANÁLISE DESCRITIVA -->
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#4c1d95;border-bottom:2px solid #ddd6fe;padding-bottom:5px;margin-bottom:12px;">3. Análise Descritiva dos Domínios</div>
+        <div style="font-size:12px;line-height:1.7;color:#374151;margin-bottom:20px;">
+          <p style="margin-bottom:8px;">${descreverDominio('Comunicação',domResults.COM.pp,domResults.COM.nivel)}</p>
+          <p style="margin-bottom:8px;">${descreverDominio('Atividade de Vida Diária',domResults.AVD.pp,domResults.AVD.nivel)}</p>
+          <p style="margin-bottom:8px;">${descreverDominio('Socialização',domResults.SOC.pp,domResults.SOC.nivel)}</p>
+          ${hmotOk?`<p style="margin-bottom:8px;">${descreverDominio('Habilidades Motoras',domResults.HMOT.pp,domResults.HMOT.nivel)}</p>`:''}
+          <p style="margin-bottom:8px;"><strong>Composto Adaptativo (CCA=${ppCCA??'—'}, ${clCCA.label}):</strong> O funcionamento adaptativo global ${ppCCA&&ppCCA>=86?'encontra-se dentro ou acima da faixa esperada para a idade.':ppCCA&&ppCCA>=71?'encontra-se abaixo da média normativa, sugerindo necessidade de suporte em áreas específicas.':'encontra-se significativamente abaixo da média, indicando comprometimento substancial do funcionamento adaptativo global.'}</p>
+        </div>
+
+        <!-- SEÇÃO 5: COMPORTAMENTO MAL-ADAPTATIVO -->
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#4c1d95;border-bottom:2px solid #ddd6fe;padding-bottom:5px;margin-bottom:12px;">4. Comportamento Mal-Adaptativo</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px;">
+          <div style="border:1.5px solid #e2e8f0;border-radius:10px;padding:14px;text-align:center;">
+            <div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;">Internalizante (A)</div>
+            <div style="font-size:26px;font-weight:800;color:#7c3aed;margin:4px 0;">${somaA}</div>
+            <div style="font-size:11px;color:#4b5563;">V-escala: <strong>${veA??'—'}</strong></div>
+            <div style="margin-top:4px;"><span style="font-size:10px;font-weight:700;padding:2px 10px;border-radius:12px;color:${veA&&veA>=21?'#dc2626':veA&&veA>=18?'#d97706':'#059669'};background:${veA&&veA>=21?'#fef2f2':veA&&veA>=18?'#fffbeb':'#ecfdf5'};">${classVE(veA)}</span></div>
+          </div>
+          <div style="border:1.5px solid #e2e8f0;border-radius:10px;padding:14px;text-align:center;">
+            <div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;">Externalizante (B)</div>
+            <div style="font-size:26px;font-weight:800;color:#7c3aed;margin:4px 0;">${somaB}</div>
+            <div style="font-size:11px;color:#4b5563;">V-escala: <strong>${veB??'—'}</strong></div>
+            <div style="margin-top:4px;"><span style="font-size:10px;font-weight:700;padding:2px 10px;border-radius:12px;color:${veB&&veB>=21?'#dc2626':veB&&veB>=18?'#d97706':'#059669'};background:${veB&&veB>=21?'#fef2f2':veB&&veB>=18?'#fffbeb':'#ecfdf5'};">${classVE(veB)}</span></div>
+          </div>
+          <div style="border:1.5px solid #e2e8f0;border-radius:10px;padding:14px;text-align:center;">
+            <div style="font-size:8px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.08em;">Outros (C)</div>
+            <div style="font-size:26px;font-weight:800;color:#7c3aed;margin:4px 0;">${somaC}</div>
+            <div style="font-size:11px;color:#94a3b8;margin-top:4px;">Sem V-Escala normativa</div>
+          </div>
+        </div>
+
+        <!-- ITENS CRÍTICOS -->
+        <div style="font-size:10px;font-weight:700;color:#374151;margin-bottom:8px;">Itens Críticos (pontuação ≥ 1)</div>
+        ${criticosHTML}
+
+        <!-- SEÇÃO 6: INTERPRETAÇÃO CLÍNICA -->
+        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#4c1d95;border-bottom:2px solid #ddd6fe;padding-bottom:5px;margin:20px 0 12px;">5. Referência de Interpretação dos Níveis Adaptativos</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;">
+          <div style="border:1.5px solid #a7f3d0;border-radius:8px;padding:10px 12px;background:#ecfdf5;">
+            <div style="font-size:11px;font-weight:700;color:#065f46;margin-bottom:3px;">Alto / Mod. Alto (≥ 115)</div>
+            <div style="font-size:10px;color:#065f46;line-height:1.5;">Habilidades adaptativas acima da média. Funcionamento independente e competente para a faixa etária.</div>
+          </div>
+          <div style="border:1.5px solid #93c5fd;border-radius:8px;padding:10px 12px;background:#eff6ff;">
+            <div style="font-size:11px;font-weight:700;color:#1e40af;margin-bottom:3px;">Adequado (86–114)</div>
+            <div style="font-size:10px;color:#1e40af;line-height:1.5;">Dentro da faixa esperada. Habilidades compatíveis com expectativas normativas.</div>
+          </div>
+          <div style="border:1.5px solid #fcd34d;border-radius:8px;padding:10px 12px;background:#fffbeb;">
+            <div style="font-size:11px;font-weight:700;color:#92400e;margin-bottom:3px;">Moderadamente Baixo (71–85)</div>
+            <div style="font-size:10px;color:#92400e;line-height:1.5;">Abaixo da média. Limitações que podem interferir no funcionamento. Avaliação abrangente recomendada.</div>
+          </div>
+          <div style="border:1.5px solid #fca5a5;border-radius:8px;padding:10px 12px;background:#fef2f2;">
+            <div style="font-size:11px;font-weight:700;color:#991b1b;margin-bottom:3px;">Baixo (≤ 70)</div>
+            <div style="font-size:10px;color:#991b1b;line-height:1.5;">Significativamente abaixo da média. Comprometimento substancial. Combinado com limitações intelectuais, pode indicar DI (DSM-5).</div>
+          </div>
+        </div>
+
+        <!-- RODAPÉ -->
+        <div style="border-top:1.5px solid #e2e8f0;padding-top:14px;display:flex;justify-content:space-between;align-items:flex-end;">
+          <div>
+            <div style="width:180px;border-bottom:1px solid #94a3b8;margin-bottom:4px;height:1px;"></div>
+            <div style="font-size:11px;font-weight:700;">Profissional Responsável</div>
+            <div style="font-size:9px;color:#94a3b8;">Neuropsicólogo(a)</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:9px;color:#94a3b8;">Relatório gerado em ${new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'})}</div>
+            <div style="font-size:8px;color:#cbd5e1;margin-top:2px;max-width:280px;">Este documento é confidencial e destinado exclusivamente ao profissional solicitante. Válido apenas com assinatura.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>`;
 
     const container=document.getElementById('reportContainer');
     container.innerHTML=reportHTML;
