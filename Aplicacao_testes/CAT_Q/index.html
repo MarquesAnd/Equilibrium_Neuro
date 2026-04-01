@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAT-Q - Questionário de Camuflagem de Traços Autistas</title>
+    <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .info-box {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .info-box p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="date"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .question-card {
+            background: #f8f9fa;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s;
+        }
+
+        .question-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+        }
+
+        .question-number {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 35px;
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 0.9em;
+        }
+
+        .question-text {
+            display: inline;
+            color: #2c3e50;
+            font-size: 1.05em;
+            font-weight: 500;
+        }
+
+        .scale-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .scale-option {
+            flex: 1;
+            text-align: center;
+        }
+
+        .scale-option input[type="radio"] {
+            display: none;
+        }
+
+        .scale-option label {
+            display: block;
+            padding: 12px 8px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            color: #495057;
+            font-size: 1.1em;
+        }
+
+        .scale-option input[type="radio"]:checked + label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .scale-option label:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+            padding: 0 5px;
+        }
+
+        .scale-labels span {
+            font-size: 0.85em;
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .scale-legend {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .scale-legend h4 {
+            color: #856404;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .scale-legend ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .scale-legend li {
+            padding: 8px 0;
+            color: #856404;
+            font-weight: 500;
+        }
+
+        .scale-legend li strong {
+            display: inline-block;
+            width: 30px;
+            text-align: center;
+            background: #ffc107;
+            color: white;
+            border-radius: 4px;
+            padding: 2px 8px;
+            margin-right: 10px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 30px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+            z-index: 1000;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+
+        /* Máscara de Carregamento */
+        #loadingMask {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 30px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: white;
+            text-align: center;
+        }
+
+        .loading-text h2 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .loading-text p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .scale-container {
+                flex-wrap: wrap;
+            }
+
+            .scale-option {
+                flex: 0 0 calc(14.28% - 6px);
+            }
+
+            .scale-option label {
+                padding: 10px 4px;
+                font-size: 0.95em;
+            }
+
+            .scale-labels span {
+                font-size: 0.75em;
+            }
+        }
+
+        /* Canvas oculto para gráficos */
+        #hiddenCanvas {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <!-- Máscara de Carregamento -->
+    <div id="loadingMask">
+        <div class="loader"></div>
+        <div class="loading-text">
+            <h2>Processando Avaliação...</h2>
+            <p id="loadingStatus">Calculando pontuações</p>
+        </div>
+    </div>
+
+    <!-- Canvas oculto para renderizar gráficos -->
+    <canvas id="hiddenCanvas" width="800" height="400"></canvas>
+
+    <div class="container">
+        <div class="header">
+            <h1>CAT-Q</h1>
+            <p>Questionário de Camuflagem de Traços Autistas</p>
+            <p style="font-size: 0.95em; margin-top: 10px; opacity: 0.9;">
+                (Camouflaging Autistic Traits Questionnaire)
+            </p>
+        </div>
+
+        <div class="content">
+            <div class="info-box">
+                <h3>📋 Sobre o CAT-Q</h3>
+                <p>
+                    O CAT-Q é um instrumento que avalia o grau de camuflagem social (masking) 
+                    em pessoas no espectro autista. Ele mede o esforço consciente para mascarar, 
+                    compensar ou suprimir características autistas em ambientes sociais.
+                </p>
+            </div>
+
+            <div class="scale-legend">
+                <h4>🎯 Escala de Resposta (1 a 7):</h4>
+                <ul>
+                    <li><strong>1</strong> Discordo Totalmente</li>
+                    <li><strong>2</strong> Discordo</li>
+                    <li><strong>3</strong> Discordo um pouco</li>
+                    <li><strong>4</strong> Nem concordo nem discordo</li>
+                    <li><strong>5</strong> Concordo um pouco</li>
+                    <li><strong>6</strong> Concordo</li>
+                    <li><strong>7</strong> Concordo Totalmente</li>
+                </ul>
+            </div>
+
+            <div class="error-message" id="errorMessage">
+                Por favor, preencha todos os campos antes de enviar.
+            </div>
+
+            <form id="catqForm">
+                <div class="form-group">
+                    <label for="nome">Nome Completo *</label>
+                    <input type="text" id="nome" name="nome" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="dataNascimento">Data de Nascimento *</label>
+                    <input type="date" id="dataNascimento" name="dataNascimento" required>
+                </div>
+
+                <hr style="margin: 40px 0; border: none; border-top: 2px solid #e9ecef;">
+
+                <div id="questionsContainer"></div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    🚀 Finalizar e Enviar
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // CONFIGURAÇÃO - ALTERE APENAS ESTA URL
+        // ============================================================================
+        const URL_DO_GOOGLE_SCRIPT = 'https://script.google.com/macros/s/AKfycbwOPwUOi3mwzzwSskfYGqbnzvo5jT4YWPh-HkKA_OiHttjerRBtrARh951IG-dQzBPW5A/exec';
+        // ============================================================================
+
+        const questions = [
+            "Quando interajo com alguém, eu deliberadamente copio a linguagem corporal ou as expressões faciais dessa pessoa.",
+            "Monitoro minha linguagem corporal ou expressões faciais para parecer relaxado(a).",
+            "Raramente sinto necessidade de 'fingir' para conseguir passar por uma situação social.",
+            "Desenvolvi um 'roteiro' a seguir em situações sociais.",
+            "Repito frases que ouvi outras pessoas dizerem, do mesmo jeito que as ouvi pela primeira vez.",
+            "Ajusto minha linguagem corporal ou expressões faciais para parecer interessado(a) pela pessoa com quem estou interagindo.",
+            "Em situações sociais, sinto que estou 'atuando' em vez de sendo eu mesmo(a).",
+            "Em minhas interações sociais, uso comportamentos que aprendi observando outras pessoas interagirem.",
+            "Sempre penso sobre a impressão que causo nas outras pessoas.",
+            "Preciso do apoio de outras pessoas para conseguir socializar.",
+            "Pratico minhas expressões faciais e linguagem corporal para garantir que pareçam naturais.",
+            "Não sinto necessidade de fazer contato visual com outras pessoas, se não quiser.",
+            "Tenho que me forçar a interagir com pessoas quando estou em situações sociais.",
+            "Tentei melhorar minha compreensão das habilidades sociais observando outras pessoas.",
+            "Monitoro minha linguagem corporal ou expressões faciais para parecer interessado(a) pela pessoa com quem estou interagindo.",
+            "Em situações sociais, tento encontrar maneiras de evitar interagir com os outros.",
+            "Pesquisei regras de interação social para melhorar minhas próprias habilidades sociais.",
+            "Estou sempre consciente da impressão que causo nas outras pessoas.",
+            "Sinto-me livre para ser eu mesmo(a) quando estou com outras pessoas.",
+            "Aprendo como as pessoas usam corpo e rosto para interagir assistindo televisão, filmes ou lendo ficção.",
+            "Ajusto minha linguagem corporal ou expressões faciais para parecer relaxado(a).",
+            "Quando converso com outras pessoas, sinto que a conversa flui naturalmente.",
+            "Já passei tempo aprendendo habilidades sociais com programas de TV e filmes, e tento usá-las nas minhas interações.",
+            "Em interações sociais, não presto atenção ao que meu rosto ou corpo estão fazendo.",
+            "Em situações sociais, sinto que estou fingindo ser 'normal'."
+        ];
+
+        // Renderizar perguntas
+        const container = document.getElementById('questionsContainer');
+        questions.forEach((question, index) => {
+            const questionCard = document.createElement('div');
+            questionCard.className = 'question-card';
+            questionCard.innerHTML = `
+                <div>
+                    <span class="question-number">${index + 1}</span>
+                    <span class="question-text">${question}</span>
+                </div>
+                <div class="scale-container">
+                    ${[1, 2, 3, 4, 5, 6, 7].map(value => `
+                        <div class="scale-option">
+                            <input type="radio" id="q${index + 1}_${value}" name="q${index + 1}" value="${value}" required>
+                            <label for="q${index + 1}_${value}">${value}</label>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="scale-labels">
+                    <span>Discordo Totalmente</span>
+                    <span>Concordo Totalmente</span>
+                </div>
+            `;
+            container.appendChild(questionCard);
+        });
+
+        // Atualizar barra de progresso
+        document.querySelectorAll('input[type="radio"]').forEach(radio => {
+            radio.addEventListener('change', updateProgress);
+        });
+
+        function updateProgress() {
+            const totalQuestions = 25;
+            let answered = 0;
+            for (let i = 1; i <= totalQuestions; i++) {
+                if (document.querySelector(`input[name="q${i}"]:checked`)) {
+                    answered++;
+                }
+            }
+            const progress = (answered / totalQuestions) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
+
+        function updateLoadingStatus(message) {
+            document.getElementById('loadingStatus').textContent = message;
+        }
+
+        // Processar formulário
+        document.getElementById('catqForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                nome: document.getElementById('nome').value,
+                dataNascimento: document.getElementById('dataNascimento').value,
+                respostas: []
+            };
+
+            // Coletar respostas
+            let allAnswered = true;
+            for (let i = 1; i <= 25; i++) {
+                const answer = document.querySelector(`input[name="q${i}"]:checked`);
+                if (!answer) {
+                    allAnswered = false;
+                    break;
+                }
+                formData.respostas.push(parseInt(answer.value));
+            }
+
+            if (!allAnswered || !formData.nome || !formData.dataNascimento) {
+                document.getElementById('errorMessage').style.display = 'block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                return;
+            }
+
+            // Mostrar máscara de carregamento
+            document.getElementById('loadingMask').style.display = 'flex';
+            document.getElementById('submitBtn').disabled = true;
+
+            try {
+                updateLoadingStatus('Calculando pontuações...');
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                updateLoadingStatus('Gerando relatório em PDF...');
+                const pdfBase64 = await gerarPDF(formData);
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                updateLoadingStatus('Enviando para o Google Drive...');
+                await enviarParaDrive(formData, pdfBase64);
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                updateLoadingStatus('Concluído!');
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                // Esconder máscara
+                document.getElementById('loadingMask').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+
+                // Mensagem de sucesso
+                alert('✅ Avaliação concluída com sucesso!\n\nO relatório foi enviado automaticamente para o Google Drive.');
+
+                // Limpar formulário
+                document.getElementById('catqForm').reset();
+                document.getElementById('progressBar').style.width = '0%';
+
+            } catch (error) {
+                console.error('Erro:', error);
+                document.getElementById('loadingMask').style.display = 'none';
+                document.getElementById('submitBtn').disabled = false;
+                alert('❌ Erro ao processar avaliação:\n' + error.message + '\n\nPor favor, tente novamente.');
+            }
+        });
+
+        async function gerarPDF(formData) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('p', 'mm', 'a4');
+            
+            // Calcular dados
+            const nascimento = new Date(formData.dataNascimento);
+            const hoje = new Date();
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const mes = hoje.getMonth() - nascimento.getMonth();
+            if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) {
+                idade--;
+            }
+
+            // Inversão de itens
+            const itensInversos = [3, 12, 19, 22, 24];
+            const respostasCorrigidas = formData.respostas.map((resposta, index) => {
+                const numeroItem = index + 1;
+                return itensInversos.includes(numeroItem) ? 8 - resposta : resposta;
+            });
+
+            // Subescalas
+            const compensacao = [1, 4, 5, 8, 11, 14, 17, 20, 23];
+            const mascaramento = [2, 6, 7, 10, 15, 18, 21];
+            const assimilacao = [3, 9, 12, 13, 16, 19, 22, 24, 25];
+
+            // Pontuações
+            const scoreCompensacao = compensacao.reduce((sum, item) => sum + respostasCorrigidas[item - 1], 0);
+            const scoreMascaramento = mascaramento.reduce((sum, item) => sum + respostasCorrigidas[item - 1], 0);
+            const scoreAssimilacao = assimilacao.reduce((sum, item) => sum + respostasCorrigidas[item - 1], 0);
+            const scoreTotal = scoreCompensacao + scoreMascaramento + scoreAssimilacao;
+
+            let y = 20;
+
+            // Cabeçalho
+            doc.setFillColor(102, 126, 234);
+            doc.rect(0, 0, 210, 40, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.setFont(undefined, 'bold');
+            doc.text('RELATÓRIO CAT-Q', 105, 20, { align: 'center' });
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.text('Questionário de Camuflagem de Traços Autistas', 105, 30, { align: 'center' });
+
+            y = 50;
+            doc.setTextColor(0, 0, 0);
+
+            // Dados do Paciente
+            doc.setFillColor(248, 249, 255);
+            doc.rect(15, y, 180, 35, 'F');
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(102, 126, 234);
+            doc.text('Dados do Avaliado', 20, y + 8);
+            
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(0, 0, 0);
+            doc.text(`Nome: ${formData.nome}`, 20, y + 16);
+            doc.text(`Data de Nascimento: ${new Date(formData.dataNascimento + 'T00:00:00').toLocaleDateString('pt-BR')}`, 20, y + 23);
+            doc.text(`Idade: ${idade} anos`, 20, y + 30);
+
+            y += 45;
+
+            // Pontuação Total
+            doc.setFillColor(102, 126, 234);
+            doc.rect(15, y, 180, 30, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(14);
+            doc.text('PONTUAÇÃO TOTAL CAT-Q', 105, y + 10, { align: 'center' });
+            doc.setFontSize(32);
+            doc.setFont(undefined, 'bold');
+            doc.text(`${scoreTotal}`, 105, y + 22, { align: 'center' });
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.text('de 175 pontos possíveis', 105, y + 27, { align: 'center' });
+
+            y += 40;
+
+            // Alerta se > 100
+            if (scoreTotal > 100) {
+                doc.setFillColor(248, 215, 218);
+                doc.rect(15, y, 180, 20, 'F');
+                doc.setTextColor(114, 28, 36);
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.text('⚠ Indicador de Camuflagem Significativa', 20, y + 8);
+                doc.setFont(undefined, 'normal');
+                doc.setFontSize(9);
+                doc.text('Pontuação acima do ponto de corte (>100) - Sugere camuflagem social elevada', 20, y + 15);
+                y += 28;
+            } else {
+                doc.setFillColor(212, 237, 218);
+                doc.rect(15, y, 180, 15, 'F');
+                doc.setTextColor(21, 87, 36);
+                doc.setFontSize(11);
+                doc.setFont(undefined, 'bold');
+                doc.text('✓ Camuflagem Dentro da Média (≤100)', 20, y + 10);
+                y += 23;
+            }
+
+            // Subescalas
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(0, 0, 0);
+            doc.text('Análise por Subescalas', 20, y);
+            y += 8;
+
+            // Compensação
+            doc.setFillColor(248, 249, 250);
+            doc.rect(15, y, 180, 20, 'F');
+            doc.setDrawColor(102, 126, 234);
+            doc.setLineWidth(1);
+            doc.line(15, y, 15, y + 20);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(102, 126, 234);
+            doc.text(`Compensação: ${scoreCompensacao}/63`, 20, y + 8);
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(0, 0, 0);
+            doc.text('Estratégias aprendidas para compensar dificuldades sociais', 20, y + 15);
+            y += 25;
+
+            // Mascaramento
+            doc.setFillColor(248, 249, 250);
+            doc.rect(15, y, 180, 20, 'F');
+            doc.setDrawColor(118, 75, 162);
+            doc.line(15, y, 15, y + 20);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(118, 75, 162);
+            doc.text(`Mascaramento: ${scoreMascaramento}/49`, 20, y + 8);
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(0, 0, 0);
+            doc.text('Controle ativo de expressões faciais e linguagem corporal', 20, y + 15);
+            y += 25;
+
+            // Assimilação
+            doc.setFillColor(248, 249, 250);
+            doc.rect(15, y, 180, 20, 'F');
+            doc.setDrawColor(86, 204, 242);
+            doc.line(15, y, 15, y + 20);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(86, 204, 242);
+            doc.text(`Assimilação: ${scoreAssimilacao}/63`, 20, y + 8);
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(0, 0, 0);
+            doc.text('Esforço para se encaixar socialmente e evitar se destacar', 20, y + 15);
+            y += 30;
+
+            // Nova página para interpretação
+            doc.addPage();
+            y = 20;
+
+            // Interpretação Clínica
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(102, 126, 234);
+            doc.text('Interpretação Clínica', 20, y);
+            y += 10;
+
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(0, 0, 0);
+            
+            const textoInterpretacao = [
+                'O CAT-Q não é um instrumento diagnóstico de TEA. Ele mede especificamente',
+                'o grau de camuflagem social (masking), que é o esforço consciente para',
+                'ocultar, compensar ou modificar características autistas em ambientes sociais.',
+                '',
+                'Pontuações elevadas no CAT-Q indicam:',
+                '• Alto gasto de energia mental e emocional em contextos sociais',
+                '• Necessidade de "atuar" ou seguir roteiros em interações',
+                '• Monitoramento constante da própria apresentação social',
+                '• Sensação de não poder ser autêntico em situações sociais',
+                '• Possível burnout social ou esgotamento pós-interação'
+            ];
+
+            textoInterpretacao.forEach(linha => {
+                doc.text(linha, 20, y);
+                y += 6;
+            });
+
+            y += 5;
+
+            // Considerações
+            doc.setFillColor(255, 243, 205);
+            doc.rect(15, y, 180, 50, 'F');
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(133, 100, 4);
+            doc.text('⚠ Considerações Importantes', 20, y + 8);
+            
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            const consideracoes = [
+                '• Camuflagem intensa pode levar a diagnósticos tardios ou incorretos',
+                '• Masking prolongado está associado a maior risco de esgotamento,',
+                '  ansiedade e depressão',
+                '• A redução da necessidade de camuflagem pode ser um objetivo terapêutico',
+                '• Ambientes validadores e seguros permitem redução do masking',
+                '• Este relatório deve ser interpretado por profissional qualificado'
+            ];
+
+            let yTemp = y + 16;
+            consideracoes.forEach(linha => {
+                doc.text(linha, 20, yTemp);
+                yTemp += 6;
+            });
+
+            // Rodapé
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text(`Relatório gerado em ${hoje.toLocaleDateString('pt-BR')} às ${hoje.toLocaleTimeString('pt-BR')}`, 105, 285, { align: 'center' });
+
+            // Converter para base64
+            return doc.output('datauristring').split(',')[1];
+        }
+
+        async function enviarParaDrive(formData, pdfBase64) {
+            const dataAtual = new Date().toLocaleDateString('pt-BR');
+            
+            // Calcular pontuação total
+            const itensInversos = [3, 12, 19, 22, 24];
+            const respostasCorrigidas = formData.respostas.map((resposta, index) => {
+                const numeroItem = index + 1;
+                return itensInversos.includes(numeroItem) ? 8 - resposta : resposta;
+            });
+            const scoreTotal = respostasCorrigidas.reduce((sum, val) => sum + val, 0);
+
+            const payload = {
+                paciente: formData.nome,
+                data: dataAtual,
+                pontuacao: scoreTotal,
+                pdfBase64: pdfBase64
+            };
+
+            const response = await fetch(URL_DO_GOOGLE_SCRIPT, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+
+            // Com no-cors não conseguimos ler a resposta, mas se não der erro, está OK
+            return true;
+        }
+    </script>
+</body>
+</html>
