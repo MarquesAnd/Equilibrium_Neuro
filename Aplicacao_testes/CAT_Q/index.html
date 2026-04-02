@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CAT-Q - Questionário de Camuflagem de Traços Autistas</title>
-    <link rel="icon" type="image/png" href="/logo.png" />
-    <link rel="apple-touch-icon" href="/logo.png" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -57,7 +55,7 @@
         }
 
         .info-box {
-            background: #f8f9fb;
+            background: #f8f9ff;
             border-left: 4px solid #667eea;
             padding: 20px;
             margin-bottom: 30px;
@@ -65,16 +63,14 @@
         }
 
         .info-box h3 {
-            color: #2c3e50;
+            color: #667eea;
             margin-bottom: 10px;
-            font-size: 1.1em;
-            font-weight: 600;
+            font-size: 1.2em;
         }
 
         .info-box p {
-            color: #5a6c7d;
+            color: #555;
             line-height: 1.6;
-            font-size: 0.95em;
         }
 
         .form-group {
@@ -84,7 +80,7 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: #2c3e50;
+            color: #333;
             font-weight: 600;
             font-size: 0.95em;
         }
@@ -93,11 +89,10 @@
         input[type="date"] {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e1e4e8;
+            border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 1em;
             transition: all 0.3s;
-            background: #ffffff;
         }
 
         input[type="text"]:focus,
@@ -118,28 +113,27 @@
 
         .question-card:hover {
             border-color: #667eea;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
         }
 
         .question-number {
             display: inline-block;
             background: #667eea;
             color: white;
-            min-width: 35px;
+            width: 35px;
             height: 35px;
-            border-radius: 8px;
+            border-radius: 50%;
             text-align: center;
             line-height: 35px;
-            font-weight: 600;
+            font-weight: bold;
             margin-right: 12px;
             font-size: 0.9em;
-            padding: 0 10px;
         }
 
         .question-text {
             display: inline;
             color: #2c3e50;
-            font-size: 1em;
+            font-size: 1.05em;
             font-weight: 500;
         }
 
@@ -163,27 +157,27 @@
         .scale-option label {
             display: block;
             padding: 12px 8px;
-            background: #f8f9fb;
-            border: 2px solid #e1e4e8;
+            background: white;
+            border: 2px solid #dee2e6;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 600;
-            color: #5a6c7d;
-            font-size: 1em;
+            color: #495057;
+            font-size: 1.1em;
         }
 
         .scale-option input[type="radio"]:checked + label {
-            background: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border-color: #667eea;
             transform: scale(1.05);
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .scale-option label:hover {
             border-color: #667eea;
-            background: #f0f2ff;
+            background: #f8f9ff;
         }
 
         .scale-labels {
@@ -200,18 +194,17 @@
         }
 
         .scale-legend {
-            background: #fffbeb;
-            border: 2px solid #fbbf24;
+            background: #fff3cd;
+            border: 2px solid #ffc107;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 30px;
         }
 
         .scale-legend h4 {
-            color: #92400e;
+            color: #856404;
             margin-bottom: 15px;
-            font-size: 1.05em;
-            font-weight: 600;
+            font-size: 1.1em;
         }
 
         .scale-legend ul {
@@ -220,22 +213,20 @@
         }
 
         .scale-legend li {
-            padding: 6px 0;
-            color: #92400e;
+            padding: 8px 0;
+            color: #856404;
             font-weight: 500;
-            font-size: 0.9em;
         }
 
         .scale-legend li strong {
             display: inline-block;
-            width: 28px;
+            width: 30px;
             text-align: center;
-            background: #fbbf24;
+            background: #ffc107;
             color: white;
             border-radius: 4px;
-            padding: 2px 6px;
+            padding: 2px 8px;
             margin-right: 10px;
-            font-size: 0.9em;
         }
 
         .submit-btn {
@@ -274,21 +265,20 @@
             top: 0;
             left: 0;
             height: 4px;
-            background: #667eea;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
             width: 0%;
             transition: width 0.3s;
             z-index: 1000;
         }
 
         .error-message {
-            background: #fee2e2;
-            color: #991b1b;
+            background: #f8d7da;
+            color: #721c24;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border: 1px solid #fca5a5;
+            border: 1px solid #f5c6cb;
             display: none;
-            font-size: 0.95em;
         }
 
         /* Máscara de Carregamento */
@@ -340,7 +330,7 @@
 
         @media (max-width: 768px) {
             .header h1 {
-                font-size: 1.6em;
+                font-size: 1.8em;
             }
 
             .content {
@@ -357,18 +347,11 @@
 
             .scale-option label {
                 padding: 10px 4px;
-                font-size: 0.9em;
+                font-size: 0.95em;
             }
 
             .scale-labels span {
                 font-size: 0.75em;
-            }
-
-            .question-number {
-                min-width: 30px;
-                height: 30px;
-                line-height: 30px;
-                font-size: 0.85em;
             }
         }
 
