@@ -15,7 +15,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(90deg, #667eea70 0%, #764ba294 100%);
+            background: #f5f7fa;
             min-height: 100vh;
             padding: 20px;
         }
@@ -24,27 +24,29 @@
             max-width: 900px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #ffffff;
+            border-bottom: 3px solid #667eea;
+            color: #2c3e50;
             padding: 40px;
             text-align: center;
         }
 
         .header h1 {
-            font-size: 2.5em;
+            font-size: 2.2em;
             margin-bottom: 10px;
-            font-weight: 700;
+            font-weight: 600;
+            color: #667eea;
         }
 
         .header p {
-            font-size: 1.1em;
-            opacity: 0.95;
+            font-size: 1em;
+            color: #5a6c7d;
             line-height: 1.6;
         }
 
@@ -53,7 +55,7 @@
         }
 
         .info-box {
-            background: #f8f9ff;
+            background: #f8f9fb;
             border-left: 4px solid #667eea;
             padding: 20px;
             margin-bottom: 30px;
@@ -61,14 +63,16 @@
         }
 
         .info-box h3 {
-            color: #667eea;
+            color: #2c3e50;
             margin-bottom: 10px;
-            font-size: 1.2em;
+            font-size: 1.1em;
+            font-weight: 600;
         }
 
         .info-box p {
-            color: #555;
+            color: #5a6c7d;
             line-height: 1.6;
+            font-size: 0.95em;
         }
 
         .form-group {
@@ -78,7 +82,7 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: #333;
+            color: #2c3e50;
             font-weight: 600;
             font-size: 0.95em;
         }
@@ -87,10 +91,11 @@
         input[type="date"] {
             width: 100%;
             padding: 12px 15px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid #e1e4e8;
             border-radius: 8px;
             font-size: 1em;
             transition: all 0.3s;
+            background: #ffffff;
         }
 
         input[type="text"]:focus,
@@ -101,37 +106,38 @@
         }
 
         .question-card {
-            background: #f8f9fa;
+            background: #ffffff;
             padding: 25px;
             margin-bottom: 20px;
             border-radius: 12px;
-            border: 2px solid #e9ecef;
+            border: 2px solid #e1e4e8;
             transition: all 0.3s;
         }
 
         .question-card:hover {
             border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.1);
         }
 
         .question-number {
             display: inline-block;
             background: #667eea;
             color: white;
-            width: 35px;
+            min-width: 35px;
             height: 35px;
-            border-radius: 50%;
+            border-radius: 8px;
             text-align: center;
             line-height: 35px;
-            font-weight: bold;
+            font-weight: 600;
             margin-right: 12px;
             font-size: 0.9em;
+            padding: 0 10px;
         }
 
         .question-text {
             display: inline;
             color: #2c3e50;
-            font-size: 1.05em;
+            font-size: 1em;
             font-weight: 500;
         }
 
@@ -155,27 +161,27 @@
         .scale-option label {
             display: block;
             padding: 12px 8px;
-            background: white;
-            border: 2px solid #dee2e6;
+            background: #f8f9fb;
+            border: 2px solid #e1e4e8;
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 600;
-            color: #495057;
-            font-size: 1.1em;
+            color: #5a6c7d;
+            font-size: 1em;
         }
 
         .scale-option input[type="radio"]:checked + label {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
             color: white;
             border-color: #667eea;
             transform: scale(1.05);
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
         }
 
         .scale-option label:hover {
             border-color: #667eea;
-            background: #f8f9ff;
+            background: #f0f2ff;
         }
 
         .scale-labels {
@@ -192,17 +198,18 @@
         }
 
         .scale-legend {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
+            background: #fffbeb;
+            border: 2px solid #fbbf24;
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 30px;
         }
 
         .scale-legend h4 {
-            color: #856404;
+            color: #92400e;
             margin-bottom: 15px;
-            font-size: 1.1em;
+            font-size: 1.05em;
+            font-weight: 600;
         }
 
         .scale-legend ul {
@@ -211,40 +218,43 @@
         }
 
         .scale-legend li {
-            padding: 8px 0;
-            color: #856404;
+            padding: 6px 0;
+            color: #92400e;
             font-weight: 500;
+            font-size: 0.9em;
         }
 
         .scale-legend li strong {
             display: inline-block;
-            width: 30px;
+            width: 28px;
             text-align: center;
-            background: #ffc107;
+            background: #fbbf24;
             color: white;
             border-radius: 4px;
-            padding: 2px 8px;
+            padding: 2px 6px;
             margin-right: 10px;
+            font-size: 0.9em;
         }
 
         .submit-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
             color: white;
             padding: 15px 40px;
             border: none;
             border-radius: 10px;
-            font-size: 1.2em;
-            font-weight: 700;
+            font-size: 1.1em;
+            font-weight: 600;
             cursor: pointer;
             width: 100%;
             margin-top: 30px;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
         }
 
         .submit-btn:hover {
+            background: #5568d3;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .submit-btn:active {
@@ -262,20 +272,21 @@
             top: 0;
             left: 0;
             height: 4px;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            background: #667eea;
             width: 0%;
             transition: width 0.3s;
             z-index: 1000;
         }
 
         .error-message {
-            background: #f8d7da;
-            color: #721c24;
+            background: #fee2e2;
+            color: #991b1b;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 20px;
-            border: 1px solid #f5c6cb;
+            border: 1px solid #fca5a5;
             display: none;
+            font-size: 0.95em;
         }
 
         /* Máscara de Carregamento */
@@ -286,7 +297,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            background: rgba(255, 255, 255, 0.98);
             z-index: 9999;
             justify-content: center;
             align-items: center;
@@ -294,13 +305,13 @@
         }
 
         .loader {
-            width: 80px;
-            height: 80px;
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #667eea;
+            width: 60px;
+            height: 60px;
+            border: 6px solid #e5e7eb;
+            border-top: 6px solid #667eea;
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         @keyframes spin {
@@ -309,23 +320,25 @@
         }
 
         .loading-text {
-            color: white;
+            color: #2c3e50;
             text-align: center;
         }
 
         .loading-text h2 {
-            font-size: 1.8em;
-            margin-bottom: 15px;
+            font-size: 1.5em;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #667eea;
         }
 
         .loading-text p {
-            font-size: 1.2em;
-            opacity: 0.9;
+            font-size: 1em;
+            color: #5a6c7d;
         }
 
         @media (max-width: 768px) {
             .header h1 {
-                font-size: 1.8em;
+                font-size: 1.6em;
             }
 
             .content {
@@ -342,12 +355,25 @@
 
             .scale-option label {
                 padding: 10px 4px;
-                font-size: 0.95em;
+                font-size: 0.9em;
             }
 
             .scale-labels span {
                 font-size: 0.75em;
             }
+
+            .question-number {
+                min-width: 30px;
+                height: 30px;
+                line-height: 30px;
+                font-size: 0.85em;
+            }
+        }
+
+        hr {
+            margin: 40px 0;
+            border: none;
+            border-top: 2px solid #e1e4e8;
         }
 
         /* Canvas oculto para gráficos */
@@ -582,7 +608,6 @@
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF('p', 'mm', 'a4');
             
-            // Calcular dados
             const nascimento = new Date(formData.dataNascimento);
             const hoje = new Date();
             let idade = hoje.getFullYear() - nascimento.getFullYear();
@@ -591,477 +616,721 @@
                 idade--;
             }
 
-            // Inversão de itens
             const itensInversos = [3, 12, 19, 22, 24];
             const respostasCorrigidas = formData.respostas.map((resposta, index) => {
                 const numeroItem = index + 1;
                 return itensInversos.includes(numeroItem) ? 8 - resposta : resposta;
             });
 
-            // Subescalas
             const compensacao = [1, 4, 5, 8, 11, 14, 17, 20, 23];
             const mascaramento = [2, 6, 7, 10, 15, 18, 21];
             const assimilacao = [3, 9, 12, 13, 16, 19, 22, 24, 25];
 
-            // Pontuações
             const scoreCompensacao = compensacao.reduce((sum, item) => sum + respostasCorrigidas[item - 1], 0);
             const scoreMascaramento = mascaramento.reduce((sum, item) => sum + respostasCorrigidas[item - 1], 0);
             const scoreAssimilacao = assimilacao.reduce((sum, item) => sum + respostasCorrigidas[item - 1], 0);
             const scoreTotal = scoreCompensacao + scoreMascaramento + scoreAssimilacao;
 
-            // Percentuais
             const percCompensacao = (scoreCompensacao / 63) * 100;
             const percMascaramento = (scoreMascaramento / 49) * 100;
             const percAssimilacao = (scoreAssimilacao / 63) * 100;
-            const percTotal = (scoreTotal / 175) * 100;
 
-            // Funções de interpretação
-            function interpretarCompensacao(score, perc) {
-                if (perc >= 70) return {
-                    nivel: 'MUITO ELEVADO',
-                    descricao: 'Uso intensivo de estratégias compensatórias aprendidas. Indica esforço cognitivo significativo para navegar interações sociais, com aprendizado consciente e sistemático de habilidades que outras pessoas desenvolvem de forma mais intuitiva. Sugere alta dependência de roteiros sociais, observação ativa de comportamentos e imitação deliberada de expressões e gestos.'
+            const subescalas = [
+                { nome: 'Compensacao', score: scoreCompensacao, max: 63, perc: percCompensacao },
+                { nome: 'Mascaramento', score: scoreMascaramento, max: 49, perc: percMascaramento },
+                { nome: 'Assimilacao', score: scoreAssimilacao, max: 63, perc: percAssimilacao }
+            ];
+            subescalas.sort((a, b) => b.score - a.score);
+            const maior = subescalas[0];
+            const menor = subescalas[2];
+
+            function getInterpretacaoGeral(total) {
+                if (total > 120) {
+                    return `Sua pontuacao total de ${total} pontos esta significativamente acima da nota de corte (>100) comumente associada a niveis elevados de camuflagem social. Isso sugere que voce investe consideravel energia cognitiva e emocional em estrategias adaptativas nas interacoes sociais. Este padrao indica que o esforco de camuflagem pode ser uma forca constante e potencialmente exaustiva em grande parte de suas interacoes sociais cotidianas.`;
+                } else if (total > 100) {
+                    return `Sua pontuacao total de ${total} pontos esta acima da nota de corte media (>100) associada a niveis elevados de camuflagem social. Isso indica que voce utiliza estrategias adaptativas de forma regular e consistente em suas interacoes sociais. Embora estas estrategias possam ser eficazes, e importante estar atento ao custo emocional e cognitivo deste esforco.`;
+                } else if (total > 80) {
+                    return `Sua pontuacao total de ${total} pontos esta na faixa intermediaria, proxima mas abaixo da nota de corte media (100) para camuflagem social elevada. Isso sugere que, embora voce utilize algumas estrategias adaptativas em interacoes sociais, elas nao constituem necessariamente uma forca motriz constante ou exaustiva em todas as suas interacoes.`;
+                } else if (total > 60) {
+                    return `Sua pontuacao total de ${total} pontos esta abaixo da nota de corte media (100) para camuflagem social elevada. Isso sugere que voce nao depende fortemente de estrategias intensivas de camuflagem em suas interacoes sociais. Embora possa utilizar alguns recursos adaptativos ocasionalmente, estes nao parecem dominar sua experiencia social cotidiana.`;
+                } else {
+                    return `Sua pontuacao total de ${total} pontos esta significativamente abaixo da nota de corte (100) para camuflagem social elevada. Isso indica que voce utiliza minimamente estrategias de camuflagem ou masking em suas interacoes sociais. Este padrao sugere que voce tende a interagir de forma mais espontanea e autentica.`;
+                }
+            }
+
+            function getDescricaoSubescala(nome, score, max, perc) {
+                const descricoes = {
+                    'Compensacao': {
+                        conceito: 'Refere-se a estrategias ativas para superar dificuldades sociais, como estudar regras de interacao, ensaiar expressoes faciais, copiar comportamentos observados e desenvolver scripts sociais.',
+                        alta: `Com ${score} pontos (${perc.toFixed(1)}%), sua pontuacao em Compensacao e elevada. Voce demonstra investir energia significativa no aprendizado ativo de comportamentos sociais, possivelmente atraves da observacao meticulosa de outras pessoas e estudo deliberado de convencoes sociais.`,
+                        moderada: `Com ${score} pontos (${perc.toFixed(1)}%), sua pontuacao em Compensacao e moderada. Voce utiliza algumas tecnicas aprendidas para navegar situacoes sociais, mas nao parece depender exclusivamente delas. Ha equilibrio entre estrategias conscientes e processamento social mais intuitivo.`,
+                        baixa: `Com ${score} pontos (${perc.toFixed(1)}%), sua pontuacao em Compensacao e relativamente baixa. Isso indica que voce despende pouca energia em estrategias deliberadas de aprendizado social. Suas interacoes tendem a fluir de forma mais espontanea.`
+                    },
+                    'Mascaramento': {
+                        conceito: 'Mede o esforco de esconder caracteristicas autistas atraves do controle ativo de expressoes faciais, linguagem corporal e apresentacao externa para parecer "normal" ou atender expectativas sociais.',
+                        alta: `Com ${score} pontos (${perc.toFixed(1)}%), sua pontuacao em Mascaramento e elevada. Voce investe consideravel energia no monitoramento e controle consciente de sua expressao nao-verbal - incluindo rosto, corpo e tom de voz - para transmitir estados especificos mesmo quando sua experiencia interna pode ser diferente.`,
+                        moderada: `Com ${score} pontos (${perc.toFixed(1)}%), sua pontuacao em Mascaramento e moderada. Voce demonstra algum esforco em controlar sua apresentacao externa, mas isso nao ocorre de forma constante ou intensiva. Pode haver situacoes especificas onde voce sente necessidade de "performar".`,
+                        baixa: `Com ${score} pontos (${perc.toFixed(1)}%), sua pontuacao em Mascaramento e baixa. Esta e uma descoberta positiva, indicando que voce despende menos energia tentando esconder quem voce e ou monitorando constantemente sua face e corpo para parecer "normal" perante os outros.`
+                    },
+                    'Assimilacao': {
+                        conceito: 'Foca no esforco para se encaixar em grupos sociais, evitar interacoes desconfortaveis e sensacao de "fingir" ser diferente do que realmente e em contextos sociais.',
+                        alta: `Com ${score} pontos (${perc.toFixed(1)}%), sua pontuacao em Assimilacao e expressiva. Isso sugere que voce pode sentir necessidade frequente de "fingir" ou se forcar a interagir para que situacoes sociais fluam, mesmo que isso nao reflita completamente quem voce e.`,
+                        moderada: `Com ${score} pontos (${perc.toFixed(1)}%), sua pontuacao em Assimilacao e moderada. Voce demonstra algum esforco para se ajustar a expectativas sociais e evitar situacoes desconfortaveis, mas isso nao parece dominar sua experiencia social.`,
+                        baixa: `Com ${score} pontos (${perc.toFixed(1)}%), sua pontuacao em Assimilacao e relativamente baixa. Isso indica menor necessidade de se forcar a participar de interacoes ou fingir ser diferente do que e. Voce parece capaz de manter maior autenticidade mesmo em contextos sociais.`
+                    }
                 };
-                if (perc >= 50) return {
-                    nivel: 'ELEVADO',
-                    descricao: 'Presença considerável de comportamentos compensatórios, com estratégias deliberadas para melhorar o desempenho social através da observação e imitação. Investimento regular de tempo estudando comportamentos sociais e desenvolvendo técnicas facilitadoras.'
-                };
-                if (perc >= 30) return {
-                    nivel: 'MODERADO',
-                    descricao: 'Uso ocasional ou moderado de estratégias compensatórias. Esforço consciente para melhorar habilidades sociais presente, mas não de forma sistemática ou intensiva.'
-                };
+
+                const niveis = perc >= 60 ? 'alta' : (perc >= 35 ? 'moderada' : 'baixa');
                 return {
-                    nivel: 'BAIXO',
-                    descricao: 'Pouca necessidade ou uso de estratégias compensatórias aprendidas. Interações sociais tendem a fluir de forma mais natural, sem necessidade de estudar ativamente regras ou copiar comportamentos.'
+                    conceito: descricoes[nome].conceito,
+                    interpretacao: descricoes[nome][niveis]
                 };
             }
 
-            function interpretarMascaramento(score, perc) {
-                if (perc >= 70) return {
-                    nivel: 'MUITO ELEVADO',
-                    descricao: 'Monitoramento intenso e controle ativo de expressões faciais e linguagem corporal. Consciência constante de como está sendo percebido, com ajustes ativos da apresentação para parecer relaxado, interessado ou "normal". Altamente desgastante e pode contribuir significativamente para fadiga social e burnout.'
-                };
-                if (perc >= 50) return {
-                    nivel: 'ELEVADO',
-                    descricao: 'Frequente monitoramento da própria apresentação social, com ajustes conscientes de expressões e postura para atender expectativas sociais. Esforço significativo para "performar" de maneira que pareça natural aos outros.'
-                };
-                if (perc >= 30) return {
-                    nivel: 'MODERADO',
-                    descricao: 'Controle moderado da apresentação social. Alguma consciência e ajuste de expressões faciais e linguagem corporal, mas não de forma constante ou extenuante.'
-                };
-                return {
-                    nivel: 'BAIXO',
-                    descricao: 'Pouco esforço consciente para controlar ou ajustar expressões faciais e linguagem corporal. Maior liberdade para se expressar naturalmente sem preocupação excessiva com a apresentação.'
-                };
+            function getAnaliseComparativa(maior, menor) {
+                let texto = `Analisando seu perfil de forma comparativa, observa-se que ${maior.nome} (${maior.score} pontos) foi sua pontuacao mais expressiva, enquanto ${menor.nome} (${menor.score} pontos) apresentou valores mais baixos. `;
+                
+                if (maior.nome === 'Assimilacao' && menor.nome === 'Mascaramento') {
+                    texto += `Este padrao sugere que seu esforco adaptativo esta mais concentrado em tentar se encaixar socialmente e lidar com o desconforto de interacoes, mas voce nao necessariamente altera profundamente sua apresentacao externa (expressoes, gestos). Voce pode sentir pressao interna para participar e se conformar, mas mantem maior autenticidade em como se expressa nao-verbalmente.`;
+                } else if (maior.nome === 'Compensacao' && menor.nome === 'Mascaramento') {
+                    texto += `Este padrao indica que voce investe mais energia em aprender e aplicar estrategias sociais do que em controlar ativamente sua apresentacao nao-verbal. Voce estuda e utiliza tecnicas adaptativas, mas sem necessariamente "performar" ou esconder quem voce e atraves de expressoes faciais fabricadas.`;
+                } else if (maior.nome === 'Mascaramento' && menor.nome === 'Assimilacao') {
+                    texto += `Este padrao sugere que voce investe significativa energia em controlar sua apresentacao externa (expressoes, gestos, tom de voz), mas sente menor pressao para se forcar a participar de interacoes ou se conformar socialmente.`;
+                } else if (maior.nome === 'Compensacao' && menor.nome === 'Assimilacao') {
+                    texto += `Este padrao indica investimento em aprendizado ativo de habilidades sociais, mas sem necessariamente sentir pressao intensa para se conformar ou participar de interacoes contra sua vontade.`;
+                } else {
+                    texto += `Este padrao de distribuicao revela nuances importantes em como voce experiencia e navega situacoes sociais, com diferentes niveis de esforco investidos em cada dimensao da camuflagem.`;
+                }
+                
+                return texto;
             }
 
-            function interpretarAssimilacao(score, perc) {
-                if (perc >= 70) return {
-                    nivel: 'MUITO ELEVADO',
-                    descricao: 'Forte sensação de "fingir ser normal" e dificuldade significativa em ser autêntico em situações sociais. Sensação constante de estar atuando, forçando-se a interagir mesmo quando preferiria evitar. Discrepância marcante entre experiência interna e apresentação externa. Frequentemente associado a elevado custo emocional, esgotamento e possível burnout autístico.'
-                };
-                if (perc >= 50) return {
-                    nivel: 'ELEVADO',
-                    descricao: 'Esforço considerável para se encaixar socialmente e sensação recorrente de não poder ser completamente autêntico. Necessidade frequente de se forçar a participar de interações sociais e consciência de estar representando um papel diferente do self verdadeiro.'
-                };
-                if (perc >= 30) return {
-                    nivel: 'MODERADO',
-                    descricao: 'Algum esforço para assimilação social, mas com períodos de maior autenticidade. Situações específicas onde há necessidade de "fingir", mas isso não é a experiência predominante.'
-                };
-                return {
-                    nivel: 'BAIXO',
-                    descricao: 'Maior conforto em ser autêntico em situações sociais. Capacidade de ser si mesmo na maioria dos contextos sociais, sem necessidade constante de forçar interações ou esconder características pessoais.'
-                };
-            }
+            let y = 15;
 
-            const interpCompensacao = interpretarCompensacao(scoreCompensacao, percCompensacao);
-            const interpMascaramento = interpretarMascaramento(scoreMascaramento, percMascaramento);
-            const interpAssimilacao = interpretarAssimilacao(scoreAssimilacao, percAssimilacao);
-
-            let y = 20;
-
-            // ============= PÁGINA 1 =============
-            // Cabeçalho
-            doc.setFillColor(102, 126, 234);
-            doc.rect(0, 0, 210, 45, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(26);
+            // PAGINA 1 - CABECALHO E DADOS
+            doc.setFillColor(250, 250, 252);
+            doc.rect(0, 0, 210, 50, 'F');
+            
+            doc.setDrawColor(102, 126, 234);
+            doc.setLineWidth(0.8);
+            doc.line(15, 15, 195, 15);
+            
+            doc.setFontSize(22);
             doc.setFont(undefined, 'bold');
-            doc.text('RELATÓRIO PSICOMÉTRICO', 105, 18, { align: 'center' });
-            doc.setFontSize(20);
-            doc.text('CAT-Q', 105, 28, { align: 'center' });
-            doc.setFontSize(11);
-            doc.setFont(undefined, 'normal');
-            doc.text('Camouflaging Autistic Traits Questionnaire', 105, 36, { align: 'center' });
-            doc.setFontSize(9);
-            doc.text('Questionário de Camuflagem de Traços Autistas', 105, 41, { align: 'center' });
-
-            y = 55;
-            doc.setTextColor(0, 0, 0);
-
-            // Dados do Paciente
-            doc.setFillColor(248, 249, 255);
-            doc.rect(15, y, 180, 40, 'F');
-            doc.setFontSize(13);
-            doc.setFont(undefined, 'bold');
+            doc.setTextColor(60, 60, 60);
+            doc.text('RELATORIO DE AVALIACAO PSICOMETRICA', 105, 25, { align: 'center' });
+            
+            doc.setFontSize(18);
             doc.setTextColor(102, 126, 234);
-            doc.text('📋 DADOS DO AVALIADO', 20, y + 8);
+            doc.text('CAT-Q', 105, 33, { align: 'center' });
             
             doc.setFontSize(10);
             doc.setFont(undefined, 'normal');
-            doc.setTextColor(0, 0, 0);
-            doc.text(`Nome: ${formData.nome}`, 20, y + 17);
-            doc.text(`Data de Nascimento: ${new Date(formData.dataNascimento + 'T00:00:00').toLocaleDateString('pt-BR')}`, 20, y + 24);
-            doc.text(`Idade: ${idade} anos`, 20, y + 31);
-            doc.text(`Data da Avaliação: ${hoje.toLocaleDateString('pt-BR')}`, 120, y + 31);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Camouflaging Autistic Traits Questionnaire', 105, 39, { align: 'center' });
+            doc.setFontSize(9);
+            doc.text('Questionario de Camuflagem de Tracos Autistas', 105, 44, { align: 'center' });
+            
+            doc.setDrawColor(102, 126, 234);
+            doc.line(15, 48, 195, 48);
 
-            y += 48;
+            y = 58;
 
-            // Pontuação Total
-            doc.setFillColor(102, 126, 234);
-            doc.rect(15, y, 180, 35, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(13);
+            // Informacoes do Avaliado
+            doc.setFillColor(255, 255, 255);
+            doc.setDrawColor(220, 220, 220);
+            doc.setLineWidth(0.5);
+            doc.roundedRect(15, y, 180, 32, 3, 3, 'D');
+            
+            doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
-            doc.text('PONTUAÇÃO TOTAL CAT-Q', 105, y + 12, { align: 'center' });
-            doc.setFontSize(36);
-            doc.text(`${scoreTotal}`, 105, y + 25, { align: 'center' });
+            doc.setTextColor(60, 60, 60);
+            doc.text('IDENTIFICACAO DO AVALIADO', 20, y + 7);
+            
+            doc.setDrawColor(230, 230, 230);
+            doc.line(20, y + 10, 190, y + 10);
+            
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(80, 80, 80);
+            
+            doc.setFont(undefined, 'bold');
+            doc.text('Nome:', 20, y + 16);
+            doc.setFont(undefined, 'normal');
+            doc.text(formData.nome, 35, y + 16);
+            
+            doc.setFont(undefined, 'bold');
+            doc.text('Data de Nascimento:', 20, y + 22);
+            doc.setFont(undefined, 'normal');
+            doc.text(new Date(formData.dataNascimento + 'T00:00:00').toLocaleDateString('pt-BR'), 55, y + 22);
+            
+            doc.setFont(undefined, 'bold');
+            doc.text('Idade:', 110, y + 22);
+            doc.setFont(undefined, 'normal');
+            doc.text(`${idade} anos`, 123, y + 22);
+            
+            doc.setFont(undefined, 'bold');
+            doc.text('Data da Avaliacao:', 20, y + 28);
+            doc.setFont(undefined, 'normal');
+            doc.text(hoje.toLocaleDateString('pt-BR'), 55, y + 28);
+            
+            doc.setFont(undefined, 'bold');
+            doc.text('Horario:', 110, y + 28);
+            doc.setFont(undefined, 'normal');
+            doc.text(hoje.toLocaleTimeString('pt-BR'), 127, y + 28);
+
+            y += 40;
+
+            // Pontuacao Total
+            const acimaDoCor te = scoreTotal > 100;
+            doc.setFillColor(acimaDoCor te ? 102 : 72, acimaDoCor te ? 126 : 187, acimaDoCor te ? 234 : 96);
+            doc.roundedRect(15, y, 180, 28, 3, 3, 'F');
+            
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(11);
+            doc.setFont(undefined, 'bold');
+            doc.text('PONTUACAO TOTAL', 105, y + 10, { align: 'center' });
+            
+            doc.setFontSize(32);
+            doc.text(`${scoreTotal}`, 78, y + 22, { align: 'center' });
+            
             doc.setFontSize(10);
             doc.setFont(undefined, 'normal');
-            doc.text(`de 175 pontos (${percTotal.toFixed(1)}%)`, 105, y + 31, { align: 'center' });
+            doc.text('pontos', 96, y + 22);
+            
+            doc.setFontSize(9);
+            doc.text(`de 175 possiveis (${((scoreTotal/175)*100).toFixed(1)}%)`, 105, y + 25, { align: 'center' });
 
-            y += 43;
+            y += 35;
 
-            // Classificação
-            if (scoreTotal > 100) {
-                doc.setFillColor(248, 215, 218);
-                doc.rect(15, y, 180, 25, 'F');
-                doc.setTextColor(114, 28, 36);
-                doc.setFontSize(12);
+            // Classificacao
+            doc.setFillColor(acimaDoCor te ? 254, 243, 199 : 220, 252, 231);
+            doc.setDrawColor(acimaDoCor te ? 245, 158, 11 : 34, 197, 94);
+            doc.setLineWidth(0.8);
+            doc.roundedRect(15, y, 180, 16, 3, 3, 'D');
+            
+            doc.setTextColor(acimaDoCor te ? 146, 64, 14 : 22, 101, 52);
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            const textoClass = acimaDoCor te 
+                ? 'CAMUFLAGEM SOCIAL ELEVADA (Acima do ponto de corte: >100)'
+                : 'CAMUFLAGEM DENTRO DA FAIXA TIPICA (Abaixo do ponto de corte: <=100)';
+            doc.text(textoClass, 105, y + 7, { align: 'center' });
+            
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            const subTexto = acimaDoCor te
+                ? 'Sugere esforco significativo investido em estrategias de adaptacao social'
+                : 'Sugere menor dependencia de estrategias intensivas de camuflagem';
+            doc.text(subTexto, 105, y + 12, { align: 'center' });
+
+            y += 23;
+
+            // Resultados por Subescala
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(60, 60, 60);
+            doc.text('RESULTADOS POR SUBESCALA', 20, y);
+            
+            y += 7;
+
+            function desenharSubescala(nome, score, max, cor, yPos) {
+                const perc = (score / max) * 100;
+                
+                doc.setFillColor(252, 252, 252);
+                doc.setDrawColor(230, 230, 230);
+                doc.setLineWidth(0.5);
+                doc.roundedRect(15, yPos, 180, 24, 3, 3, 'D');
+                
+                doc.setFillColor(cor[0], cor[1], cor[2]);
+                doc.roundedRect(15, yPos, 3, 24, 0, 0, 'F');
+                
+                doc.setFontSize(10);
                 doc.setFont(undefined, 'bold');
-                doc.text('⚠ INDICADOR DE CAMUFLAGEM SIGNIFICATIVA', 20, y + 9);
+                doc.setTextColor(60, 60, 60);
+                doc.text(nome, 22, yPos + 7);
+                
+                doc.setFontSize(16);
+                doc.setTextColor(cor[0], cor[1], cor[2]);
+                doc.text(`${score}`, 170, yPos + 9, { align: 'right' });
+                
+                doc.setFontSize(8);
+                doc.setTextColor(120, 120, 120);
+                doc.text(`/${max}`, 172, yPos + 9);
+                
+                doc.setFontSize(8);
                 doc.setFont(undefined, 'normal');
-                doc.setFontSize(9);
-                const textos = doc.splitTextToSize('Pontuação acima do ponto de corte clínico (>100). Sugere presença significativa de comportamentos de camuflagem social (masking), indicando esforço consciente e substancial para mascarar, compensar ou suprimir características autistas em contextos sociais.', 170);
-                doc.text(textos, 20, y + 16);
-                y += 32;
-            } else {
-                doc.setFillColor(212, 237, 218);
-                doc.rect(15, y, 180, 18, 'F');
-                doc.setTextColor(21, 87, 36);
-                doc.setFontSize(12);
+                doc.text(`${perc.toFixed(1)}% da pontuacao maxima`, 183, yPos + 9);
+                
+                doc.setFillColor(240, 240, 240);
+                doc.roundedRect(22, yPos + 14, 168, 5, 2, 2, 'F');
+                
+                const larguraBarra = (perc / 100) * 168;
+                doc.setFillColor(cor[0], cor[1], cor[2]);
+                doc.roundedRect(22, yPos + 14, larguraBarra, 5, 2, 2, 'F');
+                
+                let nivel = perc >= 60 ? 'ALTO' : (perc >= 35 ? 'MODERADO' : 'BAIXO');
+                doc.setFontSize(7);
                 doc.setFont(undefined, 'bold');
-                doc.text('✓ CAMUFLAGEM DENTRO DA FAIXA TÍPICA (≤100)', 20, y + 8);
-                doc.setFont(undefined, 'normal');
-                doc.setFontSize(9);
-                doc.text('Sugere menor utilização de estratégias intensas de camuflagem social.', 20, y + 14);
-                y += 25;
+                doc.setTextColor(cor[0], cor[1], cor[2]);
+                doc.text(`Nivel: ${nivel}`, 22, yPos + 22);
             }
 
-            // Análise por Subescalas
+            desenharSubescala('Compensacao', scoreCompensacao, 63, [102, 126, 234], y);
+            y += 27;
+            desenharSubescala('Mascaramento', scoreMascaramento, 49, [139, 92, 246], y);
+            y += 27;
+            desenharSubescala('Assimilacao', scoreAssimilacao, 63, [59, 130, 246], y);
+
+            doc.setFontSize(7);
+            doc.setTextColor(150, 150, 150);
+            doc.text('Hull, L. et al. (2019). Journal of Autism and Developmental Disorders, 49(3), 819-833.', 105, 285, { align: 'center' });
+            doc.setFont(undefined, 'bold');
+            doc.text('Pagina 1 de 4', 195, 285, { align: 'right' });
+
+            // PAGINA 2 - INTERPRETACAO
+            doc.addPage();
+            y = 20;
+
             doc.setFontSize(14);
             doc.setFont(undefined, 'bold');
             doc.setTextColor(102, 126, 234);
-            doc.text('📊 ANÁLISE DETALHADA POR SUBESCALAS', 20, y);
-            y += 8;
-
-            // Compensação
-            doc.setFillColor(248, 249, 250);
-            doc.rect(15, y, 180, 28, 'F');
-            doc.setDrawColor(102, 126, 234);
-            doc.setLineWidth(2);
-            doc.line(15, y, 15, y + 28);
+            doc.text('INTERPRETACAO DOS RESULTADOS', 20, y);
             
-            doc.setFontSize(11);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(102, 126, 234);
-            doc.text(`1. COMPENSAÇÃO: ${scoreCompensacao}/63 (${percCompensacao.toFixed(1)}%)`, 20, y + 7);
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(0, 0, 0);
-            doc.text(`Nível: ${interpCompensacao.nivel}`, 20, y + 13);
-            doc.setFont(undefined, 'normal');
-            doc.setFontSize(8);
-            const textoComp = doc.splitTextToSize('Estratégias aprendidas: copiar comportamentos, criar roteiros sociais, estudar regras de interação', 170);
-            doc.text(textoComp, 20, y + 18);
-            
-            // Barra de progresso
-            doc.setFillColor(220, 220, 220);
-            doc.rect(20, y + 23, 170, 3, 'F');
-            doc.setFillColor(102, 126, 234);
-            doc.rect(20, y + 23, (percCompensacao / 100) * 170, 3, 'F');
-            
-            y += 33;
-
-            // Mascaramento
-            doc.setFillColor(248, 249, 250);
-            doc.rect(15, y, 180, 28, 'F');
-            doc.setDrawColor(118, 75, 162);
-            doc.setLineWidth(2);
-            doc.line(15, y, 15, y + 28);
-            
-            doc.setFontSize(11);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(118, 75, 162);
-            doc.text(`2. MASCARAMENTO: ${scoreMascaramento}/49 (${percMascaramento.toFixed(1)}%)`, 20, y + 7);
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(0, 0, 0);
-            doc.text(`Nível: ${interpMascaramento.nivel}`, 20, y + 13);
-            doc.setFont(undefined, 'normal');
-            doc.setFontSize(8);
-            const textoMasc = doc.splitTextToSize('Controle ativo de expressões faciais e linguagem corporal para parecer "típico"', 170);
-            doc.text(textoMasc, 20, y + 18);
-            
-            // Barra de progresso
-            doc.setFillColor(220, 220, 220);
-            doc.rect(20, y + 23, 170, 3, 'F');
-            doc.setFillColor(118, 75, 162);
-            doc.rect(20, y + 23, (percMascaramento / 100) * 170, 3, 'F');
-            
-            y += 33;
-
-            // Assimilação
-            doc.setFillColor(248, 249, 250);
-            doc.rect(15, y, 180, 28, 'F');
-            doc.setDrawColor(86, 204, 242);
-            doc.setLineWidth(2);
-            doc.line(15, y, 15, y + 28);
-            
-            doc.setFontSize(11);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(86, 204, 242);
-            doc.text(`3. ASSIMILAÇÃO: ${scoreAssimilacao}/63 (${percAssimilacao.toFixed(1)}%)`, 20, y + 7);
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(0, 0, 0);
-            doc.text(`Nível: ${interpAssimilacao.nivel}`, 20, y + 13);
-            doc.setFont(undefined, 'normal');
-            doc.setFontSize(8);
-            const textoAssim = doc.splitTextToSize('Esforço para se encaixar socialmente, evitar se destacar e sensação de "fingir ser normal"', 170);
-            doc.text(textoAssim, 20, y + 18);
-            
-            // Barra de progresso
-            doc.setFillColor(220, 220, 220);
-            doc.rect(20, y + 23, 170, 3, 'F');
-            doc.setFillColor(86, 204, 242);
-            doc.rect(20, y + 23, (percAssimilacao / 100) * 170, 3, 'F');
-
-            // Rodapé página 1
-            doc.setFontSize(7);
-            doc.setTextColor(120, 120, 120);
-            doc.text('Hull et al. (2019) - Journal of Autism and Developmental Disorders', 105, 285, { align: 'center' });
-            doc.text(`Página 1 de 3`, 195, 285, { align: 'right' });
-
-            // ============= PÁGINA 2 - INTERPRETAÇÕES DETALHADAS =============
-            doc.addPage();
-            y = 20;
-
-            doc.setFontSize(15);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(102, 126, 234);
-            doc.text('🔬 INTERPRETAÇÃO CLÍNICA DETALHADA', 20, y);
             y += 10;
 
-            // Compensação Detalhada
-            doc.setFillColor(248, 249, 255);
-            doc.rect(15, y, 180, 50, 'F');
-            doc.setFontSize(11);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(102, 126, 234);
-            doc.text(`Compensação - ${interpCompensacao.nivel}`, 20, y + 7);
+            // Secao 1: Pontuacao Total
+            doc.setFillColor(248, 250, 252);
+            doc.roundedRect(15, y, 180, 8, 2, 2, 'F');
             
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(60, 60, 60);
+            doc.text(`1. ANALISE DA PONTUACAO TOTAL (${scoreTotal} pontos)`, 20, y + 6);
+            
+            y += 13;
+
             doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.setTextColor(0, 0, 0);
-            const textoCompDet = doc.splitTextToSize(interpCompensacao.descricao, 170);
-            doc.text(textoCompDet, 20, y + 14);
-            y += 55;
+            doc.setTextColor(50, 50, 50);
+            const textoGeral = doc.splitTextToSize(getInterpretacaoGeral(scoreTotal), 170);
+            doc.text(textoGeral, 20, y);
+            y += textoGeral.length * 5 + 8;
+
+            // Secao 2: Subescalas
+            doc.setFillColor(248, 250, 252);
+            doc.roundedRect(15, y, 180, 8, 2, 2, 'F');
+            
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(60, 60, 60);
+            doc.text('2. ANALISE DETALHADA DAS SUBESCALAS', 20, y + 6);
+            
+            y += 13;
+
+            // Compensacao Detalhada
+            const interpComp = getDescricaoSubescala('Compensacao', scoreCompensacao, 63, percCompensacao);
+            
+            doc.setFillColor(252, 252, 254);
+            doc.setDrawColor(102, 126, 234);
+            doc.setLineWidth(0.5);
+            doc.roundedRect(15, y, 180, 2, 1, 1, 'D');
+            
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(102, 126, 234);
+            doc.text(`COMPENSACAO (${scoreCompensacao}/63)`, 20, y + 2);
+            
+            y += 6;
+
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'italic');
+            doc.setTextColor(100, 100, 100);
+            const conceitoComp = doc.splitTextToSize(interpComp.conceito, 170);
+            doc.text(conceitoComp, 20, y);
+            y += conceitoComp.length * 4 + 3;
+
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(50, 50, 50);
+            const interpCompTexto = doc.splitTextToSize(interpComp.interpretacao, 170);
+            doc.text(interpCompTexto, 20, y);
+            y += interpCompTexto.length * 4 + 7;
 
             // Mascaramento Detalhado
-            doc.setFillColor(248, 249, 255);
-            doc.rect(15, y, 180, 50, 'F');
-            doc.setFontSize(11);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(118, 75, 162);
-            doc.text(`Mascaramento - ${interpMascaramento.nivel}`, 20, y + 7);
+            const interpMasc = getDescricaoSubescala('Mascaramento', scoreMascaramento, 49, percMascaramento);
+            
+            doc.setFillColor(252, 252, 254);
+            doc.setDrawColor(139, 92, 246);
+            doc.roundedRect(15, y, 180, 2, 1, 1, 'D');
             
             doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
-            doc.setTextColor(0, 0, 0);
-            const textoMascDet = doc.splitTextToSize(interpMascaramento.descricao, 170);
-            doc.text(textoMascDet, 20, y + 14);
-            y += 55;
-
-            // Assimilação Detalhada
-            doc.setFillColor(248, 249, 255);
-            doc.rect(15, y, 180, 55, 'F');
-            doc.setFontSize(11);
             doc.setFont(undefined, 'bold');
-            doc.setTextColor(86, 204, 242);
-            doc.text(`Assimilação - ${interpAssimilacao.nivel}`, 20, y + 7);
+            doc.setTextColor(139, 92, 246);
+            doc.text(`MASCARAMENTO (${scoreMascaramento}/49)`, 20, y + 2);
             
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
-            doc.setTextColor(0, 0, 0);
-            const textoAssimDet = doc.splitTextToSize(interpAssimilacao.descricao, 170);
-            doc.text(textoAssimDet, 20, y + 14);
-            y += 60;
+            y += 6;
 
-            // Síntese Integrativa
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(102, 126, 234);
-            doc.text('💡 SÍNTESE INTEGRATIVA', 20, y);
-            y += 8;
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'italic');
+            doc.setTextColor(100, 100, 100);
+            const conceitoMasc = doc.splitTextToSize(interpMasc.conceito, 170);
+            doc.text(conceitoMasc, 20, y);
+            y += conceitoMasc.length * 4 + 3;
 
-            doc.setFontSize(9);
             doc.setFont(undefined, 'normal');
-            doc.setTextColor(0, 0, 0);
-            
-            let sintese = '';
-            if (scoreTotal > 100) {
-                sintese = `O perfil apresentado indica padrão significativo de camuflagem autística (masking), com pontuação total de ${scoreTotal} pontos. Este resultado sugere que o avaliado investe considerável energia cognitiva e emocional em estratégias de adaptação social. A combinação das três dimensões avaliadas aponta para um estilo de funcionamento social caracterizado por esforço consciente, monitoramento constante e possível discrepância entre a experiência interna e a apresentação externa. Este padrão pode estar associado a fadiga social, necessidade de períodos de recuperação após interações e potencial risco de burnout autístico.`;
-            } else {
-                sintese = `O perfil apresentado indica padrão de camuflagem dentro da faixa típica, com pontuação total de ${scoreTotal} pontos. Este resultado sugere que o avaliado tende a experienciar interações sociais de forma relativamente mais natural, com menor necessidade de estratégias compensatórias intensivas. No entanto, a análise qualitativa das subescalas individuais oferece informações importantes sobre aspectos específicos do funcionamento social que podem beneficiar de suporte ou intervenção direcionada.`;
+            doc.setTextColor(50, 50, 50);
+            const interpMascTexto = doc.splitTextToSize(interpMasc.interpretacao, 170);
+            doc.text(interpMascTexto, 20, y);
+            y += interpMascTexto.length * 4 + 7;
+
+            if (y > 220) {
+                doc.addPage();
+                y = 20;
             }
+
+            // Assimilacao Detalhada
+            const interpAssim = getDescricaoSubescala('Assimilacao', scoreAssimilacao, 63, percAssimilacao);
             
-            const textoSintese = doc.splitTextToSize(sintese, 170);
-            doc.text(textoSintese, 20, y);
+            doc.setFillColor(252, 252, 254);
+            doc.setDrawColor(59, 130, 246);
+            doc.roundedRect(15, y, 180, 2, 1, 1, 'D');
+            
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(59, 130, 246);
+            doc.text(`ASSIMILACAO (${scoreAssimilacao}/63)`, 20, y + 2);
+            
+            y += 6;
 
-            // Rodapé página 2
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'italic');
+            doc.setTextColor(100, 100, 100);
+            const conceitoAssim = doc.splitTextToSize(interpAssim.conceito, 170);
+            doc.text(conceitoAssim, 20, y);
+            y += conceitoAssim.length * 4 + 3;
+
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(50, 50, 50);
+            const interpAssimTexto = doc.splitTextToSize(interpAssim.interpretacao, 170);
+            doc.text(interpAssimTexto, 20, y);
+            y += interpAssimTexto.length * 4 + 10;
+
+            // Secao 3: Analise Comparativa
+            doc.setFillColor(248, 250, 252);
+            doc.roundedRect(15, y, 180, 8, 2, 2, 'F');
+            
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(60, 60, 60);
+            doc.text('3. ANALISE COMPARATIVA DO PERFIL', 20, y + 6);
+            
+            y += 13;
+
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(50, 50, 50);
+            const textoComparativo = doc.splitTextToSize(getAnaliseComparativa(maior, menor), 170);
+            doc.text(textoComparativo, 20, y);
+
             doc.setFontSize(7);
-            doc.setTextColor(120, 120, 120);
-            doc.text(`Página 2 de 3`, 195, 285, { align: 'right' });
+            doc.setTextColor(150, 150, 150);
+            doc.text('Este relatorio deve ser interpretado por profissional qualificado familiarizado com neurodiversidade', 105, 285, { align: 'center' });
+            doc.setFont(undefined, 'bold');
+            doc.text('Pagina 2 de 4', 195, 285, { align: 'right' });
 
-            // ============= PÁGINA 3 - CONSIDERAÇÕES E RECOMENDAÇÕES =============
+            // PAGINA 3 - CONSIDERACOES CLINICAS
             doc.addPage();
             y = 20;
 
-            doc.setFontSize(15);
+            doc.setFontSize(14);
             doc.setFont(undefined, 'bold');
             doc.setTextColor(102, 126, 234);
-            doc.text('🎯 SOBRE O CAT-Q E SUAS APLICAÇÕES', 20, y);
+            doc.text('CONSIDERACOES CLINICAS', 20, y);
+            
             y += 10;
 
-            doc.setFontSize(9);
-            doc.setFont(undefined, 'normal');
-            doc.setTextColor(0, 0, 0);
+            // Sobre o Instrumento
+            doc.setFillColor(255, 252, 245);
+            doc.setDrawColor(245, 158, 11);
+            doc.setLineWidth(1);
+            doc.roundedRect(15, y, 180, 48, 3, 3, 'D');
             
-            const sobreCATQ = [
-                'O CAT-Q (Camouflaging Autistic Traits Questionnaire) é um instrumento psicométrico desenvolvido por Hull et al. (2019) para quantificar comportamentos de camuflagem social em pessoas no espectro autista. Importante ressaltar que o CAT-Q:',
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(146, 64, 14);
+            doc.text('SOBRE O CAT-Q E SUAS APLICACOES', 20, y + 7);
+            
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(120, 60, 10);
+            
+            const sobreTextos = [
+                'O CAT-Q e um instrumento psicometrico validado desenvolvido por Hull e colaboradores (2019) para quantificar',
+                'comportamentos de camuflagem social. E fundamental compreender que:',
                 '',
-                '• NÃO é um instrumento diagnóstico de Transtorno do Espectro Autista (TEA)',
-                '• Mede especificamente estratégias de camuflagem/masking, não características autistas per se',
-                '• Pode apresentar pontuações elevadas em outras condições (ansiedade social, TDAH, alta sensibilidade)',
-                '• Deve ser interpretado no contexto clínico amplo, nunca isoladamente'
+                '- NAO e instrumento diagnostico de Transtorno do Espectro Autista (TEA)',
+                '- Mede especificamente estrategias de camuflagem/masking, nao caracteristicas autistas per se',
+                '- Pontuacoes elevadas podem ocorrer em outras condicoes (ansiedade social, TDAH)',
+                '- Deve ser interpretado dentro do contexto clinico amplo, nunca isoladamente',
+                '- Util para compreender custo adaptativo de interacoes sociais',
+                '- Pontuacoes podem variar conforme idade, contexto cultural e momento de vida'
             ];
             
-            sobreCATQ.forEach(linha => {
+            let yTemp = y + 14;
+            sobreTextos.forEach(linha => {
                 if (linha === '') {
-                    y += 4;
+                    yTemp += 2;
                 } else {
-                    const linhas = doc.splitTextToSize(linha, 170);
-                    doc.text(linhas, 20, y);
-                    y += linhas.length * 5;
+                    doc.text(linha, 20, yTemp);
+                    yTemp += 4;
                 }
             });
 
-            y += 8;
-
-            // Indicadores de Camuflagem Elevada
-            doc.setFillColor(255, 243, 205);
-            doc.rect(15, y, 180, 50, 'F');
-            doc.setFontSize(11);
-            doc.setFont(undefined, 'bold');
-            doc.setTextColor(133, 100, 4);
-            doc.text('⚠ INDICADORES DE CAMUFLAGEM SOCIAL ELEVADA', 20, y + 7);
-            
-            doc.setFontSize(8);
-            doc.setFont(undefined, 'normal');
-            const indicadores = [
-                '• Alto gasto de energia mental e emocional em contextos sociais',
-                '• Necessidade de "atuar" ou seguir roteiros pré-elaborados em interações',
-                '• Monitoramento constante e consciente da própria apresentação social',
-                '• Sensação persistente de não poder ser autêntico ou "verdadeiro" em situações sociais',
-                '• Esgotamento social (burnout) ou necessidade de longos períodos de recuperação pós-interação',
-                '• Discrepância entre como se sente internamente e como se apresenta externamente'
-            ];
-            
-            let yInd = y + 13;
-            indicadores.forEach(linha => {
-                doc.text(linha, 20, yInd);
-                yInd += 6;
-            });
-
             y += 55;
 
-            // Implicações Clínicas
-            doc.setFillColor(230, 244, 255);
-            doc.rect(15, y, 180, 58, 'F');
-            doc.setFontSize(11);
+            // Sinais de Camuflagem
+            doc.setFillColor(239, 246, 255);
+            doc.setDrawColor(59, 130, 246);
+            doc.roundedRect(15, y, 180, 45, 3, 3, 'D');
+            
+            doc.setFontSize(10);
             doc.setFont(undefined, 'bold');
-            doc.setTextColor(25, 118, 210);
-            doc.text('🏥 IMPLICAÇÕES CLÍNICAS E RECOMENDAÇÕES', 20, y + 7);
+            doc.setTextColor(30, 58, 138);
+            doc.text('SINAIS E INDICADORES DE CAMUFLAGEM SOCIAL', 20, y + 7);
             
             doc.setFontSize(8);
             doc.setFont(undefined, 'normal');
-            doc.setTextColor(0, 0, 0);
-            const implicacoes = [
-                '• Camuflagem intensa pode mascarar características autistas, levando a diagnósticos tardios ou incorretos',
-                '• Masking prolongado está associado a maior risco de: ansiedade, depressão, esgotamento e crises autísticas',
-                '• A validação da experiência de camuflagem é terapeuticamente importante',
-                '• Objetivos terapêuticos podem incluir: redução da necessidade de masking, desenvolvimento de',
-                '  ambientes seguros para autenticidade e estratégias de regulação emocional pós-interação',
-                '• Ambientes validadores, neurodiversidade-afirmativos e psicoeducação reduzem demanda de camuflagem',
-                '• Intervenções devem focar em bem-estar e qualidade de vida, não em "normalização"',
-                '• Importante avaliar custo-benefício individual do masking em diferentes contextos'
+            doc.setTextColor(30, 64, 175);
+            
+            const indicadores = [
+                '- Alto gasto de energia mental e emocional em contextos sociais',
+                '- Necessidade de "atuar" ou seguir roteiros pre-elaborados em interacoes',
+                '- Monitoramento constante e consciente da propria apresentacao social',
+                '- Sensacao persistente de nao poder ser autentico socialmente',
+                '- Fadiga social ou burnout apos interacoes, mesmo que bem-sucedidas',
+                '- Discrepancia entre experiencia interna e apresentacao externa',
+                '- Necessidade de longos periodos de solidao para recuperar',
+                '- Sensacao de estar constantemente "traduzindo" entre modo natural e esperado'
             ];
             
-            let yImpl = y + 13;
-            implicacoes.forEach(linha => {
-                doc.text(linha, 20, yImpl);
-                yImpl += 5.5;
+            yTemp = y + 14;
+            indicadores.forEach(linha => {
+                doc.text(linha, 20, yTemp);
+                yTemp += 4.5;
             });
 
-            y += 63;
+            y += 52;
 
-            // Referências
-            doc.setFillColor(245, 245, 245);
-            doc.rect(15, y, 180, 25, 'F');
+            // Implicacoes
+            doc.setFillColor(254, 242, 242);
+            doc.setDrawColor(220, 38, 38);
+            doc.roundedRect(15, y, 180, 42, 3, 3, 'D');
+            
             doc.setFontSize(10);
             doc.setFont(undefined, 'bold');
-            doc.setTextColor(80, 80, 80);
-            doc.text('📚 REFERÊNCIAS BIBLIOGRÁFICAS', 20, y + 7);
+            doc.setTextColor(153, 27, 27);
+            doc.text('IMPLICACOES PARA SAUDE MENTAL E BEM-ESTAR', 20, y + 7);
+            
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(127, 29, 29);
+            
+            const implicacoes = [
+                'Pesquisas demonstram associacao entre camuflagem autistica intensa e:',
+                '',
+                '- Maior vulnerabilidade a transtornos ansiosos e depressivos',
+                '- Esgotamento autistico (autistic burnout) - estado de exaustao profunda',
+                '- Maior risco de ideacao suicida, particularmente em adultos tardiamente diagnosticados',
+                '- Dificuldades em reconhecer e expressar necessidades proprias',
+                '- Atraso ou erro em diagnosticos devido a camuflagem de caracteristicas',
+                '- Impacto negativo em autoestima e senso de identidade',
+                '',
+                'IMPORTANTE: A validacao da experiencia de camuflagem e terapeuticamente crucial.'
+            ];
+            
+            yTemp = y + 14;
+            implicacoes.forEach(linha => {
+                if (linha === '') {
+                    yTemp += 2;
+                } else {
+                    doc.text(linha, 20, yTemp);
+                    yTemp += 4;
+                }
+            });
+
+            doc.setFontSize(7);
+            doc.setTextColor(150, 150, 150);
+            doc.text('A camuflagem social nao e "fingimento" - e estrategia adaptativa com custo real', 105, 285, { align: 'center' });
+            doc.setFont(undefined, 'bold');
+            doc.text('Pagina 3 de 4', 195, 285, { align: 'right' });
+
+            // PAGINA 4 - RECOMENDACOES E REFERENCIAS
+            doc.addPage();
+            y = 20;
+
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(102, 126, 234);
+            doc.text('RECOMENDACOES E ORIENTACOES', 20, y);
+            
+            y += 10;
+
+            // Recomendacoes
+            let recomendacoes = [];
+            
+            if (scoreTotal > 100) {
+                recomendacoes.push('AUTOCONHECIMENTO: Reconhecer e validar o esforco de camuflagem e o primeiro passo. Nao ha "obrigacao" de camuflar.');
+                recomendacoes.push('GESTAO DE ENERGIA: Planeje periodos de recuperacao apos interacoes sociais intensas. Masking consome recursos cognitivos significativos.');
+                recomendacoes.push('SELETIVIDADE SOCIAL: Avalie o custo-beneficio da camuflagem em diferentes contextos. Reserve-a para situacoes onde e genuinamente necessaria.');
+            }
+            
+            if (scoreCompensacao > 35) {
+                recomendacoes.push('FLEXIBILIZACAO: Trabalhe gradualmente a tolerancia a imprevisibilidade social. Roteiros rigidos podem aumentar ansiedade.');
+            }
+            
+            if (scoreMascaramento > 28) {
+                recomendacoes.push('REDUCAO DE MONITORAMENTO: Experimente relaxar o controle de expressoes em ambientes seguros.');
+            }
+            
+            if (scoreAssimilacao > 35) {
+                recomendacoes.push('AUTENTICIDADE GRADUAL: Identifique espacos onde pode revelar mais de si mesmo.');
+            }
+            
+            if (scoreTotal < 80) {
+                recomendacoes.push('PRESERVACAO: Seu padrao de menor camuflagem pode refletir ambientes validadores. Proteja esses espacos.');
+            }
+            
+            recomendacoes.push('ACOMPANHAMENTO PROFISSIONAL: Considere discussao destes resultados com profissional familiarizado com neurodiversidade.');
+
+            doc.setFillColor(240, 253, 244);
+            doc.setDrawColor(34, 197, 94);
+            doc.setLineWidth(0.8);
+            
+            const alturaBox = (recomendacoes.length * 11) + 15;
+            doc.roundedRect(15, y, 180, alturaBox, 3, 3, 'D');
+            
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(22, 101, 52);
+            doc.text('ORIENTACOES BASEADAS EM SEU PERFIL', 20, y + 7);
+            
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(21, 128, 61);
+            
+            yTemp = y + 14;
+            recomendacoes.forEach((rec, idx) => {
+                const partes = rec.split(':');
+                if (partes.length > 1) {
+                    doc.setFont(undefined, 'bold');
+                    doc.text(`${idx + 1}. ${partes[0]}:`, 20, yTemp);
+                    doc.setFont(undefined, 'normal');
+                    const textoRec = doc.splitTextToSize(partes[1].trim(), 165);
+                    doc.text(textoRec, 25, yTemp + 4);
+                    yTemp += (textoRec.length * 4) + 7;
+                } else {
+                    const textoRec = doc.splitTextToSize(`${idx + 1}. ${rec}`, 165);
+                    doc.text(textoRec, 20, yTemp);
+                    yTemp += (textoRec.length * 4) + 5;
+                }
+            });
+
+            y += alturaBox + 8;
+
+            // Proximos Passos
+            doc.setFillColor(248, 250, 252);
+            doc.setDrawColor(100, 116, 139);
+            doc.roundedRect(15, y, 180, 33, 3, 3, 'D');
+            
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(51, 65, 85);
+            doc.text('PROXIMOS PASSOS SUGERIDOS', 20, y + 7);
+            
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(71, 85, 105);
+            
+            const proximos = [
+                '1. Reflita sobre os resultados sem julgamento - camuflagem e estrategia adaptativa',
+                '2. Considere compartilhar estes achados com pessoas de confianca',
+                '3. Busque espacos e comunidades neurodiversas para trocar experiencias',
+                '4. Avalie com profissional especializado possibilidade de investigacao diagnostica',
+                '5. Explore recursos sobre autismo, especialmente perspectivas de autistas adultos'
+            ];
+            
+            yTemp = y + 14;
+            proximos.forEach(linha => {
+                const textoProx = doc.splitTextToSize(linha, 165);
+                doc.text(textoProx, 20, yTemp);
+                yTemp += (textoProx.length * 4) + 2.5;
+            });
+
+            y += 40;
+
+            // Nota Final
+            doc.setFillColor(255, 251, 235);
+            doc.setDrawColor(245, 158, 11);
+            doc.roundedRect(15, y, 180, 20, 3, 3, 'D');
+            
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(146, 64, 14);
+            doc.text('NOTA IMPORTANTE', 20, y + 6);
             
             doc.setFontSize(7);
             doc.setFont(undefined, 'normal');
-            const referencias = [
-                'Hull, L., Petrides, K. V., Allison, C., Smith, P., Baron-Cohen, S., Lai, M. C., & Mandy, W. (2017).',
-                '"Putting on My Best Normal": Social Camouflaging in Adults with Autism Spectrum Conditions.',
-                'Journal of Autism and Developmental Disorders, 47(8), 2519-2534.',
+            doc.setTextColor(120, 53, 15);
+            const nota = doc.splitTextToSize('Este relatorio e ferramenta de autoconhecimento, mas nao substitui avaliacao clinica. Resultados devem ser discutidos com profissional de saude mental familiarizado com neurodiversidade. Camuflagem social pode ocorrer por multiplas razoes alem do autismo.', 168);
+            doc.text(nota, 21, y + 11);
+
+            y += 26;
+
+            // Referencias Bibliograficas
+            doc.setFontSize(10);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(40, 40, 40);
+            doc.text('REFERENCIAS BIBLIOGRAFICAS', 20, y);
+            
+            y += 6;
+
+            doc.setFontSize(7);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(80, 80, 80);
+            
+            const refs = [
+                'Hull, L., Petrides, K. V., Allison, C., Smith, P., Baron-Cohen, S., Lai, M. C., & Mandy, W. (2017). "Putting on My Best',
+                'Normal": Social Camouflaging in Adults with Autism Spectrum Conditions. Journal of Autism and Developmental',
+                'Disorders, 47(8), 2519-2534.',
                 '',
-                'Hull, L., Mandy, W., Lai, M. C., Baron-Cohen, S., Allison, C., Smith, P., & Petrides, K. V. (2019).',
-                'Development and Validation of the Camouflaging Autistic Traits Questionnaire (CAT-Q).',
-                'Journal of Autism and Developmental Disorders, 49(3), 819-833.'
+                'Hull, L., Mandy, W., Lai, M. C., Baron-Cohen, S., Allison, C., Smith, P., & Petrides, K. V. (2019). Development and',
+                'Validation of the Camouflaging Autistic Traits Questionnaire (CAT-Q). Journal of Autism and Developmental',
+                'Disorders, 49(3), 819-833.',
+                '',
+                'Cage, E., & Troxell-Whitman, Z. (2019). Understanding the Reasons, Contexts and Costs of Camouflaging for Autistic',
+                'Adults. Journal of Autism and Developmental Disorders, 49(5), 1899-1911.'
             ];
             
-            let yRef = y + 12;
-            referencias.forEach(linha => {
-                doc.text(linha, 20, yRef);
-                yRef += 3.5;
+            yTemp = y;
+            refs.forEach(linha => {
+                if (linha === '') {
+                    yTemp += 3;
+                } else {
+                    doc.text(linha, 20, yTemp);
+                    yTemp += 3.5;
+                }
             });
 
-            // Rodapé final
-            doc.setFontSize(7);
+            doc.setFontSize(6);
             doc.setTextColor(120, 120, 120);
-            doc.text(`Relatório gerado em ${hoje.toLocaleDateString('pt-BR')} às ${hoje.toLocaleTimeString('pt-BR')}`, 20, 285);
-            doc.text(`Página 3 de 3`, 195, 285, { align: 'right' });
+            doc.text(`Relatorio gerado automaticamente em ${hoje.toLocaleDateString('pt-BR')} as ${hoje.toLocaleTimeString('pt-BR')}`, 20, 285);
+            doc.setFont(undefined, 'bold');
+            doc.text('Pagina 4 de 4', 195, 285, { align: 'right' });
             
             doc.setFontSize(6);
             doc.setTextColor(150, 150, 150);
-            doc.text('Este relatório é de caráter informativo e deve ser interpretado por profissional qualificado em conjunto com avaliação clínica completa.', 105, 290, { align: 'center' });
+            doc.text('Este documento e de carater informativo e deve ser interpretado por profissional qualificado', 105, 290, { align: 'center' });
 
-            // Converter para base64
             return doc.output('datauristring').split(',')[1];
         }
 
