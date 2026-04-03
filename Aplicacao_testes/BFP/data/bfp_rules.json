@@ -26,27 +26,57 @@
     {
       "min": 0,
       "max": 14,
-      "label": "Muito Baixo"
+      "label": "Muito Baixo",
+      "cor": "#e74c3c",
+      "corRGB": [
+        231,
+        76,
+        60
+      ]
     },
     {
       "min": 15,
       "max": 29,
-      "label": "Baixo"
+      "label": "Baixo",
+      "cor": "#e67e22",
+      "corRGB": [
+        230,
+        126,
+        34
+      ]
     },
     {
       "min": 30,
       "max": 70,
-      "label": "Médio"
+      "label": "Médio",
+      "cor": "#27ae60",
+      "corRGB": [
+        39,
+        174,
+        96
+      ]
     },
     {
       "min": 71,
       "max": 85,
-      "label": "Alto"
+      "label": "Alto",
+      "cor": "#2980b9",
+      "corRGB": [
+        41,
+        128,
+        185
+      ]
     },
     {
       "min": 86,
       "max": 100,
-      "label": "Muito Alto"
+      "label": "Muito Alto",
+      "cor": "#8e44ad",
+      "corRGB": [
+        142,
+        68,
+        173
+      ]
     }
   ],
   "fatores": {
@@ -69,7 +99,7 @@
       "descricaoBaixo": "Maior estabilidade emocional, capacidade de lidar com estresse, equilíbrio afetivo e resiliência frente a adversidades.",
       "norma": {
         "media": 3.19,
-        "dp": 1.0
+        "dp": 1.01
       }
     },
     "E": {
@@ -90,8 +120,8 @@
       "descricaoAlto": "Facilidade na comunicação, assertividade elevada, energia, dinamismo e busca ativa de interações sociais.",
       "descricaoBaixo": "Reserva social, preferência por atividades solitárias, menor expressividade verbal e menor busca por estimulação social.",
       "norma": {
-        "media": 4.34,
-        "dp": 0.87
+        "media": 4.32,
+        "dp": 0.86
       }
     },
     "S": {
@@ -111,8 +141,8 @@
       "descricaoAlto": "Amabilidade, preocupação com o bem-estar alheio, cooperação, confiança nos outros e pró-sociabilidade.",
       "descricaoBaixo": "Tendência à competitividade, menor empatia, desconfiança interpessoal e postura mais individualista.",
       "norma": {
-        "media": 5.64,
-        "dp": 0.59
+        "media": 5.35,
+        "dp": 0.7
       }
     },
     "R": {
@@ -132,8 +162,8 @@
       "descricaoAlto": "Organização, disciplina, perseverança, comprometimento com metas, prudência e senso de competência.",
       "descricaoBaixo": "Impulsividade, menor organização, dificuldade em manter foco em objetivos de longo prazo e menor autodisciplina.",
       "norma": {
-        "media": 5.5,
-        "dp": 0.93
+        "media": 4.99,
+        "dp": 0.83
       }
     },
     "A": {
@@ -153,8 +183,8 @@
       "descricaoAlto": "Curiosidade intelectual, criatividade, interesse por novidades, flexibilidade de valores e imaginação.",
       "descricaoBaixo": "Preferência por rotina, pragmatismo, conservadorismo e menor interesse por exploração de novas experiências.",
       "norma": {
-        "media": 4.27,
-        "dp": 0.68
+        "media": 4.67,
+        "dp": 0.73
       }
     }
   },
@@ -164,8 +194,8 @@
       "fator": "N",
       "descricao": "Avalia a fragilidade emocional, o sofrimento decorrente da percepção de aceitação alheia, dependência emocional e dificuldade decisória por medo de decepcionar.",
       "norma": {
-        "media": 3.49,
-        "dp": 1.23
+        "media": 3.46,
+        "dp": 1.22
       },
       "interpretacoes": {
         "Muito Baixo": "A escala de Vulnerabilidade avalia a fragilidade emocional, o sofrimento decorrente da percepção de aceitação alheia e a dependência emocional nas decisões. Escores muito baixos caracterizam grande independência emocional em relação aos outros. O(a) avaliando(a) tende a ser pouco preocupado(a) com as opiniões alheias e usualmente toma decisões e enfrenta problemas sem considerar os demais, o que pode afetar a qualidade de suas relações interpessoais. Essa postura de elevada autonomia, embora funcional em muitos contextos, pode resultar em dificuldade para perceber o impacto de suas ações sobre os outros.",
@@ -180,8 +210,8 @@
       "fator": "N",
       "descricao": "Avalia irritabilidade, nervosismo e variações de humor, incluindo impulsividade e tolerância à frustração.",
       "norma": {
-        "media": 3.68,
-        "dp": 1.42
+        "media": 3.57,
+        "dp": 1.39
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Instabilidade Emocional avalia irritabilidade, nervosismo e variações de humor, incluindo impulsividade e tolerância à frustração. Escores muito baixos indicam pouquíssimas variações de humor. O(a) avaliando(a) geralmente não toma decisões de forma impulsiva e apresenta alta tolerância a frustrações. Esse padrão de estabilidade emocional consistente pode representar um recurso importante de regulação afetiva.",
@@ -196,8 +226,8 @@
       "fator": "N",
       "descricao": "Avalia o nível de atividade, empenho para resolver situações e velocidade de decisão.",
       "norma": {
-        "media": 3.45,
-        "dp": 1.24
+        "media": 3.54,
+        "dp": 1.21
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Passividade/Falta de Energia avalia o nível de atividade e empenho para resolver situações. Escores muito baixos indicam que o(a) avaliando(a) costuma ser proativo(a), inicia e conclui tarefas com agilidade e apresenta forte motivação intrínseca, sem precisar de estímulos externos para levar adiante seus planos.",
@@ -212,8 +242,8 @@
       "fator": "N",
       "descricao": "Avalia padrões interpretativos sobre eventos de vida, expectativas de futuro e percepção de capacidade para lidar com dificuldades.",
       "norma": {
-        "media": 2.33,
-        "dp": 1.11
+        "media": 2.49,
+        "dp": 1.17
       },
       "interpretacoes": {
         "Muito Baixo": "A escala de Depressão avalia os padrões interpretativos sobre eventos de vida, expectativas de futuro e percepção de capacidade de enfrentamento. Escores muito baixos podem indicar dificuldade para reconhecer eventos negativos, minimizando problemas reais. O(a) avaliando(a) tende a ter expectativa muito positiva sobre o futuro, o que em níveis extremos pode prejudicá-lo(a) por não tomar atitudes necessárias frente a problemas concretos.",
@@ -229,7 +259,7 @@
       "descricao": "Avalia o quão comunicativas e expansivas as pessoas se percebem, incluindo facilidade para falar em público e expressar-se.",
       "norma": {
         "media": 4.28,
-        "dp": 1.28
+        "dp": 1.27
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Nível de Comunicação avalia o quão comunicativas e expansivas as pessoas se percebem. Escores muito baixos sugerem que o(a) avaliando(a) prefere não se expressar em público, pode se constranger em situações de maior exposição e fala pouco sobre si mesmo(a). Essa característica impacta diretamente na forma como estabelece relações sociais e se posiciona em grupos.",
@@ -245,7 +275,7 @@
       "descricao": "Avalia a percepção de capacidade e valor pessoal, incluindo necessidade de atenção e reconhecimento.",
       "norma": {
         "media": 3.67,
-        "dp": 1.07
+        "dp": 1.06
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Altivez avalia a percepção de capacidade e valor pessoal. Escores muito baixos revelam marcante tendência à humildade e pouca necessidade de receber atenção dos outros. O(a) avaliando(a) pode ter dificuldade para reconhecer suas capacidades e atributos favoráveis, mesmo que sejam evidentes para os demais.",
@@ -261,7 +291,7 @@
       "descricao": "Avalia iniciativa, facilidade para colocar ideias em prática e nível geral de atividade.",
       "norma": {
         "media": 4.79,
-        "dp": 1.03
+        "dp": 1.02
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Dinamismo/Assertividade avalia iniciativa, facilidade para colocar ideias em prática e nível de atividade. Escores muito baixos indicam que o(a) avaliando(a) tende a concentrar-se em poucas atividades simultâneas, não precisa estar constantemente envolvido(a) em atividades para sentir-se bem e pode demorar mais para colocar ideias em prática e tomar iniciativa.",
@@ -276,8 +306,8 @@
       "fator": "E",
       "descricao": "Avalia o desejo e necessidade por interações sociais e a busca ativa por situações que as proporcionem.",
       "norma": {
-        "media": 4.82,
-        "dp": 1.11
+        "media": 4.8,
+        "dp": 1.1
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Interações Sociais avalia o desejo e necessidade por contato social. Escores muito baixos indicam que o(a) avaliando(a) geralmente prefere ficar sozinho(a) ou em grupos pequenos e demora mais para desenvolver novas relações. Apresenta necessidade reduzida de viver situações intensas e de frequentar lugares ricos em estímulos e possibilidades de contatos sociais.",
@@ -292,8 +322,8 @@
       "fator": "S",
       "descricao": "Avalia atenção, compreensão, empatia e disposição para ser agradável com os demais.",
       "norma": {
-        "media": 5.83,
-        "dp": 0.79
+        "media": 5.64,
+        "dp": 0.89
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Amabilidade avalia atenção, compreensão, empatia e disposição para ser agradável com os demais. Escores muito baixos indicam que o(a) avaliando(a) tende a apresentar pouca disponibilidade para com os demais, sendo autocentrado(a) e indiferente às necessidades alheias. Pode tratar assuntos delicados de forma insensível, chegando a ser hostil.",
@@ -308,8 +338,8 @@
       "fator": "S",
       "descricao": "Avalia comportamentos de risco, concordância com leis e regras sociais, moralidade e padrões de agressividade.",
       "norma": {
-        "media": 6.17,
-        "dp": 0.76
+        "media": 5.67,
+        "dp": 0.95
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Pró-sociabilidade avalia comportamentos de risco, concordância com leis e regras sociais e moralidade. Escores muito baixos indicam que o(a) avaliando(a) tende a envolver-se em situações de risco e apresenta pouca preocupação em seguir leis e regras sociais. Pode ser manipulador(a) e apresentar padrão hostil ou desrespeitoso de interação.",
@@ -324,8 +354,8 @@
       "fator": "S",
       "descricao": "Avalia o quanto as pessoas confiam nos outros e acreditam que não serão prejudicadas.",
       "norma": {
-        "media": 4.96,
-        "dp": 0.82
+        "media": 4.69,
+        "dp": 1.02
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Confiança nas Pessoas avalia o quanto se confia nos outros e se acredita que não será prejudicado(a). Escores muito baixos indicam que o(a) avaliando(a) frequentemente relata percepção constante de que as pessoas podem estar tentando prejudicá-lo(a). Tende a ser muito ciumento(a) em relações amorosas e a apresentar grande dificuldade em desenvolver intimidade com outros.",
@@ -340,8 +370,8 @@
       "fator": "R",
       "descricao": "Avalia a busca ativa por objetivos, disposição para sacrifícios pessoais e autopercepção de capacidade.",
       "norma": {
-        "media": 5.49,
-        "dp": 0.81
+        "media": 5.25,
+        "dp": 0.92
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Competência avalia a busca ativa por objetivos e a percepção de capacidade pessoal. Escores muito baixos sugerem pouca disposição para atingir objetivos, com tendência a desistir frente a obstáculos. O(a) avaliando(a) pode apresentar percepção desfavorável sobre sua capacidade, evitar atividades complexas e desafiadoras e não possuir objetivos bem definidos.",
@@ -356,8 +386,8 @@
       "fator": "R",
       "descricao": "Avalia o cuidado na expressão de opiniões, avaliação de consequências e planejamento antes de agir.",
       "norma": {
-        "media": 5.6,
-        "dp": 1.0
+        "media": 5.05,
+        "dp": 1.16
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Ponderação/Prudência avalia o cuidado na expressão de opiniões e avaliação de consequências. Escores muito baixos indicam que o(a) avaliando(a) tende a falar sem pensar antes, a agir antes de fazer algum planejamento e a ser impulsivo(a) — não por reação emocional negativa, mas sim por falta de planejamento e organização de modo geral.",
@@ -372,8 +402,8 @@
       "fator": "R",
       "descricao": "Avalia detalhismo na execução de trabalhos e nível de exigência pessoal com a qualidade das tarefas.",
       "norma": {
-        "media": 5.32,
-        "dp": 0.94
+        "media": 4.73,
+        "dp": 1.06
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Empenho/Comprometimento avalia detalhismo e exigência pessoal com a qualidade das tarefas. Escores muito baixos indicam que o(a) avaliando(a) é pouco comprometido(a) com tarefas e compromissos, usualmente descuidado(a) com a qualidade e conclusão de trabalhos. Coloca pouca energia nas atividades, resultando em qualidade frequentemente insuficiente.",
@@ -388,8 +418,8 @@
       "fator": "A",
       "descricao": "Avalia interesse por conceitos novos, questões filosóficas, arte, cultura e uso de imaginação e fantasia.",
       "norma": {
-        "media": 4.5,
-        "dp": 0.96
+        "media": 4.58,
+        "dp": 1.02
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Abertura a Ideias avalia interesse por novos conceitos, questões filosóficas, arte e expressões culturais. Escores muito baixos indicam que o(a) avaliando(a) é pouco curioso(a) para conhecer novos temas, mais conservador(a) e fiel a seus gostos artísticos, com postura rígida quanto a conceitos e novas ideias.",
@@ -404,8 +434,8 @@
       "fator": "A",
       "descricao": "Avalia como a pessoa lida com diferentes valores morais e sociais e a noção de que podem ser relativizados ao longo do tempo e entre culturas.",
       "norma": {
-        "media": 4.23,
-        "dp": 0.97
+        "media": 4.81,
+        "dp": 1.02
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Liberalismo avalia como a pessoa lida com diferentes valores morais e sociais e a noção de que podem ser relativizados. Escores muito baixos indicam que o(a) avaliando(a) não costuma relativizar valores e conceitos sociais, sendo mais dogmático(a). Usualmente defende que os valores adotados não devem ser mudados com o passar do tempo.",
@@ -420,8 +450,8 @@
       "fator": "A",
       "descricao": "Avalia o quanto a pessoa gosta e busca vivenciar novos eventos e como lida com a rotina.",
       "norma": {
-        "media": 3.91,
-        "dp": 0.83
+        "media": 4.61,
+        "dp": 1.03
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Busca por Novidades avalia o interesse em vivenciar novos eventos e como lida com a rotina. Escores muito baixos indicam que o(a) avaliando(a) relata sentir-se desconfortável com a quebra de rotina, possui pouco interesse para fazer coisas que nunca fez antes, conhecer lugares novos ou se colocar em situações diferentes das habituais.",
