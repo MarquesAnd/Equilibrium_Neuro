@@ -1,356 +1,527 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BFP - Bateria Fatorial de Personalidade | Equilibrium</title>
-    <link rel="icon" type="image/png" href="/logo.png" />
-    <link rel="apple-touch-icon" href="/logo.png" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f7fa; min-height: 100vh; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
-        .header { background: #ffffff; border-bottom: 3px solid #667eea; color: #2c3e50; padding: 40px; text-align: center; }
-        .header h1 { font-size: 2.2em; margin-bottom: 10px; font-weight: 600; color: #667eea; }
-        .header p { font-size: 1em; color: #5a6c7d; line-height: 1.6; }
-        .content { padding: 40px; }
-        .info-box { background: #f8f9ff; border-left: 4px solid #667eea; padding: 20px; margin-bottom: 30px; border-radius: 8px; }
-        .info-box h3 { color: #667eea; margin-bottom: 10px; font-size: 1.2em; }
-        .info-box p { color: #555; line-height: 1.6; }
-        .form-group { margin-bottom: 25px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 0.95em; }
-        input[type="text"], input[type="date"], select { width: 100%; padding: 12px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em; transition: all 0.3s; }
-        input:focus, select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
-        .question-card { background: #fff; padding: 25px; margin-bottom: 16px; border-radius: 12px; border: 2px solid #e1e4e8; transition: all 0.3s; }
-        .question-card:hover { border-color: #667eea; box-shadow: 0 4px 12px rgba(102,126,234,0.1); }
-        .question-card.answered { border-color: #27ae60; background: #f0fff4; }
-        .question-number { display: inline-block; background: #667eea; color: white; width: 35px; height: 35px; border-radius: 50%; text-align: center; line-height: 35px; font-weight: bold; margin-right: 12px; font-size: 0.9em; }
-        .question-text { display: inline; color: #2c3e50; font-size: 1.05em; font-weight: 500; }
-        .scale-container { margin-top: 20px; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
-        .scale-option { flex: 1; text-align: center; }
-        .scale-option input[type="radio"] { display: none; }
-        .scale-option label { display: block; padding: 12px 6px; background: white; border: 2px solid #dee2e6; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-weight: 600; color: #495057; font-size: 1.1em; }
-        .scale-option input[type="radio"]:checked + label { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-color: #667eea; transform: scale(1.05); box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
-        .scale-option label:hover { border-color: #667eea; background: #f8f9ff; }
-        .scale-labels { display: flex; justify-content: space-between; margin-top: 10px; padding: 0 5px; }
-        .scale-labels span { font-size: 0.82em; color: #6c757d; font-style: italic; }
-        .scale-legend { background: #fff3cd; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; margin-bottom: 30px; }
-        .scale-legend h4 { color: #856404; margin-bottom: 15px; font-size: 1.1em; }
-        .scale-legend ul { list-style: none; padding-left: 0; }
-        .scale-legend li { padding: 6px 0; color: #856404; font-weight: 500; }
-        .scale-legend li strong { display: inline-block; width: 30px; text-align: center; background: #ffc107; color: white; border-radius: 4px; padding: 2px 8px; margin-right: 10px; }
-        .submit-btn { background: #667eea; color: white; padding: 15px 40px; border: none; border-radius: 10px; font-size: 1.1em; font-weight: 600; cursor: pointer; width: 100%; margin-top: 30px; transition: all 0.3s; box-shadow: 0 2px 8px rgba(102,126,234,0.2); }
-        .submit-btn:hover { background: #5568d3; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(102,126,234,0.3); }
-        .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .progress-bar { position: fixed; top: 0; left: 0; height: 4px; background: linear-gradient(90deg, #667eea 0%, #764ba2 100%); width: 0%; transition: width 0.3s; z-index: 1000; }
-        .progress-info { position: fixed; top: 8px; right: 16px; background: rgba(102,126,234,0.95); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85em; font-weight: 600; z-index: 1001; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
-        .error-message { background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f5c6cb; display: none; }
-        #loadingMask { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.98); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
-        .loader { width: 60px; height: 60px; border: 6px solid #e5e7eb; border-top: 6px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 25px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .loading-text { color: #2c3e50; text-align: center; }
-        .loading-text h2 { font-size: 1.5em; margin-bottom: 12px; font-weight: 600; color: #667eea; }
-        .loading-text p { font-size: 1em; color: #5a6c7d; }
-        @media (max-width: 768px) { .header h1 { font-size: 1.8em; } .content { padding: 20px; } .form-row { grid-template-columns: 1fr; } .scale-container { flex-wrap: wrap; } .scale-option { flex: 0 0 calc(14.28% - 5px); } .scale-option label { padding: 10px 4px; font-size: 0.95em; } }
-    </style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>BFP - Bateria Fatorial de Personalidade | Equilibrium</title>
+  <link rel="icon" type="image/png" href="/logo.png"/>
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'DM Sans',-apple-system,system-ui,sans-serif;background:#f1f5f9;min-height:100vh;color:#0f172a}
+
+    /* LAYOUT */
+    .top-bar{background:linear-gradient(135deg,#0c1f3f 0%,#1a56db 100%);padding:20px 30px;color:#fff}
+    .top-bar h1{font-size:1.6em;font-weight:800;letter-spacing:-.5px}
+    .top-bar p{font-size:.85em;opacity:.75;margin-top:4px}
+    .top-bar .back-link{color:rgba(255,255,255,.7);text-decoration:none;font-size:.8em;display:inline-block;margin-bottom:8px}
+    .top-bar .back-link:hover{color:#fff}
+    .container{max-width:1200px;margin:0 auto;padding:24px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+
+    /* CARDS */
+    .card{background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);padding:24px;border:1px solid #e2e8f0}
+    .card h2{font-size:14px;font-weight:700;color:#1a56db;margin-bottom:16px;text-transform:uppercase;letter-spacing:.5px}
+
+    /* FORM FIELDS */
+    .field{margin-bottom:14px}
+    .field label{display:block;font-size:11px;font-weight:700;color:#64748b;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px}
+    .field input,.field select{width:100%;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:13px;font-family:inherit;background:#fff;transition:.2s}
+    .field input:focus,.field select:focus{border-color:#1a56db;outline:none;box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+    .row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+
+    /* SCORE TABLE */
+    .score-table{width:100%;border-collapse:separate;border-spacing:0;border-radius:14px;overflow:hidden;border:1.5px solid #e2e8f0;font-size:12.5px;margin-top:10px}
+    .score-table th{background:#f1f5f9;padding:10px 10px;text-align:left;font-weight:700;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:#64748b;border-bottom:1.5px solid #e2e8f0}
+    .score-table th.center{text-align:center}
+    .score-table td{padding:7px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+    .score-table tr:last-child td{border-bottom:none}
+    .score-table input[type="text"]{width:62px;padding:6px 6px;border:1.5px solid #e2e8f0;border-radius:8px;text-align:center;font-size:12px;font-family:inherit;background:#fff}
+    .score-table input:focus{border-color:#1a56db;outline:none;box-shadow:0 0 0 2px rgba(26,86,219,.1)}
+    .score-table select{padding:5px 6px;border:1.5px solid #e2e8f0;border-radius:8px;font-size:11px;font-family:inherit;background:#fff}
+    .fator-row{background:#f0f4ff!important}
+    .fator-row td{border-top:2px solid #dbeafe!important;font-weight:700}
+    .fator-dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:6px;vertical-align:middle}
+
+    /* BUTTONS */
+    .btn{border:none;padding:13px 24px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:.2s;display:inline-flex;align-items:center;gap:8px}
+    .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .btn-primary{background:#1a56db;color:#fff;width:100%}
+    .btn-primary:hover{background:#1545b0;transform:translateY(-1px);box-shadow:0 4px 12px rgba(26,86,219,.25)}
+    .btn-green{background:#059669;color:#fff;width:100%}
+    .btn-green:hover{background:#047857;transform:translateY(-1px)}
+    .btn-outline{background:transparent;color:#1a56db;border:1.5px solid #1a56db}
+    .btn-outline:hover{background:#eff6ff}
+
+    /* CHART */
+    #chartPreview{width:100%!important;height:320px!important}
+
+    /* LOADING */
+    #loadingOverlay{display:none;position:fixed;inset:0;background:rgba(255,255,255,.96);z-index:9999;justify-content:center;align-items:center;flex-direction:column;gap:12px}
+    .spinner{width:48px;height:48px;border:5px solid #e5e7eb;border-top:5px solid #1a56db;border-radius:50%;animation:sp .8s linear infinite}
+    @keyframes sp{to{transform:rotate(360deg)}}
+    #loadingOverlay h3{color:#1a56db;font-size:1.1em}
+    #loadingOverlay p{color:#64748b;font-size:.9em}
+
+    /* BADGE FAIXA */
+    .fx-badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;color:#fff}
+
+    /* RESPONSIVE */
+    @media(max-width:900px){.grid{grid-template-columns:1fr}.row-2,.row-3{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
-    <div class="progress-bar" id="progressBar"></div>
-    <div class="progress-info" id="progressInfo">0 / 126</div>
-    <div id="loadingMask">
-        <div class="loader"></div>
-        <div class="loading-text">
-            <h2>Processando Avaliação BFP...</h2>
-            <p id="loadingStatus">Calculando escores brutos</p>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <h3>Gerando Relatório BFP...</h3>
+    <p id="loadStatus">Preparando dados</p>
+  </div>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <a href="/Aplicacao_testes/" class="back-link">← Voltar para Aplicação de Testes</a>
+    <h1>BFP — Bateria Fatorial de Personalidade</h1>
+    <p>Insira os escores da correção informatizada Pearson e gere o relatório clínico</p>
+  </div>
+
+  <div class="container">
+    <div class="grid">
+
+      <!-- COLUNA ESQUERDA -->
+      <div>
+        <!-- Dados do Avaliando -->
+        <div class="card">
+          <h2>👤 Dados do Avaliando</h2>
+          <div class="row-2">
+            <div class="field"><label>Nome Completo</label><input id="nome" type="text" placeholder="Nome do paciente"/></div>
+            <div class="field"><label>Data de Nascimento</label><input id="dataNasc" type="date"/></div>
+          </div>
+          <div class="row-3">
+            <div class="field"><label>Sexo</label><select id="sexo"><option value="">Selecione</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select></div>
+            <div class="field"><label>Escolaridade</label><input id="escolaridade" type="text" placeholder="Ex: Superior Completo"/></div>
+            <div class="field"><label>Data da Avaliação</label><input id="dataAval" type="date"/></div>
+          </div>
+          <div class="row-2">
+            <div class="field"><label>Contexto</label><select id="contexto"><option>Neuropsicologia</option><option>Clínico</option><option>Organizacional</option><option>Trânsito</option><option>Forense</option></select></div>
+            <div class="field"><label>Tabela de Apuração</label><select id="tabela"><option>Amostra Geral</option></select></div>
+          </div>
         </div>
+
+        <!-- Tabela de Escores -->
+        <div class="card" style="margin-top:16px">
+          <h2>📊 Escores — Facetas e Fatores</h2>
+          <p style="font-size:11px;color:#94a3b8;margin:-8px 0 8px">Transcreva os valores da correção informatizada Pearson</p>
+          <div style="overflow-x:auto">
+            <table class="score-table" id="scoreTable">
+              <thead><tr><th>Faceta / Fator</th><th class="center">EB</th><th class="center">Escore Z</th><th class="center">Percentil</th><th class="center">Faixa</th></tr></thead>
+              <tbody id="scoreBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Botões -->
+        <div style="display:flex;gap:12px;margin-top:16px">
+          <button class="btn btn-green" style="flex:1" onclick="atualizarGrafico()">📈 Atualizar Gráfico</button>
+          <button class="btn btn-primary" style="flex:2" onclick="gerarRelatorio()">📄 Gerar Relatório PDF</button>
+        </div>
+      </div>
+
+      <!-- COLUNA DIREITA -->
+      <div>
+        <div class="card" style="position:sticky;top:16px">
+          <h2>📈 Posição Percentil do Respondente</h2>
+          <canvas id="chartPreview"></canvas>
+          <p style="font-size:10px;color:#94a3b8;text-align:center;margin-top:10px">Clique em "Atualizar Gráfico" após preencher os percentis</p>
+        </div>
+      </div>
+
     </div>
-    <div class="container">
-        <div class="header">
-            <h1>BFP</h1>
-            <p>Bateria Fatorial de Personalidade</p>
-            <p style="font-size:0.9em; margin-top:8px; opacity:0.8">Modelo dos Cinco Grandes Fatores (Big Five) · 126 itens</p>
-        </div>
-        <div class="content">
-            <div class="info-box">
-                <h3>📋 Sobre a BFP</h3>
-                <p>A Bateria Fatorial de Personalidade avalia a personalidade a partir do modelo dos Cinco Grandes Fatores: <strong>Neuroticismo</strong>, <strong>Extroversão</strong>, <strong>Socialização</strong>, <strong>Realização</strong> e <strong>Abertura</strong>. Instrumento brasileiro desenvolvido por Nunes, Hutz & Nunes (2010). Aprovado pelo SATEPSI.</p>
-            </div>
-            <div class="scale-legend"><h4>🎯 Escala de Resposta (1 a 7):</h4><ul id="scaleList"></ul></div>
-            <div class="error-message" id="errorMessage">Por favor, preencha todos os campos obrigatórios e responda todas as questões.</div>
-            <form id="bfpForm">
-                <div class="form-row">
-                    <div class="form-group"><label for="nome">Nome Completo *</label><input type="text" id="nome" required></div>
-                    <div class="form-group"><label for="dataNascimento">Data de Nascimento *</label><input type="date" id="dataNascimento" required></div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label for="sexo">Sexo *</label><select id="sexo" required><option value="">Selecione</option><option value="M">Masculino</option><option value="F">Feminino</option></select></div>
-                    <div class="form-group"><label for="escolaridade">Escolaridade *</label><select id="escolaridade" required><option value="">Selecione</option><option value="fundamental">Ensino Fundamental</option><option value="medio">Ensino Médio</option><option value="superior">Ensino Superior</option><option value="pos">Pós-Graduação</option></select></div>
-                </div>
-                <hr style="margin:40px 0; border:none; border-top:2px solid #e9ecef;">
-                <div id="questionsContainer"></div>
-                <button type="submit" class="submit-btn" id="submitBtn">🚀 Finalizar e Gerar Relatório</button>
-            </form>
-        </div>
-    </div>
-    <script>
-    const URL_DO_GOOGLE_SCRIPT = 'https://script.google.com/macros/s/AKfycbyYRCT08hv5hECgfLPlZqpwTAJEUodW0ChfnahUYC70YNME-5hvezW4rIeC9KS7EuwM/exec';
-    const JSON_PATH = 'data/bfp_rules.json';
-    let BFP = null;
+  </div>
 
-    document.addEventListener('DOMContentLoaded', async () => {
-        try {
-            const r = await fetch(JSON_PATH);
-            if (!r.ok) throw new Error('Falha ao carregar bfp_rules.json');
-            BFP = await r.json();
-            renderEscala();
-            renderQuestoes();
-            bindEventos();
-        } catch (e) {
-            document.getElementById('questionsContainer').innerHTML = '<div class="error-message" style="display:block">❌ Erro: ' + e.message + '</div>';
-        }
+  <!-- HIDDEN CANVAS FOR PDF -->
+  <canvas id="hiddenCanvas" width="900" height="400" style="position:absolute;left:-9999px"></canvas>
+
+<script>
+// ============================================================================
+// CONFIG
+// ============================================================================
+const URL_DO_GOOGLE_SCRIPT = 'https://script.google.com/macros/s/AKfycbyYRCT08hv5hECgfLPlZqpwTAJEUodW0ChfnahUYC70YNME-5hvezW4rIeC9KS7EuwM/exec';
+
+// ============================================================================
+// GLOBALS
+// ============================================================================
+let BFP = null;
+let chartInstance = null;
+
+const LINHAS = [
+  {id:'N1',label:'N1 - Vulnerabilidade',fator:'N',isFator:false},
+  {id:'N2',label:'N2 - Instabilidade',fator:'N',isFator:false},
+  {id:'N3',label:'N3 - Passividade',fator:'N',isFator:false},
+  {id:'N4',label:'N4 - Depressão',fator:'N',isFator:false},
+  {id:'N',label:'Neuroticismo',fator:'N',isFator:true},
+  {id:'E1',label:'E1 - Nível de Comunicação',fator:'E',isFator:false},
+  {id:'E2',label:'E2 - Altivez',fator:'E',isFator:false},
+  {id:'E3',label:'E3 - Dinamismo / Assertividade',fator:'E',isFator:false},
+  {id:'E4',label:'E4 - Interações Sociais',fator:'E',isFator:false},
+  {id:'E',label:'Extroversão',fator:'E',isFator:true},
+  {id:'S1',label:'S1 - Amabilidade',fator:'S',isFator:false},
+  {id:'S2',label:'S2 - Pró-sociabilidade',fator:'S',isFator:false},
+  {id:'S3',label:'S3 - Confiança nas Pessoas',fator:'S',isFator:false},
+  {id:'S',label:'Socialização',fator:'S',isFator:true},
+  {id:'R1',label:'R1 - Competência',fator:'R',isFator:false},
+  {id:'R2',label:'R2 - Ponderação / Prudência',fator:'R',isFator:false},
+  {id:'R3',label:'R3 - Empenho / Comprometimento',fator:'R',isFator:false},
+  {id:'R',label:'Realização',fator:'R',isFator:true},
+  {id:'A1',label:'A1 - Abertura a ideias',fator:'A',isFator:false},
+  {id:'A2',label:'A2 - Liberalismo',fator:'A',isFator:false},
+  {id:'A3',label:'A3 - Busca por novidades',fator:'A',isFator:false},
+  {id:'A',label:'Abertura',fator:'A',isFator:true}
+];
+
+const FAIXAS = ['Muito Baixo','Baixo','Médio','Alto','Muito Alto'];
+const COR_FATOR = {N:'#e74c3c',E:'#f39c12',S:'#27ae60',R:'#2980b9',A:'#8e44ad'};
+const COR_FATOR_RGB = {N:[231,76,60],E:[243,156,18],S:[39,174,96],R:[41,128,185],A:[142,68,173]};
+const COR_FAIXA_RGB = {'Muito Baixo':[231,76,60],'Baixo':[230,126,34],'Médio':[39,174,96],'Alto':[41,128,185],'Muito Alto':[142,68,173]};
+
+// ============================================================================
+// INIT
+// ============================================================================
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const r = await fetch('data/bfp_interpretacoes.json');
+    BFP = await r.json();
+  } catch(e) { console.error('Erro ao carregar JSON:', e); }
+  renderTabela();
+  atualizarGrafico();
+});
+
+// ============================================================================
+// RENDER TABLE
+// ============================================================================
+function renderTabela() {
+  const tb = document.getElementById('scoreBody');
+  LINHAS.forEach(l => {
+    const tr = document.createElement('tr');
+    if (l.isFator) tr.className = 'fator-row';
+    tr.innerHTML = `
+      <td><span class="fator-dot" style="background:${COR_FATOR[l.fator]}"></span>${l.label}</td>
+      <td style="text-align:center"><input id="eb_${l.id}" type="text" placeholder="—"/></td>
+      <td style="text-align:center"><input id="z_${l.id}" type="text" placeholder="—"/></td>
+      <td style="text-align:center"><input id="p_${l.id}" type="text" placeholder="—"/></td>
+      <td style="text-align:center"><select id="f_${l.id}">${FAIXAS.map(f=>'<option value="'+f+'">'+f+'</option>').join('')}</select></td>
+    `;
+    tb.appendChild(tr);
+  });
+}
+
+// ============================================================================
+// CHART
+// ============================================================================
+function atualizarGrafico() {
+  const labels = LINHAS.map(l => l.id);
+  const data = LINHAS.map(l => {
+    const raw = document.getElementById('p_'+l.id)?.value || '0';
+    return parseFloat(raw.replace(/[<>]/g,'').trim()) || 0;
+  });
+  const ptColors = LINHAS.map(l => COR_FATOR[l.fator]);
+
+  if (chartInstance) chartInstance.destroy();
+  chartInstance = new Chart(document.getElementById('chartPreview'), {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Percentil',
+        data,
+        borderColor: '#475569',
+        backgroundColor: 'rgba(26,86,219,0.05)',
+        pointBackgroundColor: ptColors,
+        pointBorderColor: ptColors,
+        pointRadius: 5,
+        pointHoverRadius: 7,
+        borderWidth: 2,
+        fill: true,
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: { min:0, max:100, ticks:{stepSize:10,font:{size:10}}, title:{display:true,text:'Percentil',font:{size:11}}, grid:{color:'#f1f5f9'} },
+        x: { ticks:{font:{size:8},maxRotation:90,minRotation:60}, grid:{display:false} }
+      },
+      plugins: { legend:{display:false}, tooltip:{callbacks:{label:ctx=>ctx.parsed.y+' percentil'}} }
+    }
+  });
+}
+
+// ============================================================================
+// COLLECT DATA
+// ============================================================================
+function coletarDados() {
+  const d = {
+    nome: document.getElementById('nome').value || '—',
+    dataNasc: document.getElementById('dataNasc').value || '',
+    sexo: document.getElementById('sexo').value || '—',
+    escolaridade: document.getElementById('escolaridade').value || '—',
+    dataAval: document.getElementById('dataAval').value || '',
+    contexto: document.getElementById('contexto').value,
+    tabela: document.getElementById('tabela').value,
+    escores: {}
+  };
+  LINHAS.forEach(l => {
+    d.escores[l.id] = {
+      label: l.label, fator: l.fator, isFator: l.isFator,
+      eb: document.getElementById('eb_'+l.id)?.value || '',
+      z: document.getElementById('z_'+l.id)?.value || '',
+      percentil: document.getElementById('p_'+l.id)?.value || '',
+      faixa: document.getElementById('f_'+l.id)?.value || 'Médio'
+    };
+  });
+  return d;
+}
+
+function fmtDate(s) { return s ? new Date(s+'T00:00:00').toLocaleDateString('pt-BR') : '—'; }
+
+// ============================================================================
+// PDF GENERATION
+// ============================================================================
+async function gerarRelatorio() {
+  const d = coletarDados();
+  const ov = document.getElementById('loadingOverlay');
+  ov.style.display = 'flex';
+
+  await tick('Calculando idade...');
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF('p','mm','a4');
+
+  // Idade
+  let idade = '—';
+  if (d.dataNasc) {
+    const n = new Date(d.dataNasc+'T00:00:00'), h = new Date();
+    let a = h.getFullYear()-n.getFullYear();
+    if (h.getMonth()-n.getMonth()<0||(h.getMonth()===n.getMonth()&&h.getDate()<n.getDate())) a--;
+    idade = a+' anos';
+  }
+
+  let y = 0;
+
+  // ===================== PÁGINA 1 — CAPA + TABELA =====================
+  await tick('Montando página 1...');
+
+  // Header azul
+  doc.setFillColor(26,86,219); doc.rect(0,0,210,38,'F');
+  doc.setTextColor(255,255,255);
+  doc.setFontSize(22); doc.setFont(undefined,'bold');
+  doc.text('BFP - Bateria Fatorial de Personalidade', 105, 16, {align:'center'});
+  doc.setFontSize(9); doc.setFont(undefined,'normal');
+  doc.text('Modelo dos Cinco Grandes Fatores · '+BFP.meta.autores+' ('+BFP.meta.ano+')', 105, 25, {align:'center'});
+  doc.setFontSize(7);
+  doc.text('Equilibrium Med Center · Neuropsicologia', 105, 32, {align:'center'});
+
+  // Dados do avaliando
+  y = 46;
+  doc.setFillColor(248,250,252); doc.roundedRect(15,y,180,34,3,3,'F');
+  doc.setDrawColor(226,232,240); doc.roundedRect(15,y,180,34,3,3,'S');
+  doc.setFontSize(10); doc.setFont(undefined,'bold'); doc.setTextColor(26,86,219);
+  doc.text('DADOS DO AVALIADO', 20, y+7);
+  doc.setFontSize(9); doc.setFont(undefined,'normal'); doc.setTextColor(30,30,30);
+  doc.text('Nome: '+d.nome, 20, y+14);
+  doc.text('Data de Nascimento: '+fmtDate(d.dataNasc), 20, y+20);
+  doc.text('Sexo: '+d.sexo+' | Idade: '+idade, 20, y+26);
+  doc.text('Escolaridade: '+d.escolaridade, 115, y+14);
+  doc.text('Data da Avaliação: '+fmtDate(d.dataAval), 115, y+20);
+  doc.text('Contexto: '+d.contexto, 115, y+26);
+  doc.setFontSize(7); doc.setTextColor(100,100,100);
+  doc.text('Tabela de Apuração: '+d.tabela, 20, y+32);
+
+  // Tabela de resultados
+  y += 42;
+  doc.setFillColor(30,41,59); doc.roundedRect(15,y,180,7,2,2,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(7); doc.setFont(undefined,'bold');
+  doc.text('Faceta / Fator',20,y+5);
+  doc.text('Escore Bruto',82,y+5,{align:'center'});
+  doc.text('Escore Z',108,y+5,{align:'center'});
+  doc.text('Percentil',135,y+5,{align:'center'});
+  doc.text('Faixa',172,y+5,{align:'center'});
+  y+=7;
+
+  LINHAS.forEach((l,i) => {
+    const e = d.escores[l.id];
+    const bg = l.isFator ? [237,242,252] : (i%2===0?[255,255,255]:[248,250,252]);
+    doc.setFillColor(...bg); doc.rect(15,y,180,7,'F');
+    if(l.isFator){doc.setDrawColor(26,86,219);doc.setLineWidth(.3);doc.line(15,y,195,y);}
+    doc.setFillColor(...COR_FATOR_RGB[l.fator]); doc.rect(15,y,2.5,7,'F');
+    doc.setFontSize(7.5); doc.setFont(undefined,l.isFator?'bold':'normal'); doc.setTextColor(30,30,30);
+    doc.text(l.label,20,y+5);
+    doc.text(e.eb||'',82,y+5,{align:'center'});
+    doc.text(e.z||'',108,y+5,{align:'center'});
+    doc.text(e.percentil||'',135,y+5,{align:'center'});
+    // Badge faixa
+    const cf = COR_FAIXA_RGB[e.faixa]||[100,100,100];
+    doc.setFillColor(...cf); doc.roundedRect(155,y+1,34,5,2,2,'F');
+    doc.setTextColor(255,255,255); doc.setFontSize(6); doc.setFont(undefined,'bold');
+    doc.text(e.faixa,172,y+4.5,{align:'center'});
+    y+=7;
+  });
+
+  addFooter(doc,1);
+
+  // ===================== PÁGINA 2 — GRÁFICO =====================
+  await tick('Gerando gráfico de perfil...');
+  doc.addPage(); y=15;
+
+  doc.setFontSize(13); doc.setFont(undefined,'bold'); doc.setTextColor(26,86,219);
+  doc.text('Posição Percentil do Respondente', 105, y, {align:'center'}); y+=8;
+
+  atualizarGrafico();
+  await new Promise(r=>setTimeout(r,600));
+
+  try {
+    const img = chartInstance.toBase64Image('image/png',1);
+    doc.addImage(img,'PNG',12,y,186,85);
+    y+=93;
+  } catch(e) { y+=5; }
+
+  // Início das interpretações na mesma página
+  doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(26,86,219);
+  doc.text('Interpretação', 105, y, {align:'center'}); y+=8;
+
+  // NEUROTICISMO
+  y = renderFatorTitle(doc,y,'FACETAS DO FATOR NEUROTICISMO',[231,76,60]);
+  for (const fid of ['N1','N2','N3','N4']) {
+    if(y>252){addFooter(doc);doc.addPage();y=15;}
+    y = renderFaceta(doc,y,fid,d.escores[fid]);
+  }
+
+  // EXTROVERSÃO
+  if(y>228){addFooter(doc);doc.addPage();y=15;}
+  y = renderFatorTitle(doc,y,'FACETAS DO FATOR EXTROVERSÃO',[243,156,18]);
+  for (const fid of ['E1','E2','E3','E4']) {
+    if(y>252){addFooter(doc);doc.addPage();y=15;}
+    y = renderFaceta(doc,y,fid,d.escores[fid]);
+  }
+
+  // SOCIALIZAÇÃO
+  if(y>228){addFooter(doc);doc.addPage();y=15;}
+  y = renderFatorTitle(doc,y,'FACETAS DO FATOR SOCIALIZAÇÃO',[39,174,96]);
+  for (const fid of ['S1','S2','S3']) {
+    if(y>252){addFooter(doc);doc.addPage();y=15;}
+    y = renderFaceta(doc,y,fid,d.escores[fid]);
+  }
+
+  // REALIZAÇÃO
+  if(y>228){addFooter(doc);doc.addPage();y=15;}
+  y = renderFatorTitle(doc,y,'FACETAS DO FATOR REALIZAÇÃO',[41,128,185]);
+  for (const fid of ['R1','R2','R3']) {
+    if(y>252){addFooter(doc);doc.addPage();y=15;}
+    y = renderFaceta(doc,y,fid,d.escores[fid]);
+  }
+
+  // ABERTURA
+  if(y>228){addFooter(doc);doc.addPage();y=15;}
+  y = renderFatorTitle(doc,y,'FACETAS DO FATOR ABERTURA',[142,68,173]);
+  for (const fid of ['A1','A2','A3']) {
+    if(y>252){addFooter(doc);doc.addPage();y=15;}
+    y = renderFaceta(doc,y,fid,d.escores[fid]);
+  }
+
+  // Assinatura
+  if(y>240){addFooter(doc);doc.addPage();y=15;}
+  y+=20;
+  doc.setDrawColor(60,60,60); doc.setLineWidth(.4);
+  doc.line(115,y,190,y);
+  doc.setFontSize(9); doc.setFont(undefined,'bold'); doc.setTextColor(30,30,30);
+  doc.text('WESSILON MARQUES DE SOUSA',152.5,y+6,{align:'center'});
+  doc.setFontSize(8); doc.setFont(undefined,'normal');
+  doc.text('CRP: 04/53832',152.5,y+11,{align:'center'});
+
+  // Page numbers
+  const total = doc.internal.getNumberOfPages();
+  for(let i=1;i<=total;i++){doc.setPage(i);addFooter(doc,i,total);}
+
+  // Save + Drive
+  await tick('Salvando PDF...');
+  const nomeArq = 'BFP_'+d.nome.replace(/[^a-zA-Z0-9]/g,'_')+'_'+fmtDate(d.dataAval).replace(/\//g,'-')+'.pdf';
+  doc.save(nomeArq);
+
+  // Enviar para Drive
+  await tick('Enviando para Google Drive...');
+  try {
+    const pdfBase64 = doc.output('datauristring').split(',')[1];
+    await fetch(URL_DO_GOOGLE_SCRIPT, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ paciente:d.nome, data:fmtDate(d.dataAval), teste:'BFP', pdfBase64 })
     });
+  } catch(e) { console.warn('Drive:',e); }
 
-    function renderEscala() {
-        const ul = document.getElementById('scaleList');
-        for (const [v, l] of Object.entries(BFP.escalaLabels)) {
-            const li = document.createElement('li');
-            li.innerHTML = '<strong>' + v + '</strong> ' + l;
-            ul.appendChild(li);
-        }
-    }
+  ov.style.display = 'none';
+}
 
-    function renderQuestoes() {
-        const c = document.getElementById('questionsContainer');
-        const t = BFP.itens.length;
-        document.getElementById('progressInfo').textContent = '0 / ' + t;
-        BFP.itens.forEach(item => {
-            const d = document.createElement('div');
-            d.className = 'question-card';
-            d.id = 'card_' + item.num;
-            d.innerHTML = '<div><span class="question-number">' + item.num + '</span><span class="question-text">' + item.texto + '</span></div>' +
-                '<div class="scale-container">' + [1,2,3,4,5,6,7].map(v =>
-                    '<div class="scale-option"><input type="radio" id="q' + item.num + '_' + v + '" name="q' + item.num + '" value="' + v + '" required><label for="q' + item.num + '_' + v + '">' + v + '</label></div>'
-                ).join('') + '</div>' +
-                '<div class="scale-labels"><span>Não me identifico</span><span>Descreve-me perfeitamente</span></div>';
-            c.appendChild(d);
-        });
-    }
+// ============================================================================
+// PDF HELPERS
+// ============================================================================
+function addFooter(doc,pg,total) {
+  doc.setFontSize(6.5); doc.setTextColor(160,160,160);
+  doc.text('BFP - Bateria Fatorial de Personalidade', 15, 289);
+  if(pg && total) doc.text('Página '+pg+' de '+total, 195, 289, {align:'right'});
+}
 
-    function bindEventos() {
-        document.querySelectorAll('input[type="radio"]').forEach(r => {
-            r.addEventListener('change', function() {
-                updateProgress();
-                document.getElementById('card_' + this.name.replace('q','')).classList.add('answered');
-            });
-        });
-    }
+function renderFatorTitle(doc, y, title, rgb) {
+  doc.setFillColor(...rgb); doc.roundedRect(15,y,180,7,2,2,'F');
+  doc.setTextColor(255,255,255); doc.setFontSize(9); doc.setFont(undefined,'bold');
+  doc.text(title, 105, y+5, {align:'center'});
+  return y+12;
+}
 
-    function updateProgress() {
-        const t = BFP.itens.length;
-        let a = 0;
-        BFP.itens.forEach(i => { if (document.querySelector('input[name="q' + i.num + '"]:checked')) a++; });
-        document.getElementById('progressBar').style.width = (a/t*100) + '%';
-        document.getElementById('progressInfo').textContent = a + ' / ' + t;
-    }
+function renderFaceta(doc, y, facetaId, escore) {
+  const info = BFP?.facetas?.[facetaId];
+  if (!info) return y;
 
-    function calcularEscores(respostas) {
-        const facItens = {};
-        BFP.itens.forEach(i => { if (!facItens[i.faceta]) facItens[i.faceta] = []; facItens[i.faceta].push(i); });
+  const faixa = escore.faixa || 'Médio';
+  const percentil = escore.percentil || '—';
+  const cfRgb = COR_FAIXA_RGB[faixa] || [100,100,100];
 
-        const ebF = {};
-        for (const [fac, itens] of Object.entries(facItens)) {
-            const pos = itens.filter(i => !i.inv);
-            const neg = itens.filter(i => i.inv);
-            const sP = pos.reduce((s,i) => s + (respostas[i.num]||0), 0);
-            const sN = neg.reduce((s,i) => s + (respostas[i.num]||0), 0);
-            const inr = neg.length * 8;
-            const nt = itens.filter(i => respostas[i.num] !== undefined).length;
-            ebF[fac] = nt > 0 ? (neg.length > 0 ? (sP + inr - sN) / nt : sP / nt) : 0;
-            ebF[fac] = Math.round(ebF[fac] * 100) / 100;
-        }
+  // Título faceta (sublinhado)
+  doc.setFontSize(10); doc.setFont(undefined,'bold'); doc.setTextColor(30,30,30);
+  const titulo = info.nome;
+  const tw = doc.getTextWidth(titulo);
+  const tx = 105 - tw/2;
+  doc.text(titulo, 105, y, {align:'center'});
+  doc.setDrawColor(180,180,180); doc.setLineWidth(.3);
+  doc.line(tx, y+1, tx+tw, y+1);
+  y+=6;
 
-        const ebFat = {};
-        for (const [f, m] of Object.entries(BFP.fatores)) {
-            const ff = m.facetas.filter(x => ebF[x] !== undefined);
-            ebFat[f] = ff.length > 0 ? Math.round((ff.reduce((s,x) => s + ebF[x], 0) / ff.length) * 100) / 100 : 0;
-        }
-        return { ebFacetas: ebF, ebFatores: ebFat };
-    }
+  // Percentil = Faixa
+  doc.setFontSize(8.5); doc.setFont(undefined,'normal'); doc.setTextColor(...cfRgb);
+  doc.text('Percentil '+percentil+' = '+faixa, 20, y);
+  y+=5;
 
-    document.getElementById('bfpForm').addEventListener('submit', async function(e) {
-        e.preventDefault();
-        const fd = { nome: document.getElementById('nome').value, dataNascimento: document.getElementById('dataNascimento').value, sexo: document.getElementById('sexo').value, escolaridade: document.getElementById('escolaridade').value, respostas: {} };
-        let ok = true;
-        BFP.itens.forEach(i => { const a = document.querySelector('input[name="q' + i.num + '"]:checked'); if (!a) ok = false; else fd.respostas[i.num] = parseInt(a.value); });
-        if (!ok || !fd.nome || !fd.dataNascimento || !fd.sexo || !fd.escolaridade) { document.getElementById('errorMessage').style.display = 'block'; window.scrollTo({top:0, behavior:'smooth'}); return; }
-        document.getElementById('errorMessage').style.display = 'none';
-        try {
-            document.getElementById('loadingMask').style.display = 'flex';
-            document.getElementById('submitBtn').disabled = true;
-            document.getElementById('loadingStatus').textContent = 'Calculando escores brutos...';
-            await new Promise(r => setTimeout(r, 600));
-            const esc = calcularEscores(fd.respostas);
-            document.getElementById('loadingStatus').textContent = 'Gerando relatório PDF...';
-            await new Promise(r => setTimeout(r, 500));
-            const pdf = gerarPDF(fd, esc);
-            document.getElementById('loadingStatus').textContent = 'Enviando para Google Drive...';
-            await new Promise(r => setTimeout(r, 400));
-            await enviarDrive(fd, esc, pdf);
-            document.getElementById('loadingStatus').textContent = 'Concluído!';
-            await new Promise(r => setTimeout(r, 800));
-            document.getElementById('loadingMask').style.display = 'none';
-            document.getElementById('submitBtn').disabled = false;
-            alert('✅ Avaliação BFP concluída!\nRelatório enviado para o Google Drive.');
-            document.getElementById('bfpForm').reset();
-            document.getElementById('progressBar').style.width = '0%';
-            document.getElementById('progressInfo').textContent = '0 / ' + BFP.itens.length;
-            document.querySelectorAll('.question-card').forEach(c => c.classList.remove('answered'));
-        } catch (err) {
-            document.getElementById('loadingMask').style.display = 'none';
-            document.getElementById('submitBtn').disabled = false;
-            alert('❌ Erro: ' + err.message);
-        }
-    });
+  // Interpretação
+  const interp = info.interpretacoes?.[faixa] || '';
+  if (interp) {
+    doc.setFontSize(8); doc.setFont(undefined,'normal'); doc.setTextColor(30,30,30);
+    const lines = doc.splitTextToSize(interp, 170);
+    doc.text(lines, 20, y);
+    y += lines.length * 4 + 3;
+  }
 
-    function gerarPDF(fd, esc) {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF('p','mm','a4');
-        const { ebFacetas, ebFatores } = esc;
-        const nasc = new Date(fd.dataNascimento + 'T00:00:00');
-        const hoje = new Date();
-        let idade = hoje.getFullYear() - nasc.getFullYear();
-        const m = hoje.getMonth() - nasc.getMonth();
-        if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--;
-        const escL = {fundamental:'Ensino Fundamental',medio:'Ensino Médio',superior:'Ensino Superior',pos:'Pós-Graduação'}[fd.escolaridade]||fd.escolaridade;
-        const sexL = fd.sexo === 'M' ? 'Masculino' : 'Feminino';
-        const fOrd = ['N','E','S','R','A'];
-        let y = 0;
+  return y + 3;
+}
 
-        // PG1
-        doc.setFillColor(102,126,234); doc.rect(0,0,210,45,'F');
-        doc.setTextColor(255,255,255); doc.setFontSize(24); doc.setFont(undefined,'bold');
-        doc.text('RELATÓRIO PSICOMÉTRICO', 105, 16, {align:'center'});
-        doc.setFontSize(18); doc.text('BFP — Bateria Fatorial de Personalidade', 105, 27, {align:'center'});
-        doc.setFontSize(10); doc.setFont(undefined,'normal');
-        doc.text(BFP.meta.autores + ' (' + BFP.meta.ano + ')', 105, 35, {align:'center'});
-        doc.setFontSize(8); doc.text('Equilibrium Med Center · Neuropsicologia', 105, 41, {align:'center'});
-        y = 55; doc.setTextColor(0,0,0);
-
-        doc.setFillColor(248,249,255); doc.rect(15,y,180,32,'F');
-        doc.setFontSize(12); doc.setFont(undefined,'bold'); doc.setTextColor(102,126,234);
-        doc.text('DADOS DO AVALIADO', 20, y+8);
-        doc.setFontSize(10); doc.setFont(undefined,'normal'); doc.setTextColor(0,0,0);
-        doc.text('Nome: ' + fd.nome, 20, y+16);
-        doc.text('Idade: ' + idade + ' anos | Sexo: ' + sexL, 20, y+23);
-        doc.text('Escolaridade: ' + escL, 120, y+16);
-        doc.text('Data: ' + hoje.toLocaleDateString('pt-BR'), 120, y+23);
-        y += 40;
-
-        doc.setFontSize(13); doc.setFont(undefined,'bold'); doc.setTextColor(102,126,234);
-        doc.text('PERFIL DOS CINCO GRANDES FATORES', 20, y); y += 8;
-
-        doc.setFillColor(60,60,80); doc.rect(15,y,180,8,'F');
-        doc.setTextColor(255,255,255); doc.setFontSize(8); doc.setFont(undefined,'bold');
-        doc.text('FATOR',20,y+5.5); doc.text('EB',95,y+5.5,{align:'center'});
-        doc.text('PERCENTIL',130,y+5.5,{align:'center'}); doc.text('CLASSIFICAÇÃO',170,y+5.5,{align:'center'});
-        y += 8;
-
-        fOrd.forEach((f,i) => {
-            const rgb = BFP.fatores[f].corRGB;
-            doc.setFillColor(i%2===0?248:255,i%2===0?249:255,i%2===0?250:255); doc.rect(15,y,180,9,'F');
-            doc.setFillColor(...rgb); doc.rect(15,y,3,9,'F');
-            doc.setFontSize(9); doc.setFont(undefined,'bold'); doc.setTextColor(...rgb);
-            doc.text(BFP.fatores[f].nome.toUpperCase(), 22, y+6);
-            doc.setFont(undefined,'normal'); doc.setTextColor(0,0,0);
-            doc.text(ebFatores[f].toFixed(2), 95, y+6, {align:'center'});
-            doc.setTextColor(150,150,150); doc.setFontSize(8);
-            doc.text('Consultar manual', 130, y+6, {align:'center'});
-            doc.text('—', 170, y+6, {align:'center'});
-            y += 9;
-        });
-        y += 8;
-
-        doc.setFontSize(11); doc.setFont(undefined,'bold'); doc.setTextColor(102,126,234);
-        doc.text('VISUALIZAÇÃO DOS ESCORES BRUTOS', 20, y); y += 8;
-        fOrd.forEach(f => {
-            const eb = ebFatores[f]; const bW = (eb/7)*140; const rgb = BFP.fatores[f].corRGB;
-            doc.setFontSize(8); doc.setFont(undefined,'bold'); doc.setTextColor(...rgb);
-            doc.text(BFP.fatores[f].nome.substring(0,3).toUpperCase(), 20, y+4);
-            doc.setFillColor(230,230,230); doc.rect(38,y,140,6,'F');
-            doc.setFillColor(...rgb); doc.rect(38,y,Math.max(bW,2),6,'F');
-            doc.setTextColor(0,0,0); doc.text(eb.toFixed(2), 182, y+4);
-            y += 10;
-        });
-        y += 5;
-        doc.setFillColor(255,243,205); doc.rect(15,y,180,18,'F');
-        doc.setFontSize(8); doc.setFont(undefined,'bold'); doc.setTextColor(133,100,4);
-        doc.text('⚠ NOTA IMPORTANTE', 20, y+6);
-        doc.setFont(undefined,'normal'); doc.setFontSize(7);
-        doc.text(doc.splitTextToSize('Os escores brutos (EB) foram calculados automaticamente. Consulte as tabelas normativas do manual (tabelas 45-59) para converter em percentis.', 170), 20, y+11);
-        doc.setFontSize(7); doc.setTextColor(120,120,120);
-        doc.text(BFP.meta.autores + ' (' + BFP.meta.ano + '). BFP - Manual Técnico.', 105, 282, {align:'center'});
-        doc.text('Página 1 de 3', 195, 287, {align:'right'});
-
-        // PG2
-        doc.addPage(); y = 15;
-        doc.setFontSize(14); doc.setFont(undefined,'bold'); doc.setTextColor(102,126,234);
-        doc.text('ANÁLISE DETALHADA POR FACETAS', 20, y); y += 10;
-        fOrd.forEach(f => {
-            if (y > 245) { doc.addPage(); y = 15; }
-            const rgb = BFP.fatores[f].corRGB;
-            doc.setFillColor(...rgb); doc.rect(15,y,180,7,'F');
-            doc.setTextColor(255,255,255); doc.setFontSize(10); doc.setFont(undefined,'bold');
-            doc.text(BFP.fatores[f].nome.toUpperCase() + ' (EB: ' + ebFatores[f].toFixed(2) + ')', 20, y+5); y += 10;
-            BFP.fatores[f].facetas.forEach(fac => {
-                if (y > 270) { doc.addPage(); y = 15; }
-                const eb = ebFacetas[fac]||0; const bp = (eb/7)*100; const info = BFP.facetas[fac];
-                doc.setFillColor(248,249,250); doc.rect(15,y,180,18,'F');
-                doc.setDrawColor(...rgb); doc.setLineWidth(1.5); doc.line(15,y,15,y+18);
-                doc.setFontSize(9); doc.setFont(undefined,'bold'); doc.setTextColor(...rgb);
-                doc.text(fac + ' — ' + info.nome, 20, y+5);
-                doc.setFont(undefined,'normal'); doc.setTextColor(0,0,0);
-                doc.text('EB: ' + eb.toFixed(2), 160, y+5);
-                doc.setFontSize(7); doc.setTextColor(100,100,100);
-                doc.text(doc.splitTextToSize(info.descricao, 150), 20, y+10);
-                doc.setFillColor(220,220,220); doc.rect(20,y+14,140,2.5,'F');
-                doc.setFillColor(...rgb); doc.rect(20,y+14,Math.max((bp/100)*140,1),2.5,'F');
-                y += 21;
-            });
-            y += 4;
-        });
-        doc.setFontSize(7); doc.setTextColor(120,120,120); doc.text('Página 2 de 3', 195, 287, {align:'right'});
-
-        // PG3
-        doc.addPage(); y = 15;
-        doc.setFontSize(14); doc.setFont(undefined,'bold'); doc.setTextColor(102,126,234);
-        doc.text('ORIENTAÇÕES PARA INTERPRETAÇÃO', 20, y); y += 10;
-        doc.setFontSize(9); doc.setFont(undefined,'normal'); doc.setTextColor(0,0,0);
-        var lns = ['TABELA DE CLASSIFICAÇÃO POR PERCENTIL:','','    Até 14 → Muito Baixo  |  15-29 → Baixo  |  30-70 → Médio  |  71-85 → Alto  |  >85 → Muito Alto','','ORIENTAÇÕES:','• Os escores representam tendências comportamentais, não certezas absolutas.','• Dois avaliandos podem ter EB fatoriais semelhantes e perfis de facetas distintos.','• Escores extremos não indicam necessariamente padrões desadaptativos.','• Verifique a consistência entre facetas de um mesmo fator.',''];
-        fOrd.forEach(f => { var mt = BFP.fatores[f]; lns.push(mt.nome.toUpperCase() + ':'); lns.push('  Alto → ' + mt.descricaoAlto); lns.push('  Baixo → ' + mt.descricaoBaixo); lns.push(''); });
-        lns.forEach(l => { if (l === '') { y += 3; return; } var w = doc.splitTextToSize(l, 170); doc.text(w, 20, y); y += w.length * 4.5; });
-        y += 5;
-        doc.setFillColor(245,245,245); doc.rect(15,y,180,18,'F');
-        doc.setFontSize(10); doc.setFont(undefined,'bold'); doc.setTextColor(80,80,80);
-        doc.text('📚 REFERÊNCIAS', 20, y+7);
-        doc.setFontSize(7); doc.setFont(undefined,'normal');
-        doc.text(BFP.meta.autores + ' (' + BFP.meta.ano + ').', 20, y+12);
-        doc.text('Bateria Fatorial de Personalidade (BFP): Manual Técnico. São Paulo: Casa do Psicólogo.', 20, y+16);
-        doc.setFontSize(7); doc.setTextColor(120,120,120);
-        doc.text('Relatório gerado em ' + hoje.toLocaleDateString('pt-BR') + ' às ' + hoje.toLocaleTimeString('pt-BR'), 20, 282);
-        doc.text('Página 3 de 3', 195, 287, {align:'right'});
-        doc.setFontSize(6); doc.setTextColor(150,150,150);
-        doc.text('Este relatório é de caráter técnico e deve ser interpretado por profissional qualificado.', 105, 292, {align:'center'});
-        doc.text('Equilibrium Med Center — CRP: 04/53832', 105, 296, {align:'center'});
-        return doc.output('datauristring').split(',')[1];
-    }
-
-    async function enviarDrive(fd, esc, pdf) {
-        try {
-            await fetch(URL_DO_GOOGLE_SCRIPT, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ paciente:fd.nome, data:new Date().toLocaleDateString('pt-BR'), teste:'BFP', escores:JSON.stringify(esc), pdfBase64:pdf }) });
-        } catch(e) { console.warn('Drive:', e); }
-    }
-    </script>
+async function tick(msg) {
+  document.getElementById('loadStatus').textContent = msg;
+  await new Promise(r=>setTimeout(r,250));
+}
+</script>
 </body>
 </html>
