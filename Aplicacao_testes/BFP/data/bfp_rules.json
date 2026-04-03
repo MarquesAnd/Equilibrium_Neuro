@@ -465,7 +465,7 @@
   "itens": [
     {
       "num": 1,
-      "faceta": "R2",
+      "faceta": "A2",
       "inv": true,
       "texto": "Insira o texto do item 1 do Caderno de Aplicação"
     },
@@ -495,7 +495,7 @@
     },
     {
       "num": 6,
-      "faceta": "R3",
+      "faceta": "A3",
       "inv": false,
       "texto": "Insira o texto do item 6 do Caderno de Aplicação"
     },
@@ -513,7 +513,7 @@
     },
     {
       "num": 9,
-      "faceta": "A1",
+      "faceta": "R2",
       "inv": false,
       "texto": "Insira o texto do item 9 do Caderno de Aplicação"
     },
@@ -597,7 +597,7 @@
     },
     {
       "num": 23,
-      "faceta": "R3",
+      "faceta": "A1",
       "inv": false,
       "texto": "Insira o texto do item 23 do Caderno de Aplicação"
     },
@@ -657,13 +657,13 @@
     },
     {
       "num": 33,
-      "faceta": "R3",
+      "faceta": "A1",
       "inv": false,
       "texto": "Insira o texto do item 33 do Caderno de Aplicação"
     },
     {
       "num": 34,
-      "faceta": "R2",
+      "faceta": "R3",
       "inv": true,
       "texto": "Insira o texto do item 34 do Caderno de Aplicação"
     },
@@ -675,8 +675,8 @@
     },
     {
       "num": 36,
-      "faceta": "R2",
-      "inv": true,
+      "faceta": "A1",
+      "inv": false,
       "texto": "Insira o texto do item 36 do Caderno de Aplicação"
     },
     {
@@ -711,8 +711,8 @@
     },
     {
       "num": 42,
-      "faceta": "R2",
-      "inv": true,
+      "faceta": "A1",
+      "inv": false,
       "texto": "Insira o texto do item 42 do Caderno de Aplicação"
     },
     {
@@ -723,13 +723,13 @@
     },
     {
       "num": 44,
-      "faceta": "R3",
+      "faceta": "A3",
       "inv": false,
       "texto": "Insira o texto do item 44 do Caderno de Aplicação"
     },
     {
       "num": 45,
-      "faceta": "A1",
+      "faceta": "R2",
       "inv": false,
       "texto": "Insira o texto do item 45 do Caderno de Aplicação"
     },
@@ -753,7 +753,7 @@
     },
     {
       "num": 49,
-      "faceta": "R3",
+      "faceta": "A3",
       "inv": false,
       "texto": "Insira o texto do item 49 do Caderno de Aplicação"
     },
@@ -783,7 +783,7 @@
     },
     {
       "num": 54,
-      "faceta": "R2",
+      "faceta": "R3",
       "inv": true,
       "texto": "Insira o texto do item 54 do Caderno de Aplicação"
     },
@@ -795,7 +795,7 @@
     },
     {
       "num": 56,
-      "faceta": "R3",
+      "faceta": "A1",
       "inv": false,
       "texto": "Insira o texto do item 56 do Caderno de Aplicação"
     },
@@ -813,7 +813,7 @@
     },
     {
       "num": 59,
-      "faceta": "A1",
+      "faceta": "A2",
       "inv": false,
       "texto": "Insira o texto do item 59 do Caderno de Aplicação"
     },
@@ -831,7 +831,7 @@
     },
     {
       "num": 62,
-      "faceta": "R3",
+      "faceta": "A1",
       "inv": false,
       "texto": "Insira o texto do item 62 do Caderno de Aplicação"
     },
@@ -873,7 +873,7 @@
     },
     {
       "num": 69,
-      "faceta": "R3",
+      "faceta": "A2",
       "inv": false,
       "texto": "Insira o texto do item 69 do Caderno de Aplicação"
     },
@@ -903,7 +903,7 @@
     },
     {
       "num": 74,
-      "faceta": "R3",
+      "faceta": "A2",
       "inv": false,
       "texto": "Insira o texto do item 74 do Caderno de Aplicação"
     },
@@ -945,8 +945,8 @@
     },
     {
       "num": 81,
-      "faceta": "R2",
-      "inv": true,
+      "faceta": "A1",
+      "inv": false,
       "texto": "Insira o texto do item 81 do Caderno de Aplicação"
     },
     {
@@ -963,7 +963,7 @@
     },
     {
       "num": 84,
-      "faceta": "R3",
+      "faceta": "A3",
       "inv": false,
       "texto": "Insira o texto do item 84 do Caderno de Aplicação"
     },
@@ -987,7 +987,7 @@
     },
     {
       "num": 88,
-      "faceta": "R3",
+      "faceta": "A1",
       "inv": false,
       "texto": "Insira o texto do item 88 do Caderno de Aplicação"
     },
@@ -1023,7 +1023,7 @@
     },
     {
       "num": 94,
-      "faceta": "R3",
+      "faceta": "A3",
       "inv": false,
       "texto": "Insira o texto do item 94 do Caderno de Aplicação"
     },
@@ -1065,7 +1065,7 @@
     },
     {
       "num": 101,
-      "faceta": "R3",
+      "faceta": "R2",
       "inv": false,
       "texto": "Insira o texto do item 101 do Caderno de Aplicação"
     },
@@ -1077,7 +1077,7 @@
     },
     {
       "num": 103,
-      "faceta": "R2",
+      "faceta": "R3",
       "inv": true,
       "texto": "Insira o texto do item 103 do Caderno de Aplicação"
     },
@@ -1131,13 +1131,13 @@
     },
     {
       "num": 112,
-      "faceta": "A2",
+      "faceta": "R3",
       "inv": true,
       "texto": "Insira o texto do item 112 do Caderno de Aplicação"
     },
     {
       "num": 113,
-      "faceta": "R3",
+      "faceta": "A3",
       "inv": false,
       "texto": "Insira o texto do item 113 do Caderno de Aplicação"
     },
@@ -1197,7 +1197,7 @@
     },
     {
       "num": 123,
-      "faceta": "R3",
+      "faceta": "A2",
       "inv": false,
       "texto": "Insira o texto do item 123 do Caderno de Aplicação"
     },
@@ -1215,7 +1215,7 @@
     },
     {
       "num": 126,
-      "faceta": "R3",
+      "faceta": "A2",
       "inv": false,
       "texto": "Insira o texto do item 126 do Caderno de Aplicação"
     }
