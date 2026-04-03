@@ -26,57 +26,27 @@
     {
       "min": 0,
       "max": 14,
-      "label": "Muito Baixo",
-      "cor": "#e74c3c",
-      "corRGB": [
-        231,
-        76,
-        60
-      ]
+      "label": "Muito Baixo"
     },
     {
       "min": 15,
       "max": 29,
-      "label": "Baixo",
-      "cor": "#e67e22",
-      "corRGB": [
-        230,
-        126,
-        34
-      ]
+      "label": "Baixo"
     },
     {
       "min": 30,
       "max": 70,
-      "label": "Médio",
-      "cor": "#27ae60",
-      "corRGB": [
-        39,
-        174,
-        96
-      ]
+      "label": "Médio"
     },
     {
       "min": 71,
       "max": 85,
-      "label": "Alto",
-      "cor": "#2980b9",
-      "corRGB": [
-        41,
-        128,
-        185
-      ]
+      "label": "Alto"
     },
     {
       "min": 86,
       "max": 100,
-      "label": "Muito Alto",
-      "cor": "#8e44ad",
-      "corRGB": [
-        142,
-        68,
-        173
-      ]
+      "label": "Muito Alto"
     }
   ],
   "fatores": {
@@ -98,8 +68,8 @@
       "descricaoAlto": "Maior vulnerabilidade ao sofrimento psicológico, instabilidade emocional, vivência intensa de emoções negativas, tendência à passividade e a estados depressivos.",
       "descricaoBaixo": "Maior estabilidade emocional, capacidade de lidar com estresse, equilíbrio afetivo e resiliência frente a adversidades.",
       "norma": {
-        "media": 2.71,
-        "dp": 1.24
+        "media": 3.19,
+        "dp": 1.0
       }
     },
     "E": {
@@ -120,8 +90,8 @@
       "descricaoAlto": "Facilidade na comunicação, assertividade elevada, energia, dinamismo e busca ativa de interações sociais.",
       "descricaoBaixo": "Reserva social, preferência por atividades solitárias, menor expressividade verbal e menor busca por estimulação social.",
       "norma": {
-        "media": 4.29,
-        "dp": 0.65
+        "media": 4.34,
+        "dp": 0.87
       }
     },
     "S": {
@@ -194,8 +164,8 @@
       "fator": "N",
       "descricao": "Avalia a fragilidade emocional, o sofrimento decorrente da percepção de aceitação alheia, dependência emocional e dificuldade decisória por medo de decepcionar.",
       "norma": {
-        "media": 3.07,
-        "dp": 1.36
+        "media": 3.49,
+        "dp": 1.23
       },
       "interpretacoes": {
         "Muito Baixo": "A escala de Vulnerabilidade avalia a fragilidade emocional, o sofrimento decorrente da percepção de aceitação alheia e a dependência emocional nas decisões. Escores muito baixos caracterizam grande independência emocional em relação aos outros. O(a) avaliando(a) tende a ser pouco preocupado(a) com as opiniões alheias e usualmente toma decisões e enfrenta problemas sem considerar os demais, o que pode afetar a qualidade de suas relações interpessoais. Essa postura de elevada autonomia, embora funcional em muitos contextos, pode resultar em dificuldade para perceber o impacto de suas ações sobre os outros.",
@@ -210,8 +180,8 @@
       "fator": "N",
       "descricao": "Avalia irritabilidade, nervosismo e variações de humor, incluindo impulsividade e tolerância à frustração.",
       "norma": {
-        "media": 2.65,
-        "dp": 1.41
+        "media": 3.68,
+        "dp": 1.42
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Instabilidade Emocional avalia irritabilidade, nervosismo e variações de humor, incluindo impulsividade e tolerância à frustração. Escores muito baixos indicam pouquíssimas variações de humor. O(a) avaliando(a) geralmente não toma decisões de forma impulsiva e apresenta alta tolerância a frustrações. Esse padrão de estabilidade emocional consistente pode representar um recurso importante de regulação afetiva.",
@@ -226,8 +196,8 @@
       "fator": "N",
       "descricao": "Avalia o nível de atividade, empenho para resolver situações e velocidade de decisão.",
       "norma": {
-        "media": 2.06,
-        "dp": 2.26
+        "media": 3.45,
+        "dp": 1.24
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Passividade/Falta de Energia avalia o nível de atividade e empenho para resolver situações. Escores muito baixos indicam que o(a) avaliando(a) costuma ser proativo(a), inicia e conclui tarefas com agilidade e apresenta forte motivação intrínseca, sem precisar de estímulos externos para levar adiante seus planos.",
@@ -242,8 +212,8 @@
       "fator": "N",
       "descricao": "Avalia padrões interpretativos sobre eventos de vida, expectativas de futuro e percepção de capacidade para lidar com dificuldades.",
       "norma": {
-        "media": 2.23,
-        "dp": 1.28
+        "media": 2.33,
+        "dp": 1.11
       },
       "interpretacoes": {
         "Muito Baixo": "A escala de Depressão avalia os padrões interpretativos sobre eventos de vida, expectativas de futuro e percepção de capacidade de enfrentamento. Escores muito baixos podem indicar dificuldade para reconhecer eventos negativos, minimizando problemas reais. O(a) avaliando(a) tende a ter expectativa muito positiva sobre o futuro, o que em níveis extremos pode prejudicá-lo(a) por não tomar atitudes necessárias frente a problemas concretos.",
@@ -258,8 +228,8 @@
       "fator": "E",
       "descricao": "Avalia o quão comunicativas e expansivas as pessoas se percebem, incluindo facilidade para falar em público e expressar-se.",
       "norma": {
-        "media": 4.4,
-        "dp": 1.0
+        "media": 4.28,
+        "dp": 1.28
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Nível de Comunicação avalia o quão comunicativas e expansivas as pessoas se percebem. Escores muito baixos sugerem que o(a) avaliando(a) prefere não se expressar em público, pode se constranger em situações de maior exposição e fala pouco sobre si mesmo(a). Essa característica impacta diretamente na forma como estabelece relações sociais e se posiciona em grupos.",
@@ -274,8 +244,8 @@
       "fator": "E",
       "descricao": "Avalia a percepção de capacidade e valor pessoal, incluindo necessidade de atenção e reconhecimento.",
       "norma": {
-        "media": 3.21,
-        "dp": 0.97
+        "media": 3.67,
+        "dp": 1.07
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Altivez avalia a percepção de capacidade e valor pessoal. Escores muito baixos revelam marcante tendência à humildade e pouca necessidade de receber atenção dos outros. O(a) avaliando(a) pode ter dificuldade para reconhecer suas capacidades e atributos favoráveis, mesmo que sejam evidentes para os demais.",
@@ -290,8 +260,8 @@
       "fator": "E",
       "descricao": "Avalia iniciativa, facilidade para colocar ideias em prática e nível geral de atividade.",
       "norma": {
-        "media": 4.9,
-        "dp": 0.85
+        "media": 4.79,
+        "dp": 1.03
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Dinamismo/Assertividade avalia iniciativa, facilidade para colocar ideias em prática e nível de atividade. Escores muito baixos indicam que o(a) avaliando(a) tende a concentrar-se em poucas atividades simultâneas, não precisa estar constantemente envolvido(a) em atividades para sentir-se bem e pode demorar mais para colocar ideias em prática e tomar iniciativa.",
@@ -306,8 +276,8 @@
       "fator": "E",
       "descricao": "Avalia o desejo e necessidade por interações sociais e a busca ativa por situações que as proporcionem.",
       "norma": {
-        "media": 4.62,
-        "dp": 0.78
+        "media": 4.82,
+        "dp": 1.11
       },
       "interpretacoes": {
         "Muito Baixo": "A faceta Interações Sociais avalia o desejo e necessidade por contato social. Escores muito baixos indicam que o(a) avaliando(a) geralmente prefere ficar sozinho(a) ou em grupos pequenos e demora mais para desenvolver novas relações. Apresenta necessidade reduzida de viver situações intensas e de frequentar lugares ricos em estímulos e possibilidades de contatos sociais.",
@@ -598,7 +568,7 @@
     {
       "num": 23,
       "faceta": "A1",
-      "inv": false,
+      "inv": true,
       "texto": "Insira o texto do item 23 do Caderno de Aplicação"
     },
     {
@@ -646,7 +616,7 @@
     {
       "num": 31,
       "faceta": "A2",
-      "inv": true,
+      "inv": false,
       "texto": "Insira o texto do item 31 do Caderno de Aplicação"
     },
     {
@@ -658,13 +628,13 @@
     {
       "num": 33,
       "faceta": "A1",
-      "inv": false,
+      "inv": true,
       "texto": "Insira o texto do item 33 do Caderno de Aplicação"
     },
     {
       "num": 34,
       "faceta": "R3",
-      "inv": true,
+      "inv": false,
       "texto": "Insira o texto do item 34 do Caderno de Aplicação"
     },
     {
@@ -712,7 +682,7 @@
     {
       "num": 42,
       "faceta": "A1",
-      "inv": false,
+      "inv": true,
       "texto": "Insira o texto do item 42 do Caderno de Aplicação"
     },
     {
@@ -784,7 +754,7 @@
     {
       "num": 54,
       "faceta": "R3",
-      "inv": true,
+      "inv": false,
       "texto": "Insira o texto do item 54 do Caderno de Aplicação"
     },
     {
@@ -796,7 +766,7 @@
     {
       "num": 56,
       "faceta": "A1",
-      "inv": false,
+      "inv": true,
       "texto": "Insira o texto do item 56 do Caderno de Aplicação"
     },
     {
@@ -832,7 +802,7 @@
     {
       "num": 62,
       "faceta": "A1",
-      "inv": false,
+      "inv": true,
       "texto": "Insira o texto do item 62 do Caderno de Aplicação"
     },
     {
@@ -946,7 +916,7 @@
     {
       "num": 81,
       "faceta": "A1",
-      "inv": false,
+      "inv": true,
       "texto": "Insira o texto do item 81 do Caderno de Aplicação"
     },
     {
@@ -964,7 +934,7 @@
     {
       "num": 84,
       "faceta": "A3",
-      "inv": false,
+      "inv": true,
       "texto": "Insira o texto do item 84 do Caderno de Aplicação"
     },
     {
@@ -1078,7 +1048,7 @@
     {
       "num": 103,
       "faceta": "R3",
-      "inv": true,
+      "inv": false,
       "texto": "Insira o texto do item 103 do Caderno de Aplicação"
     },
     {
@@ -1132,7 +1102,7 @@
     {
       "num": 112,
       "faceta": "R3",
-      "inv": true,
+      "inv": false,
       "texto": "Insira o texto do item 112 do Caderno de Aplicação"
     },
     {
@@ -1150,7 +1120,7 @@
     {
       "num": 115,
       "faceta": "A1",
-      "inv": false,
+      "inv": true,
       "texto": "Insira o texto do item 115 do Caderno de Aplicação"
     },
     {
