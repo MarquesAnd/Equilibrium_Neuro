@@ -367,6 +367,7 @@ const PAGES_LIST = [
   { id:"pacientes",  label:"Pacientes",           icon:"👤" },
   { id:"correcao",   label:"Correção de Testes",  icon:"✏️" },
   { id:"aplicacao",  label:"Aplicação de Testes", icon:"🧠" },
+  { id:"anamnese",   label:"Anamnese",               icon:"📋", href:"/Anamnese/" },
   { id:"relatorios", label:"Relatórios",          icon:"📄" },
   { id:"checklist",  label:"Checklist",           icon:"✅" },
   { id:"config",     label:"Configurações",       icon:"⚙️" },
@@ -407,7 +408,7 @@ function buildSidebar() {
   const nav = document.getElementById("sideNav");
   nav.innerHTML = pages.map(p => `
     <a class="nav-item ${p.id === 'config' ? 'active' : ''}"
-       href="${p.id === 'config' ? '/configuracoes.html' : p.id === 'correcao' ? '/Correcao_testes/' : p.id === 'aplicacao' ? '/Aplicacao_testes/' : p.id === 'checklist' ? '/check_list/' : '/#' + p.id}">
+       href="${p.id === 'config' ? '/configuracoes.html' : p.id === 'correcao' ? '/Correcao_testes/' : p.id === 'aplicacao' ? '/Aplicacao_testes/' : p.id === 'anamnese' ? '/Anamnese/' : p.id === 'checklist' ? '/check_list/' : '/#' + p.id}">
       <span class="nav-icon">${p.icon}</span>
       <span>${p.label}</span>
     </a>`).join("");
