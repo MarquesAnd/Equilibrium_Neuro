@@ -112,6 +112,7 @@ function renderDashboard() {
    ══════════════════════════ */
 function renderCorrecao()  { location.href = '/Correcao_testes/index.html';  return ''; }
 function renderAplicacao() { location.href = '/Aplicacao_testes/index.html'; return ''; }
+function renderAnamnese()  { location.href = '/Anamnese/index.html';         return ''; }
 function renderChecklist() { location.href = '/check_list/index.html';       return ''; }
 function renderConfig()    { location.href = '/Config/index.html';           return ''; }
 function renderPacientes() { location.href = '/Pacientes/index.html';        return ''; }
@@ -137,11 +138,12 @@ function renderRelatorios() {
    REGISTRY
    ══════════════════════════ */
 const PAGE_REGISTRY = {
-  dashboard:  { title: "Dashboard",           subtitle: "Visão geral do sistema",       render: renderDashboard  },
-  pacientes:  { title: "Pacientes",           subtitle: "Gerencie seus pacientes",      render: renderPacientes  },
-  correcao:   { title: "Correção de Testes",  subtitle: "Selecione o instrumento",      render: renderCorrecao   },
-  aplicacao:  { title: "Aplicação de Testes", subtitle: "Instrumentos de avaliação",    render: renderAplicacao  },
-  relatorios: { title: "Relatórios",          subtitle: "Gerencie relatórios gerados",  render: renderRelatorios },
-  checklist:  { title: "Checklist",           subtitle: "Testes disponíveis no sistema",render: renderChecklist  },
-  config:     { title: "Configurações",       subtitle: "Preferências do sistema",      render: renderConfig     },
+  dashboard:  { title: "Dashboard",           subtitle: "Visão geral do sistema",        render: renderDashboard  },
+  pacientes:  { title: "Pacientes",           subtitle: "Gerencie seus pacientes",       render: renderPacientes  },
+  correcao:   { title: "Correção de Testes",  subtitle: "Selecione o instrumento",       render: renderCorrecao   },
+  aplicacao:  { title: "Aplicação de Testes", subtitle: "Instrumentos de avaliação",     render: renderAplicacao  },
+  anamnese:   { title: "Anamnese",            subtitle: "Entrevista clínica por faixa etária", render: renderAnamnese },
+  relatorios: { title: "Relatórios",          subtitle: "Gerencie relatórios gerados",   render: renderRelatorios },
+  checklist:  { title: "Checklist",           subtitle: "Testes disponíveis no sistema", render: renderChecklist  },
+  config:     { title: "Configurações",       subtitle: "Preferências do sistema",       render: renderConfig     },
 };
