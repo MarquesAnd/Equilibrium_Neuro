@@ -1,3 +1,4 @@
+// === APLICAÇÃO: Aplicacao_testes/SRS2/srs2-shared.js ===
 /**
  * SRS-2 SHARED SCRIPT — Equilibrium
  * Variáveis a definir em cada página ANTES deste script:
@@ -265,7 +266,7 @@ function calcularEExibir(){
       ? `⚠️ ${missing} item(s) sem resposta — resultado parcial`
       : `✅ Todos os itens respondidos${tTotal != null ? ` · Escore Total T = ${tTotal} (${label})` : ""}`;
   }
-  return { brutos, tscores, missing };
+  return { respostas, brutos, tscores, missing };
 }
 
 function limparTudo(){
@@ -437,7 +438,6 @@ function svgBell(t){
   return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="display:block">
     <rect width="${W}" height="${H}" fill="#fff" rx="8"/>
     <path d="${d}" fill="${accentLight}" opacity="0.6"/>
-    <rect x="${xOfT(40)}" y="${baseY-90}" width="${xOfT(60)-xOfT(40)}" height="90" fill="${accent}" opacity="0.12" rx="2"/>
     <line x1="${xt}" y1="${baseY-90}" x2="${xt}" y2="${baseY}" stroke="${color}" stroke-width="2.5"/>
     <circle cx="${xt}" cy="${baseY-90}" r="5" fill="${color}"/>
     <circle cx="${xt}" cy="${baseY-90}" r="2" fill="#fff"/>
@@ -540,6 +540,18 @@ function abrirRelatorio(result){
     </tr>`;
   }).join("");
 
+  // Tabela de itens com respostas
+  const answerLabels = { 1:"(1) Não", 2:"(2) Algumas vezes", 3:"(3) Muitas vezes", 4:"(4) Quase sempre" };
+  const itemRows = form.items.map(item=>{
+    const resp = result.respostas?.[item.id];
+    const respLabel = resp != null ? (answerLabels[resp] || `(${resp})`) : "—";
+    return `<tr>
+      <td style="text-align:center;font-weight:700">${escapeHtml(String(item.id))}</td>
+      <td>${escapeHtml(item.text || '')}</td>
+      <td>${respLabel}</td>
+    </tr>`;
+  }).join("");
+
   const html = `
   <div class="rep-wrapper">
     <div class="rep-header">
@@ -606,6 +618,16 @@ function abrirRelatorio(result){
       <div class="rep-section">
         <div class="rep-section-title">Interpretação Clínica do Escore T</div>
         <div class="rep-interp-grid">${interpCards}</div>
+      </div>
+
+      <div class="rep-section">
+        <div class="rep-section-title">Análise dos Itens SRS-2</div>
+        <table class="rep-scores-table rep-items-table">
+          <thead>
+            <tr><th style="width:50px">Nr.</th><th>Item (abreviado)</th><th style="width:140px">Resposta</th></tr>
+          </thead>
+          <tbody>${itemRows}</tbody>
+        </table>
       </div>
 
     </div>
