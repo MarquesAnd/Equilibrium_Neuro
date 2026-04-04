@@ -8,6 +8,7 @@ const ALL_PAGES = [
   { id: "pacientes",  label: "Pacientes",           icon: "👤" },
   { id: "correcao",   label: "Correção de Testes",  icon: "✏️" },
   { id: "aplicacao",  label: "Aplicação de Testes", icon: "🧠" },
+  { id: "anamnese",   label: "Anamnese",            icon: "📋" },
   { id: "relatorios", label: "Relatórios",          icon: "📄" },
   { id: "checklist",  label: "Checklist",           icon: "✅" },
   { id: "config",     label: "Configurações",       icon: "⚙️" },
