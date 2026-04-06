@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Equilibrium — Entrevista de Anamnese</title>
-<link rel="icon" type="image/png" href="/logo.png" />
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -727,69 +726,159 @@ function rForm(k){
   </div>`;
 }
 
-function rReport(d,secs){
-  const sh=secs.map(sec=>{
-    const corpo=sec.tx.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
-    return`<div class="rep-sc"><div class="rep-st">${sec.tt}</div><div class="rep-bl"><p class="rep-tx">${corpo}</p></div></div>`;
+/* ═══════════════════════════════════════════
+   URL DO APPS SCRIPT — cole aqui após implantar
+═══════════════════════════════════════════ */
+// ⚙️ Cole aqui a URL do Apps Script após implantar
+const APPS_SCRIPT_URL = 'COLE_AQUI_A_URL_DO_APPS_SCRIPT';
+
+/* Monta o HTML do documento para enviar ao Drive */
+function montarHTMLDoc(d, secs){
+  const metaRows = [
+    ['Paciente', d.nom||'—'],
+    ['Idade', calcIdade(d.nsc)],
+    ['Data de Nascimento', fmtDate(d.nsc)],
+    ['Data da Avaliação', fmtDate(d.ava)],
+    ['Faixa Etária', d.faixa],
+    ['Médico Solicitante', d.med||'—'],
+    ['Clínica / Telefone', d.cli||'—'],
+  ].map(([l,v])=>`<tr><td style="font-weight:700;padding:6px 10px;color:#64748b;font-size:12px;width:180px">${l}</td><td style="padding:6px 10px;font-size:13px">${v}</td></tr>`).join('');
+
+  const secHtml = secs.map(s=>{
+    const tx = s.tx.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    return `<div style="margin-bottom:22px">
+      <h3 style="font-size:13px;font-weight:800;color:#0f766e;text-transform:uppercase;letter-spacing:.06em;margin:0 0 8px;padding-bottom:6px;border-bottom:2px solid #f0fdfa">${s.tt}</h3>
+      <p style="font-size:13px;line-height:1.85;color:#1e293b;margin:0;padding:14px 16px;background:#f8fafc;border-left:4px solid #0d9488">${tx}</p>
+    </div>`;
   }).join('');
-  return`<div class="rep-acts">
-    <button class="btn-print" onclick="window.print()">🖨️ Imprimir / PDF</button>
-    <button class="btn-back" onclick="goForm('${fk}')">← Editar dados</button>
-    <button class="btn-back" onclick="goSel()">Novo formulário</button>
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>body{font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:32px}</style></head><body>
+  <div style="background:#0d9488;padding:24px 28px;border-radius:12px;color:white;display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
+    <div><div style="font-size:16px;font-weight:800">Equilibrium Neuropsicologia</div><div style="font-size:10px;opacity:.85">CRP 04/53832 — Wessilon Marques de Sousa</div></div>
+    <div style="text-align:right"><div style="font-size:18px;font-weight:800">Entrevista de Anamnese</div><div style="font-size:11px;opacity:.85">${d.faixa}</div></div>
   </div>
-  <div class="rep-header">
-    <div><div class="rep-brand-name">Equilibrium Neuropsicologia</div><div class="rep-brand-sub">CRP 04/53832 — Wessilon Marques de Sousa</div></div>
-    <div style="text-align:right"><div class="rep-title">Entrevista de Anamnese</div><div class="rep-subt">${d.faixa}</div></div>
+  <h2 style="font-size:13px;font-weight:800;color:#0f766e;text-transform:uppercase;letter-spacing:.06em;margin:0 0 10px;padding-bottom:6px;border-bottom:2px solid #f0fdfa">Dados de Identificação</h2>
+  <table style="width:100%;border-collapse:collapse;background:#f8fafc;border-radius:10px;margin-bottom:24px">${metaRows}</table>
+  ${secHtml}
+  <div style="margin-top:32px;padding-top:16px;border-top:2px solid #f1f5f9;text-align:center;font-size:11px;color:#94a3b8">
+    <p>Gerado por <strong>Equilibrium Neuropsicologia</strong> — CRP 04/53832 — Wessilon Marques de Sousa</p>
+    <p>Documento confidencial — destinado exclusivamente ao paciente e profissionais autorizados</p>
   </div>
-  <div class="rep-body">
-    <div class="rep-sc"><div class="rep-st">Dados de identificação</div>
-      <div class="rep-meta">
-        <div><div class="rep-ml">Paciente</div><div class="rep-mv">${d.nom||'—'}</div></div>
-        <div><div class="rep-ml">Idade</div><div class="rep-mv">${calcIdade(d.nsc)}</div></div>
-        <div><div class="rep-ml">Nascimento</div><div class="rep-mv">${fmtDate(d.nsc)}</div></div>
-        <div><div class="rep-ml">Avaliação</div><div class="rep-mv">${fmtDate(d.ava)}</div></div>
-        <div><div class="rep-ml">Faixa etária</div><div class="rep-mv">${d.faixa}</div></div>
-        <div><div class="rep-ml">Médico solicitante</div><div class="rep-mv">${d.med||'—'}</div></div>
-      </div>
-    </div>
-    ${sh}
-    <div class="rep-footer">
-      <p>Gerado por <strong>Equilibrium Neuropsicologia</strong> — CRP 04/53832 — Wessilon Marques de Sousa</p>
-      <p style="font-size:10px;margin-top:4px">Documento confidencial — destinado exclusivamente ao paciente e profissionais autorizados</p>
-    </div>
-  </div>`;
+  </body></html>`;
 }
 
 function render(){
   const m=document.getElementById('main'),pt=document.getElementById('pt'),ps=document.getElementById('ps');
   if(state==='select'){
     pt.textContent='Entrevista de Anamnese';
-    ps.textContent='Selecione a faixa etária para iniciar o formulário clínico';
+    ps.textContent='Selecione a faixa etária para iniciar';
     const cards=Object.entries(F).map(([k,fx])=>`<div class="fc" id="fc-${k}" onclick="goForm('${k}')"><div class="fc-ic">${fx.icon}</div><div class="fc-tt">${fx.tt}</div><div class="fc-rg">${fx.rg}</div></div>`).join('');
-    m.innerHTML=`<div class="card"><div class="sect-head"><div class="sect-ic">🎯</div><span class="sect-tt">Selecione a faixa etária</span></div><div class="faixa-grid">${cards}</div></div>`;
+    m.innerHTML=`
+    <div class="card"><div class="sect-head"><div class="sect-ic">🎯</div><span class="sect-tt">Selecione a faixa etária</span></div><div class="faixa-grid">${cards}</div></div>`;
   } else if(state==='form'){
     const fx=F[fk];
     pt.textContent=`Anamnese — ${fx.tt}`;
     ps.textContent=`${fx.rg} · Preencha os campos clínicos relevantes`;
     m.innerHTML=rForm(fk);
     F[fk].sects.forEach((s,si)=>{(s.g2||s.g3||[]).forEach((f,fi)=>{if(f.today){const e=document.getElementById(fId(fk,si,fi));if(e)e.value=hoje;}});});
-  } else if(state==='report'){
-    const fx=F[fk];
-    pt.textContent=`Anamnese — ${fx.tt}`;
-    ps.textContent='Texto clínico gerado — revise e imprima';
-    m.innerHTML=rReport(saved._d,saved._secs);
+  } else if(state==='loading'){
+    pt.textContent='Enviando para o Drive...';
+    ps.textContent='Por favor, aguarde';
+    m.innerHTML=`
+    <div class="card" style="text-align:center;padding:64px 24px">
+      <div style="width:56px;height:56px;border:4px solid #e2e8f0;border-top-color:#0d9488;border-radius:50%;margin:0 auto 24px;animation:spin .8s linear infinite"></div>
+      <div style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:8px">Salvando anamnese no Drive...</div>
+      <div style="font-size:13px;color:#64748b" id="loading_msg">Montando o documento clínico</div>
+    </div>`;
+  } else if(state==='sucesso'){
+    pt.textContent='Anamnese enviada!';
+    ps.textContent='O documento foi salvo com sucesso no Google Drive';
+    const driveUrl = saved && saved.url ? saved.url : '';
+    m.innerHTML=`
+    <div class="card" style="text-align:center;padding:64px 24px">
+      <div style="width:64px;height:64px;background:#f0fdfa;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px">✅</div>
+      <div style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:8px">Documento salvo com sucesso!</div>
+      <div style="font-size:14px;color:#64748b;margin-bottom:28px">A anamnese de <strong>${saved._d.nom||'paciente'}</strong> foi salva no Google Drive.</div>
+      ${driveUrl ? `<a href="${driveUrl}" target="_blank" style="display:inline-block;padding:12px 24px;background:#0d9488;color:white;border-radius:14px;font-weight:700;font-size:14px;text-decoration:none;margin-bottom:16px">📄 Abrir no Drive</a><br>` : ''}
+      <div style="display:flex;gap:10px;justify-content:center;margin-top:16px">
+        <button class="btn-main" onclick="goForm('${fk}')">← Editar e reenviar</button>
+        <button class="btn-sec" onclick="goSel()">Nova anamnese</button>
+      </div>
+    </div>`;
+  } else if(state==='erro'){
+    pt.textContent='Erro no envio';
+    ps.textContent='Não foi possível salvar no Drive';
+    m.innerHTML=`
+    <div class="card" style="text-align:center;padding:64px 24px">
+      <div style="width:64px;height:64px;background:#fef2f2;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px">❌</div>
+      <div style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:8px">Erro ao enviar</div>
+      <div style="font-size:13px;color:#64748b;margin-bottom:8px">${saved._erro||'Verifique a URL do Apps Script e tente novamente.'}</div>
+      <div style="font-size:12px;color:#94a3b8;margin-bottom:28px">Certifique-se de que o Apps Script está implantado como <strong>Aplicativo Web</strong> com acesso <strong>Qualquer pessoa</strong>.</div>
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn-main" onclick="goForm('${fk}')">← Voltar e tentar novamente</button>
+        <button class="btn-sec" onclick="goSel()">Configurações</button>
+      </div>
+    </div>`;
   }
 }
+
 
 function goSel(){state='select';fk=null;render();}
 function goForm(k){state='form';fk=k;render();}
 
-function gerar(k){
+async function gerar(k){
   const d=coletarDados(k);
   if(!d.nom){alert('Por favor, preencha o nome do paciente.');return;}
+
+  const url=APPS_SCRIPT_URL;
+  if(!url||url==='https://script.google.com/macros/s/AKfycbxX43j7jnZ2mZLxGbPcpjZuO5uh_V36LTypJn5asdDJo4vqw-bY1WO4OzpsNa-gU_7bJg/exec'){
+    alert('Configure a URL do Apps Script diretamente no código HTML antes de usar (variável APPS_SCRIPT_URL).');
+    return;
+  }
+
   const secs=gerarTexto(k,d);
   if(!secs.length){alert('Preencha ao menos os campos obrigatórios.');return;}
-  fk=k; saved={_d:d,_secs:secs}; state='report'; render();
+
+  fk=k; saved={_d:d,_secs:secs}; state='loading'; render();
+
+  // Muda mensagem após 1s
+  setTimeout(()=>{const e=document.getElementById('loading_msg');if(e)e.textContent='Enviando para o Google Drive...';},1000);
+
+  try{
+    const htmlDoc = montarHTMLDoc(d, secs);
+
+    const payload = {
+      nomePaciente: d.nom,
+      dataAvaliacao: fmtDate(d.ava),
+      faixaEtaria: d.faixa,
+      medicoSolicitante: d.med||'',
+      htmlConteudo: htmlDoc,
+      secoes: secs.map(s=>({
+        titulo: s.tt,
+        texto: s.tx.replace(/\*\*(.*?)\*\*/g,'$1')
+      }))
+    };
+
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+
+    const result = await resp.json();
+
+    if(result.success){
+      saved.url = result.docUrl || '';
+      state='sucesso'; render();
+    } else {
+      saved._erro = result.error || 'Resposta inesperada do servidor.';
+      state='erro'; render();
+    }
+  } catch(err){
+    saved._erro = 'Erro de conexão: '+err.message;
+    state='erro'; render();
+  }
 }
 
 render();
