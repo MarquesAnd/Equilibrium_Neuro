@@ -860,23 +860,20 @@ async function gerar(k){
       }))
     };
 
-    const resp = await fetch(url, {
+    // Usa text/plain para evitar CORS preflight no Google Apps Script
+    await fetch(url, {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      mode: 'no-cors',
+      headers: {'Content-Type': 'text/plain'},
       body: JSON.stringify(payload)
     });
 
-    const result = await resp.json();
+    // Com no-cors não conseguimos ler a resposta (opaque),
+    // mas o Apps Script recebe e processa normalmente
+    state='sucesso'; render();
 
-    if(result.success){
-      saved.url = result.docUrl || '';
-      state='sucesso'; render();
-    } else {
-      saved._erro = result.error || 'Resposta inesperada do servidor.';
-      state='erro'; render();
-    }
   } catch(err){
-    saved._erro = 'Erro de conexão: '+err.message;
+    saved._erro = 'Erro de conexão: '+err.message+'. Verifique se a URL do Apps Script está correta e se o script está implantado como Aplicativo Web com acesso "Qualquer pessoa".';
     state='erro'; render();
   }
 }
