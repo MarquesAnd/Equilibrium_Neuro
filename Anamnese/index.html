@@ -1,1275 +1,798 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Anamnese | Equilibrium</title>
-  <link rel="stylesheet" href="/style.css" />
-  <link rel="icon" type="image/png" href="/logo.png" />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <style>
-    :root { --anamnese-accent: #0d9488; --anamnese-accent-light: #5eead4; --anamnese-accent-dark: #0f766e; }
-
-    /* ── Seleção de faixa etária ── */
-    .faixa-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
-    @media (max-width: 900px) { .faixa-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 500px) { .faixa-grid { grid-template-columns: 1fr; } }
-
-    .faixa-card {
-      background: #fff;
-      border: 2px solid #e2e8f0;
-      border-radius: 14px;
-      padding: 20px 16px;
-      text-align: center;
-      cursor: pointer;
-      transition: all .2s;
-      position: relative;
-    }
-    .faixa-card:hover { border-color: #0d9488; background: #f0fdfa; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(13,148,136,.12); }
-    .faixa-card.selected { border-color: #0d9488; background: #f0fdfa; box-shadow: 0 0 0 3px rgba(13,148,136,.15); }
-    .faixa-card.selected::after { content: '✓'; position: absolute; top: -10px; right: -10px; width: 24px; height: 24px; background: #0d9488; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; }
-    .faixa-icon { font-size: 32px; margin-bottom: 8px; }
-    .faixa-title { font-size: 14px; font-weight: 800; color: #1e293b; margin-bottom: 4px; }
-    .faixa-range { font-size: 12px; color: #64748b; }
-
-    /* ── Seções de formulário ── */
-    .anamnese-form { display: none; }
-    .anamnese-form.active { display: block; }
-
-    .form-section { margin-bottom: 32px; }
-    .form-section-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 18px;
-      padding-bottom: 10px;
-      border-bottom: 2px solid #f1f5f9;
-    }
-    .form-section-icon { font-size: 18px; }
-    .form-section h2 { font-size: 14px; font-weight: 800; color: #0d9488; text-transform: uppercase; letter-spacing: .06em; margin: 0; }
-
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
-    @media (max-width: 640px) { .form-grid, .form-grid-3 { grid-template-columns: 1fr; } }
-
-    .form-group { margin-bottom: 4px; }
-    .form-group.full { grid-column: 1 / -1; }
-    .form-group label {
-      display: block;
-      font-size: 11px;
-      font-weight: 700;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: .07em;
-      margin-bottom: 6px;
-    }
-    .form-group label .req { color: #ef4444; margin-left: 2px; }
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-      width: 100%;
-      padding: 11px 14px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 10px;
-      font-size: 14px;
-      font-family: inherit;
-      color: #1e293b;
-      outline: none;
-      transition: all .2s;
-      background: #fafcff;
-      box-sizing: border-box;
-    }
-    .form-group textarea { min-height: 90px; resize: vertical; line-height: 1.6; }
-    .form-group input:focus,
-    .form-group select:focus,
-    .form-group textarea:focus {
-      border-color: #0d9488;
-      box-shadow: 0 0 0 3px rgba(13,148,136,.1);
-      background: #fff;
-    }
-    .form-group select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2364748b' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; }
-
-    /* Checkbox group */
-    .checkbox-group { display: flex; flex-wrap: wrap; gap: 8px; }
-    .checkbox-item { display: flex; align-items: center; gap: 6px; }
-    .checkbox-item input[type="checkbox"] { width: 16px; height: 16px; accent-color: #0d9488; cursor: pointer; }
-    .checkbox-item label { font-size: 13px; color: #374151; font-weight: 500; cursor: pointer; text-transform: none; letter-spacing: 0; }
-
-    /* Radio group */
-    .radio-group { display: flex; flex-wrap: wrap; gap: 10px; }
-    .radio-item { display: flex; align-items: center; gap: 6px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; padding: 8px 14px; cursor: pointer; transition: all .15s; }
-    .radio-item:hover { border-color: #0d9488; background: #f0fdfa; }
-    .radio-item input[type="radio"] { width: 15px; height: 15px; accent-color: #0d9488; cursor: pointer; }
-    .radio-item label { font-size: 13px; color: #374151; font-weight: 500; cursor: pointer; text-transform: none; letter-spacing: 0; }
-    .radio-item.checked { border-color: #0d9488; background: #f0fdfa; }
-
-    /* Escala Likert */
-    .likert-group { display: flex; gap: 6px; flex-wrap: wrap; }
-    .likert-btn { flex: 1; min-width: 60px; padding: 8px 6px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: #fff; cursor: pointer; font-size: 12px; text-align: center; transition: all .15s; font-family: inherit; font-weight: 500; color: #64748b; }
-    .likert-btn:hover { background: #f0fdfa; border-color: #0d9488; }
-    .likert-btn.active { background: #ccfbf1; border-color: #0d9488; color: #0f766e; font-weight: 700; }
-
-    /* Progress bar */
-    .form-progress-bar { height: 4px; background: #e2e8f0; border-radius: 4px; margin-bottom: 24px; overflow: hidden; }
-    .form-progress-fill { height: 100%; background: linear-gradient(90deg, #0d9488, #14b8a6); border-radius: 4px; transition: width .3s ease; }
-
-    /* Action buttons */
-    .action-buttons { display: flex; gap: 12px; justify-content: flex-start; margin-top: 32px; flex-wrap: wrap; }
-    .btn-custom { padding: 13px 28px; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
-    .btn-custom.primary { background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%); color: white; box-shadow: 0 4px 14px rgba(13,148,136,.3); }
-    .btn-custom.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13,148,136,.4); }
-    .btn-custom.secondary { background: white; color: #0d9488; border: 2px solid #0d9488; }
-    .btn-custom.secondary:hover { background: #f0fdfa; }
-    .btn-custom:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
-
-    /* Modal de carregamento */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 9999; }
-    .modal-overlay.show { display: flex; }
-    .modal-box { background: white; border-radius: 20px; padding: 48px 40px; text-align: center; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
-    .spinner { width: 52px; height: 52px; border: 4px solid #e2e8f0; border-top-color: #0d9488; border-radius: 50%; margin: 0 auto 24px; animation: spin 0.8s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .modal-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
-    .modal-sub { font-size: 14px; color: #64748b; }
-
-    /* Overlay do relatório */
-    .anamnese-report-overlay { position: fixed; inset: 0; background: #f1f5f9; z-index: 8000; display: none; flex-direction: column; }
-    .anamnese-report-overlay.ativo { display: flex; }
-    .anamnese-report-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-    .anamnese-report-topbar-left { display: flex; align-items: center; gap: 12px; }
-    .anamnese-report-topbar h2 { font-size: 16px; font-weight: 800; color: #0f766e; margin: 0; }
-    .anamnese-report-actions { display: flex; gap: 8px; }
-    .btn-print-rep { background: #0d9488; color: #fff; border: none; padding: 9px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all .15s; }
-    .btn-print-rep:hover { background: #0f766e; }
-    .btn-close-rep { background: #f1f5f9; color: #374151; border: 1.5px solid #e2e8f0; padding: 9px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all .15s; }
-    .btn-close-rep:hover { background: #e2e8f0; }
-    .anamnese-report-scroll { flex: 1; overflow-y: auto; padding: 32px 24px; }
-    .anamnese-report-frame { max-width: 860px; margin: 0 auto; }
-
-    /* Relatório */
-    .rep-wrapper { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,.08); }
-    .rep-header { background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%); padding: 32px 36px; color: #fff; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
-    .rep-header-brand { display: flex; align-items: center; gap: 14px; }
-    .rep-logo { height: 48px; border-radius: 8px; }
-    .rep-brand-name { font-size: 18px; font-weight: 800; }
-    .rep-brand-sub { font-size: 12px; opacity: .9; }
-    .rep-header-info { text-align: right; }
-    .rep-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
-    .rep-subtitle { font-size: 13px; opacity: .9; }
-    .rep-body { padding: 36px; }
-    .rep-section { margin-bottom: 32px; }
-    .rep-section-title { font-size: 16px; font-weight: 800; color: #0f766e; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #f0fdfa; display: flex; align-items: center; gap: 8px; }
-    .rep-text { font-size: 14px; color: #374151; line-height: 1.8; margin-bottom: 10px; }
-    .rep-text strong { color: #1e293b; font-weight: 700; }
-    .rep-meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
-    @media (max-width: 600px) { .rep-meta-grid { grid-template-columns: 1fr 1fr; } }
-    .rep-meta-item { display: flex; flex-direction: column; gap: 4px; }
-    .rep-meta-label { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .05em; }
-    .rep-meta-value { font-size: 15px; font-weight: 700; color: #1e293b; }
-    .rep-block { background: #f8fafc; border-left: 4px solid #0d9488; border-radius: 8px; padding: 18px 20px; margin-bottom: 16px; }
-    .rep-block-title { font-size: 11px; font-weight: 800; color: #0d9488; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
-    .rep-block-text { font-size: 14px; color: #374151; line-height: 1.75; }
-    .rep-tag { display: inline-block; background: #ccfbf1; color: #0f766e; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin: 2px; }
-    .rep-tag.alert { background: #fef3c7; color: #92400e; }
-    .rep-tag.info { background: #e0f2fe; color: #0369a1; }
-    .rep-footer { margin-top: 40px; padding-top: 24px; border-top: 2px solid #f1f5f9; text-align: center; }
-    .rep-footer p { font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
-    .rep-footer-confidencial { font-size: 11px !important; color: #cbd5e1 !important; }
-
-    /* Badge de faixa etária */
-    .faixa-badge { display: inline-flex; align-items: center; gap: 6px; background: #f0fdfa; border: 1.5px solid #0d9488; border-radius: 20px; padding: 5px 14px; font-size: 13px; font-weight: 700; color: #0d9488; margin-bottom: 20px; }
-
-    /* Info box */
-    .info-box { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 14px 16px; display: flex; gap: 10px; margin-bottom: 20px; }
-    .info-box-icon { font-size: 18px; flex-shrink: 0; }
-    .info-box-text { font-size: 13px; color: #1d4ed8; line-height: 1.6; }
-
-    @media print {
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-      html, body { margin: 0 !important; padding: 0 !important; height: auto !important; }
-      .sidebar, .anamnese-report-topbar, .no-print, .main-content, .app-shell { display: none !important; }
-      .anamnese-report-overlay { display: block !important; position: static !important; background: #fff !important; width: 100% !important; height: auto !important; overflow: visible !important; }
-      .anamnese-report-scroll { padding: 0 !important; overflow: visible !important; height: auto !important; }
-      .anamnese-report-frame { max-width: 100% !important; margin: 0 !important; }
-      .rep-wrapper { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; }
-      .rep-section { break-inside: avoid; page-break-inside: avoid; }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Equilibrium — Entrevista de Anamnese</title>
+<link rel="icon" type="image/png" href="/logo.png" />
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:linear-gradient(135deg,#f0fdfa 0%,#e0f2fe 50%,#f0fdf4 100%);min-height:100vh;font-size:14px;color:#0f172a}
+.wrap{max-width:860px;margin:0 auto;padding:28px 20px 60px}
+.top-header{text-align:center;margin-bottom:32px}
+.top-logo{display:inline-flex;align-items:center;gap:12px;background:white;border-radius:20px;padding:12px 24px;box-shadow:0 2px 16px rgba(13,148,136,.12);margin-bottom:20px}
+.logo-dot{width:38px;height:38px;background:#0d9488;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:white}
+.logo-name{font-size:17px;font-weight:800;color:#0f172a;letter-spacing:-.3px}
+.logo-sub{font-size:10px;color:#64748b}
+.page-title{font-size:26px;font-weight:800;color:#0f172a;letter-spacing:-.5px;margin-bottom:6px}
+.page-sub{font-size:14px;color:#64748b}
+.card{background:white;border-radius:20px;border:1.5px solid #e2e8f0;padding:24px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.card-sm{background:white;border-radius:16px;border:1.5px solid #e2e8f0;padding:20px;margin-bottom:12px;box-shadow:0 1px 8px rgba(0,0,0,.03)}
+.faixa-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.fc{background:white;border:2px solid #e2e8f0;border-radius:16px;padding:16px 10px;text-align:center;cursor:pointer;transition:all .2s;position:relative;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.fc:hover{border-color:#0d9488;background:#f0fdfa;transform:translateY(-3px);box-shadow:0 8px 24px rgba(13,148,136,.15)}
+.fc.on{border-color:#0d9488;background:#f0fdfa;box-shadow:0 0 0 4px rgba(13,148,136,.12)}
+.fc.on::after{content:'✓';position:absolute;top:-9px;right:-9px;width:20px;height:20px;background:#0d9488;color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800}
+.fc-ic{font-size:24px;margin-bottom:7px}
+.fc-tt{font-size:11px;font-weight:800;color:#0f172a;margin-bottom:2px}
+.fc-rg{font-size:10px;color:#64748b}
+.sect-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #f1f5f9}
+.sect-ic{font-size:15px;width:28px;height:28px;background:#f0fdfa;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.sect-tt{font-size:11px;font-weight:800;color:#0d9488;text-transform:uppercase;letter-spacing:.08em}
+.fg-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.fg-grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px}
+.fg-full{grid-column:1/-1}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:10px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em}
+.fg label .req{color:#f43f5e;margin-left:2px}
+.fg input,.fg select,.fg textarea{padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:12px;font-size:13px;font-family:inherit;color:#0f172a;background:#fafcff;outline:none;transition:all .2s;width:100%}
+.fg textarea{min-height:80px;resize:vertical;line-height:1.6}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:#0d9488;box-shadow:0 0 0 4px rgba(13,148,136,.1);background:white}
+.fg select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%2394a3b8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+.cks{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+.ck{display:flex;align-items:center;gap:6px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:10px;padding:6px 11px;cursor:pointer;transition:all .15s}
+.ck:hover{border-color:#0d9488;background:#f0fdfa}
+.ck input{width:13px;height:13px;accent-color:#0d9488;cursor:pointer}
+.ck span{font-size:12px;color:#374151;font-weight:500}
+.acts{display:flex;gap:10px;margin-top:24px;flex-wrap:wrap}
+.btn-main{padding:12px 26px;border:none;border-radius:14px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;background:#0d9488;color:white;box-shadow:0 4px 14px rgba(13,148,136,.3);transition:all .2s}
+.btn-main:hover{background:#0f766e;transform:translateY(-1px)}
+.btn-sec{padding:12px 20px;border:2px solid #e2e8f0;border-radius:14px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;background:white;color:#64748b;transition:all .2s}
+.btn-sec:hover{border-color:#0d9488;color:#0d9488;background:#f0fdfa}
+.badge{display:inline-flex;align-items:center;gap:7px;background:#f0fdfa;border:2px solid #0d9488;border-radius:24px;padding:5px 14px;font-size:12px;font-weight:700;color:#0f766e;margin-bottom:16px}
+.rep-header{background:#0d9488;border-radius:20px 20px 0 0;padding:28px 32px;color:white;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px}
+.rep-brand-name{font-size:16px;font-weight:800}
+.rep-brand-sub{font-size:10px;opacity:.8}
+.rep-title{font-size:20px;font-weight:800;margin-bottom:3px}
+.rep-subt{font-size:11px;opacity:.85}
+.rep-body{background:white;border:1.5px solid #e2e8f0;border-top:none;border-radius:0 0 20px 20px;padding:32px}
+.rep-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;background:#f8fafc;border-radius:14px;padding:16px;margin-bottom:28px}
+.rep-ml{font-size:9px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.rep-mv{font-size:13px;font-weight:700;color:#0f172a}
+.rep-sc{margin-bottom:26px}
+.rep-st{font-size:14px;font-weight:800;color:#0f766e;margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #f0fdfa}
+.rep-bl{background:#f8fafc;border-left:4px solid #0d9488;border-radius:0 12px 12px 0;padding:16px 20px}
+.rep-tx{font-size:13.5px;color:#1e293b;line-height:1.85}
+.rep-footer{margin-top:32px;padding-top:20px;border-top:2px solid #f1f5f9;text-align:center}
+.rep-footer p{font-size:11px;color:#94a3b8;margin-bottom:4px}
+.rep-acts{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.btn-print{padding:10px 20px;border:none;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;background:#0d9488;color:white;font-family:inherit;box-shadow:0 3px 10px rgba(13,148,136,.25)}
+.btn-back{padding:10px 16px;border:2px solid #e2e8f0;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;background:white;color:#64748b;font-family:inherit}
+.btn-back:hover{border-color:#0d9488;color:#0d9488}
+@media(max-width:700px){.faixa-grid{grid-template-columns:repeat(3,1fr)}.fg-grid,.fg-grid3{grid-template-columns:1fr}.rep-meta{grid-template-columns:1fr 1fr}}
+@media print{body{background:white}.rep-acts{display:none}.wrap{padding:0}}
+</style>
 </head>
 <body>
-<div class="app-shell">
-  <aside class="sidebar no-print">
-    <div class="sidebar-brand">
-      <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
-      <div><div class="brand-name">Equilibrium</div><div class="brand-sub">Neuropsicologia</div></div>
+<div class="wrap">
+  <div class="top-header">
+    <div class="top-logo">
+      <div class="logo-dot">E</div>
+      <div><div class="logo-name">Equilibrium</div><div class="logo-sub">Neuropsicologia · CRP 04/53832</div></div>
     </div>
-    <nav class="sidebar-nav">
-      <a class="nav-item" href="/" data-page="dashboard"><span class="nav-icon">📊</span><span>Dashboard</span></a>
-      <a class="nav-item" href="/Pacientes/" data-page="pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
-      <a class="nav-item" href="/Correcao_testes/" data-page="correcao"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
-      <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
-      <a class="nav-item active" href="/Anamnese/" data-page="anamnese"><span class="nav-icon">📋</span><span>Anamnese</span></a>
-      <a class="nav-item" href="/#relatorios" data-page="relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
-      <a class="nav-item" href="/check_list/" data-page="checklist"><span class="nav-icon">✅</span><span>Checklist</span></a>
-      <a class="nav-item" href="/Config/" data-page="config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
-    </nav>
-    <div class="sidebar-footer">
-      <div class="user-info"><div class="user-avatar">W</div><div><div class="user-name">Wessilon</div><div class="user-role">Profissional</div></div></div>
-      <button class="btn-logout" onclick="doLogout()">Sair</button>
-    </div>
-  </aside>
-
-  <main class="main-content">
-    <div class="page-header">
-      <div>
-        <h1 class="page-title">Entrevista de Anamnese</h1>
-        <p class="page-subtitle">Selecione a faixa etária e preencha os dados clínicos do paciente</p>
-      </div>
-    </div>
-
-    <!-- Seleção de faixa etária -->
-    <div class="card" id="cardFaixa">
-      <div class="form-section">
-        <div class="form-section-header"><span class="form-section-icon">🎯</span><h2>Selecione a Faixa Etária</h2></div>
-        <div class="faixa-grid">
-          <div class="faixa-card" onclick="selecionarFaixa('infantil')" id="faixa-infantil">
-            <div class="faixa-icon">🍼</div>
-            <div class="faixa-title">Primeira Infância</div>
-            <div class="faixa-range">0 – 6 anos</div>
-          </div>
-          <div class="faixa-card" onclick="selecionarFaixa('escolar')" id="faixa-escolar">
-            <div class="faixa-icon">🎒</div>
-            <div class="faixa-title">Segunda Infância</div>
-            <div class="faixa-range">6 – 12 anos</div>
-          </div>
-          <div class="faixa-card" onclick="selecionarFaixa('adolescente')" id="faixa-adolescente">
-            <div class="faixa-icon">🧑</div>
-            <div class="faixa-title">Adolescência</div>
-            <div class="faixa-range">12 – 18 anos</div>
-          </div>
-          <div class="faixa-card" onclick="selecionarFaixa('adulto')" id="faixa-adulto">
-            <div class="faixa-icon">🧑‍💼</div>
-            <div class="faixa-title">Adulto / Idoso</div>
-            <div class="faixa-range">18 anos+</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════
-         FORMULÁRIO: PRIMEIRA INFÂNCIA (0–6)
-    ════════════════════════════════════════════════ -->
-    <div class="anamnese-form" id="form-infantil">
-      <div class="faixa-badge">🍼 Primeira Infância · 0 – 6 anos</div>
-      <div class="card">
-        <!-- SEÇÃO 1: Encaminhamento -->
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🏥</span><h2>Dados de Encaminhamento</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Médico solicitante <span class="req">*</span></label><input type="text" id="inf_medico" placeholder="Nome do médico"></div>
-            <div class="form-group"><label>Clínica / Telefone do médico <span class="req">*</span></label><input type="text" id="inf_clinica_medico" placeholder="Nome da clínica e telefone"></div>
-          </div>
-        </div>
-
-        <!-- SEÇÃO 2: Identificação -->
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">👤</span><h2>Identificação do Paciente</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Relação com a criança <span class="req">*</span></label>
-              <select id="inf_relacao"><option value="">Selecione...</option><option>Pai/Mãe</option><option>Responsável Legal</option><option>Outro</option></select>
-            </div>
-            <div class="form-group"><label>Nome completo da criança <span class="req">*</span></label><input type="text" id="inf_nome" placeholder="Nome completo"></div>
-            <div class="form-group"><label>Data de nascimento <span class="req">*</span></label><input type="date" id="inf_nasc"></div>
-            <div class="form-group"><label>Sexo biológico</label>
-              <select id="inf_sexo"><option value="">Selecione...</option><option>Masculino</option><option>Feminino</option></select>
-            </div>
-            <div class="form-group full"><label>Nome completo dos pais</label><input type="text" id="inf_pais" placeholder="Nome do pai e da mãe"></div>
-            <div class="form-group"><label>Cidade de nascimento</label><input type="text" id="inf_cidade" placeholder="Cidade / Estado"></div>
-            <div class="form-group"><label>Data da avaliação</label><input type="date" id="inf_data_aval"></div>
-          </div>
-        </div>
-
-        <!-- SEÇÃO 3: Demanda -->
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🎯</span><h2>Descrição da Demanda</h2></div>
-          <div class="form-group full"><label>Motivo principal da avaliação — descreva em detalhes <span class="req">*</span></label>
-            <textarea id="inf_motivo" placeholder="Descreva as principais preocupações, dificuldades ou queixas que motivaram a busca pela avaliação..."></textarea>
-          </div>
-          <div class="form-group full"><label>Há quanto tempo essas preocupações estão presentes?</label>
-            <select id="inf_tempo_queixa"><option value="">Selecione...</option><option>Desde o nascimento / muito cedo</option><option>Há menos de 6 meses</option><option>Entre 6 meses e 1 ano</option><option>Entre 1 e 2 anos</option><option>Há mais de 2 anos</option></select>
-          </div>
-          <div class="form-group full"><label>Qual o impacto dessas dificuldades no cotidiano familiar e no desenvolvimento da criança?</label>
-            <textarea id="inf_impacto" placeholder="Como essas dificuldades afetam o dia a dia em casa, nas interações sociais, no brincar..."></textarea>
-          </div>
-        </div>
-
-        <!-- SEÇÃO 4: Histórico Familiar -->
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🧬</span><h2>Histórico Familiar</h2></div>
-          <div class="form-group full"><label>Histórico familiar de transtornos do neurodesenvolvimento ou psiquiátricos</label>
-            <div class="checkbox-group" id="inf_historico_familiar">
-              <div class="checkbox-item"><input type="checkbox" id="inf_hf_tdah"><label for="inf_hf_tdah">TDAH</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_hf_tea"><label for="inf_hf_tea">TEA (Autismo)</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_hf_dislexia"><label for="inf_hf_dislexia">Dislexia</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_hf_depressao"><label for="inf_hf_depressao">Depressão</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_hf_ansiedade"><label for="inf_hf_ansiedade">Ansiedade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_hf_bipolar"><label for="inf_hf_bipolar">Bipolaridade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_hf_esquizo"><label for="inf_hf_esquizo">Esquizofrenia</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_hf_demencia"><label for="inf_hf_demencia">Demência/Alzheimer</label></div>
-            </div>
-          </div>
-          <div class="form-group full"><label>Especifique grau de parentesco e detalhes relevantes</label>
-            <textarea id="inf_hf_detalhes" placeholder="Ex: pai com TDAH, tio materno com TEA..."></textarea>
-          </div>
-        </div>
-
-        <!-- SEÇÃO 5: Histórico Gestacional e Perinatal -->
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🤰</span><h2>Histórico Pré-natal e Perinatal</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Tipo de gestação</label>
-              <select id="inf_gest_tipo"><option value="">Selecione...</option><option>Única</option><option>Gemelar</option><option>Múltipla</option></select>
-            </div>
-            <div class="form-group"><label>Planejada?</label>
-              <select id="inf_gest_planejada"><option value="">Selecione...</option><option>Sim</option><option>Não</option></select>
-            </div>
-            <div class="form-group"><label>A gestação foi de alto risco?</label>
-              <select id="inf_alto_risco"><option value="">Selecione...</option><option>Sim</option><option>Não</option><option>Não sabe</option></select>
-            </div>
-            <div class="form-group"><label>Tipo de parto</label>
-              <select id="inf_parto"><option value="">Selecione...</option><option>Vaginal (normal)</option><option>Cesáriana eletiva</option><option>Cesáriana de emergência</option><option>Fórceps</option></select>
-            </div>
-          </div>
-          <div class="form-group full"><label>Intercorrências durante a gestação ou parto</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="inf_ic_hiper"><label for="inf_ic_hiper">Hipertensão materna</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_ic_diab"><label for="inf_ic_diab">Diabetes gestacional</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_ic_infec"><label for="inf_ic_infec">Infecções</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_ic_sangrm"><label for="inf_ic_sangrm">Sangramento</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_ic_premtro"><label for="inf_ic_premtro">Prematuridade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_ic_anoxia"><label for="inf_ic_anoxia">Anóxia / sofrimento fetal</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_ic_medicam"><label for="inf_ic_medicam">Uso de medicamentos</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_ic_alcool"><label for="inf_ic_alcool">Álcool / substâncias</label></div>
-            </div>
-          </div>
-          <div class="form-grid">
-            <div class="form-group"><label>Semanas de gestação no nascimento</label><input type="number" id="inf_semanas" placeholder="Ex: 38" min="20" max="45"></div>
-            <div class="form-group"><label>Peso ao nascer (gramas)</label><input type="number" id="inf_peso" placeholder="Ex: 3200"></div>
-            <div class="form-group"><label>Apgar 1º minuto</label><input type="number" id="inf_apgar1" placeholder="0–10" min="0" max="10"></div>
-            <div class="form-group"><label>Apgar 5º minuto</label><input type="number" id="inf_apgar5" placeholder="0–10" min="0" max="10"></div>
-          </div>
-          <div class="form-group full"><label>Outras intercorrências ou observações do período neonatal</label>
-            <textarea id="inf_ic_outros" placeholder="Internação em UTI neonatal, icterícia, dificuldades na amamentação..."></textarea>
-          </div>
-        </div>
-
-        <!-- SEÇÃO 6: Marcos do Desenvolvimento -->
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">📈</span><h2>Marcos do Neurodesenvolvimento</h2></div>
-          <div class="info-box"><span class="info-box-icon">ℹ️</span><span class="info-box-text">Indique a idade aproximada (em meses) em que cada marco foi atingido. Deixe em branco se não souber ou se ainda não ocorreu.</span></div>
-          <div class="form-grid-3">
-            <div class="form-group"><label>Sustentação da cabeça (meses)</label><input type="number" id="inf_m_cabeca" placeholder="Esperado: ~3m" min="0" max="24"></div>
-            <div class="form-group"><label>Sentar sem apoio (meses)</label><input type="number" id="inf_m_sentar" placeholder="Esperado: ~6m" min="0" max="24"></div>
-            <div class="form-group"><label>Engatinhar (meses)</label><input type="number" id="inf_m_engatinhar" placeholder="Esperado: ~9m" min="0" max="24"></div>
-            <div class="form-group"><label>Andar sem apoio (meses)</label><input type="number" id="inf_m_andar" placeholder="Esperado: ~12m" min="0" max="30"></div>
-            <div class="form-group"><label>Primeiras palavras (meses)</label><input type="number" id="inf_m_palavras" placeholder="Esperado: ~12m" min="0" max="48"></div>
-            <div class="form-group"><label>Frases com 2+ palavras (meses)</label><input type="number" id="inf_m_frases" placeholder="Esperado: ~24m" min="0" max="60"></div>
-            <div class="form-group"><label>Controle esfincteriano diurno (meses)</label><input type="number" id="inf_m_esfinct" placeholder="Esperado: ~24–36m" min="0" max="72"></div>
-            <div class="form-group"><label>Primeiros rabiscos / desenhos (meses)</label><input type="number" id="inf_m_desenho" placeholder="Esperado: ~18–24m" min="0" max="60"></div>
-          </div>
-          <div class="form-group full"><label>Houve alguma regressão de habilidades já adquiridas?</label>
-            <select id="inf_regressao"><option value="">Selecione...</option><option>Não houve regressão</option><option>Sim — regressão de linguagem</option><option>Sim — regressão de habilidades motoras</option><option>Sim — regressão social (contato visual, interação)</option><option>Sim — múltiplas áreas</option></select>
-          </div>
-          <div class="form-group full"><label>Observações sobre o desenvolvimento neuropsicomotor</label>
-            <textarea id="inf_dev_obs" placeholder="Descreva características do desenvolvimento, padrões de sono, alimentação, choro excessivo, hipersensibilidade sensorial na primeira infância..."></textarea>
-          </div>
-        </div>
-
-        <!-- SEÇÃO 7: Linguagem e Comunicação -->
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">💬</span><h2>Linguagem e Comunicação</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Nível de linguagem atual</label>
-              <select id="inf_ling_nivel"><option value="">Selecione...</option><option>Pré-verbal (sem palavras)</option><option>Palavras isoladas</option><option>Frases simples (2–3 palavras)</option><option>Frases elaboradas</option><option>Comunicação complexa para a idade</option></select>
-            </div>
-            <div class="form-group"><label>Contato visual</label>
-              <select id="inf_cont_visual"><option value="">Selecione...</option><option>Adequado</option><option>Reduzido</option><option>Ausente</option><option>Inconsistente</option></select>
-            </div>
-          </div>
-          <div class="form-group full"><label>Características da fala e comunicação (selecione todos que se aplicam)</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="inf_ecolalia"><label for="inf_ecolalia">Ecolalia (repetição de palavras/frases)</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_inversao"><label for="inf_inversao">Inversão pronominal ("você" por "eu")</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_apontar"><label for="inf_apontar">Não aponta para pedir ou mostrar</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_respond_nome"><label for="inf_respond_nome">Dificuldade em responder ao próprio nome</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_atraso_ling"><label for="inf_atraso_ling">Atraso na linguagem expressiva</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_compreensao"><label for="inf_compreensao">Dificuldade de compreensão</label></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- SEÇÃO 8: Comportamento e Perfil Sensorial -->
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🔍</span><h2>Comportamento e Perfil Sensorial</h2></div>
-          <div class="form-group full"><label>Padrões comportamentais presentes (selecione todos que se aplicam)</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="inf_b_estere"><label for="inf_b_estere">Estereotipias motoras (mão, corpo, voz)</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_b_ritual"><label for="inf_b_ritual">Rituais / rotinas rígidas</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_b_interess"><label for="inf_b_interess">Interesses muito restritos e intensos</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_b_hiperativ"><label for="inf_b_hiperativ">Hiperatividade / agitação motora</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_b_impulsiv"><label for="inf_b_impulsiv">Impulsividade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_b_agressi"><label for="inf_b_agressi">Agressividade ou autoagressão</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_b_birus"><label for="inf_b_birus">Birras intensas / difíceis de controlar</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_b_ansied"><label for="inf_b_ansied">Ansiedade / medos intensos</label></div>
-            </div>
-          </div>
-          <div class="form-group full"><label>Perfil sensorial (selecione todos que se aplicam)</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="inf_s_tato"><label for="inf_s_tato">Hipersensibilidade tátil (rejeita texturas, roupas)</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_s_audito"><label for="inf_s_audito">Hipersensibilidade auditiva (ruídos, vozes)</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_s_visual"><label for="inf_s_visual">Hipersensibilidade visual (luzes)</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_s_alim"><label for="inf_s_alim">Seletividade alimentar intensa</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_s_dor"><label for="inf_s_dor">Hipossensibilidade à dor</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_s_vestib"><label for="inf_s_vestib">Busca excessiva por estímulos vestibulares (girar, balançar)</label></div>
-            </div>
-          </div>
-          <div class="form-group full"><label>Observações comportamentais e sensoriais</label>
-            <textarea id="inf_comp_obs" placeholder="Descreva padrões específicos, frequência, situações gatilho..."></textarea>
-          </div>
-        </div>
-
-        <!-- SEÇÃO 9: Saúde Geral -->
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🏥</span><h2>Saúde Geral e Intervenções</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Padrão de sono</label>
-              <select id="inf_sono"><option value="">Selecione...</option><option>Adequado para a idade</option><option>Dificuldade para adormecer</option><option>Despertares frequentes</option><option>Insônia significativa</option><option>Hipersonia</option></select>
-            </div>
-            <div class="form-group"><label>Uso atual de medicamentos</label>
-              <select id="inf_med"><option value="">Selecione...</option><option>Não usa</option><option>Sim — psicotrópicos</option><option>Sim — outros</option></select>
-            </div>
-          </div>
-          <div class="form-group full"><label>Especifique medicamentos (nome, dose, há quanto tempo)</label>
-            <textarea id="inf_med_detalhes" placeholder="Ex: Risperidona 0,5mg há 6 meses..."></textarea>
-          </div>
-          <div class="form-group full"><label>Intervenções terapêuticas em andamento</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="inf_t_fonoaud"><label for="inf_t_fonoaud">Fonoaudiologia</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_t_to"><label for="inf_t_to">Terapia Ocupacional</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_t_psico"><label for="inf_t_psico">Psicologia / ABA</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_t_fisio"><label for="inf_t_fisio">Fisioterapia</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_t_psiq"><label for="inf_t_psiq">Psiquiatria</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="inf_t_neuroped"><label for="inf_t_neuroped">Neuropediatria</label></div>
-            </div>
-          </div>
-          <div class="form-group full"><label>Diagnósticos médicos já estabelecidos</label>
-            <textarea id="inf_diagnosticos" placeholder="Liste diagnósticos anteriores com datas, se disponível..."></textarea>
-          </div>
-          <div class="form-group full"><label>Exames complementares realizados (EEG, neuroimagem, genética...)</label>
-            <textarea id="inf_exames" placeholder="Descreva exames e resultados relevantes..."></textarea>
-          </div>
-          <div class="form-group full"><label>Informações adicionais relevantes</label>
-            <textarea id="inf_adicional" placeholder="Qualquer informação adicional que julgue relevante para a avaliação..."></textarea>
-          </div>
-        </div>
-
-        <div class="action-buttons">
-          <button class="btn-custom primary" id="btnGerarInfantil">📋 Gerar Texto de Anamnese</button>
-          <button class="btn-custom secondary" onclick="voltarSelecao()">← Voltar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════
-         FORMULÁRIO: SEGUNDA INFÂNCIA (6–12)
-    ════════════════════════════════════════════════ -->
-    <div class="anamnese-form" id="form-escolar">
-      <div class="faixa-badge">🎒 Segunda Infância · 6 – 12 anos</div>
-      <div class="card">
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🏥</span><h2>Dados de Encaminhamento</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Médico solicitante <span class="req">*</span></label><input type="text" id="esc_medico" placeholder="Nome do médico"></div>
-            <div class="form-group"><label>Clínica / Telefone do médico</label><input type="text" id="esc_clinica_medico" placeholder="Nome da clínica e telefone"></div>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">👤</span><h2>Identificação do Paciente</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Relação com a criança <span class="req">*</span></label>
-              <select id="esc_relacao"><option value="">Selecione...</option><option>Pai/Mãe</option><option>Responsável Legal</option><option>Outro</option></select>
-            </div>
-            <div class="form-group"><label>Nome completo da criança <span class="req">*</span></label><input type="text" id="esc_nome" placeholder="Nome completo"></div>
-            <div class="form-group"><label>Data de nascimento <span class="req">*</span></label><input type="date" id="esc_nasc"></div>
-            <div class="form-group"><label>Sexo biológico</label>
-              <select id="esc_sexo"><option value="">Selecione...</option><option>Masculino</option><option>Feminino</option></select>
-            </div>
-            <div class="form-group full"><label>Nome completo dos pais</label><input type="text" id="esc_pais" placeholder="Nome do pai e da mãe"></div>
-            <div class="form-group"><label>Cidade de nascimento</label><input type="text" id="esc_cidade" placeholder="Cidade / Estado"></div>
-            <div class="form-group"><label>Data da avaliação</label><input type="date" id="esc_data_aval"></div>
-            <div class="form-group"><label>Série / Ano escolar atual</label><input type="text" id="esc_serie" placeholder="Ex: 3º ano do Ensino Fundamental"></div>
-            <div class="form-group"><label>Escola (nome e tipo)</label><input type="text" id="esc_escola" placeholder="Ex: Escola Municipal X — pública"></div>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🎯</span><h2>Descrição da Demanda</h2></div>
-          <div class="form-group full"><label>Motivo principal da avaliação <span class="req">*</span></label>
-            <textarea id="esc_motivo" placeholder="Descreva detalhadamente as queixas, dificuldades e preocupações..."></textarea>
-          </div>
-          <div class="form-group full"><label>Impacto das dificuldades na vida diária (escola, relações sociais, autonomia, bem-estar)</label>
-            <textarea id="esc_impacto" placeholder="Como as dificuldades afetam o desempenho escolar, as amizades, as atividades de vida diária..."></textarea>
-          </div>
-          <div class="form-group full"><label>Há quanto tempo essas preocupações estão presentes?</label>
-            <select id="esc_tempo_queixa"><option value="">Selecione...</option><option>Desde muito cedo (pré-escolar)</option><option>Desde o início do Ensino Fundamental</option><option>Há menos de 1 ano</option><option>Entre 1 e 2 anos</option><option>Há mais de 2 anos</option></select>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🧬</span><h2>Histórico Familiar</h2></div>
-          <div class="form-group full"><label>Histórico familiar de transtornos do neurodesenvolvimento ou psiquiátricos</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="esc_hf_tdah"><label for="esc_hf_tdah">TDAH</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_hf_tea"><label for="esc_hf_tea">TEA</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_hf_dislexia"><label for="esc_hf_dislexia">Dislexia / DEA</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_hf_depressao"><label for="esc_hf_depressao">Depressão</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_hf_ansiedade"><label for="esc_hf_ansiedade">Ansiedade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_hf_bipolar"><label for="esc_hf_bipolar">Bipolaridade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_hf_esquizo"><label for="esc_hf_esquizo">Esquizofrenia</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_hf_demencia"><label for="esc_hf_demencia">Demência</label></div>
-            </div>
-          </div>
-          <div class="form-group full"><label>Especifique grau de parentesco e detalhes</label>
-            <textarea id="esc_hf_detalhes" placeholder="Ex: mãe com TDAH, tio paterno com TEA..."></textarea>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🤰</span><h2>Histórico Gestacional e do Neurodesenvolvimento Precoce</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Intercorrências gestacionais relevantes</label><textarea id="esc_gestacao" placeholder="Hipertensão, prematuridade, infecções..."></textarea></div>
-            <div class="form-group"><label>Desenvolvimento psicomotor precoce</label>
-              <select id="esc_dev_precoce"><option value="">Selecione...</option><option>Dentro do esperado</option><option>Atraso motor</option><option>Atraso de linguagem</option><option>Atraso em múltiplas áreas</option><option>Regressão de habilidades</option></select>
-            </div>
-          </div>
-          <div class="form-group full"><label>Observações sobre o desenvolvimento na primeira infância</label>
-            <textarea id="esc_dev_obs" placeholder="Marcos atingidos, particularidades do desenvolvimento precoce..."></textarea>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">📚</span><h2>Histórico Escolar e Aprendizagem</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Desempenho acadêmico geral</label>
-              <select id="esc_desempenho"><option value="">Selecione...</option><option>Acima da média</option><option>Na média</option><option>Abaixo da média</option><option>Muito abaixo — com reprovações</option></select>
-            </div>
-            <div class="form-group"><label>Disciplinas com maior dificuldade</label><input type="text" id="esc_dific_disc" placeholder="Ex: Português, Matemática..."></div>
-            <div class="form-group"><label>Disciplinas com melhor desempenho</label><input type="text" id="esc_boas_disc" placeholder="Ex: Ciências, Artes..."></div>
-            <div class="form-group"><label>Já foi reprovado?</label>
-              <select id="esc_reprovado"><option value="">Selecione...</option><option>Não</option><option>Sim — 1 vez</option><option>Sim — 2 vezes ou mais</option></select>
-            </div>
-          </div>
-          <div class="form-group full"><label>Dificuldades específicas de aprendizagem (selecione todos que se aplicam)</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="esc_a_leitura"><label for="esc_a_leitura">Leitura (decodificação, fluência)</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_a_escrita"><label for="esc_a_escrita">Escrita (ortografia, produção textual)</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_a_mat"><label for="esc_a_mat">Matemática (cálculo, raciocínio)</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_a_atencao"><label for="esc_a_atencao">Atenção e concentração</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_a_memo"><label for="esc_a_memo">Memória</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_a_org"><label for="esc_a_org">Organização e planejamento</label></div>
-            </div>
-          </div>
-          <div class="form-group full"><label>Já tem algum laudo ou diagnóstico escolar / médico?</label>
-            <textarea id="esc_laudos" placeholder="Descreva laudos anteriores, diagnósticos estabelecidos..."></textarea>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">👫</span><h2>Perfil Social e Comportamental</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Relacionamento com colegas</label>
-              <select id="esc_relacao_social"><option value="">Selecione...</option><option>Boa rede de amigos</option><option>Poucos amigos, mas relações estáveis</option><option>Dificuldades significativas de socialização</option><option>Isolamento social</option></select>
-            </div>
-            <div class="form-group"><label>Histórico de bullying</label>
-              <select id="esc_bullying"><option value="">Selecione...</option><option>Sem histórico</option><option>Sim — vítima</option><option>Sim — autor</option><option>Sim — ambos</option></select>
-            </div>
-          </div>
-          <div class="form-group full"><label>Comportamentos presentes (selecione todos que se aplicam)</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="esc_b_hiperativ"><label for="esc_b_hiperativ">Hiperatividade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_b_impulsiv"><label for="esc_b_impulsiv">Impulsividade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_b_desaten"><label for="esc_b_desaten">Desatenção frequente</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_b_ansied"><label for="esc_b_ansied">Ansiedade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_b_humor"><label for="esc_b_humor">Instabilidade de humor</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_b_oposit"><label for="esc_b_oposit">Comportamento opositor / desafiador</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_b_perfec"><label for="esc_b_perfec">Perfeccionismo / rigidez</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_b_retraim"><label for="esc_b_retraim">Retraimento social</label></div>
-            </div>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🏥</span><h2>Saúde e Intervenções</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Uso atual de medicamentos</label>
-              <select id="esc_med"><option value="">Selecione...</option><option>Não usa</option><option>Sim — psicotrópicos</option><option>Sim — outros</option></select>
-            </div>
-            <div class="form-group"><label>Padrão de sono</label>
-              <select id="esc_sono"><option value="">Selecione...</option><option>Adequado</option><option>Dificuldade para adormecer</option><option>Despertares frequentes</option><option>Insônia</option></select>
-            </div>
-          </div>
-          <div class="form-group full"><label>Especifique medicamentos (nome, dose)</label>
-            <textarea id="esc_med_det" placeholder="Ex: Metilfenidato 10mg..."></textarea>
-          </div>
-          <div class="form-group full"><label>Intervenções terapêuticas em andamento</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="esc_t_psico"><label for="esc_t_psico">Psicologia</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_t_fono"><label for="esc_t_fono">Fonoaudiologia</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_t_to"><label for="esc_t_to">Terapia Ocupacional</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_t_psiq"><label for="esc_t_psiq">Psiquiatria</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_t_neuro"><label for="esc_t_neuro">Neurologia</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="esc_t_reforco"><label for="esc_t_reforco">Reforço escolar</label></div>
-            </div>
-          </div>
-          <div class="form-group full"><label>Observações adicionais</label>
-            <textarea id="esc_adicional" placeholder="Qualquer informação adicional relevante para a avaliação..."></textarea>
-          </div>
-        </div>
-        <div class="action-buttons">
-          <button class="btn-custom primary" id="btnGerarEscolar">📋 Gerar Texto de Anamnese</button>
-          <button class="btn-custom secondary" onclick="voltarSelecao()">← Voltar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════
-         FORMULÁRIO: ADOLESCÊNCIA (12–18)
-    ════════════════════════════════════════════════ -->
-    <div class="anamnese-form" id="form-adolescente">
-      <div class="faixa-badge">🧑 Adolescência · 12 – 18 anos</div>
-      <div class="card">
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🏥</span><h2>Dados de Encaminhamento</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Médico solicitante <span class="req">*</span></label><input type="text" id="adol_medico" placeholder="Nome do médico"></div>
-            <div class="form-group"><label>Clínica / Telefone</label><input type="text" id="adol_clinica_medico" placeholder="Nome da clínica e telefone"></div>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">👤</span><h2>Identificação do Paciente</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Relação com o adolescente <span class="req">*</span></label>
-              <select id="adol_relacao"><option value="">Selecione...</option><option>Pai/Mãe</option><option>Responsável Legal</option><option>Outro</option></select>
-            </div>
-            <div class="form-group"><label>Nome completo do adolescente <span class="req">*</span></label><input type="text" id="adol_nome" placeholder="Nome completo"></div>
-            <div class="form-group"><label>Data de nascimento <span class="req">*</span></label><input type="date" id="adol_nasc"></div>
-            <div class="form-group"><label>Sexo biológico / Identidade de gênero</label><input type="text" id="adol_sexo" placeholder="Ex: Feminino / ela/dela"></div>
-            <div class="form-group full"><label>Nome completo dos pais</label><input type="text" id="adol_pais" placeholder="Nome do pai e da mãe"></div>
-            <div class="form-group"><label>Cidade de nascimento</label><input type="text" id="adol_cidade" placeholder="Cidade / Estado"></div>
-            <div class="form-group"><label>Data da avaliação</label><input type="date" id="adol_data_aval"></div>
-            <div class="form-group"><label>Série / Ano escolar</label><input type="text" id="adol_serie" placeholder="Ex: 1º ano do Ensino Médio"></div>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🎯</span><h2>Descrição da Demanda</h2></div>
-          <div class="form-group full"><label>Motivo principal da avaliação <span class="req">*</span></label>
-            <textarea id="adol_motivo" placeholder="Descreva as principais preocupações e queixas em detalhes..."></textarea>
-          </div>
-          <div class="form-group full"><label>Impacto das dificuldades na vida diária (escola, trabalho, relações sociais, autonomia, bem-estar)</label>
-            <textarea id="adol_impacto" placeholder="Como as dificuldades afetam os diferentes domínios da vida do adolescente..."></textarea>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🧬</span><h2>Histórico Familiar</h2></div>
-          <div class="form-group full"><label>Histórico familiar de transtornos do neurodesenvolvimento ou psiquiátricos</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="adol_hf_tdah"><label for="adol_hf_tdah">TDAH</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_hf_tea"><label for="adol_hf_tea">TEA</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_hf_dislexia"><label for="adol_hf_dislexia">Dislexia</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_hf_depressao"><label for="adol_hf_depressao">Depressão</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_hf_ansiedade"><label for="adol_hf_ansiedade">Ansiedade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_hf_bipolar"><label for="adol_hf_bipolar">Bipolaridade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_hf_esquizo"><label for="adol_hf_esquizo">Esquizofrenia</label></div>
-            </div>
-          </div>
-          <div class="form-group full"><label>Especifique grau de parentesco e detalhes</label>
-            <textarea id="adol_hf_detalhes" placeholder="Ex: pai com TDAH, avó materna com depressão..."></textarea>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">📚</span><h2>Histórico Escolar e Aprendizagem</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Desempenho acadêmico geral</label>
-              <select id="adol_desempenho"><option value="">Selecione...</option><option>Acima da média</option><option>Na média</option><option>Abaixo da média</option><option>Muito abaixo — com reprovações</option></select>
-            </div>
-            <div class="form-group"><label>Já foi reprovado?</label>
-              <select id="adol_reprovado"><option value="">Selecione...</option><option>Não</option><option>Sim — 1 vez</option><option>Sim — 2 vezes ou mais</option></select>
-            </div>
-            <div class="form-group"><label>Disciplinas com maior dificuldade</label><input type="text" id="adol_dific_disc" placeholder="Ex: Português, Matemática..."></div>
-            <div class="form-group"><label>Disciplinas com melhor desempenho</label><input type="text" id="adol_boas_disc" placeholder="Ex: Biologia, Filosofia..."></div>
-          </div>
-          <div class="form-group full"><label>Histórico do desenvolvimento escolar e trajetória de aprendizagem</label>
-            <textarea id="adol_trajetoria" placeholder="Como foi a trajetória escolar? Quando as dificuldades começaram? Houve momentos de maior e menor desempenho?"></textarea>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🌱</span><h2>Desenvolvimento Precoce e Histórico Clínico</h2></div>
-          <div class="form-group full"><label>Intercorrências gestacionais ou perinatais relevantes</label>
-            <textarea id="adol_gestacao" placeholder="Prematuridade, complicações, Apgar, etc..."></textarea>
-          </div>
-          <div class="form-group full"><label>Desenvolvimento neuropsicomotor precoce</label>
-            <select id="adol_dev_precoce"><option value="">Selecione...</option><option>Dentro do esperado</option><option>Atraso motor</option><option>Atraso de linguagem</option><option>Atraso em múltiplas áreas</option><option>Não sabe informar</option></select>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🧠</span><h2>Saúde Mental e Comportamento</h2></div>
-          <div class="form-group full"><label>Sintomas presentes (selecione todos que se aplicam)</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="adol_s_ansied"><label for="adol_s_ansied">Ansiedade / ataques de pânico</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_s_depres"><label for="adol_s_depres">Sintomas depressivos</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_s_autolesao"><label for="adol_s_autolesao">Automutilação / comportamentos de risco</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_s_alimentar"><label for="adol_s_alimentar">Transtorno alimentar</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_s_sono"><label for="adol_s_sono">Distúrbios do sono</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_s_social"><label for="adol_s_social">Isolamento social</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_s_humor"><label for="adol_s_humor">Instabilidade de humor intensa</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adol_s_comp_opos"><label for="adol_s_comp_opos">Comportamento opositor / desafiador</label></div>
-            </div>
-          </div>
-          <div class="form-grid">
-            <div class="form-group"><label>Uso de substâncias (álcool, cannabis, outros)</label>
-              <select id="adol_substancias"><option value="">Selecione...</option><option>Não</option><option>Uso experimental/esporádico</option><option>Uso regular</option><option>Abuso / dependência</option></select>
-            </div>
-            <div class="form-group"><label>Histório de bullying</label>
-              <select id="adol_bullying"><option value="">Selecione...</option><option>Sem histórico</option><option>Vítima de bullying</option><option>Cyberbullying</option><option>Ambos</option></select>
-            </div>
-          </div>
-          <div class="form-group full"><label>Observações sobre comportamento e saúde mental</label>
-            <textarea id="adol_saude_mental_obs" placeholder="Contexto, episódios marcantes, busca anterior por ajuda..."></textarea>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🏥</span><h2>Saúde e Intervenções</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Uso atual de medicamentos</label>
-              <select id="adol_med"><option value="">Selecione...</option><option>Não usa</option><option>Sim — psicotrópicos</option><option>Sim — outros</option></select>
-            </div>
-            <div class="form-group"><label>Acompanhamento psicológico anterior</label>
-              <select id="adol_psico_ant"><option value="">Selecione...</option><option>Nunca</option><option>Sim — atualmente</option><option>Sim — anteriormente</option></select>
-            </div>
-          </div>
-          <div class="form-group full"><label>Medicamentos (nome, dose, há quanto tempo)</label>
-            <textarea id="adol_med_det" placeholder="Ex: Sertralina 50mg há 8 meses..."></textarea>
-          </div>
-          <div class="form-group full"><label>Diagnósticos estabelecidos</label>
-            <textarea id="adol_diagnosticos" placeholder="Liste diagnósticos médicos ou psicológicos anteriores..."></textarea>
-          </div>
-          <div class="form-group full"><label>Observações adicionais</label>
-            <textarea id="adol_adicional" placeholder="Qualquer informação adicional relevante..."></textarea>
-          </div>
-        </div>
-        <div class="action-buttons">
-          <button class="btn-custom primary" id="btnGerarAdolescente">📋 Gerar Texto de Anamnese</button>
-          <button class="btn-custom secondary" onclick="voltarSelecao()">← Voltar</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ═══════════════════════════════════════════════
-         FORMULÁRIO: ADULTO / IDOSO (18+)
-    ════════════════════════════════════════════════ -->
-    <div class="anamnese-form" id="form-adulto">
-      <div class="faixa-badge">🧑‍💼 Adulto / Idoso · 18 anos+</div>
-      <div class="card">
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🏥</span><h2>Dados de Encaminhamento</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Médico solicitante <span class="req">*</span></label><input type="text" id="adu_medico" placeholder="Nome do médico"></div>
-            <div class="form-group"><label>Clínica / Telefone</label><input type="text" id="adu_clinica_medico" placeholder="Nome da clínica e telefone"></div>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">👤</span><h2>Identificação do Paciente</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Quem está respondendo? <span class="req">*</span></label>
-              <select id="adu_relacao"><option value="">Selecione...</option><option>Sou eu mesmo(a)</option><option>Responsável Legal</option><option>Cônjuge / Familiar</option><option>Outro</option></select>
-            </div>
-            <div class="form-group"><label>Nome completo do avaliando <span class="req">*</span></label><input type="text" id="adu_nome" placeholder="Nome completo"></div>
-            <div class="form-group"><label>Data de nascimento <span class="req">*</span></label><input type="date" id="adu_nasc"></div>
-            <div class="form-group"><label>Sexo biológico / Identidade de gênero</label><input type="text" id="adu_sexo" placeholder="Ex: Feminino"></div>
-            <div class="form-group full"><label>Nome completo dos pais</label><input type="text" id="adu_pais" placeholder="Nome do pai e da mãe"></div>
-            <div class="form-group"><label>Cidade de nascimento</label><input type="text" id="adu_cidade" placeholder="Cidade / Estado"></div>
-            <div class="form-group"><label>Data da avaliação</label><input type="date" id="adu_data_aval"></div>
-            <div class="form-group"><label>Escolaridade</label>
-              <select id="adu_escolaridade"><option value="">Selecione...</option><option>Ensino Fundamental incompleto</option><option>Ensino Fundamental completo</option><option>Ensino Médio incompleto</option><option>Ensino Médio completo</option><option>Graduação incompleta</option><option>Graduação completa</option><option>Pós-graduação</option></select>
-            </div>
-            <div class="form-group"><label>Situação profissional atual</label>
-              <select id="adu_profissao"><option value="">Selecione...</option><option>Empregado(a)</option><option>Autônomo(a)</option><option>Desempregado(a)</option><option>Afastado(a) por doença</option><option>Aposentado(a)</option><option>Estudante</option></select>
-            </div>
-            <div class="form-group"><label>Profissão / Ocupação</label><input type="text" id="adu_ocupacao" placeholder="Área de atuação"></div>
-            <div class="form-group"><label>Estado civil</label>
-              <select id="adu_estado_civil"><option value="">Selecione...</option><option>Solteiro(a)</option><option>Casado(a)</option><option>União estável</option><option>Divorciado(a)</option><option>Viúvo(a)</option></select>
-            </div>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🎯</span><h2>Descrição da Demanda</h2></div>
-          <div class="form-group full"><label>Motivo principal da avaliação <span class="req">*</span></label>
-            <textarea id="adu_motivo" placeholder="Descreva detalhadamente as principais preocupações, dificuldades ou queixas..."></textarea>
-          </div>
-          <div class="form-group full"><label>Impacto das dificuldades na vida diária (trabalho, relações sociais, autonomia, bem-estar emocional)</label>
-            <textarea id="adu_impacto" placeholder="Como essas dificuldades afetam o funcionamento nos diferentes domínios da vida..."></textarea>
-          </div>
-          <div class="form-group full"><label>Há quanto tempo essas dificuldades estão presentes?</label>
-            <select id="adu_tempo_queixa"><option value="">Selecione...</option><option>Desde a infância</option><option>Desde a adolescência</option><option>Há menos de 1 ano</option><option>Entre 1 e 3 anos</option><option>Entre 3 e 10 anos</option><option>Há mais de 10 anos</option></select>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🧬</span><h2>Histórico Familiar</h2></div>
-          <div class="form-group full"><label>Histórico familiar de transtornos do neurodesenvolvimento ou psiquiátricos</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="adu_hf_tdah"><label for="adu_hf_tdah">TDAH</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_hf_tea"><label for="adu_hf_tea">TEA</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_hf_dislexia"><label for="adu_hf_dislexia">Dislexia</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_hf_depressao"><label for="adu_hf_depressao">Depressão</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_hf_ansiedade"><label for="adu_hf_ansiedade">Ansiedade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_hf_bipolar"><label for="adu_hf_bipolar">Bipolaridade</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_hf_esquizo"><label for="adu_hf_esquizo">Esquizofrenia</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_hf_demencia"><label for="adu_hf_demencia">Demência/Alzheimer</label></div>
-            </div>
-          </div>
-          <div class="form-group full"><label>Especifique grau de parentesco e detalhes</label>
-            <textarea id="adu_hf_detalhes" placeholder="Ex: mãe com depressão, irmão com TDAH..."></textarea>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🌱</span><h2>Desenvolvimento e Histórico Pessoal</h2></div>
-          <div class="form-group full"><label>Intercorrências gestacionais ou perinatais conhecidas</label>
-            <textarea id="adu_gestacao" placeholder="Prematuridade, complicações no parto, uso de medicamentos na gestação..."></textarea>
-          </div>
-          <div class="form-group full"><label>Desenvolvimento neuropsicomotor precoce</label>
-            <select id="adu_dev_precoce"><option value="">Selecione...</option><option>Dentro do esperado</option><option>Atraso de linguagem</option><option>Atraso motor</option><option>Atraso em múltiplas áreas</option><option>Não sabe informar</option></select>
-          </div>
-          <div class="form-group full"><label>Trajetória escolar</label>
-            <textarea id="adu_escolar" placeholder="Descreva como foi a trajetória escolar, dificuldades, desempenho, relações..."></textarea>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">🧠</span><h2>Saúde Mental e Histórico Psiquiátrico</h2></div>
-          <div class="form-group full"><label>Sintomas atuais presentes (selecione todos que se aplicam)</label>
-            <div class="checkbox-group">
-              <div class="checkbox-item"><input type="checkbox" id="adu_s_ansied"><label for="adu_s_ansied">Ansiedade / ataques de pânico</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_s_depres"><label for="adu_s_depres">Sintomas depressivos</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_s_humor"><label for="adu_s_humor">Instabilidade de humor</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_s_sono"><label for="adu_s_sono">Distúrbios do sono</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_s_social"><label for="adu_s_social">Dificuldades sociais / isolamento</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_s_fadiga"><label for="adu_s_fadiga">Fadiga social / exaustão</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_s_sensorial"><label for="adu_s_sensorial">Hipersensibilidade sensorial</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_s_memoria"><label for="adu_s_memoria">Queixas de memória</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_s_atencao"><label for="adu_s_atencao">Dificuldades de atenção/concentração</label></div>
-              <div class="checkbox-item"><input type="checkbox" id="adu_s_executivo"><label for="adu_s_executivo">Dificuldades de organização e planejamento</label></div>
-            </div>
-          </div>
-          <div class="form-group full"><label>Histórico de tratamentos psicológicos ou psiquiátricos anteriores</label>
-            <textarea id="adu_tratamentos_ant" placeholder="Descreva tratamentos anteriores, diagnósticos, internações, se houver..."></textarea>
-          </div>
-          <div class="form-group full"><label>Perfil sensorial — hipersensibilidades presentes (descreva)</label>
-            <textarea id="adu_sensorial" placeholder="Ex: intolerância a barulhos intensos, defensividade tátil, fotofobia, seletividade alimentar..."></textarea>
-          </div>
-          <div class="form-group full"><label>Padrões comportamentais específicos</label>
-            <textarea id="adu_comportamento" placeholder="Estereotipias, rituais, interesses restritos e intensos (hiperfoco), padrões de mascaramento social..."></textarea>
-          </div>
-        </div>
-        <div class="form-section">
-          <div class="form-section-header"><span class="form-section-icon">💊</span><h2>Saúde Geral e Intervenções Atuais</h2></div>
-          <div class="form-grid">
-            <div class="form-group"><label>Uso atual de medicamentos</label>
-              <select id="adu_med"><option value="">Selecione...</option><option>Não usa</option><option>Sim — psicotrópicos</option><option>Sim — outros</option></select>
-            </div>
-            <div class="form-group"><label>Padrão de sono</label>
-              <select id="adu_sono"><option value="">Selecione...</option><option>Adequado</option><option>Dificuldade para adormecer</option><option>Despertares frequentes</option><option>Insônia significativa</option><option>Hipersonia</option></select>
-            </div>
-          </div>
-          <div class="form-group full"><label>Medicamentos (nome, dose, há quanto tempo)</label>
-            <textarea id="adu_med_det" placeholder="Ex: Venlafaxina 75mg + Lamotrigina 100mg há 2 anos..."></textarea>
-          </div>
-          <div class="form-group full"><label>Doenças clínicas relevantes / exames realizados</label>
-            <textarea id="adu_clinico" placeholder="Condições médicas, exames neurológicos, genéticos, de neuroimagem..."></textarea>
-          </div>
-          <div class="form-group full"><label>Observações adicionais</label>
-            <textarea id="adu_adicional" placeholder="Qualquer informação adicional que julgue relevante para a avaliação..."></textarea>
-          </div>
-        </div>
-        <div class="action-buttons">
-          <button class="btn-custom primary" id="btnGerarAdulto">📋 Gerar Texto de Anamnese</button>
-          <button class="btn-custom secondary" onclick="voltarSelecao()">← Voltar</button>
-        </div>
-      </div>
-    </div>
-
-  </main>
+    <div class="page-title" id="pt">Entrevista de Anamnese</div>
+    <div class="page-sub" id="ps">Selecione a faixa etária para iniciar</div>
+  </div>
+  <div id="main"></div>
 </div>
 
-<!-- Modal de carregamento -->
-<div class="modal-overlay" id="modalLoading">
-  <div class="modal-box">
-    <div class="spinner"></div>
-    <div class="modal-title">Gerando Anamnese com IA...</div>
-    <div class="modal-sub">Analisando os dados clínicos do paciente</div>
-  </div>
-</div>
-
-<!-- Overlay do Relatório de Anamnese -->
-<div class="anamnese-report-overlay no-print" id="repOverlay">
-  <div class="anamnese-report-topbar">
-    <div class="anamnese-report-topbar-left">
-      <h2>📋 Entrevista de Anamnese — Texto Clínico</h2>
-    </div>
-    <div class="anamnese-report-actions">
-      <button class="btn-print-rep" id="btnPrintRep">🖨️ Imprimir / Baixar PDF</button>
-      <button class="btn-close-rep" id="btnCloseRep">✕ Fechar</button>
-    </div>
-  </div>
-  <div class="anamnese-report-scroll">
-    <div class="anamnese-report-frame">
-      <div class="rep-wrapper">
-        <div class="rep-header">
-          <div class="rep-header-brand">
-            <img src="/logo2.png" alt="Logo" class="rep-logo" onerror="this.style.display='none'" />
-            <div>
-              <div class="rep-brand-name">Equilibrium</div>
-              <div class="rep-brand-sub">Neuropsicologia</div>
-            </div>
-          </div>
-          <div class="rep-header-info">
-            <div class="rep-title">Entrevista de Anamnese</div>
-            <div class="rep-subtitle" id="repSubtitle">Avaliação Neuropsicológica</div>
-          </div>
-        </div>
-        <div class="rep-body">
-          <div class="rep-section">
-            <h2 class="rep-section-title">👤 Dados de Identificação</h2>
-            <div class="rep-meta-grid" id="repMetaGrid"></div>
-          </div>
-          <div id="repConteudo">
-            <!-- Seções geradas dinamicamente pela IA -->
-          </div>
-          <div class="rep-footer">
-            <p>Texto de anamnese gerado por <strong>Equilibrium Neuropsicologia</strong> — CRP 04/53832</p>
-            <p class="rep-footer-confidencial">Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados. Documento sujeito a complementação durante a entrevista clínica.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="/js/firebase-config.js"></script>
-<script src="/js/db.js"></script>
-<script src="/js/auth.js"></script>
 <script>
-  let faixaSelecionada = null;
+const hoje = new Date().toISOString().split('T')[0];
+const HF  = ['TDAH','TEA','Dislexia','Depressão','Ansiedade','Bipolaridade','Esquizofrenia','Demência'];
+const HFI = ['Alzheimer/Demência','Parkinson','AVC','Depressão','Bipolaridade','Esquizofrenia','TDAH','TEA'];
 
-  function selecionarFaixa(faixa) {
-    faixaSelecionada = faixa;
-    document.querySelectorAll('.faixa-card').forEach(c => c.classList.remove('selected'));
-    document.getElementById('faixa-' + faixa).classList.add('selected');
-    document.querySelectorAll('.anamnese-form').forEach(f => f.classList.remove('active'));
-    document.getElementById('form-' + faixa).classList.add('active');
-    document.getElementById('form-' + faixa).scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
+/* ═══════════════════════════════════════════
+   DEFINIÇÃO DOS FORMULÁRIOS POR FAIXA
+═══════════════════════════════════════════ */
+const F = {
+  infantil:{icon:'🍼',tt:'Primeira Infância',rg:'0 – 6 anos',sects:[
+    {ic:'🏥',tt:'Encaminhamento',g2:[{id:'med',lb:'Médico solicitante',tp:'text',req:1},{id:'cli',lb:'Clínica / Telefone',tp:'text'}]},
+    {ic:'👤',tt:'Identificação',g2:[
+      {id:'rel',lb:'Relação com a criança',tp:'sel',op:['Pai/Mãe','Responsável Legal','Outro']},
+      {id:'nom',lb:'Nome da criança',tp:'text',req:1},
+      {id:'nsc',lb:'Data de nascimento',tp:'date'},{id:'sex',lb:'Sexo',tp:'sel',op:['Masculino','Feminino']},
+      {id:'pai',lb:'Nome dos pais',tp:'text',full:1},
+      {id:'cid',lb:'Cidade de nascimento',tp:'text'},{id:'ava',lb:'Data da avaliação',tp:'date',today:1}]},
+    {ic:'🎯',tt:'Demanda',g2:[
+      {id:'mot',lb:'Motivo da avaliação',tp:'ta',req:1,full:1,ph:'Descreva as principais preocupações e dificuldades...'},
+      {id:'imp',lb:'Impacto no cotidiano',tp:'ta',full:1,ph:'Como as dificuldades afetam o dia a dia...'},
+      {id:'tmq',lb:'Duração das queixas',tp:'sel',op:['Desde o nascimento','Menos de 6 meses','6 meses a 1 ano','1 a 2 anos','Mais de 2 anos']}]},
+    {ic:'🧬',tt:'Histórico Familiar',g2:[
+      {id:'hf',lb:'Transtornos na família',tp:'cks',its:HF,full:1},
+      {id:'hfd',lb:'Detalhes (parentesco)',tp:'ta',full:1,ph:'Ex: pai com TDAH, tio materno com TEA...'}]},
+    {ic:'🤰',tt:'Histórico Gestacional e Perinatal',g2:[
+      {id:'par',lb:'Tipo de parto',tp:'sel',op:['Vaginal','Cesáriana eletiva','Cesáriana de emergência','Fórceps']},
+      {id:'ris',lb:'Gestação de alto risco?',tp:'sel',op:['Sim','Não','Não sabe']},
+      {id:'sem',lb:'Semanas de gestação',tp:'num',ph:'Ex: 38',mn:20,mx:45},
+      {id:'pes',lb:'Peso ao nascer (g)',tp:'num',ph:'Ex: 3200'},
+      {id:'ap1',lb:'Apgar 1º min',tp:'num',ph:'0–10',mn:0,mx:10},
+      {id:'ap5',lb:'Apgar 5º min',tp:'num',ph:'0–10',mn:0,mx:10},
+      {id:'ico',lb:'Intercorrências gestacionais',tp:'cks',full:1,its:['Hipertensão materna','Diabetes gestacional','Infecções','Prematuridade','Anóxia fetal','Uso de medicamentos','Álcool/substâncias']},
+      {id:'obs',lb:'Outras observações perinatais',tp:'ta',full:1,ph:'UTI neonatal, icterícia, dificuldades de amamentação...'}]},
+    {ic:'📈',tt:'Marcos do Neurodesenvolvimento',g3:[
+      {id:'mc1',lb:'Sustentação da cabeça (meses)',tp:'num',ph:'~3m',mn:0,mx:24},
+      {id:'mc2',lb:'Sentar sem apoio (meses)',tp:'num',ph:'~6m',mn:0,mx:24},
+      {id:'mc3',lb:'Andar sem apoio (meses)',tp:'num',ph:'~12m',mn:0,mx:30},
+      {id:'mc4',lb:'Primeiras palavras (meses)',tp:'num',ph:'~12m',mn:0,mx:48},
+      {id:'mc5',lb:'Frases com 2+ palavras (meses)',tp:'num',ph:'~24m',mn:0,mx:60},
+      {id:'mc6',lb:'Controle esfincteriano (meses)',tp:'num',ph:'~24–36m',mn:0,mx:72},
+      {id:'reg',lb:'Regressão de habilidades?',tp:'sel',full:1,op:['Não houve regressão','Regressão de linguagem','Regressão motora','Regressão social (contato, interação)','Múltiplas áreas']},
+      {id:'dob',lb:'Observações sobre o desenvolvimento',tp:'ta',full:1,ph:'Sono, alimentação, sensibilidades na primeira infância...'}]},
+    {ic:'💬',tt:'Linguagem e Comunicação',g2:[
+      {id:'lng',lb:'Nível de linguagem atual',tp:'sel',op:['Pré-verbal (sem palavras)','Palavras isoladas','Frases simples (2–3 palavras)','Frases elaboradas','Comunicação complexa para a idade']},
+      {id:'cvi',lb:'Contato visual',tp:'sel',op:['Adequado','Reduzido','Ausente','Inconsistente']},
+      {id:'clg',lb:'Características de linguagem',tp:'cks',full:1,its:['Ecolalia (repetição de palavras/frases)','Inversão pronominal ("você" por "eu")','Não aponta para pedir ou mostrar','Dificuldade em responder ao próprio nome','Atraso na linguagem expressiva','Dificuldade de compreensão']}]},
+    {ic:'🔍',tt:'Comportamento e Perfil Sensorial',g2:[
+      {id:'cmp',lb:'Comportamentos presentes',tp:'cks',full:1,its:['Estereotipias motoras (mão, corpo, voz)','Rituais / rotinas rígidas','Interesses restritos e intensos','Hiperatividade / agitação motora','Impulsividade','Birras intensas / difíceis de controlar','Agressividade ou autoagressão','Ansiedade / medos intensos']},
+      {id:'sen',lb:'Perfil sensorial',tp:'cks',full:1,its:['Hipersensibilidade tátil (rejeita texturas, roupas)','Hipersensibilidade auditiva (ruídos, vozes)','Hipersensibilidade visual (luzes)','Seletividade alimentar intensa','Hipossensibilidade à dor','Busca excessiva por estímulos vestibulares (girar, balançar)']},
+      {id:'cob',lb:'Observações comportamentais e sensoriais',tp:'ta',full:1,ph:'Padrões específicos, frequência, situações gatilho...'}]},
+    {ic:'💊',tt:'Saúde e Intervenções',g2:[
+      {id:'med2',lb:'Uso de medicamentos',tp:'sel',op:['Não usa','Sim — psicotrópicos','Sim — outros']},
+      {id:'son',lb:'Padrão de sono',tp:'sel',op:['Adequado para a idade','Dificuldade para adormecer','Despertares frequentes','Insônia significativa']},
+      {id:'mdt',lb:'Medicamentos (nome, dose, tempo)',tp:'ta',full:1,ph:'Ex: Risperidona 0,5mg há 6 meses...'},
+      {id:'int',lb:'Intervenções em andamento',tp:'cks',full:1,its:['Fonoaudiologia','Terapia Ocupacional','Psicologia / ABA','Neuropediatria','Psiquiatria','Fisioterapia']},
+      {id:'dxs',lb:'Diagnósticos anteriores / Exames realizados',tp:'ta',full:1,ph:'Diagnósticos, EEG, neuroimagem, genética...'},
+      {id:'add',lb:'Informações adicionais',tp:'ta',full:1,ph:'Qualquer informação adicional relevante...'}]}
+  ]},
 
-  function voltarSelecao() {
-    document.querySelectorAll('.anamnese-form').forEach(f => f.classList.remove('active'));
-    document.querySelectorAll('.faixa-card').forEach(c => c.classList.remove('selected'));
-    faixaSelecionada = null;
-    document.getElementById('cardFaixa').scrollIntoView({ behavior: 'smooth' });
-  }
+  escolar:{icon:'🎒',tt:'Segunda Infância',rg:'6 – 12 anos',sects:[
+    {ic:'🏥',tt:'Encaminhamento',g2:[{id:'med',lb:'Médico solicitante',tp:'text',req:1},{id:'cli',lb:'Clínica / Telefone',tp:'text'}]},
+    {ic:'👤',tt:'Identificação',g2:[
+      {id:'rel',lb:'Relação com a criança',tp:'sel',op:['Pai/Mãe','Responsável Legal','Outro']},
+      {id:'nom',lb:'Nome da criança',tp:'text',req:1},
+      {id:'nsc',lb:'Data de nascimento',tp:'date'},{id:'sex',lb:'Sexo',tp:'sel',op:['Masculino','Feminino']},
+      {id:'pai',lb:'Nome dos pais',tp:'text',full:1},
+      {id:'cid',lb:'Cidade de nascimento',tp:'text'},{id:'ava',lb:'Data da avaliação',tp:'date',today:1},
+      {id:'ser',lb:'Série / Ano escolar',tp:'text',ph:'Ex: 3º ano do Ensino Fundamental'},
+      {id:'esc',lb:'Nome da escola',tp:'text',ph:'Ex: Escola Municipal X'}]},
+    {ic:'🎯',tt:'Demanda',g2:[
+      {id:'mot',lb:'Motivo da avaliação',tp:'ta',req:1,full:1,ph:'Descreva as queixas em detalhes...'},
+      {id:'imp',lb:'Impacto na vida diária (escola, social, autonomia)',tp:'ta',full:1,ph:'Como as dificuldades afetam o desempenho, amizades...'},
+      {id:'tmq',lb:'Início das dificuldades',tp:'sel',op:['Desde o pré-escolar','Início do Ensino Fundamental','Menos de 1 ano','Entre 1 e 2 anos','Mais de 2 anos']}]},
+    {ic:'🧬',tt:'Histórico Familiar',g2:[
+      {id:'hf',lb:'Transtornos na família',tp:'cks',its:HF,full:1},
+      {id:'hfd',lb:'Detalhes (parentesco)',tp:'ta',full:1,ph:'Ex: mãe com TDAH, tio paterno com TEA...'}]},
+    {ic:'🌱',tt:'Desenvolvimento Precoce',g2:[
+      {id:'ges',lb:'Intercorrências gestacionais relevantes',tp:'ta',ph:'Prematuridade, complicações, Apgar...'},
+      {id:'dev',lb:'Desenvolvimento neuropsicomotor precoce',tp:'sel',op:['Dentro do esperado','Atraso motor','Atraso de linguagem','Atraso em múltiplas áreas','Regressão de habilidades']},
+      {id:'dob',lb:'Observações sobre a primeira infância',tp:'ta',full:1,ph:'Marcos, particularidades do desenvolvimento...'}]},
+    {ic:'📚',tt:'Histórico Escolar e Aprendizagem',g2:[
+      {id:'des',lb:'Desempenho acadêmico geral',tp:'sel',op:['Acima da média','Na média','Abaixo da média','Muito abaixo — com reprovações']},
+      {id:'rep',lb:'Já foi reprovado?',tp:'sel',op:['Não','Sim — 1 vez','Sim — 2 vezes ou mais']},
+      {id:'ddc',lb:'Disciplinas com maior dificuldade',tp:'text',ph:'Ex: Português, Matemática'},
+      {id:'bdc',lb:'Disciplinas com melhor desempenho',tp:'text',ph:'Ex: Ciências, Artes'},
+      {id:'dap',lb:'Dificuldades específicas de aprendizagem',tp:'cks',full:1,its:['Leitura (decodificação, fluência)','Escrita (ortografia, produção textual)','Matemática (cálculo, raciocínio)','Atenção e concentração','Memória','Organização e planejamento']},
+      {id:'ldo',lb:'Laudos / diagnósticos anteriores',tp:'ta',full:1,ph:'Laudos médicos, psicológicos, escolares...'}]},
+    {ic:'👫',tt:'Perfil Social e Comportamental',g2:[
+      {id:'soc',lb:'Relacionamento com colegas',tp:'sel',op:['Boa rede de amigos','Poucos amigos, mas relações estáveis','Dificuldades significativas de socialização','Isolamento social']},
+      {id:'bul',lb:'Histórico de bullying',tp:'sel',op:['Sem histórico','Sim — vítima','Sim — autor','Sim — ambos']},
+      {id:'cmp',lb:'Comportamentos presentes',tp:'cks',full:1,its:['Hiperatividade','Impulsividade','Desatenção frequente','Ansiedade','Instabilidade de humor','Comportamento opositor / desafiador','Perfeccionismo / rigidez','Retraimento social']}]},
+    {ic:'💊',tt:'Saúde e Intervenções',g2:[
+      {id:'med2',lb:'Uso de medicamentos',tp:'sel',op:['Não usa','Sim — psicotrópicos','Sim — outros']},
+      {id:'son',lb:'Padrão de sono',tp:'sel',op:['Adequado','Dificuldade para adormecer','Despertares frequentes','Insônia']},
+      {id:'mdt',lb:'Medicamentos (nome, dose)',tp:'ta',full:1,ph:'Ex: Metilfenidato 10mg...'},
+      {id:'int',lb:'Intervenções em andamento',tp:'cks',full:1,its:['Psicologia','Fonoaudiologia','Terapia Ocupacional','Psiquiatria','Neurologia','Reforço escolar']},
+      {id:'add',lb:'Observações adicionais',tp:'ta',full:1,ph:'Qualquer informação adicional...'}]}
+  ]},
 
-  function calcularIdade(dataNasc) {
-    if (!dataNasc) return '—';
-    const nasc = new Date(dataNasc + 'T00:00:00');
-    const hoje = new Date();
-    let anos = hoje.getFullYear() - nasc.getFullYear();
-    const m = hoje.getMonth() - nasc.getMonth();
-    if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) anos--;
-    const meses = ((hoje.getFullYear() - nasc.getFullYear()) * 12 + (hoje.getMonth() - nasc.getMonth()));
-    if (anos < 2) return meses + ' meses';
-    return anos + ' anos';
-  }
+  adolescente:{icon:'🧑',tt:'Adolescência',rg:'12 – 18 anos',sects:[
+    {ic:'🏥',tt:'Encaminhamento',g2:[{id:'med',lb:'Médico solicitante',tp:'text',req:1},{id:'cli',lb:'Clínica / Telefone',tp:'text'}]},
+    {ic:'👤',tt:'Identificação',g2:[
+      {id:'rel',lb:'Relação com o adolescente',tp:'sel',op:['Pai/Mãe','Responsável Legal','Outro']},
+      {id:'nom',lb:'Nome do adolescente',tp:'text',req:1},
+      {id:'nsc',lb:'Data de nascimento',tp:'date'},{id:'sex',lb:'Sexo / Identidade de gênero',tp:'text',ph:'Ex: Feminino / ela-dela'},
+      {id:'pai',lb:'Nome dos pais',tp:'text',full:1},
+      {id:'cid',lb:'Cidade de nascimento',tp:'text'},{id:'ava',lb:'Data da avaliação',tp:'date',today:1},
+      {id:'ser',lb:'Série / Ano escolar',tp:'text',ph:'Ex: 1º ano do Ensino Médio'}]},
+    {ic:'🎯',tt:'Demanda',g2:[
+      {id:'mot',lb:'Motivo da avaliação',tp:'ta',req:1,full:1,ph:'Descreva as principais preocupações em detalhes...'},
+      {id:'imp',lb:'Impacto na vida diária (escola, social, bem-estar)',tp:'ta',full:1,ph:'Como as dificuldades afetam os diferentes domínios...'}]},
+    {ic:'🧬',tt:'Histórico Familiar',g2:[
+      {id:'hf',lb:'Transtornos na família',tp:'cks',its:HF,full:1},
+      {id:'hfd',lb:'Detalhes (parentesco)',tp:'ta',full:1,ph:'Ex: pai com TDAH, avó com depressão...'}]},
+    {ic:'📚',tt:'Histórico Escolar',g2:[
+      {id:'des',lb:'Desempenho acadêmico',tp:'sel',op:['Acima da média','Na média','Abaixo da média','Muito abaixo / reprovações']},
+      {id:'rep',lb:'Já foi reprovado?',tp:'sel',op:['Não','Sim — 1 vez','Sim — 2+ vezes']},
+      {id:'ddc',lb:'Disciplinas com maior dificuldade',tp:'text',ph:'Ex: Português, Matemática'},
+      {id:'bdc',lb:'Disciplinas com melhor desempenho',tp:'text',ph:'Ex: Biologia, Filosofia'},
+      {id:'tra',lb:'Trajetória escolar',tp:'ta',full:1,ph:'Quando começaram as dificuldades? Houve mudanças no desempenho?'}]},
+    {ic:'🌱',tt:'Desenvolvimento Precoce',g2:[
+      {id:'ges',lb:'Intercorrências gestacionais/perinatais',tp:'ta',ph:'Prematuridade, complicações...'},
+      {id:'dev',lb:'Desenvolvimento neuropsicomotor precoce',tp:'sel',op:['Dentro do esperado','Atraso motor','Atraso de linguagem','Atraso em múltiplas áreas','Não sabe informar']}]},
+    {ic:'🧠',tt:'Saúde Mental e Comportamento',g2:[
+      {id:'smt',lb:'Sintomas presentes',tp:'cks',full:1,its:['Ansiedade / ataques de pânico','Sintomas depressivos','Automutilação / comportamentos de risco','Transtorno alimentar','Distúrbios do sono','Isolamento social','Instabilidade de humor intensa','Comportamento opositor / desafiador']},
+      {id:'sub',lb:'Uso de substâncias',tp:'sel',op:['Não','Uso experimental / esporádico','Uso regular','Abuso / dependência']},
+      {id:'bul',lb:'Histórico de bullying',tp:'sel',op:['Sem histórico','Vítima de bullying','Cyberbullying','Ambos']},
+      {id:'sob',lb:'Observações sobre saúde mental',tp:'ta',full:1,ph:'Contexto, episódios marcantes, busca anterior por ajuda...'}]},
+    {ic:'💊',tt:'Saúde e Intervenções',g2:[
+      {id:'med2',lb:'Uso de medicamentos',tp:'sel',op:['Não usa','Sim — psicotrópicos','Sim — outros']},
+      {id:'psa',lb:'Acompanhamento psicológico',tp:'sel',op:['Nunca','Sim — atualmente','Sim — anteriormente']},
+      {id:'mdt',lb:'Medicamentos (nome, dose, tempo)',tp:'ta',full:1,ph:'Ex: Sertralina 50mg há 8 meses...'},
+      {id:'dxs',lb:'Diagnósticos estabelecidos',tp:'ta',full:1,ph:'Diagnósticos médicos ou psicológicos anteriores...'},
+      {id:'add',lb:'Observações adicionais',tp:'ta',full:1,ph:'Qualquer informação adicional...'}]}
+  ]},
 
-  function formatarData(d) {
-    if (!d) return '—';
-    const dt = new Date(d + 'T00:00:00');
-    return dt.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-  }
+  adulto:{icon:'🧑‍💼',tt:'Adulto',rg:'18 – 50 anos',sects:[
+    {ic:'🏥',tt:'Encaminhamento',g2:[{id:'med',lb:'Médico solicitante',tp:'text',req:1},{id:'cli',lb:'Clínica / Telefone',tp:'text'}]},
+    {ic:'👤',tt:'Identificação',g2:[
+      {id:'rel',lb:'Quem está respondendo?',tp:'sel',op:['Sou eu mesmo(a)','Responsável Legal','Cônjuge / Familiar','Outro']},
+      {id:'nom',lb:'Nome do avaliando',tp:'text',req:1},
+      {id:'nsc',lb:'Data de nascimento',tp:'date'},{id:'sex',lb:'Sexo / Identidade de gênero',tp:'text',ph:'Ex: Feminino'},
+      {id:'pai',lb:'Nome dos pais',tp:'text',full:1},
+      {id:'cid',lb:'Cidade de nascimento',tp:'text'},{id:'ava',lb:'Data da avaliação',tp:'date',today:1},
+      {id:'esc',lb:'Escolaridade',tp:'sel',op:['Ensino Fundamental incompleto','Ensino Fundamental completo','Ensino Médio incompleto','Ensino Médio completo','Graduação incompleta','Graduação completa','Pós-graduação']},
+      {id:'ocp',lb:'Profissão / Ocupação',tp:'text',ph:'Área de atuação'},
+      {id:'prf',lb:'Situação profissional',tp:'sel',op:['Empregado(a)','Autônomo(a)','Desempregado(a)','Afastado(a) por doença','Estudante']},
+      {id:'ecv',lb:'Estado civil',tp:'sel',op:['Solteiro(a)','Casado(a)','União estável','Divorciado(a)','Viúvo(a)']}]},
+    {ic:'🎯',tt:'Demanda',g2:[
+      {id:'mot',lb:'Motivo da avaliação',tp:'ta',req:1,full:1,ph:'Descreva em detalhes as principais preocupações e queixas...'},
+      {id:'imp',lb:'Impacto na vida diária (trabalho, social, autonomia)',tp:'ta',full:1,ph:'Como as dificuldades afetam o funcionamento nos diferentes domínios...'},
+      {id:'tmq',lb:'Há quanto tempo as dificuldades estão presentes?',tp:'sel',op:['Desde a infância','Desde a adolescência','Menos de 1 ano','Entre 1 e 3 anos','Entre 3 e 10 anos','Mais de 10 anos']}]},
+    {ic:'🧬',tt:'Histórico Familiar',g2:[
+      {id:'hf',lb:'Transtornos na família',tp:'cks',its:HF,full:1},
+      {id:'hfd',lb:'Detalhes (parentesco)',tp:'ta',full:1,ph:'Ex: mãe com depressão, irmão com TDAH...'}]},
+    {ic:'🌱',tt:'Desenvolvimento e Histórico Pessoal',g2:[
+      {id:'ges',lb:'Intercorrências gestacionais / perinatais',tp:'ta',ph:'Prematuridade, complicações, Apgar...'},
+      {id:'dev',lb:'Desenvolvimento neuropsicomotor precoce',tp:'sel',op:['Dentro do esperado','Atraso de linguagem','Atraso motor','Atraso em múltiplas áreas','Não sabe informar']},
+      {id:'trj',lb:'Trajetória escolar',tp:'ta',full:1,ph:'Como foi a vida escolar, dificuldades, desempenho...'}]},
+    {ic:'🧠',tt:'Saúde Mental',g2:[
+      {id:'smt',lb:'Sintomas atuais presentes',tp:'cks',full:1,its:['Ansiedade / ataques de pânico','Sintomas depressivos','Instabilidade de humor','Distúrbios do sono','Dificuldades sociais / isolamento','Fadiga social / exaustão após interações','Hipersensibilidade sensorial','Queixas de memória','Dificuldades de atenção / concentração','Dificuldades de organização e planejamento']},
+      {id:'trt',lb:'Tratamentos psicológicos / psiquiátricos anteriores',tp:'ta',full:1,ph:'Tratamentos anteriores, diagnósticos, internações...'},
+      {id:'pfs',lb:'Perfil sensorial — hipersensibilidades presentes',tp:'ta',full:1,ph:'Ex: intolerância a ruídos intensos, defensividade tátil, fotofobia...'},
+      {id:'cmp',lb:'Padrões comportamentais específicos',tp:'ta',full:1,ph:'Estereotipias, rituais, interesses restritos e intensos (hiperfoco), mascaramento social...'}]},
+    {ic:'💊',tt:'Saúde Geral e Intervenções',g2:[
+      {id:'med2',lb:'Uso de medicamentos',tp:'sel',op:['Não usa','Sim — psicotrópicos','Sim — outros']},
+      {id:'son',lb:'Padrão de sono',tp:'sel',op:['Adequado','Dificuldade para adormecer','Despertares frequentes','Insônia significativa','Hipersonia']},
+      {id:'mdt',lb:'Medicamentos (nome, dose, tempo de uso)',tp:'ta',full:1,ph:'Ex: Venlafaxina 75mg + Lamotrigina 100mg há 2 anos...'},
+      {id:'clk',lb:'Doenças clínicas / exames realizados',tp:'ta',full:1,ph:'Condições médicas, neuroimagem, genética...'},
+      {id:'add',lb:'Observações adicionais',tp:'ta',full:1,ph:'Qualquer informação adicional...'}]}
+  ]},
 
-  function getChecked(prefix, ids) {
-    return ids.filter(id => {
-      const el = document.getElementById(prefix + id);
-      return el && el.checked;
+  idoso:{icon:'🧓',tt:'Idoso',rg:'50 anos+',sects:[
+    {ic:'🏥',tt:'Encaminhamento',g2:[{id:'med',lb:'Médico solicitante',tp:'text',req:1},{id:'cli',lb:'Clínica / Telefone',tp:'text'}]},
+    {ic:'👤',tt:'Identificação',g2:[
+      {id:'rel',lb:'Quem está respondendo?',tp:'sel',op:['Sou eu mesmo(a)','Cônjuge','Filho(a)','Responsável Legal']},
+      {id:'nom',lb:'Nome do avaliando',tp:'text',req:1},
+      {id:'nsc',lb:'Data de nascimento',tp:'date'},{id:'sex',lb:'Sexo biológico',tp:'sel',op:['Masculino','Feminino']},
+      {id:'esc',lb:'Escolaridade',tp:'sel',op:['Sem escolaridade formal','Ensino Fundamental incompleto','Ensino Fundamental completo','Ensino Médio','Graduação','Pós-graduação']},
+      {id:'ano',lb:'Anos de estudo',tp:'num',ph:'Ex: 11',mn:0,mx:30},
+      {id:'ecv',lb:'Estado civil',tp:'sel',op:['Solteiro(a)','Casado(a)','Viúvo(a)','Divorciado(a)']},
+      {id:'sit',lb:'Situação atual',tp:'sel',op:['Aposentado(a)','Ativo(a) profissionalmente','Afastado(a)','Do lar']},
+      {id:'ocp',lb:'Profissão principal da vida',tp:'text',ph:'Ex: Professora aposentada'},
+      {id:'cid',lb:'Cidade de nascimento',tp:'text'},{id:'ava',lb:'Data da avaliação',tp:'date',today:1}]},
+    {ic:'🎯',tt:'Demanda',g2:[
+      {id:'mot',lb:'Motivo da avaliação',tp:'ta',req:1,full:1,ph:'Descreva as principais preocupações em detalhes...'},
+      {id:'imp',lb:'Impacto na vida diária (autonomia, social)',tp:'ta',full:1,ph:'Como as dificuldades afetam a independência e o cotidiano...'},
+      {id:'tmq',lb:'Duração das dificuldades',tp:'sel',op:['Menos de 6 meses','6 meses a 1 ano','1 a 2 anos','2 a 5 anos','Mais de 5 anos']},
+      {id:'qmp',lb:'Quem percebeu primeiro?',tp:'sel',op:['O próprio paciente','Cônjuge / companheiro(a)','Filhos','Médico','Outros familiares']},
+      {id:'prg',lb:'Progressão do quadro',tp:'sel',op:['Piora gradual e contínua','Piora em degraus (súbita → estabiliza)','Estável','Oscila (dias bons e ruins)']}]},
+    {ic:'🧠',tt:'Queixas Cognitivas',g2:[
+      {id:'qmm',lb:'Memória',tp:'cks',full:1,its:['Esquece eventos / conversas recentes','Dificuldade para lembrar nomes','Perde objetos com frequência','Esquece compromissos / medicamentos','Repete perguntas ou histórias','Dificuldade com memória remota (eventos antigos)']},
+      {id:'qln',lb:'Linguagem',tp:'cks',full:1,its:['Dificuldade para encontrar palavras (anomia)','Dificuldade de compreensão','Discurso desorganizado / vago','Dificuldade de leitura recente']},
+      {id:'qex',lb:'Funções executivas e orientação',tp:'cks',full:1,its:['Dificuldade para planejar e organizar','Desorientação temporal (data, dia da semana)','Desorientação espacial (se perde em lugares conhecidos)','Dificuldade com cálculos simples','Dificuldade para fazer mais de uma tarefa ao mesmo tempo']},
+      {id:'cob',lb:'Descrição adicional das queixas cognitivas',tp:'ta',full:1,ph:'Situações específicas, exemplos concretos...'}]},
+    {ic:'🏠',tt:'Autonomia e AVDs',g2:[
+      {id:'avb',lb:'AVDs básicas independentes',tp:'cks',full:1,its:['Higiene pessoal','Vestir-se','Alimentar-se','Locomoção dentro de casa','Continência esfincteriana']},
+      {id:'avi',lb:'AVDs instrumentais independentes',tp:'cks',full:1,its:['Gerenciar finanças','Tomar medicamentos sozinho','Usar telefone / celular','Fazer compras','Cozinhar / preparar refeições','Usar transporte']},
+      {id:'dep',lb:'Grau de dependência atual',tp:'sel',op:['Totalmente independente','Independente com supervisão ocasional','Necessita de ajuda parcial','Totalmente dependente']},
+      {id:'phb',lb:'Perdas funcionais recentes',tp:'ta',full:1,ph:'Ex: parou de dirigir, não consegue mais usar caixa eletrônico...'}]},
+    {ic:'💊',tt:'Saúde Geral',g2:[
+      {id:'dcs',lb:'Doenças clínicas',tp:'cks',full:1,its:['Hipertensão arterial','Diabetes mellitus','Doença cardiovascular (infarto, arritmia)','AVC / AIT prévio','Parkinson / distúrbios do movimento','Doenças da tireoide','Neoplasia / Câncer','Traumatismo cranioencefálico (TCE)','Epilepsia / Convulsões','Infecção do SNC (meningite, encefalite)']},
+      {id:'cdt',lb:'Detalhes clínicos (datas, gravidade)',tp:'ta',full:1,ph:'Ex: HAS há 15 anos em uso de losartana, AVC em 2020...'},
+      {id:'mds',lb:'Medicamentos em uso (nome, dose, indicação)',tp:'ta',full:1,ph:'Ex: Donepezila 10mg, Losartana 50mg, Atorvastatina 20mg...'},
+      {id:'bnz',lb:'Uso de benzodiazepínicos',tp:'sel',op:['Não usa','Uso ocasional','Uso crônico há menos de 1 ano','Uso crônico há mais de 1 ano']},
+      {id:'exc',lb:'Exames neurológicos realizados',tp:'cks',full:1,its:['RM de crânio','TC de crânio','EEG','PET-scan cerebral','SPECT cerebral','Análise de líquor (biomarcadores)']},
+      {id:'exd',lb:'Resultados relevantes dos exames',tp:'ta',full:1,ph:'Ex: RM com atrofia hipocampal bilateral, leucoaraiose...'}]},
+    {ic:'🧠',tt:'Sintomas Neuropsiquiátricos',g2:[
+      {id:'nps',lb:'Sintomas presentes',tp:'cks',full:1,its:['Humor deprimido / tristeza persistente','Ansiedade / preocupação excessiva','Apatia / perda de iniciativa e interesse','Agitação / irritabilidade','Desinibição comportamental','Alucinações (ver ou ouvir coisas)','Delírios / ideias fixas sem base real','Alterações importantes do sono','Comportamentos compulsivos ou repetitivos novos']},
+      {id:'pqa',lb:'Histórico psiquiátrico prévio',tp:'ta',full:1,ph:'Depressão anterior, tratamentos, internações...'},
+      {id:'son',lb:'Padrão de sono atual',tp:'sel',op:['Normal para a idade','Insônia de conciliação','Insônia de manutenção (acorda frequentemente)','Hipersonia','Inversão do ciclo sono-vigília','Comportamentos durante o sono (fala, grita, movimenta-se)']}]},
+    {ic:'🧬',tt:'Histórico Familiar',g2:[
+      {id:'hf',lb:'Doenças neurológicas / psiquiátricas na família',tp:'cks',its:HFI,full:1},
+      {id:'hfd',lb:'Detalhes (parentesco)',tp:'ta',full:1,ph:'Ex: mãe com Alzheimer aos 75 anos, irmão com AVC...'}]},
+    {ic:'📖',tt:'Reserva Cognitiva e Estilo de Vida',g2:[
+      {id:'atf',lb:'Atividade física',tp:'sel',op:['Regular (3x/semana ou mais)','Ocasional','Não pratica','Praticava antes, parou recentemente']},
+      {id:'atc',lb:'Atividade cognitiva / intelectual',tp:'sel',op:['Leitura frequente','Jogos / palavras cruzadas / xadrez','Atividades artísticas','Pouca estimulação cognitiva']},
+      {id:'vds',lb:'Vida social',tp:'sel',op:['Ativa — muitos contatos sociais','Moderada','Isolamento social significativo','Piorou recentemente']},
+      {id:'alc',lb:'Uso de álcool',tp:'sel',op:['Não usa','Uso leve / social','Uso moderado / frequente','Uso excessivo / abuso']},
+      {id:'tab',lb:'Tabagismo',tp:'sel',op:['Nunca fumou','Ex-fumante','Fumante atual']},
+      {id:'trj',lb:'Trajetória escolar e profissional',tp:'ta',full:1,ph:'Escolaridade, profissão exercida, complexidade das atividades ao longo da vida...'},
+      {id:'evv',lb:'Eventos de vida marcantes recentes',tp:'ta',full:1,ph:'Ex: falecimento do cônjuge, mudança de residência, aposentadoria...'},
+      {id:'dxs',lb:'Diagnósticos neurológicos / psiquiátricos estabelecidos',tp:'ta',full:1,ph:'Ex: CCL amnéstico, Alzheimer fase inicial, Depressão maior...'},
+      {id:'add',lb:'Observações adicionais',tp:'ta',full:1,ph:'Qualquer informação adicional relevante...'}]}
+  ]}
+};
+
+/* ═══════════════════════════════════════════
+   UTILITÁRIOS
+═══════════════════════════════════════════ */
+let state='select', fk=null, saved=null;
+
+function calcIdade(d){
+  if(!d)return'—';
+  const n=new Date(d+'T00:00:00'),h=new Date();
+  let a=h.getFullYear()-n.getFullYear();
+  if(h.getMonth()<n.getMonth()||(h.getMonth()===n.getMonth()&&h.getDate()<n.getDate()))a--;
+  const m=(h.getFullYear()-n.getFullYear())*12+(h.getMonth()-n.getMonth());
+  return a<2?m+' meses':a+' anos';
+}
+function fmtDate(d){
+  if(!d)return'—';
+  return new Date(d+'T00:00:00').toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'});
+}
+function fId(k,si,fi,ii){return`${k}_${si}_${fi}${ii!==undefined?'_'+ii:''}`;}
+function v(id){const e=document.getElementById(id);return e?e.value.trim():'';}
+function cks(k,si,fi,its){return its.filter((_,ii)=>{const e=document.getElementById(fId(k,si,fi,ii));return e&&e.checked;});}
+
+function coletarDados(k){
+  const d={faixa:`${F[k].tt} (${F[k].rg})`};
+  F[k].sects.forEach((s,si)=>{
+    (s.g2||s.g3||[]).forEach((f,fi)=>{
+      if(f.tp==='cks') d[f.id]=cks(k,si,fi,f.its);
+      else{ const e=document.getElementById(fId(k,si,fi)); if(e) d[f.id]=e.value.trim(); }
     });
-  }
-
-  function coletarDados(faixa) {
-    const p = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
-    const checkedLabels = (checkboxIds) => checkboxIds.map(id => {
-      const el = document.getElementById(id);
-      if (el && el.checked) { const lbl = document.querySelector(`label[for="${id}"]`); return lbl ? lbl.textContent : id; }
-      return null;
-    }).filter(Boolean);
-
-    if (faixa === 'infantil') {
-      return {
-        faixa: 'Primeira Infância (0–6 anos)',
-        nome: p('inf_nome'), nascimento: p('inf_nasc'), idade: calcularIdade(p('inf_nasc')),
-        dataAval: p('inf_data_aval'), medico: p('inf_medico'), clinicaMedico: p('inf_clinica_medico'),
-        relacao: p('inf_relacao'), pais: p('inf_pais'), cidade: p('inf_cidade'), sexo: p('inf_sexo'),
-        motivo: p('inf_motivo'), tempoQueixa: p('inf_tempo_queixa'), impacto: p('inf_impacto'),
-        historicoFamiliar: checkedLabels(['inf_hf_tdah','inf_hf_tea','inf_hf_dislexia','inf_hf_depressao','inf_hf_ansiedade','inf_hf_bipolar','inf_hf_esquizo','inf_hf_demencia']),
-        hfDetalhes: p('inf_hf_detalhes'),
-        gestTipo: p('inf_gest_tipo'), gestPlanejada: p('inf_gest_planejada'), altoRisco: p('inf_alto_risco'), parto: p('inf_parto'),
-        intercorrencias: checkedLabels(['inf_ic_hiper','inf_ic_diab','inf_ic_infec','inf_ic_sangrm','inf_ic_premtro','inf_ic_anoxia','inf_ic_medicam','inf_ic_alcool']),
-        semanas: p('inf_semanas'), peso: p('inf_peso'), apgar1: p('inf_apgar1'), apgar5: p('inf_apgar5'),
-        icOutros: p('inf_ic_outros'),
-        marcosCabeca: p('inf_m_cabeca'), marcosSentar: p('inf_m_sentar'), marcosEngatinhar: p('inf_m_engatinhar'),
-        marcosAndar: p('inf_m_andar'), marcosPalavras: p('inf_m_palavras'), marcosFrases: p('inf_m_frases'),
-        marcosEsfinct: p('inf_m_esfinct'), marcosDesenho: p('inf_m_desenho'), regressao: p('inf_regressao'),
-        devObs: p('inf_dev_obs'),
-        linguagemNivel: p('inf_ling_nivel'), contVisual: p('inf_cont_visual'),
-        caracteristicasLing: checkedLabels(['inf_ecolalia','inf_inversao','inf_apontar','inf_respond_nome','inf_atraso_ling','inf_compreensao']),
-        comportamentos: checkedLabels(['inf_b_estere','inf_b_ritual','inf_b_interess','inf_b_hiperativ','inf_b_impulsiv','inf_b_agressi','inf_b_birus','inf_b_ansied']),
-        sensorial: checkedLabels(['inf_s_tato','inf_s_audito','inf_s_visual','inf_s_alim','inf_s_dor','inf_s_vestib']),
-        compObs: p('inf_comp_obs'),
-        sono: p('inf_sono'), medicamentos: p('inf_med'), medDetalhes: p('inf_med_detalhes'),
-        intervencoes: checkedLabels(['inf_t_fonoaud','inf_t_to','inf_t_psico','inf_t_fisio','inf_t_psiq','inf_t_neuroped']),
-        diagnosticos: p('inf_diagnosticos'), exames: p('inf_exames'), adicional: p('inf_adicional')
-      };
-    } else if (faixa === 'escolar') {
-      return {
-        faixa: 'Segunda Infância (6–12 anos)',
-        nome: p('esc_nome'), nascimento: p('esc_nasc'), idade: calcularIdade(p('esc_nasc')),
-        dataAval: p('esc_data_aval'), medico: p('esc_medico'), clinicaMedico: p('esc_clinica_medico'),
-        relacao: p('esc_relacao'), pais: p('esc_pais'), cidade: p('esc_cidade'), sexo: p('esc_sexo'),
-        serie: p('esc_serie'), escola: p('esc_escola'),
-        motivo: p('esc_motivo'), impacto: p('esc_impacto'), tempoQueixa: p('esc_tempo_queixa'),
-        historicoFamiliar: checkedLabels(['esc_hf_tdah','esc_hf_tea','esc_hf_dislexia','esc_hf_depressao','esc_hf_ansiedade','esc_hf_bipolar','esc_hf_esquizo','esc_hf_demencia']),
-        hfDetalhes: p('esc_hf_detalhes'),
-        gestacao: p('esc_gestacao'), devPrecoce: p('esc_dev_precoce'), devObs: p('esc_dev_obs'),
-        desempenho: p('esc_desempenho'), dificDisc: p('esc_dific_disc'), boasDisc: p('esc_boas_disc'), reprovado: p('esc_reprovado'),
-        dificAprendizagem: checkedLabels(['esc_a_leitura','esc_a_escrita','esc_a_mat','esc_a_atencao','esc_a_memo','esc_a_org']),
-        laudos: p('esc_laudos'),
-        relacaoSocial: p('esc_relacao_social'), bullying: p('esc_bullying'),
-        comportamentos: checkedLabels(['esc_b_hiperativ','esc_b_impulsiv','esc_b_desaten','esc_b_ansied','esc_b_humor','esc_b_oposit','esc_b_perfec','esc_b_retraim']),
-        medicamentos: p('esc_med'), sono: p('esc_sono'), medDet: p('esc_med_det'),
-        intervencoes: checkedLabels(['esc_t_psico','esc_t_fono','esc_t_to','esc_t_psiq','esc_t_neuro','esc_t_reforco']),
-        adicional: p('esc_adicional')
-      };
-    } else if (faixa === 'adolescente') {
-      return {
-        faixa: 'Adolescência (12–18 anos)',
-        nome: p('adol_nome'), nascimento: p('adol_nasc'), idade: calcularIdade(p('adol_nasc')),
-        dataAval: p('adol_data_aval'), medico: p('adol_medico'), clinicaMedico: p('adol_clinica_medico'),
-        relacao: p('adol_relacao'), pais: p('adol_pais'), cidade: p('adol_cidade'), sexo: p('adol_sexo'),
-        serie: p('adol_serie'),
-        motivo: p('adol_motivo'), impacto: p('adol_impacto'),
-        historicoFamiliar: checkedLabels(['adol_hf_tdah','adol_hf_tea','adol_hf_dislexia','adol_hf_depressao','adol_hf_ansiedade','adol_hf_bipolar','adol_hf_esquizo']),
-        hfDetalhes: p('adol_hf_detalhes'),
-        desempenho: p('adol_desempenho'), reprovado: p('adol_reprovado'), dificDisc: p('adol_dific_disc'), boasDisc: p('adol_boas_disc'),
-        trajetoria: p('adol_trajetoria'),
-        gestacao: p('adol_gestacao'), devPrecoce: p('adol_dev_precoce'),
-        sintomas: checkedLabels(['adol_s_ansied','adol_s_depres','adol_s_autolesao','adol_s_alimentar','adol_s_sono','adol_s_social','adol_s_humor','adol_s_comp_opos']),
-        substancias: p('adol_substancias'), bullying: p('adol_bullying'), saudeMentalObs: p('adol_saude_mental_obs'),
-        medicamentos: p('adol_med'), psicoAnt: p('adol_psico_ant'), medDet: p('adol_med_det'),
-        diagnosticos: p('adol_diagnosticos'), adicional: p('adol_adicional')
-      };
-    } else if (faixa === 'adulto') {
-      return {
-        faixa: 'Adulto / Idoso (18+)',
-        nome: p('adu_nome'), nascimento: p('adu_nasc'), idade: calcularIdade(p('adu_nasc')),
-        dataAval: p('adu_data_aval'), medico: p('adu_medico'), clinicaMedico: p('adu_clinica_medico'),
-        relacao: p('adu_relacao'), pais: p('adu_pais'), cidade: p('adu_cidade'), sexo: p('adu_sexo'),
-        escolaridade: p('adu_escolaridade'), profissao: p('adu_profissao'), ocupacao: p('adu_ocupacao'), estadoCivil: p('adu_estado_civil'),
-        motivo: p('adu_motivo'), impacto: p('adu_impacto'), tempoQueixa: p('adu_tempo_queixa'),
-        historicoFamiliar: checkedLabels(['adu_hf_tdah','adu_hf_tea','adu_hf_dislexia','adu_hf_depressao','adu_hf_ansiedade','adu_hf_bipolar','adu_hf_esquizo','adu_hf_demencia']),
-        hfDetalhes: p('adu_hf_detalhes'),
-        gestacao: p('adu_gestacao'), devPrecoce: p('adu_dev_precoce'), escolar: p('adu_escolar'),
-        sintomas: checkedLabels(['adu_s_ansied','adu_s_depres','adu_s_humor','adu_s_sono','adu_s_social','adu_s_fadiga','adu_s_sensorial','adu_s_memoria','adu_s_atencao','adu_s_executivo']),
-        tratamentosAnt: p('adu_tratamentos_ant'), sensorial: p('adu_sensorial'), comportamento: p('adu_comportamento'),
-        medicamentos: p('adu_med'), sono: p('adu_sono'), medDet: p('adu_med_det'),
-        clinico: p('adu_clinico'), adicional: p('adu_adicional')
-      };
-    }
-  }
-
-  function construirPrompt(dados) {
-    return `Você é o neuropsicólogo Dr. Wessilon Marques de Sousa (CRP 04/53832), especialista em neuropsicologia clínica e avaliação neuropsicológica. Seu estilo de escrita é técnico, preciso e com argumentação clínica sólida. Você usa terminologia técnica neuropsicológica, destaca informações clinicamente relevantes em negrito, e produz textos narrativos coesos — nunca listas de tópicos.
-
-Com base nos dados de anamnese abaixo, redija o texto completo da entrevista de anamnese para o laudo neuropsicológico, seguindo a estrutura da CFP Resolução 06/2019 e o padrão do serviço Equilibrium. Escreva em terceira pessoa. Cada seção deve ser um parágrafo narrativo coeso.
-
-DADOS COLETADOS:
-${JSON.stringify(dados, null, 2)}
-
-ESTRUTURA OBRIGATÓRIA DO TEXTO (escreva cada seção como bloco narrativo):
-
-1. DESCRIÇÃO DA DEMANDA
-Contextualizar o motivo da avaliação, quem solicitou, a queixa principal e sua relevância clínica. Se houver hipóteses diagnósticas relevantes aos dados, mencione-as como hipóteses a serem investigadas.
-
-2. HISTÓRICO PERINATAL E PRÉ-NATAL (se aplicável, pule para crianças >12 anos se os dados forem escassos)
-Descrever a gestação, parto, intercorrências, dados neonatais com relevância clínica.
-
-3. HISTÓRICO DO NEURODESENVOLVIMENTO
-Marcos do desenvolvimento motor, de linguagem e social. Regressões se houver. Análise da trajetória do neurodesenvolvimento.
-
-4. HISTÓRICO ESCOLAR (para crianças e adolescentes) / TRAJETÓRIA ACADÊMICA E PROFISSIONAL (para adultos)
-Desempenho, dificuldades específicas, relação com o ambiente escolar ou profissional.
-
-5. HISTÓRICO DE INTERVENÇÕES, TRATAMENTOS E ACOMPANHAMENTOS
-Medicamentos, terapias em andamento, diagnósticos anteriores.
-
-6. PERFIL SENSORIAL E COMPORTAMENTOS RELACIONADOS (se dados disponíveis)
-Hipersensibilidades, estereotipias, padrões comportamentais relevantes.
-
-7. HISTÓRICO FAMILIAR
-Densidade familiar para transtornos, relevância para hipóteses diagnósticas.
-
-IMPORTANTE:
-- Use negrito (com **asteriscos**) para termos técnicos e informações clinicamente relevantes
-- Seja específico com os dados fornecidos, nunca invente informações ausentes
-- Para dados ausentes ou insuficientes, mencione brevemente a limitação sem dramatizar
-- Analise as informações com raciocínio clínico neuropsicológico
-- Tamanho ideal: 600–1000 palavras no total
-- Use linguagem técnica mas acessível para profissionais de saúde
-- Responda APENAS com o texto das seções, sem preâmbulo ou explicações adicionais`;
-  }
-
-  // ⚙️ URL do Google Apps Script — cole aqui após implantar o script
-  const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxX43j7jnZ2mZLxGbPcpjZuO5uh_V36LTypJn5asdDJo4vqw-bY1WO4OzpsNa-gU_7bJg/exec';
-
-  async function gerarAnamnese(faixa) {
-    const dados = coletarDados(faixa);
-    if (!dados.nome) { alert('Por favor, preencha o nome do paciente.'); return; }
-
-    const modal = document.getElementById('modalLoading');
-    const modalSub = modal.querySelector('.modal-sub');
-    modal.classList.add('show');
-    modalSub.textContent = 'Analisando os dados clínicos do paciente...';
-
-    try {
-      const prompt = construirPrompt(dados);
-      modalSub.textContent = 'Gerando texto clínico com IA...';
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 1000,
-          messages: [{ role: 'user', content: prompt }]
-        })
-      });
-
-      const result = await response.json();
-      const textoGerado = result.content?.map(b => b.text || '').join('') || '';
-
-      // Salvar no Drive via Apps Script (se URL configurada)
-      let driveUrl = null;
-      if (APPS_SCRIPT_URL) {
-        try {
-          modalSub.textContent = 'Salvando documento no Google Drive...';
-          const driveResp = await fetch(APPS_SCRIPT_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              nomePaciente: dados.nome,
-              dataAvaliacao: dados.dataAval ? formatarData(dados.dataAval) : new Date().toLocaleDateString('pt-BR'),
-              faixaEtaria: dados.faixa,
-              textoAnamnese: textoGerado,
-              metadados: {
-                nascimento: dados.nascimento ? formatarData(dados.nascimento) : '—',
-                idade: dados.idade || '—',
-                sexo: dados.sexo || '—',
-                medico: dados.medico || '—',
-                clinicaMedico: dados.clinicaMedico || '—',
-                relacao: dados.relacao || '—',
-                escolaridade: dados.escolaridade || '—',
-                ocupacao: dados.ocupacao || '—',
-              }
-            })
-          });
-          const driveResult = await driveResp.json();
-          if (driveResult.success) driveUrl = driveResult.docUrl;
-        } catch (driveErr) {
-          console.warn('Drive save failed (não crítico):', driveErr);
-        }
-      }
-
-      // Renderizar relatório (visível apenas ao profissional — não ao paciente)
-      const metaGrid = document.getElementById('repMetaGrid');
-      metaGrid.innerHTML = `
-        <div class="rep-meta-item"><span class="rep-meta-label">Paciente</span><span class="rep-meta-value">${dados.nome || '—'}</span></div>
-        <div class="rep-meta-item"><span class="rep-meta-label">Idade</span><span class="rep-meta-value">${dados.idade || '—'}</span></div>
-        <div class="rep-meta-item"><span class="rep-meta-label">Data de Nascimento</span><span class="rep-meta-value">${formatarData(dados.nascimento)}</span></div>
-        <div class="rep-meta-item"><span class="rep-meta-label">Data da Avaliação</span><span class="rep-meta-value">${formatarData(dados.dataAval)}</span></div>
-        <div class="rep-meta-item"><span class="rep-meta-label">Faixa Etária</span><span class="rep-meta-value">${dados.faixa}</span></div>
-        <div class="rep-meta-item"><span class="rep-meta-label">Médico Solicitante</span><span class="rep-meta-value">${dados.medico || '—'}</span></div>
-      `;
-
-      document.getElementById('repSubtitle').textContent = dados.faixa;
-
-      // Adicionar link do Drive se disponível
-      if (driveUrl) {
-        const linkDiv = document.createElement('div');
-        linkDiv.style.cssText = 'background:#f0fdfa;border:1.5px solid #0d9488;border-radius:10px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:10px;';
-        linkDiv.innerHTML = `<span style="font-size:20px;">✅</span><div><div style="font-size:12px;font-weight:700;color:#0d9488;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Documento salvo no Drive</div><a href="${driveUrl}" target="_blank" style="font-size:13px;color:#0f766e;font-weight:600;">Abrir no Google Docs →</a></div>`;
-        document.getElementById('repConteudo').parentElement.insertBefore(linkDiv, document.getElementById('repConteudo'));
-      }
-
-      // Renderizar texto gerado com markdown básico
-      const conteudo = document.getElementById('repConteudo');
-      const secoes = textoGerado.split(/\n(?=\d+\.\s)/);
-      conteudo.innerHTML = secoes.map(sec => {
-        if (!sec.trim()) return '';
-        const linhas = sec.trim().split('\n');
-        const primLinha = linhas[0].trim();
-        const ehTitulo = /^\d+\./.test(primLinha);
-        const titulo = ehTitulo ? primLinha.replace(/^\d+\.\s*/, '').replace(/\*\*/g, '').trim() : '';
-        const corpoBruto = (ehTitulo ? linhas.slice(1).join('\n') : linhas.join('\n')).trim();
-        const corpo = corpoBruto
-          .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-          .replace(/\n\n/g, '</p><p class="rep-text">')
-          .replace(/\n/g, ' ');
-        return `
-          <div class="rep-section">
-            ${titulo ? `<h2 class="rep-section-title">${titulo}</h2>` : ''}
-            <div class="rep-block"><p class="rep-block-text rep-text">${corpo || '—'}</p></div>
-          </div>`;
-      }).join('');
-
-      modal.classList.remove('show');
-      document.getElementById('repOverlay').classList.add('ativo');
-
-    } catch (err) {
-      console.error(err);
-      modal.classList.remove('show');
-      alert('Erro ao gerar o texto de anamnese. Verifique sua conexão e tente novamente.');
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', async () => {
-    if (window.FIREBASE_CONFIGURED && window.DB) await DB.init();
-    if (typeof isAuthed === 'function' && !isAuthed()) { location.href = '/login.html'; return; }
-    if (typeof applySidebarPermissions === 'function') applySidebarPermissions();
-
-    // Set today's date on all date fields
-    const hoje = new Date().toISOString().split('T')[0];
-    ['inf_data_aval','esc_data_aval','adol_data_aval','adu_data_aval'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.value = hoje;
-    });
-
-    document.getElementById('btnGerarInfantil').addEventListener('click', () => gerarAnamnese('infantil'));
-    document.getElementById('btnGerarEscolar').addEventListener('click', () => gerarAnamnese('escolar'));
-    document.getElementById('btnGerarAdolescente').addEventListener('click', () => gerarAnamnese('adolescente'));
-    document.getElementById('btnGerarAdulto').addEventListener('click', () => gerarAnamnese('adulto'));
-
-    document.getElementById('btnCloseRep').addEventListener('click', () => document.getElementById('repOverlay').classList.remove('ativo'));
-    document.getElementById('btnPrintRep').addEventListener('click', () => window.print());
   });
+  return d;
+}
+
+/* ═══════════════════════════════════════════
+   GERAÇÃO DE TEXTO SEM IA — templates narrativos
+═══════════════════════════════════════════ */
+function ora(n){ return n && n.toLowerCase().startsWith('a') ? 'da' : 'do'; }
+function nome(d){ return d.nom||'o(a) paciente'; }
+function nomeArt(d){ return d.nom ? `${ora(d.nom)} ${d.nom}` : 'do(a) paciente'; }
+function ele(d){ return (d.sex==='Feminino'||d.sex==='F') ? 'ela' : 'ele'; }
+function del(d){ return (d.sex==='Feminino'||d.sex==='F') ? 'dela' : 'dele'; }
+function lo(d){ return (d.sex==='Feminino'||d.sex==='F') ? 'a' : 'o'; }
+function ado(d){ return (d.sex==='Feminino'||d.sex==='F') ? 'a avalianda' : 'o avaliando'; }
+function hasDados(val){ return val && val !== '' && val !== 'Selecione...' && val !== 'Não sabe informar'; }
+function lista(arr){ if(!arr||!arr.length) return null; if(arr.length===1) return arr[0]; return arr.slice(0,-1).join(', ')+' e '+arr[arr.length-1]; }
+
+function gerarTextoInfantil(d){
+  const nm = nome(d); const nmA = nomeArt(d); const lg = lo(d); const ev = ele(d); const dv = del(d);
+  const secs = [];
+
+  /* 1. DESCRIÇÃO DA DEMANDA */
+  let dem = `A avaliação neuropsicológica ${nmA}, solicitada em ${fmtDate(d.ava)}, tem como objetivo central a investigação`;
+  if(hasDados(d.mot)) dem += ` do seguinte quadro, conforme relatado pel${lg} responsável: ${d.mot}`;
+  else dem += ' das dificuldades apresentadas no desenvolvimento.';
+  if(hasDados(d.tmq)) dem += ` As queixas estão presentes ${d.tmq.toLowerCase()}.`;
+  if(hasDados(d.imp)) dem += ` O impacto dessas dificuldades no cotidiano familiar é descrito da seguinte forma: ${d.imp}`;
+  secs.push({tt:'1. Descrição da Demanda', tx:dem});
+
+  /* 2. HISTÓRICO PERINATAL */
+  let per = '';
+  const temPeri = hasDados(d.par)||hasDados(d.ris)||hasDados(d.sem)||hasDados(d.pes)||(d.ico&&d.ico.length);
+  if(temPeri){
+    per = `O histórico pré-natal e perinatal ${nmA} apresenta`;
+    const ics = [];
+    if(d.ris==='Sim') ics.push('gestação classificada como de alto risco');
+    if(d.ico&&d.ico.length) ics.push(`ocorrência de ${lista(d.ico).toLowerCase()}`);
+    if(ics.length) per += ` os seguintes elementos de relevância clínica: ${lista(ics)}.`;
+    else per += ' os seguintes dados disponíveis.';
+    if(hasDados(d.par)) per += ` O nascimento ocorreu por ${d.par.toLowerCase()}.`;
+    if(hasDados(d.sem)) per += ` A gestação totalizou ${d.sem} semanas.`;
+    if(hasDados(d.pes)) per += ` O peso ao nascer foi de ${d.pes}g.`;
+    if(hasDados(d.ap1)&&hasDados(d.ap5)) per += ` Os escores de Apgar foram de ${d.ap1} no 1º minuto e ${d.ap5} no 5º minuto.`;
+    if(hasDados(d.obs)) per += ` ${d.obs}`;
+  } else {
+    per = `O histórico perinatal ${nmA} é baseado em relato subjetivo dos responsáveis, sem intercorrências significativas relatadas. A análise deste período é limitada pela ausência de dados objetivos, como escores de Apgar e registros neonatais detalhados.`;
+  }
+  secs.push({tt:'2. Histórico Pré-natal e Perinatal', tx:per});
+
+  /* 3. NEURODESENVOLVIMENTO */
+  let dev = `O histórico de neurodesenvolvimento ${nmA} é baseado no relato `;
+  dev += hasDados(d.rel) ? `d${d.rel.toLowerCase()==='pai/mãe'?'os pais':d.rel.toLowerCase()}.` : 'dos responsáveis.';
+  const marcos = [];
+  if(hasDados(d.mc1)) marcos.push(`sustentação da cabeça aos ${d.mc1} meses`);
+  if(hasDados(d.mc2)) marcos.push(`sentar sem apoio aos ${d.mc2} meses`);
+  if(hasDados(d.mc3)) marcos.push(`deambulação independente aos ${d.mc3} meses`);
+  if(hasDados(d.mc4)) marcos.push(`primeiras palavras aos ${d.mc4} meses`);
+  if(hasDados(d.mc5)) marcos.push(`frases simples aos ${d.mc5} meses`);
+  if(hasDados(d.mc6)) marcos.push(`controle esfincteriano aos ${d.mc6} meses`);
+  if(marcos.length) dev += ` Os marcos do desenvolvimento foram registrados da seguinte forma: ${lista(marcos)}.`;
+  else dev += ' Não foram fornecidos dados específicos sobre a cronologia dos marcos do desenvolvimento neuropsicomotor, o que representa uma limitação para a análise retrospectiva deste período.';
+  if(hasDados(d.reg) && d.reg !== 'Não houve regressão') dev += ` **De relevância clínica**, foi relatada ${d.reg.toLowerCase()}, dado que requer investigação detalhada.`;
+  if(hasDados(d.dob)) dev += ` ${d.dob}`;
+  secs.push({tt:'3. Histórico do Neurodesenvolvimento', tx:dev});
+
+  /* 4. LINGUAGEM */
+  let ling = '';
+  if(hasDados(d.lng)||hasDados(d.cvi)||(d.clg&&d.clg.length)){
+    ling = `O **perfil de linguagem e comunicação** apresentado por ${nm} caracteriza-se atualmente por`;
+    if(hasDados(d.lng)) ling += ` ${d.lng.toLowerCase()}.`;
+    else ling += ' padrão ainda em investigação.';
+    if(hasDados(d.cvi)) ling += ` O **contato visual** é descrito como ${d.cvi.toLowerCase()}.`;
+    if(d.clg&&d.clg.length) ling += ` São reportadas as seguintes características: **${lista(d.clg)}**.`;
+    secs.push({tt:'4. Linguagem e Comunicação', tx:ling});
+  }
+
+  /* 5. COMPORTAMENTO E SENSORIAL */
+  let comp = '';
+  if((d.cmp&&d.cmp.length)||(d.sen&&d.sen.length)||hasDados(d.cob)){
+    comp = `O **perfil comportamental e sensorial** ${nmA} é marcado por`;
+    const itens = [];
+    if(d.cmp&&d.cmp.length) itens.push(`presença de ${lista(d.cmp).toLowerCase()}`);
+    if(d.sen&&d.sen.length) itens.push(`**disfunção de modulação sensorial**, com padrão de ${lista(d.sen).toLowerCase()}`);
+    if(itens.length) comp += ` ${lista(itens)}.`;
+    else comp += ' características em avaliação.';
+    if(hasDados(d.cob)) comp += ` ${d.cob}`;
+    secs.push({tt:'5. Perfil Sensorial e Comportamentos Relacionados', tx:comp});
+  }
+
+  /* 6. HISTÓRICO FAMILIAR */
+  let hf = '';
+  if((d.hf&&d.hf.length)||hasDados(d.hfd)){
+    if(d.hf&&d.hf.length) hf = `O **histórico familiar** apresenta densidade relevante para transtornos do neurodesenvolvimento e psiquiátricos, com relato de **${lista(d.hf)}** na família.`;
+    else hf = 'O histórico familiar não apresenta transtornos psiquiátricos ou do neurodesenvolvimento relatados.';
+    if(hasDados(d.hfd)) hf += ` ${d.hfd}`;
+    secs.push({tt:'6. Histórico Familiar', tx:hf});
+  }
+
+  /* 7. INTERVENÇÕES */
+  let interv = '';
+  const temInterv = hasDados(d.med2)||hasDados(d.mdt)||(d.int&&d.int.length)||hasDados(d.dxs);
+  if(temInterv){
+    interv = `Em relação ao **histórico de intervenções e tratamentos**:`;
+    if(d.med2==='Sim — psicotrópicos'||d.med2==='Sim — outros') interv += ` ${nm} faz uso atual de medicamentos${hasDados(d.mdt)?': '+d.mdt+'.':'.'}`;
+    else interv += ` ${nm} não faz uso de medicamentos no momento.`;
+    if(d.int&&d.int.length) interv += ` As seguintes intervenções terapêuticas estão em andamento: **${lista(d.int)}**.`;
+    if(hasDados(d.dxs)) interv += ` Diagnósticos e exames anteriores: ${d.dxs}`;
+    secs.push({tt:'7. Histórico de Intervenções, Tratamentos e Acompanhamentos', tx:interv});
+  }
+
+  if(hasDados(d.add)) secs.push({tt:'8. Informações Complementares', tx:d.add});
+
+  return secs;
+}
+
+function gerarTextoEscolar(d){
+  const nm=nome(d),nmA=nomeArt(d),lg=lo(d);
+  const secs=[];
+
+  let dem=`A avaliação neuropsicológica ${nmA}, realizada em ${fmtDate(d.ava)}, foi solicitada em contexto de`;
+  if(hasDados(d.mot)) dem+=` ${d.mot}`;
+  if(hasDados(d.tmq)) dem+=` As dificuldades foram identificadas ${d.tmq.toLowerCase()}.`;
+  if(hasDados(d.imp)) dem+=` O impacto das queixas é descrito da seguinte forma: ${d.imp}`;
+  if(hasDados(d.ser)) dem+=` ${nm} está matriculad${lg} no **${d.ser}**${hasDados(d.esc)?' da '+d.esc:''}.`;
+  secs.push({tt:'1. Descrição da Demanda',tx:dem});
+
+  let dev=hasDados(d.dev)?`O **desenvolvimento neuropsicomotor precoce** ${nmA} é descrito como **${d.dev.toLowerCase()}**.`:'O desenvolvimento precoce não foi detalhado pelos responsáveis.';
+  if(hasDados(d.ges)) dev+=` ${d.ges}`;
+  if(hasDados(d.dob)) dev+=` ${d.dob}`;
+  secs.push({tt:'2. Histórico do Neurodesenvolvimento',tx:dev});
+
+  let esc=`A **trajetória escolar** ${nmA} é caracterizada por desempenho acadêmico geral ${hasDados(d.des)?d.des.toLowerCase():'não informado'}.`;
+  if(hasDados(d.rep)&&d.rep!=='Não') esc+=` Há registro de **reprovação**: ${d.rep.toLowerCase()}.`;
+  if(hasDados(d.ddc)) esc+=` As disciplinas com maior dificuldade são: **${d.ddc}**.`;
+  if(hasDados(d.bdc)) esc+=` As disciplinas com melhor desempenho são: **${d.bdc}**.`;
+  if(d.dap&&d.dap.length) esc+=` São relatadas **dificuldades específicas de aprendizagem** nas seguintes áreas: **${lista(d.dap)}**.`;
+  if(hasDados(d.ldo)) esc+=` ${d.ldo}`;
+  secs.push({tt:'3. Histórico Escolar e Aprendizagem',tx:esc});
+
+  let soc=`O **perfil social** ${nmA} é caracterizado por ${hasDados(d.soc)?d.soc.toLowerCase():'perfil ainda em avaliação'}.`;
+  if(hasDados(d.bul)&&d.bul!=='Sem histórico') soc+=` Há relato de **bullying**: ${d.bul.toLowerCase()}.`;
+  if(d.cmp&&d.cmp.length) soc+=` São observados os seguintes comportamentos: **${lista(d.cmp)}**.`;
+  secs.push({tt:'4. Perfil Social e Comportamental',tx:soc});
+
+  if(d.hf&&d.hf.length){
+    let hf=`O **histórico familiar** apresenta densidade para: **${lista(d.hf)}**.`;
+    if(hasDados(d.hfd)) hf+=` ${d.hfd}`;
+    secs.push({tt:'5. Histórico Familiar',tx:hf});
+  }
+
+  const temInterv=hasDados(d.med2)||hasDados(d.mdt)||(d.int&&d.int.length);
+  if(temInterv){
+    let interv=d.med2==='Não usa'?`${nm} não faz uso de medicamentos.`:`${nm} faz uso de medicamentos${hasDados(d.mdt)?': **'+d.mdt+'**':''}.`;
+    if(d.int&&d.int.length) interv+=` Intervenções em andamento: **${lista(d.int)}**.`;
+    secs.push({tt:'6. Histórico de Intervenções e Tratamentos',tx:interv});
+  }
+  if(hasDados(d.add)) secs.push({tt:'7. Informações Complementares',tx:d.add});
+  return secs;
+}
+
+function gerarTextoAdolescente(d){
+  const nm=nome(d),nmA=nomeArt(d),lg=lo(d);
+  const secs=[];
+
+  let dem=`A avaliação neuropsicológica ${nmA}, realizada em ${fmtDate(d.ava)}, tem por objetivo investigar o seguinte quadro clínico: ${hasDados(d.mot)?d.mot:'queixas a serem descritas durante a entrevista.'}`;
+  if(hasDados(d.ser)) dem+=` ${nm} está cursando o **${d.ser}**.`;
+  if(hasDados(d.imp)) dem+=` O impacto das dificuldades é descrito da seguinte forma: ${d.imp}`;
+  secs.push({tt:'1. Descrição da Demanda',tx:dem});
+
+  if(hasDados(d.ges)||hasDados(d.dev)){
+    let dev='Em relação ao **histórico do neurodesenvolvimento**:';
+    if(hasDados(d.dev)) dev+=` o desenvolvimento neuropsicomotor precoce foi ${d.dev.toLowerCase()}.`;
+    if(hasDados(d.ges)) dev+=` ${d.ges}`;
+    secs.push({tt:'2. Histórico do Neurodesenvolvimento',tx:dev});
+  }
+
+  let esc=`A **trajetória escolar** ${nmA} é caracterizada por desempenho acadêmico ${hasDados(d.des)?d.des.toLowerCase():'não especificado'}.`;
+  if(hasDados(d.rep)&&d.rep!=='Não') esc+=` Há registro de **reprovação**: ${d.rep.toLowerCase()}.`;
+  if(hasDados(d.ddc)) esc+=` Maior dificuldade em: **${d.ddc}**.`;
+  if(hasDados(d.bdc)) esc+=` Melhor desempenho em: **${d.bdc}**.`;
+  if(hasDados(d.tra)) esc+=` ${d.tra}`;
+  secs.push({tt:'3. Histórico Escolar',tx:esc});
+
+  if((d.smt&&d.smt.length)||hasDados(d.sub)||hasDados(d.bul)||hasDados(d.sob)){
+    let sm='O **perfil de saúde mental** de '+nm+' apresenta:';
+    if(d.smt&&d.smt.length) sm+=` **${lista(d.smt)}**.`;
+    if(hasDados(d.sub)&&d.sub!=='Não') sm+=` Há relato de **uso de substâncias**: ${d.sub.toLowerCase()}.`;
+    if(hasDados(d.bul)&&d.bul!=='Sem histórico') sm+=` **Histórico de bullying**: ${d.bul.toLowerCase()}.`;
+    if(hasDados(d.sob)) sm+=` ${d.sob}`;
+    secs.push({tt:'4. Saúde Mental e Comportamento',tx:sm});
+  }
+
+  if(d.hf&&d.hf.length){
+    let hf=`**Histórico familiar** relevante: **${lista(d.hf)}**.`;
+    if(hasDados(d.hfd)) hf+=` ${d.hfd}`;
+    secs.push({tt:'5. Histórico Familiar',tx:hf});
+  }
+
+  const temInterv=hasDados(d.med2)||(d.med2&&d.med2!=='Não usa')||hasDados(d.mdt)||hasDados(d.psa)||hasDados(d.dxs);
+  if(temInterv){
+    let interv=d.med2==='Não usa'?`${nm} não faz uso de medicamentos.`:`${nm} faz uso de medicamentos${hasDados(d.mdt)?': **'+d.mdt+'**':''}.`;
+    if(hasDados(d.psa)&&d.psa!=='Nunca') interv+=` Acompanhamento psicológico: ${d.psa.toLowerCase()}.`;
+    if(hasDados(d.dxs)) interv+=` Diagnósticos estabelecidos: ${d.dxs}`;
+    secs.push({tt:'6. Intervenções, Tratamentos e Diagnósticos',tx:interv});
+  }
+  if(hasDados(d.add)) secs.push({tt:'7. Informações Complementares',tx:d.add});
+  return secs;
+}
+
+function gerarTextoAdulto(d){
+  const nm=nome(d),nmA=nomeArt(d),lg=lo(d);
+  const secs=[];
+
+  let dem=`A avaliação neuropsicológica ${nmA}`;
+  if(hasDados(d.ava)) dem+=`, realizada em ${fmtDate(d.ava)},`;
+  dem+=' tem como objetivo a investigação das seguintes queixas: ';
+  dem+=hasDados(d.mot)?d.mot:'demanda a ser detalhada durante a entrevista clínica.';
+  if(hasDados(d.tmq)) dem+=` As dificuldades estão presentes **${d.tmq.toLowerCase()}**.`;
+  if(hasDados(d.imp)) dem+=` Quanto ao impacto funcional: ${d.imp}`;
+  if(hasDados(d.ocp)) dem+=` ${nm} é ${d.ocp.toLowerCase()}${hasDados(d.prf)?', atualmente '+d.prf.toLowerCase():''}.`;
+  secs.push({tt:'1. Descrição da Demanda',tx:dem});
+
+  if(hasDados(d.ges)||hasDados(d.dev)||hasDados(d.trj)){
+    let dev='Em relação ao **histórico do desenvolvimento**:';
+    if(hasDados(d.dev)&&d.dev!=='Não sabe informar') dev+=` o desenvolvimento neuropsicomotor precoce foi **${d.dev.toLowerCase()}**.`;
+    if(hasDados(d.ges)) dev+=` ${d.ges}`;
+    if(hasDados(d.trj)) dev+=` **Trajetória escolar**: ${d.trj}`;
+    secs.push({tt:'2. Histórico do Neurodesenvolvimento e Trajetória',tx:dev});
+  }
+
+  if((d.smt&&d.smt.length)||hasDados(d.pfs)||hasDados(d.cmp)||hasDados(d.trt)){
+    let sm=`O **perfil de saúde mental** ${nmA}`;
+    if(d.smt&&d.smt.length) sm+=` é caracterizado pela presença de: **${lista(d.smt)}**.`;
+    else sm+=' não apresenta sintomas relatados de forma sistemática.';
+    if(hasDados(d.pfs)) sm+=` O **perfil sensorial** é descrito da seguinte forma: ${d.pfs}`;
+    if(hasDados(d.cmp)) sm+=` **Padrões comportamentais específicos** relatados: ${d.cmp}`;
+    if(hasDados(d.trt)) sm+=` **Histórico de tratamentos anteriores**: ${d.trt}`;
+    secs.push({tt:'3. Saúde Mental e Perfil Comportamental',tx:sm});
+  }
+
+  if(d.hf&&d.hf.length){
+    let hf=`O **histórico familiar** apresenta densidade para: **${lista(d.hf)}**.`;
+    if(hasDados(d.hfd)) hf+=` ${d.hfd}`;
+    secs.push({tt:'4. Histórico Familiar',tx:hf});
+  }
+
+  let interv=`Em relação às **intervenções e tratamentos**: `;
+  interv+=d.med2==='Não usa'?`${nm} não faz uso de medicamentos no momento.`:`${nm} faz uso de medicamentos${hasDados(d.mdt)?': **'+d.mdt+'**':''}.`;
+  if(hasDados(d.son)) interv+=` **Padrão de sono**: ${d.son.toLowerCase()}.`;
+  if(hasDados(d.clk)) interv+=` Doenças clínicas e exames: ${d.clk}`;
+  secs.push({tt:'5. Intervenções, Tratamentos e Saúde Geral',tx:interv});
+
+  if(hasDados(d.add)) secs.push({tt:'6. Informações Complementares',tx:d.add});
+  return secs;
+}
+
+function gerarTextoIdoso(d){
+  const nm=nome(d),nmA=nomeArt(d),lg=lo(d);
+  const secs=[];
+
+  /* 1. DEMANDA */
+  let dem=`A avaliação neuropsicológica ${nmA}`;
+  if(hasDados(d.ava)) dem+=`, realizada em ${fmtDate(d.ava)},`;
+  dem+=' tem por objetivo investigar o seguinte quadro: ';
+  dem+=hasDados(d.mot)?d.mot:'queixas cognitivas e/ou comportamentais a serem detalhadas na entrevista.';
+  if(hasDados(d.tmq)) dem+=` As dificuldades estão presentes **${d.tmq.toLowerCase()}**.`;
+  if(hasDados(d.qmp)) dem+=` A identificação inicial das queixas foi realizada por **${d.qmp.toLowerCase()}**.`;
+  if(hasDados(d.prg)) dem+=` A progressão do quadro é descrita como **${d.prg.toLowerCase()}**, dado de alta relevância para o raciocínio diagnóstico diferencial.`;
+  if(hasDados(d.imp)) dem+=` O impacto na vida diária é descrito da seguinte forma: ${d.imp}`;
+  secs.push({tt:'1. Descrição da Demanda',tx:dem});
+
+  /* 2. SAÚDE GERAL */
+  const temSaude=(d.dcs&&d.dcs.length)||hasDados(d.cdt)||hasDados(d.mds)||hasDados(d.bnz)||(d.exc&&d.exc.length)||hasDados(d.exd);
+  if(temSaude){
+    let sau=`O **histórico de saúde clínica** ${nmA} é marcado por`;
+    if(d.dcs&&d.dcs.length) sau+=` diagnóstico de **${lista(d.dcs)}**.`;
+    else sau+=' ausência de comorbidades clínicas relatadas de forma sistemática.';
+    if(hasDados(d.cdt)) sau+=` ${d.cdt}`;
+    if(hasDados(d.mds)) sau+=` Em relação à **polifarmácia**, faz uso de: ${d.mds}`;
+    if(hasDados(d.bnz)&&d.bnz!=='Não usa') sau+=` **Uso de benzodiazepínicos**: ${d.bnz.toLowerCase()}, dado clinicamente relevante pelo impacto potencial no desempenho cognitivo.`;
+    if(d.exc&&d.exc.length) sau+=` Foram realizados os seguintes exames neurológicos: **${lista(d.exc)}**.`;
+    if(hasDados(d.exd)) sau+=` Resultados: ${d.exd}`;
+    secs.push({tt:'2. Histórico de Saúde Geral e Fatores de Risco',tx:sau});
+  }
+
+  /* 3. QUEIXAS COGNITIVAS */
+  const temCog=(d.qmm&&d.qmm.length)||(d.qln&&d.qln.length)||(d.qex&&d.qex.length)||hasDados(d.cob);
+  if(temCog){
+    let cog=`O **perfil das queixas cognitivas** ${nmA} abrange`;
+    const dominios=[];
+    if(d.qmm&&d.qmm.length) dominios.push(`**domínio mnéstico**: ${lista(d.qmm).toLowerCase()}`);
+    if(d.qln&&d.qln.length) dominios.push(`**domínio da linguagem**: ${lista(d.qln).toLowerCase()}`);
+    if(d.qex&&d.qex.length) dominios.push(`**funções executivas e orientação**: ${lista(d.qex).toLowerCase()}`);
+    if(dominios.length) cog+=` os seguintes domínios: ${lista(dominios)}.`;
+    else cog+=' queixas a serem avaliadas instrumentalmente.';
+    if(hasDados(d.cob)) cog+=` ${d.cob}`;
+    secs.push({tt:'3. Perfil das Queixas Cognitivas',tx:cog});
+  }
+
+  /* 4. AVDs */
+  if((d.avb&&d.avb.length)||(d.avi&&d.avi.length)||hasDados(d.dep)||hasDados(d.phb)){
+    let avd=`Em relação à **autonomia e às atividades de vida diária**:`;
+    if(d.avb&&d.avb.length) avd+=` as seguintes AVDs básicas encontram-se preservadas: **${lista(d.avb)}**.`;
+    if(d.avi&&d.avi.length) avd+=` As seguintes AVDs instrumentais encontram-se preservadas: **${lista(d.avi)}**.`;
+    if(hasDados(d.dep)) avd+=` O grau de dependência atual é descrito como **${d.dep.toLowerCase()}**.`;
+    if(hasDados(d.phb)) avd+=` Perdas funcionais recentes relatadas: ${d.phb}`;
+    secs.push({tt:'4. Autonomia e Atividades de Vida Diária',tx:avd});
+  }
+
+  /* 5. NEUROPSIQUIÁTRICO */
+  if((d.nps&&d.nps.length)||hasDados(d.pqa)||hasDados(d.son)){
+    let nps=`O **perfil neuropsiquiátrico** ${nmA}`;
+    if(d.nps&&d.nps.length) nps+=` é caracterizado pela presença de: **${lista(d.nps)}**.`;
+    else nps+=' não apresenta sintomas neuropsiquiátricos relatados de forma sistemática.';
+    if(hasDados(d.son)&&d.son!=='Normal para a idade') nps+=` O padrão de sono apresenta **${d.son.toLowerCase()}**, dado com relevância para o diagnóstico diferencial.`;
+    if(hasDados(d.pqa)) nps+=` **Histórico psiquiátrico prévio**: ${d.pqa}`;
+    secs.push({tt:'5. Perfil Neuropsiquiátrico',tx:nps});
+  }
+
+  /* 6. RESERVA COGNITIVA */
+  const temRes=hasDados(d.atf)||hasDados(d.atc)||hasDados(d.vds)||hasDados(d.trj)||hasDados(d.evv);
+  if(temRes){
+    let res=`Os **fatores de reserva cognitiva** ${nmA}`;
+    const frs=[];
+    if(hasDados(d.esc)) frs.push(`escolaridade: **${d.esc.toLowerCase()}**${hasDados(d.ano)?' ('+d.ano+' anos de estudo)':''}`);
+    if(hasDados(d.atf)) frs.push(`atividade física: **${d.atf.toLowerCase()}**`);
+    if(hasDados(d.atc)) frs.push(`estimulação cognitiva: **${d.atc.toLowerCase()}**`);
+    if(hasDados(d.vds)) frs.push(`vida social: **${d.vds.toLowerCase()}**`);
+    if(frs.length) res+=` incluem: ${lista(frs)}.`;
+    else res+=' não foram detalhados de forma sistemática.';
+    if(hasDados(d.trj)) res+=` **Trajetória profissional**: ${d.trj}`;
+    if(hasDados(d.evv)) res+=` **Eventos de vida recentes**: ${d.evv}`;
+    secs.push({tt:'6. Reserva Cognitiva e Estilo de Vida',tx:res});
+  }
+
+  /* 7. FAMILIAR */
+  if(d.hf&&d.hf.length){
+    let hf=`O **histórico familiar** apresenta densidade relevante para: **${lista(d.hf)}**.`;
+    if(hasDados(d.hfd)) hf+=` ${d.hfd}`;
+    secs.push({tt:'7. Histórico Familiar',tx:hf});
+  }
+
+  if(hasDados(d.dxs)) secs.push({tt:'8. Diagnósticos Estabelecidos',tx:d.dxs});
+  if(hasDados(d.add)) secs.push({tt:'9. Informações Complementares',tx:d.add});
+  return secs;
+}
+
+function gerarTexto(k,d){
+  if(k==='infantil') return gerarTextoInfantil(d);
+  if(k==='escolar') return gerarTextoEscolar(d);
+  if(k==='adolescente') return gerarTextoAdolescente(d);
+  if(k==='adulto') return gerarTextoAdulto(d);
+  if(k==='idoso') return gerarTextoIdoso(d);
+  return [];
+}
+
+/* ═══════════════════════════════════════════
+   RENDERIZAÇÃO
+═══════════════════════════════════════════ */
+function rField(f,k,si,fi){
+  const id=fId(k,si,fi),full=f.full?'fg-full':'',req=f.req?'<span class="req">*</span>':'';
+  if(f.tp==='cks'){const its=f.its.map((it,ii)=>`<div class="ck"><input type="checkbox" id="${fId(k,si,fi,ii)}"><span>${it}</span></div>`).join('');return`<div class="fg ${full}"><label>${f.lb}</label><div class="cks">${its}</div></div>`;}
+  if(f.tp==='ta') return`<div class="fg ${full}"><label>${f.lb}${req}</label><textarea id="${id}" placeholder="${f.ph||''}"></textarea></div>`;
+  if(f.tp==='sel'){const ops=['<option value="">Selecione...</option>',...(f.op||[]).map(o=>`<option>${o}</option>`)].join('');return`<div class="fg ${full}"><label>${f.lb}${req}</label><select id="${id}">${ops}</select></div>`;}
+  if(f.tp==='num') return`<div class="fg ${full}"><label>${f.lb}${req}</label><input type="number" id="${id}" placeholder="${f.ph||''}" min="${f.mn??''}" max="${f.mx??''}"></div>`;
+  return`<div class="fg ${full}"><label>${f.lb}${req}</label><input type="${f.tp||'text'}" id="${id}" placeholder="${f.ph||''}"></div>`;
+}
+function rSect(s,k,si){
+  const gc=s.g3?'fg-grid3':'fg-grid';
+  return`<div class="card-sm"><div class="sect-head"><div class="sect-ic">${s.ic}</div><span class="sect-tt">${s.tt}</span></div><div class="${gc}">${(s.g2||s.g3||[]).map((f,fi)=>rField(f,k,si,fi)).join('')}</div></div>`;
+}
+function rForm(k){
+  const fx=F[k];
+  return`<div class="badge">${fx.icon} ${fx.tt} · ${fx.rg}</div>
+  <div style="background:white;border-radius:16px;border:1.5px solid #e2e8f0;padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+    <span style="font-size:12px;color:#64748b;font-weight:600">${fx.sects.length} seções clínicas</span>
+    <span style="font-size:12px;color:#0d9488;font-weight:700">Preencha os campos relevantes</span>
+  </div>
+  ${fx.sects.map((s,si)=>rSect(s,k,si)).join('')}
+  <div class="acts">
+    <button class="btn-main" onclick="gerar('${k}')">📋 Gerar Texto de Anamnese</button>
+    <button class="btn-sec" onclick="goSel()">← Voltar</button>
+  </div>`;
+}
+
+function rReport(d,secs){
+  const sh=secs.map(sec=>{
+    const corpo=sec.tx.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>');
+    return`<div class="rep-sc"><div class="rep-st">${sec.tt}</div><div class="rep-bl"><p class="rep-tx">${corpo}</p></div></div>`;
+  }).join('');
+  return`<div class="rep-acts">
+    <button class="btn-print" onclick="window.print()">🖨️ Imprimir / PDF</button>
+    <button class="btn-back" onclick="goForm('${fk}')">← Editar dados</button>
+    <button class="btn-back" onclick="goSel()">Novo formulário</button>
+  </div>
+  <div class="rep-header">
+    <div><div class="rep-brand-name">Equilibrium Neuropsicologia</div><div class="rep-brand-sub">CRP 04/53832 — Wessilon Marques de Sousa</div></div>
+    <div style="text-align:right"><div class="rep-title">Entrevista de Anamnese</div><div class="rep-subt">${d.faixa}</div></div>
+  </div>
+  <div class="rep-body">
+    <div class="rep-sc"><div class="rep-st">Dados de identificação</div>
+      <div class="rep-meta">
+        <div><div class="rep-ml">Paciente</div><div class="rep-mv">${d.nom||'—'}</div></div>
+        <div><div class="rep-ml">Idade</div><div class="rep-mv">${calcIdade(d.nsc)}</div></div>
+        <div><div class="rep-ml">Nascimento</div><div class="rep-mv">${fmtDate(d.nsc)}</div></div>
+        <div><div class="rep-ml">Avaliação</div><div class="rep-mv">${fmtDate(d.ava)}</div></div>
+        <div><div class="rep-ml">Faixa etária</div><div class="rep-mv">${d.faixa}</div></div>
+        <div><div class="rep-ml">Médico solicitante</div><div class="rep-mv">${d.med||'—'}</div></div>
+      </div>
+    </div>
+    ${sh}
+    <div class="rep-footer">
+      <p>Gerado por <strong>Equilibrium Neuropsicologia</strong> — CRP 04/53832 — Wessilon Marques de Sousa</p>
+      <p style="font-size:10px;margin-top:4px">Documento confidencial — destinado exclusivamente ao paciente e profissionais autorizados</p>
+    </div>
+  </div>`;
+}
+
+function render(){
+  const m=document.getElementById('main'),pt=document.getElementById('pt'),ps=document.getElementById('ps');
+  if(state==='select'){
+    pt.textContent='Entrevista de Anamnese';
+    ps.textContent='Selecione a faixa etária para iniciar o formulário clínico';
+    const cards=Object.entries(F).map(([k,fx])=>`<div class="fc" id="fc-${k}" onclick="goForm('${k}')"><div class="fc-ic">${fx.icon}</div><div class="fc-tt">${fx.tt}</div><div class="fc-rg">${fx.rg}</div></div>`).join('');
+    m.innerHTML=`<div class="card"><div class="sect-head"><div class="sect-ic">🎯</div><span class="sect-tt">Selecione a faixa etária</span></div><div class="faixa-grid">${cards}</div></div>`;
+  } else if(state==='form'){
+    const fx=F[fk];
+    pt.textContent=`Anamnese — ${fx.tt}`;
+    ps.textContent=`${fx.rg} · Preencha os campos clínicos relevantes`;
+    m.innerHTML=rForm(fk);
+    F[fk].sects.forEach((s,si)=>{(s.g2||s.g3||[]).forEach((f,fi)=>{if(f.today){const e=document.getElementById(fId(fk,si,fi));if(e)e.value=hoje;}});});
+  } else if(state==='report'){
+    const fx=F[fk];
+    pt.textContent=`Anamnese — ${fx.tt}`;
+    ps.textContent='Texto clínico gerado — revise e imprima';
+    m.innerHTML=rReport(saved._d,saved._secs);
+  }
+}
+
+function goSel(){state='select';fk=null;render();}
+function goForm(k){state='form';fk=k;render();}
+
+function gerar(k){
+  const d=coletarDados(k);
+  if(!d.nom){alert('Por favor, preencha o nome do paciente.');return;}
+  const secs=gerarTexto(k,d);
+  if(!secs.length){alert('Preencha ao menos os campos obrigatórios.');return;}
+  fk=k; saved={_d:d,_secs:secs}; state='report'; render();
+}
+
+render();
 </script>
 </body>
 </html>
