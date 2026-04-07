@@ -497,7 +497,7 @@ function renderizarTestesSeleccionados() {
         ${testeSalvo ? `
           <div class="teste-status">
             ${testeSalvo.status === 'corrigido' ? '✅ Corrigido' : '⏳ Em andamento'}
-            ${testeSalvo.dataCorrecao ? ` • ${formatarData(testeSalvo.dataCorrecao.toDate())}` : ''}
+            ${testeSalvo.dataCorrecao ? ` • ${formatarData(testeSalvo.dataCorrecao)}` : ''}
           </div>
         ` : ''}
         <div class="teste-actions">
@@ -646,8 +646,8 @@ function renderizarTestesRealizados() {
   const html = testesCorrigidos.map(teste => {
     const testeInfo = buscarInfoTeste(teste.tipo);
     const nomeExibicao = testeInfo ? testeInfo.nome : teste.tipo;
-    const dataAplicacao = teste.dataAplicacao ? formatarData(teste.dataAplicacao.toDate()) : 'Data não registrada';
-    const dataCorrecao = teste.dataCorrecao ? formatarData(teste.dataCorrecao.toDate()) : dataAplicacao;
+    const dataAplicacao = teste.dataAplicacao ? formatarData(teste.dataAplicacao) : 'Data não registrada';
+    const dataCorrecao = teste.dataCorrecao ? formatarData(teste.dataCorrecao) : dataAplicacao;
     
     return `
       <div class="teste-realizado">
@@ -728,8 +728,8 @@ function renderizarInformacoes() {
   document.getElementById('infoHipoteses').textContent = pacienteAtual.hipoteses || 'Não informado';
   document.getElementById('infoObservacoes').textContent = pacienteAtual.observacoes || 'Não informado';
   
-  const criadoEm = pacienteAtual.criadoEm ? formatarData(pacienteAtual.criadoEm.toDate()) : 'Não disponível';
-  const atualizadoEm = pacienteAtual.atualizadoEm ? formatarData(pacienteAtual.atualizadoEm.toDate()) : 'Não disponível';
+  const criadoEm = pacienteAtual.criadoEm ? formatarData(pacienteAtual.criadoEm) : 'Não disponível';
+  const atualizadoEm = pacienteAtual.atualizadoEm ? formatarData(pacienteAtual.atualizadoEm) : 'Não disponível';
   
   document.getElementById('infoCriadoEm').textContent = criadoEm;
   document.getElementById('infoAtualizadoEm').textContent = atualizadoEm;
@@ -857,14 +857,23 @@ function calcularIdade(dataNascimento) {
   }
 }
 
+function toDate(val) {
+  if (!val) return null;
+  if (val instanceof Date) return val;
+  if (typeof val.toDate === 'function') return val.toDate();
+  if (typeof val === 'string' || typeof val === 'number') return new Date(val);
+  return null;
+}
+
 function formatarData(data) {
   if (!data) return '-';
-  
-  const d = typeof data === 'string' ? new Date(data) : data;
+
+  const d = toDate(data) || (typeof data === 'string' ? new Date(data) : data);
+  if (!d || isNaN(d.getTime())) return '-';
   const dia = String(d.getDate()).padStart(2, '0');
   const mes = String(d.getMonth() + 1).padStart(2, '0');
   const ano = d.getFullYear();
-  
+
   return `${dia}/${mes}/${ano}`;
 }
 
