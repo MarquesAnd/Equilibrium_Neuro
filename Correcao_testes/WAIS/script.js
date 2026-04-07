@@ -596,6 +596,7 @@ async function calcular(salvar) {
           scores: { brutos, compostos, somasRecalc, indicesRecalc },
           classificacao: classQIT,
           observacoes: obsComportamentais,
+          htmlRelatorio: rel.outerHTML,
         });
       }
     }

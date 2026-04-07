@@ -130,6 +130,7 @@
           classificacao: dadosResultado.classificacao || "",
         },
         observacoes: dadosResultado.observacoes || "",
+        htmlRelatorio: dadosResultado.htmlRelatorio || "",
       };
 
       const result = await DB.salvarTestePaciente(paciente.id, data, testeId);

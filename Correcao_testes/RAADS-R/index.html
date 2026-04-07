@@ -438,9 +438,24 @@
         document.getElementById('repInterpretacao').textContent = interpretacao;
         
         gerarGrafico(pontuacao, nome);
-        
+
         modalLoading.classList.remove('show');
         document.getElementById('repOverlay').classList.add('ativo');
+
+        // Salvar no Firebase
+        if (window.Integration) {
+          // Aguardar gráfico renderizar
+          await new Promise(r => setTimeout(r, 300));
+          const repWrapper = document.querySelector('.rep-wrapper');
+          await Integration.salvarTesteNoFirebase("raads-r", {
+            dataAplicacao: data,
+            resumo: `Pontuação: ${pontuacao} / 80 — ${pontuacao >= 46 ? 'Acima do corte' : 'Abaixo do corte'}`,
+            scores: { pontuacao, pontosCorte: 46, respostas },
+            classificacao: pontuacao >= 46 ? 'Acima do Ponto de Corte' : 'Abaixo do Ponto de Corte',
+            observacoes: '',
+            htmlRelatorio: repWrapper ? repWrapper.outerHTML : '',
+          });
+        }
         
       } catch (error) {
         console.error('Erro ao processar:', error);

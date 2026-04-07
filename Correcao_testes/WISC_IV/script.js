@@ -279,6 +279,7 @@ async function calcular(salvar) {
           scores: { brutos, compostos, somas },
           classificacao: classQIT,
           observacoes: obsComportamentais,
+          htmlRelatorio: rel.outerHTML,
         });
       }
     }

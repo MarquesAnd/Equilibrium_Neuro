@@ -397,11 +397,18 @@ function _renderizarListaRelatorios(lista) {
                 ${classif ? classifBadge(classif) : ''}
               </td>
               <td style="font-size:12px;">${data}</td>
-              <td class="center">
-                <button class="btn-sm" onclick="_abrirRelPaciente('${r.pacienteId}','${r.id}')" title="Ver no paciente" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;">
+              <td class="center" style="white-space:nowrap;display:flex;gap:6px;justify-content:center;">
+                ${r.htmlRelatorio ? `
+                <button onclick="_verRelPDF('${r.pacienteId}','${r.id}')" title="Ver relatório" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;">
                   👁️ Ver
                 </button>
-                <button class="btn-sm" onclick="_irCorrigirTeste('${r.pacienteId}','${r.tipo}','${r.id}')" title="Editar" style="background:#f1f5f9;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;">
+                <button onclick="_baixarRelPDF('${r.pacienteId}','${r.id}','${r.pacienteNome.replace(/'/g,"")}')" title="Baixar PDF" style="background:#059669;color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;">
+                  📥 PDF
+                </button>` : `
+                <button onclick="_abrirRelPaciente('${r.pacienteId}','${r.id}')" title="Ver no paciente" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;">
+                  👤 Paciente
+                </button>`}
+                <button onclick="_irCorrigirTeste('${r.pacienteId}','${r.tipo}','${r.id}')" title="Editar" style="background:#f1f5f9;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;">
                   ✏️
                 </button>
               </td>
@@ -443,9 +450,105 @@ function _irCorrigirTeste(pacienteId, tipo, testeId) {
   window.location.href = ROTAS[tipo] || '/Correcao_testes/';
 }
 
+/* ── Visualizar relatório em modal ── */
+async function _verRelPDF(pacienteId, testeId) {
+  const rel = _todosRelatorios.find(r => r.pacienteId === pacienteId && r.id === testeId);
+  if (!rel || !rel.htmlRelatorio) {
+    alert('Relatório não disponível. Corrija o teste novamente para gerar.');
+    return;
+  }
+
+  // Remover modal anterior
+  const prev = document.getElementById('relViewModal');
+  if (prev) prev.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'relViewModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;animation:fadeIn .25s ease;';
+  modal.innerHTML = `
+    <div style="background:#f1f5f9;border-radius:16px;width:100%;max-width:960px;box-shadow:0 24px 80px rgba(0,0,0,.25);overflow:hidden;animation:slideUp .3s ease;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10;">
+        <div style="font-size:14px;font-weight:700;color:#0f172a;">📄 ${_NOMES_TESTES[rel.tipo] || rel.tipo} — ${rel.pacienteNome}</div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="_baixarRelPDF('${pacienteId}','${testeId}','${rel.pacienteNome.replace(/'/g,"")}')" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:#059669;color:#fff;transition:all .15s;">📥 Baixar PDF</button>
+          <button onclick="_imprimirRel()" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:#1a56db;color:#fff;transition:all .15s;">🖨️ Imprimir</button>
+          <button onclick="document.getElementById('relViewModal').remove()" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:1px solid #e2e8f0;background:#f1f5f9;color:#334155;transition:all .15s;">✕ Fechar</button>
+        </div>
+      </div>
+      <div id="relViewBody" style="padding:12px;overflow:hidden;">
+        <div id="relViewContent">${rel.htmlRelatorio}</div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  // Fechar com clique no backdrop
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+  // Fechar com ESC
+  const escHandler = (e) => { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', escHandler); } };
+  document.addEventListener('keydown', escHandler);
+}
+
+function _imprimirRel() {
+  const content = document.getElementById('relViewContent');
+  if (!content) return;
+  const win = window.open('', '_blank');
+  win.document.write(`<!DOCTYPE html><html><head><title>Relatório</title>
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/Correcao_testes/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>body{margin:0;padding:20px;font-family:'DM Sans',sans-serif;} *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}</style>
+  </head><body>${content.innerHTML}</body></html>`);
+  win.document.close();
+  setTimeout(() => { win.print(); }, 500);
+}
+
+async function _baixarRelPDF(pacienteId, testeId, nomeP) {
+  const rel = _todosRelatorios.find(r => r.pacienteId === pacienteId && r.id === testeId);
+  if (!rel || !rel.htmlRelatorio) {
+    alert('Relatório não disponível.');
+    return;
+  }
+
+  // Carregar html2pdf se não estiver disponível
+  if (!window.html2pdf) {
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+    document.head.appendChild(script);
+    await new Promise((resolve, reject) => { script.onload = resolve; script.onerror = reject; });
+  }
+
+  // Criar container temporário
+  const container = document.createElement('div');
+  container.style.cssText = 'position:absolute;left:-9999px;top:0;width:900px;';
+  container.innerHTML = rel.htmlRelatorio;
+  document.body.appendChild(container);
+
+  const nomeTeste = _NOMES_TESTES[rel.tipo] || rel.tipo;
+  const fileName = `${nomeTeste} - ${nomeP}.pdf`;
+
+  try {
+    await html2pdf().set({
+      margin: [8, 8, 8, 8],
+      filename: fileName,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true, letterRendering: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
+    }).from(container).save();
+  } catch(e) {
+    console.error('Erro ao gerar PDF:', e);
+    alert('Erro ao gerar PDF. Tente usar a opção Imprimir.');
+  } finally {
+    container.remove();
+  }
+}
+
 // Expor funções globalmente para onclick handlers
 window._abrirRelPaciente = _abrirRelPaciente;
 window._irCorrigirTeste = _irCorrigirTeste;
+window._verRelPDF = _verRelPDF;
+window._baixarRelPDF = _baixarRelPDF;
+window._imprimirRel = _imprimirRel;
 
 /* ══════════════════════════
    REGISTRY
