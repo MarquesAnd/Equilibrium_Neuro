@@ -571,9 +571,21 @@ async function calcular(salvar) {
       await new Promise(r => setTimeout(r, 150));
       const laudos = getLaudos();
       laudos.unshift({ nome, dataAplicacao: apl, faixa, createdAt: new Date().toISOString(), htmlRelatorio: rel.outerHTML,
-        // Salva também somas recalculadas para referência
         somasRecalc, indicesRecalc });
       setLaudos(laudos);
+
+      // Salvar no Firebase (subcoleção do paciente)
+      if (window.Integration) {
+        const qit = compostos?.QIT?.composto || qiInfo?.QIT?.composto;
+        const classQIT = qit ? classByComposite(qit) : "";
+        await Integration.salvarTesteNoFirebase("wais-iii", {
+          dataAplicacao: apl,
+          resumo: qit ? `QIT: ${qit} — ${classQIT}` : "",
+          scores: { brutos, compostos, somasRecalc, indicesRecalc },
+          classificacao: classQIT,
+          observacoes: obsComportamentais,
+        });
+      }
     }
 
     // ► HIDE LOADING + OPEN MODAL

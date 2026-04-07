@@ -257,6 +257,19 @@ async function calcular(salvar) {
       const laudos = getLaudos();
       laudos.unshift({ nome, dataAplicacao: apl, faixa, createdAt: new Date().toISOString(), htmlRelatorio: rel.outerHTML });
       setLaudos(laudos);
+
+      // Salvar no Firebase (subcoleção do paciente)
+      if (window.Integration) {
+        const qit = compostos?.QIT?.composto || qiInfo?.QIT?.composto;
+        const classQIT = qit ? classByComposite(qit) : "";
+        await Integration.salvarTesteNoFirebase("wisc-iv", {
+          dataAplicacao: apl,
+          resumo: qit ? `QIT: ${qit} — ${classQIT}` : "",
+          scores: { brutos, compostos, somas },
+          classificacao: classQIT,
+          observacoes: obsComportamentais,
+        });
+      }
     }
 
     hideLoading();

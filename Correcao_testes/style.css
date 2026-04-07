@@ -164,21 +164,53 @@
 .toolbar-btn-secondary:hover{background:#e2e8f0}
 .report-modal-body{padding:12px;overflow:hidden}
 
-/* ═══ PRINT — Folha contínua (sem A4, sem quebras) ═══ */
+/* ═══ PRINT — Impressão de relatórios ═══ */
 @media print{
-  @page{margin:8mm 10mm}
-  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
-  body{background:#fff!important;margin:0!important;padding:0!important}
-  .sidebar,.page-header,.form-card,.action-row,.no-print,.report-modal-toolbar,.loading-overlay,.app-shell{display:none!important}
-  .report-modal-backdrop{position:static!important;background:none!important;backdrop-filter:none!important;padding:0!important;overflow:visible!important;display:block!important}
-  .report-modal{position:static!important;width:100%!important;max-width:100%!important;box-shadow:none!important;border-radius:0!important;margin:0!important;padding:0!important;background:#fff!important}
+  @page{margin:10mm 12mm;size:A4 portrait}
+
+  /* Forçar cores de fundo na impressão */
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important}
+
+  body{background:#fff!important;margin:0!important;padding:0!important;overflow:visible!important;height:auto!important}
+
+  /* Esconder tudo exceto o relatório */
+  .sidebar,.page-header,.form-card,.action-row,.no-print,.report-modal-toolbar,.loading-overlay{display:none!important}
+  .app-shell{display:none!important}
+
+  /* Mostrar o modal do relatório como bloco estático */
+  .report-modal-backdrop{position:static!important;background:none!important;backdrop-filter:none!important;padding:0!important;overflow:visible!important;display:block!important;inset:auto!important}
+  .report-modal{position:static!important;width:100%!important;max-width:100%!important;box-shadow:none!important;border-radius:0!important;margin:0!important;padding:0!important;background:#fff!important;animation:none!important}
   .report-modal-body{max-height:none!important;overflow:visible!important;padding:0!important}
-  #relatorio{display:block!important}
-  .report{border:none!important;box-shadow:none!important;margin:0!important;overflow:visible!important;border-radius:0!important}
+
+  /* Relatório visível e sem bordas */
+  #relatorio{display:block!important;width:100%!important}
+  .report{border:none!important;box-shadow:none!important;margin:0!important;overflow:visible!important;border-radius:0!important;width:100%!important}
   .main-content{margin:0!important;padding:0!important;max-width:100%!important}
-  .rpt-hdr{border-radius:0!important}
-  /* Zero page breaks */
-  *{break-inside:auto!important;page-break-inside:auto!important;break-before:auto!important;page-break-before:auto!important;break-after:auto!important;page-break-after:auto!important}
+
+  /* Header do relatório */
+  .rpt-hdr{border-radius:0!important;background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%)!important}
+
+  /* Tabelas — evitar quebras no meio */
+  .rpt-tbl,.rpt-matrix{break-inside:avoid!important;page-break-inside:avoid!important}
+  .rpt-tbl tr,.rpt-matrix tr{break-inside:avoid!important;page-break-inside:avoid!important}
+
+  /* Seções — evitar quebras */
+  .rpt-sh{break-after:avoid!important;page-break-after:avoid!important}
+  .rpt-box,.rpt-box-obs{break-inside:avoid!important;page-break-inside:avoid!important}
+  .no-break{break-inside:avoid!important;page-break-inside:avoid!important}
+
+  /* Gráficos de barras — manter juntos */
+  .bar-group-title,.bar-row{break-inside:avoid!important}
+  .ic-row{break-inside:avoid!important}
+
+  /* Cards de fortes/fracos */
+  .sw-row{break-inside:avoid!important;page-break-inside:avoid!important}
+
+  /* Footer do relatório */
+  .rpt-foot{break-inside:avoid!important;page-break-inside:avoid!important}
+
+  /* Interpretação */
+  .rpt-interp{break-inside:avoid!important}
 }
 
 /* ═══ RESPONSIVO ═══ */

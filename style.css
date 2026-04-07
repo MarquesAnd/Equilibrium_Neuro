@@ -769,6 +769,175 @@ body {
 }
 .page-check-item input { display: none; }
 
+/* ═══════════════════════════════════
+   DASHBOARD INTERATIVO
+   ═══════════════════════════════════ */
+
+/* Loading */
+.dash-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  gap: 16px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dash-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--blue-light);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: dash-spin 0.7s linear infinite;
+}
+
+@keyframes dash-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Stats interativos */
+.stat-card-interactive {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.stat-card-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(26,86,219,0.1);
+  border-color: var(--blue-mid);
+}
+
+.stat-card-interactive:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(26,86,219,0.08);
+}
+
+/* Cards com animação de entrada */
+.dash-card-animate {
+  animation: dash-fadeUp 0.4s ease both;
+}
+
+.dash-card-animate:nth-child(2) { animation-delay: 0.08s; }
+.dash-card-animate:nth-child(3) { animation-delay: 0.16s; }
+
+@keyframes dash-fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Header dos cards */
+.dash-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.dash-card-header h3 {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Linhas clicáveis na tabela */
+.dash-row-click {
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+tr.dash-row-click:hover td {
+  background: var(--blue-light) !important;
+}
+
+div.dash-row-click:hover {
+  border-color: var(--blue-mid);
+  box-shadow: 0 4px 12px rgba(26,86,219,0.08);
+}
+
+div.dash-row-click:active {
+  transform: scale(0.995);
+}
+
+/* Grid do dashboard */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* Acesso rápido */
+.dash-quick-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.dash-quick-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.dash-quick-card:hover {
+  border-color: var(--blue-mid);
+  box-shadow: 0 6px 20px rgba(26,86,219,0.1);
+  transform: translateY(-2px);
+}
+
+.dash-quick-card:active {
+  transform: translateY(0);
+}
+
+.dash-quick-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin: 0 auto 10px;
+}
+
+.dash-quick-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.dash-quick-desc {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* Botão pequeno */
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 11px;
+}
+
+/* ═══════════════════════════════════
+   RESPONSIVO — Dashboard
+   ═══════════════════════════════════ */
+@media (max-width: 900px) {
+  .dash-grid { grid-template-columns: 1fr; }
+  .dash-quick-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 640px) {
+  .dash-quick-grid { grid-template-columns: 1fr 1fr; }
+}
+
 /* Login — novo estilo com campo texto em vez de select */
 .login-form input[type=text],
 .login-form input[type=password] {

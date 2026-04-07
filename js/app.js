@@ -16,7 +16,6 @@ function showApp() {
   document.getElementById("loginScreen").style.display   = "none";
   document.getElementById("appShell").style.display      = "flex";
 
-  // Exibir usuário logado na sidebar
   const user = getAuthUser();
   if (user) {
     document.getElementById("userName").textContent   = user.label;
@@ -24,10 +23,8 @@ function showApp() {
     document.getElementById("userRole").textContent   = user.role === "admin" ? "Administrador" : "Usuário";
   }
 
-  // Construir navegação baseada nas permissões do usuário
   buildNavigation();
 
-  // Ir para a primeira página permitida (dashboard se disponível)
   const pages = getUserPages();
   const first = pages.find(p => p.id === "dashboard") || pages[0];
   if (first) navigateTo(first.id);
@@ -54,7 +51,7 @@ function buildNavigation() {
   });
 }
 
-function navigateTo(pageId) {
+async function navigateTo(pageId) {
   if (!canAccessPage(pageId)) return;
 
   const page = PAGE_REGISTRY[pageId];
@@ -68,7 +65,25 @@ function navigateTo(pageId) {
 
   document.getElementById("pageTitle").textContent    = page.title;
   document.getElementById("pageSubtitle").textContent = page.subtitle;
-  document.getElementById("pageBody").innerHTML       = page.render();
+
+  const body = document.getElementById("pageBody");
+  const result = page.render();
+
+  if (result && typeof result.then === "function") {
+    body.innerHTML = `
+      <div class="dash-loading">
+        <div class="dash-spinner"></div>
+        <span>Carregando dados...</span>
+      </div>`;
+    try {
+      body.innerHTML = await result;
+    } catch(e) {
+      console.error("Erro ao renderizar página:", e);
+      body.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">⚠️</div><div class="empty-title">Erro ao carregar</div><div class="empty-desc">${e.message}</div></div></div>`;
+    }
+  } else {
+    body.innerHTML = result;
+  }
 
   window.scrollTo(0, 0);
 }

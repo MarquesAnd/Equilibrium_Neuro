@@ -186,14 +186,22 @@ const TESTES_POR_FAIXA = {
    ═══════════════════════════════════ */
 async function carregarPacientes() {
   try {
-    pacientes = await DB.getPacientes();
-    
-    // Carregar contadores de testes para cada paciente
-    for (let paciente of pacientes) {
+    let todos = await DB.getPacientes();
+
+    // Filtrar por profissional logado (admins veem todos)
+    const user = typeof getAuthUser === "function" ? getAuthUser() : null;
+    if (user && user.role !== "admin" && user.id) {
+      todos = todos.filter(p => p.criadoPor === user.id || !p.criadoPor);
+    }
+
+    pacientes = todos;
+
+    // Carregar contadores de testes para cada paciente (em paralelo)
+    await Promise.all(pacientes.map(async (paciente) => {
       const contadores = await DB.contarTestesPaciente(paciente.id);
       paciente.contadorTestes = contadores;
-    }
-    
+    }));
+
     renderizarListaPacientes();
   } catch (error) {
     console.error('Erro ao carregar pacientes:', error);
