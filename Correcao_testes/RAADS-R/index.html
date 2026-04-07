@@ -16,18 +16,18 @@
     .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
     @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
     .form-group label { display: block; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
-    .form-group input { width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 15px; font-family: inherit; transition: all .2s; }
+    .form-group input { width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 15px; font-family: inherit; transition: all .2s; }
     .form-group input:focus { outline: none; border-color: #1a56db; box-shadow: 0 0 0 3px rgba(124,58,237,.1); }
     .questions { display: flex; flex-direction: column; gap: 16px; max-width: 700px; margin: 0 auto; }
     .question { background: #fafcff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 18px 20px; transition: all .2s; }
     .question:hover { background: white; border-color: #cbd5e1; }
     .question-header { display: flex; gap: 12px; margin-bottom: 12px; }
-    .question-num { flex-shrink: 0; width: 32px; height: 32px; background: linear-gradient(135deg, #1a56db 0%, #1e40af 100%); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; }
+    .question-num { flex-shrink: 0; width: 32px; height: 32px; background: linear-gradient(135deg, #1a56db 0%, #1e40af 100%); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px; }
     .question-text { flex: 1; font-size: 14px; font-weight: 500; color: #1e293b; padding-top: 6px; }
     .question-reverse { display: inline-block; background: #fef3c7; color: #92400e; font-size: 9px; font-weight: 700; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; margin-left: 8px; }
     .question-options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
     @media (max-width: 640px) { .question-options { grid-template-columns: 1fr 1fr; } }
-    .option-btn { padding: 8px 12px; border: 1.5px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; font-size: 13px; text-align: center; transition: all .2s; font-family: inherit; font-weight: 500; color: #64748b; }
+    .option-btn { padding: 8px 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-size: 13px; text-align: center; transition: all .2s ease; font-family: inherit; font-weight: 500; color: #64748b; }
     .option-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
     .option-btn.active { background: #dbeafe; border-color: #1a56db; color: #1e40af; font-weight: 700; }
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 9999; }
@@ -40,26 +40,27 @@
     .action-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 32px; flex-wrap: wrap; }
     .btn-custom { padding: 14px 32px; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
     .btn-custom.primary { background: linear-gradient(135deg, #1a56db 0%, #1e40af 100%); color: white; box-shadow: 0 4px 14px rgba(124,58,237,.35); }
-    .btn-custom.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(124,58,237,.4); }
+    .btn-custom.primary:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(26,86,219,.3); }
+    .btn-custom.primary:active { transform: scale(0.97); box-shadow: 0 2px 8px rgba(26,86,219,.2); }
     .btn-custom.secondary { background: white; color: #1a56db; border: 2px solid #1a56db; }
-    .btn-custom.secondary:hover { background: #eff6ff; }
+    .btn-custom.secondary:hover { background: #eff6ff; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+    .btn-custom.secondary:active { transform: scale(0.97); }
     .btn-custom:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
 
     /* OVERLAY DE RELATÓRIO */
     .raadsr-report-overlay { position: fixed; inset: 0; background: #f1f5f9; z-index: 8000; display: none; flex-direction: column; }
     .raadsr-report-overlay.ativo { display: flex; }
-    
-    @media print {
-      .raadsr-report-overlay { position: relative !important; inset: auto !important; }
-    }
+
     .raadsr-report-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
     .raadsr-report-topbar-left { display: flex; align-items: center; gap: 12px; }
     .raadsr-report-topbar h2 { font-size: 16px; font-weight: 800; color: #1e40af; margin: 0; }
     .raadsr-report-actions { display: flex; gap: 8px; }
     .btn-print-rep { background: #1a56db; color: #fff; border: none; padding: 9px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
-    .btn-print-rep:hover { background: #1e40af; }
+    .btn-print-rep:hover { background: #1e40af; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(26,86,219,.2); }
+    .btn-print-rep:active { transform: scale(0.97); }
     .btn-close-rep { background: #f1f5f9; color: #374151; border: 1.5px solid #e2e8f0; padding: 9px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
-    .btn-close-rep:hover { background: #e2e8f0; }
+    .btn-close-rep:hover { background: #e2e8f0; transform: translateY(-2px); }
+    .btn-close-rep:active { transform: scale(0.97); }
     .raadsr-report-scroll { flex: 1; overflow-y: auto; padding: 32px 24px; }
     .raadsr-report-frame { max-width: 860px; margin: 0 auto; }
 
@@ -97,51 +98,79 @@
     .rep-footer-confidencial { font-size: 11px !important; color: #cbd5e1 !important; }
 
     @media print {
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-      html, body { margin: 0 !important; padding: 0 !important; height: auto !important; }
-      .sidebar, .raadsr-report-topbar, .no-print, .main-content, .app-shell { display: none !important; }
-      .raadsr-report-overlay { 
-        display: block !important; 
-        position: static !important; 
+      @page { margin: 10mm 12mm; size: A4 portrait; }
+
+      /* Forçar cores de fundo na impressão */
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+
+      html, body { margin: 0 !important; padding: 0 !important; height: auto !important; background: #fff !important; overflow: visible !important; }
+
+      /* Esconder tudo exceto o relatório */
+      .sidebar, .raadsr-report-topbar, .main-content, .app-shell, .modal-overlay, .action-buttons { display: none !important; }
+
+      /* Overlay do relatório — mostrar como bloco estático (sobrescreve .no-print) */
+      .raadsr-report-overlay.ativo {
+        display: block !important;
+        position: static !important;
         background: #fff !important;
         width: 100% !important;
         height: auto !important;
         overflow: visible !important;
+        inset: auto !important;
       }
-      .raadsr-report-scroll { 
-        padding: 0 !important; 
+      .raadsr-report-scroll {
+        padding: 0 !important;
         overflow: visible !important;
         height: auto !important;
       }
-      .raadsr-report-frame { 
+      .raadsr-report-frame {
         max-width: 100% !important;
         margin: 0 !important;
       }
-      .rep-wrapper { 
-        box-shadow: none !important; 
+      .rep-wrapper {
+        box-shadow: none !important;
         border-radius: 0 !important;
         margin: 0 !important;
         page-break-before: avoid !important;
       }
-      .rep-header { 
-        break-inside: avoid;
-        page-break-inside: avoid;
-        -webkit-column-break-inside: avoid;
+
+      /* Header — preservar gradiente, não quebrar */
+      .rep-header {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        background: linear-gradient(135deg, #1e40af 0%, #1a56db 100%) !important;
       }
-      .rep-section { 
-        break-inside: avoid;
-        page-break-inside: avoid;
-        -webkit-column-break-inside: avoid;
+
+      /* Seções — evitar quebras */
+      .rep-section {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
       }
-      .rep-chart-container { 
-        break-inside: avoid;
-        page-break-inside: avoid;
-        -webkit-column-break-inside: avoid;
+      .rep-section-title {
+        break-after: avoid !important;
+        page-break-after: avoid !important;
+      }
+
+      /* Gráfico e scores — manter juntos */
+      .rep-chart-container {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
       }
       .rep-score-cards {
-        break-inside: avoid;
-        page-break-inside: avoid;
-        -webkit-column-break-inside: avoid;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+      .rep-interpretation-box {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+      }
+
+      /* Footer — manter junto */
+      .rep-footer {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+        break-before: avoid !important;
+        page-break-before: avoid !important;
       }
     }
   </style>
@@ -289,6 +318,7 @@
   <script src="/js/firebase-config.js"></script>
   <script src="/js/db.js"></script>
   <script src="/js/auth.js"></script>
+<script src="/js/patient-guard.js"></script>
   <script src="/js/integration.js"></script>
   <script>
     const questoes = [{id:1,text:"Eu sou uma pessoa altamente empática e sensível.",reverse:true},{id:2,text:"Eu frequentemente uso palavras e frases de forma diferente dos outros."},{id:3,text:"É difícil para mim entender como outras pessoas estão se sentindo quando estamos conversando."},{id:4,text:"Algumas pessoas comuns não gostam de mim."},{id:5,text:"Eu tenho facilidade em fazer novos amigos.",reverse:true},{id:6,text:"É muito difícil para mim trabalhar e funcionar em grupos."},{id:7,text:"Quando estou conversando com alguém, eu presto pouca atenção às expressões faciais da pessoa."},{id:8,text:"Eu concentro minha atenção em detalhes ao invés de no quadro geral."},{id:9,text:"Eu levo as coisas de forma muito mais literal do que outras pessoas."},{id:10,text:"Não consigo imaginar como seria ser outra pessoa."},{id:11,text:"Eu tenho sido rotulado como 'estranho' ou 'esquisito'."},{id:12,text:"Eu tenho dificuldade em entender o que é esperado de mim."},{id:13,text:"Eu gosto de estar com outras pessoas.",reverse:true},{id:14,text:"É difícil para mim descobrir o que outras pessoas esperam de mim."},{id:15,text:"Eu foco no todo ao invés de nos pequenos detalhes."},{id:16,text:"É difícil para mim saber quando é minha vez de falar ao telefone ou em uma conversa em grupo."},{id:17,text:"Fico desconfortável quando as pessoas me contam sobre seus sentimentos íntimos."},{id:18,text:"Eu não sei como manter uma amizade."},{id:19,text:"Situações sociais são fáceis para mim."},{id:20,text:"Eu tenho que 'interpretar um papel' em situações sociais."}];

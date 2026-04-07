@@ -95,12 +95,12 @@ body {
 .btn {
     padding: 0.5rem 1.2rem;
     border: none;
-    border-radius: var(--radius-sm);
+    border-radius: 12px;
     font-family: inherit;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
@@ -113,13 +113,16 @@ body {
     box-shadow: var(--shadow-sm);
 }
 
-.btn-outline:hover { background: #f1f5f9; }
+.btn-outline:hover { background: #f1f5f9; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,0.08); }
+.btn-outline:active { transform: scale(0.97); }
 
-.btn-primary { background: var(--accent); color: white; border-radius: 10px; }
-.btn-primary:hover { background: var(--accent-dark); }
+.btn-primary { background: var(--accent); color: white; border-radius: 12px; }
+.btn-primary:hover { background: var(--accent-dark); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(26,86,219,0.15); }
+.btn-primary:active { transform: scale(0.97); }
 
-.btn-danger { background: #ef4444; color: white; }
-.btn-danger:hover { background: #dc2626; }
+.btn-danger { background: #ef4444; color: white; border-radius: 12px; }
+.btn-danger:hover { background: #dc2626; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(220,38,38,0.15); }
+.btn-danger:active { transform: scale(0.97); }
 
 .header-actions {
     display: flex;

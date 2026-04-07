@@ -141,6 +141,19 @@
 .muted{color:var(--text-secondary,#64748b);font-size:12px}
 .no-break{break-inside:avoid;page-break-inside:avoid}
 
+/* ═══ INTERACTIVE BUTTONS & CARDS ═══ */
+.btn-custom{transition:all .2s ease}
+.btn-custom:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.1)}
+.btn-custom:active{transform:scale(0.97)}
+.action-buttons .btn-custom:active{transform:scale(0.97)}
+
+.form-card{transition:box-shadow .2s ease}
+.form-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08)}
+
+.test-card{transition:all .2s ease}
+.test-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.12)}
+.test-card:active{transform:scale(0.98)}
+
 /* ═══ LOADING ═══ */
 .loading-overlay{position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;animation:fadeIn .3s ease forwards}
 @keyframes fadeIn{to{opacity:1}}
@@ -187,12 +200,14 @@
   .report{border:none!important;box-shadow:none!important;margin:0!important;overflow:visible!important;border-radius:0!important;width:100%!important}
   .main-content{margin:0!important;padding:0!important;max-width:100%!important}
 
-  /* Header do relatório */
-  .rpt-hdr{border-radius:0!important;background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%)!important}
+  /* Header do relatório — preservar gradiente */
+  .rpt-hdr{border-radius:0!important;background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%)!important;break-inside:avoid!important;page-break-inside:avoid!important}
 
   /* Tabelas — evitar quebras no meio */
   .rpt-tbl,.rpt-matrix{break-inside:avoid!important;page-break-inside:avoid!important}
   .rpt-tbl tr,.rpt-matrix tr{break-inside:avoid!important;page-break-inside:avoid!important}
+  .rpt-tbl thead{display:table-header-group}
+  .rpt-tbl tfoot,.rpt-matrix tfoot{break-inside:avoid!important;page-break-inside:avoid!important}
 
   /* Seções — evitar quebras */
   .rpt-sh{break-after:avoid!important;page-break-after:avoid!important}
@@ -200,18 +215,30 @@
   .no-break{break-inside:avoid!important;page-break-inside:avoid!important}
 
   /* Gráficos de barras — manter juntos */
-  .bar-group-title,.bar-row{break-inside:avoid!important}
-  .ic-row{break-inside:avoid!important}
+  .bar-group-title,.bar-row{break-inside:avoid!important;page-break-inside:avoid!important}
+  .ic-row{break-inside:avoid!important;page-break-inside:avoid!important}
+  .ic-scale{break-inside:avoid!important;page-break-inside:avoid!important}
 
   /* Cards de fortes/fracos */
   .sw-row{break-inside:avoid!important;page-break-inside:avoid!important}
+  .sw-card{break-inside:avoid!important;page-break-inside:avoid!important}
 
-  /* Footer do relatório */
-  .rpt-foot{break-inside:avoid!important;page-break-inside:avoid!important}
+  /* Footer do relatório — manter junto */
+  .rpt-foot{break-inside:avoid!important;page-break-inside:avoid!important;break-before:avoid!important;page-break-before:avoid!important}
 
-  /* Interpretação */
-  .rpt-interp{break-inside:avoid!important}
+  /* Interpretação e recomendações */
+  .rpt-interp{break-inside:avoid!important;page-break-inside:avoid!important}
+  .rpt-rec{break-inside:avoid!important;page-break-inside:avoid!important}
 }
+
+/* ═══ INTERACTIVE ENHANCEMENTS ═══ */
+.rpt-tbl tr:hover td{background:#f0f7ff}
+.rpt-tbl tr.alt:hover td{background:#e8f2ff}
+.rpt-matrix tbody tr:hover td{background:rgba(26,86,219,.04)}
+.cl-badge{transition:transform .15s ease}
+.cl-badge:hover{transform:scale(1.05)}
+.rpt-box{transition:box-shadow .2s ease}
+.rpt-box:hover{box-shadow:0 2px 12px rgba(0,0,0,.04)}
 
 /* ═══ RESPONSIVO ═══ */
 @media(max-width:640px){.form-grid{grid-template-columns:1fr}.rpt-info{grid-template-columns:1fr}}

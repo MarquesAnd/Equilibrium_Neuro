@@ -570,30 +570,57 @@ async function removerTesteSeleccionado(testeId) {
   }
 }
 
+/* ── Mapeamento de teste ID → rota direta ── */
+const ROTAS_APLICACAO = {
+  'srs2-pre':        '/Aplicacao_testes/SRS2/Pre-escolar/',
+  'srs2-esc-masc':   '/Aplicacao_testes/SRS2/idade-escolar-masculino/',
+  'srs2-esc-fem':    '/Aplicacao_testes/SRS2/idade-escolar-feminino/',
+  'srs2-adulto':     '/Aplicacao_testes/SRS2/adulto-autorelato/',
+  'raads-r':         '/Aplicacao_testes/RAADS-R/',
+  'cat-q':           '/Aplicacao_testes/CAT_Q/',
+  'bfp':             '/Aplicacao_testes/BFP/',
+  'vineland-pre':    '/Aplicacao_testes/Vineland3/pais-cuidadores/',
+  'vineland-adulto': '/Aplicacao_testes/Vineland3/pais-cuidadores/',
+};
+
+const ROTAS_CORRECAO = {
+  'wais-iii':        '/Correcao_testes/WAIS/novo-laudo.html',
+  'wisc-iv':         '/Correcao_testes/WISC_IV/novo-laudo.html',
+  'srs2-pre':        '/Correcao_testes/SRS2/Pre-escolar/',
+  'srs2-esc-masc':   '/Correcao_testes/SRS2/idade-escolar-masculino/',
+  'srs2-esc-fem':    '/Correcao_testes/SRS2/idade-escolar-feminino/',
+  'srs2-adulto':     '/Correcao_testes/SRS2/adulto-autorelato/',
+  'raads-r':         '/Correcao_testes/RAADS-R/',
+  'vineland-pre':    '/Correcao_testes/Vineland3/',
+  'vineland-adulto': '/Correcao_testes/Vineland3/',
+};
+
 function aplicarTeste(testeId) {
   const testeInfo = buscarInfoTeste(testeId);
   if (!testeInfo) return;
-  
+
   // Armazenar informações para uso na página de aplicação
   sessionStorage.setItem('pacienteAtual', JSON.stringify(pacienteAtual));
   sessionStorage.setItem('testeAtual', testeId);
   sessionStorage.setItem('testeNome', testeInfo.nome);
-  
-  // Redirecionar para página de aplicação
-  window.location.href = '/Aplicacao_testes/index.html';
+
+  // Redirecionar diretamente ao teste se rota conhecida
+  const rota = ROTAS_APLICACAO[testeId];
+  window.location.href = rota || '/Aplicacao_testes/index.html';
 }
 
 function corrigirTeste(testeId) {
   const testeInfo = buscarInfoTeste(testeId);
   if (!testeInfo) return;
-  
+
   // Armazenar informações para uso na página de correção
   sessionStorage.setItem('pacienteAtual', JSON.stringify(pacienteAtual));
   sessionStorage.setItem('testeAtual', testeId);
   sessionStorage.setItem('testeNome', testeInfo.nome);
-  
-  // Redirecionar para página de correção
-  window.location.href = '/Correcao_testes/index.html';
+
+  // Redirecionar diretamente ao teste se rota conhecida
+  const rota = ROTAS_CORRECAO[testeId];
+  window.location.href = rota || '/Correcao_testes/index.html';
 }
 
 /* ═══════════════════════════════════

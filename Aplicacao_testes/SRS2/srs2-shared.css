@@ -980,6 +980,62 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════
+   MELHORIAS VISUAIS — Sensory Interactive Feel
+   ═══════════════════════════════════════════════════════ */
+
+/* Cards com transição hover suave */
+.rep-scale-card {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.rep-scale-card:hover {
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+}
+
+/* Tabelas com zebra stripes mais suaves */
+.rep-scores-table tbody tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+/* Interpretação cards com hover */
+.rep-interp-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.rep-interp-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+}
+
+/* Badges com animação subtil */
+.cls-badge {
+  transition: transform 0.15s ease;
+}
+.cls-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Chart wraps com sombra subtil */
+.rep-chart-wrap {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease;
+}
+.rep-chart-wrap:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* Itens com transição mais rica */
+.item {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, transform 0.15s ease;
+}
+
+/* Botões com efeito active mais definido */
+.btn-relatorio:active,
+.btn-print-rep:active,
+.btn-close-rep:active,
+.btn-danger:active {
+  transform: scale(0.97);
+}
+
+/* ═══════════════════════════════════════════════════════
    IMPRESSÃO (PDF)
    ═══════════════════════════════════════════════════════ */
 @media print {

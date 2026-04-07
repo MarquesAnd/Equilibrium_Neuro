@@ -115,16 +115,19 @@ document.addEventListener("DOMContentLoaded", function () {
     var emoji = abaEmoji[abaId];
     var html  = "";
 
-    /* ── Cabeçalho ── */
+    /* ── Cabeçalho — padrão WAIS/WISC com gradiente escuro ── */
     html += '<div class="rep-cl-header">'
           + '  <div class="rep-cl-brand">'
           + '    <img src="/logo2.png" alt="Logo" class="rep-cl-logo" onerror="this.style.display=\'none\'">'
-          + '    <div><div class="rep-cl-brand-name">Equilibrium</div><div class="rep-cl-brand-sub">Neuropsicologia</div></div>'
+          + '    <div>'
+          + '      <div class="rep-cl-brand-name">Equilibrium</div>'
+          + '      <div class="rep-cl-brand-sub">Neuropsicologia Cl\u00ednica</div>'
+          + '    </div>'
           + '  </div>'
           + '  <div class="rep-cl-header-info">'
           + '    <div class="rep-cl-doc-name">Check List de Instrumentos</div>'
-          + '    <div class="rep-cl-doc-sub">' + emoji + ' ' + info.label + '</div>'
-          + '    <div class="rep-cl-badge"><span class="dot"></span>' + totalSel + ' instrumento' + (totalSel !== 1 ? 's' : '') + ' a realizar</div>'
+          + '    <div class="rep-cl-doc-sub">' + emoji + ' Faixa: ' + info.label + '</div>'
+          + '    <div class="rep-cl-badge"><span class="dot"></span>' + totalSel + ' instrumento' + (totalSel !== 1 ? 's' : '') + ' selecionado' + (totalSel !== 1 ? 's' : '') + '</div>'
           + '  </div>'
           + '</div>';
 
@@ -133,7 +136,7 @@ document.addEventListener("DOMContentLoaded", function () {
           + '  <div class="rep-cl-field"><label>Paciente</label><span>' + escHtml(paciente) + '</span></div>'
           + '  <div class="rep-cl-field"><label>CPF</label><span>'      + escHtml(cpf)      + '</span></div>'
           + '  <div class="rep-cl-field"><label>Idade</label><span>'    + escHtml(idadeStr)  + '</span></div>'
-          + (hipoteses ? '  <div class="rep-cl-field"><label>Hipóteses</label><span>' + escHtml(hipoteses) + '</span></div>' : '')
+          + (hipoteses ? '  <div class="rep-cl-field"><label>Hip\u00f3teses</label><span>' + escHtml(hipoteses) + '</span></div>' : '')
           + '  <div class="rep-cl-field"><label>Data</label><span>'     + hoje               + '</span></div>'
           + '</div>';
 
@@ -178,10 +181,17 @@ document.addEventListener("DOMContentLoaded", function () {
     html += '</tbody></table></div>';
     html += '</div>'; /* /rep-cl-body */
 
-    /* ── Rodapé ── */
+    /* ── Rodapé — padrão WAIS/WISC com gradiente escuro ── */
     html += '<div class="rep-cl-footer">'
-          + '<span>Equilibrium Neuropsicologia</span>'
-          + '<span>' + hoje + ' · ' + totalSel + ' instrumento' + (totalSel !== 1 ? 's' : '') + ' a realizar</span>'
+          + '  <div class="rep-cl-footer-brand">'
+          + '    <img src="/logo2.png" alt="" class="rep-cl-footer-logo" onerror="this.style.display=\'none\'">'
+          + '    <span>Equilibrium Neuropsicologia</span>'
+          + '  </div>'
+          + '  <div class="rep-cl-footer-brand">'
+          + '    <span>' + hoje + '</span>'
+          + '    <div class="rep-cl-footer-divider"></div>'
+          + '    <span>' + totalSel + ' instrumento' + (totalSel !== 1 ? 's' : '') + ' selecionado' + (totalSel !== 1 ? 's' : '') + '</span>'
+          + '  </div>'
           + '</div>';
 
     document.getElementById("repClWrapper").innerHTML = html;

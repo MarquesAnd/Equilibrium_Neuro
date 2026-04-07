@@ -330,6 +330,11 @@ body {
   border: 1px solid var(--border);
   padding: 20px;
   box-shadow: var(--shadow);
+  transition: box-shadow 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
 }
 
 /* Stats */
@@ -379,6 +384,7 @@ body {
 }
 
 .btn-primary:hover { filter: brightness(0.92); }
+.btn-primary:active { transform: scale(0.97); }
 
 .btn-secondary {
   background: var(--card);
@@ -393,6 +399,7 @@ body {
 }
 
 .btn-secondary:hover { background: var(--bg); }
+.btn-secondary:active { transform: scale(0.97); }
 
 .w-full { width: 100%; }
 
@@ -470,8 +477,12 @@ body {
 
 .test-card:hover {
   border-color: var(--blue-mid);
-  box-shadow: 0 4px 16px rgba(26,86,219,0.08);
-  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+  transform: translateY(-3px);
+}
+
+.test-card:active {
+  transform: scale(0.98);
 }
 
 .test-card.disabled {
