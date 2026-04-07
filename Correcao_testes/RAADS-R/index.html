@@ -471,13 +471,15 @@
       document.getElementById('btnPrintRep').addEventListener('click', () => window.print());
 
       // Mostrar botão "Voltar ao Paciente" se houver paciente selecionado
-      const paciente = window.Integration ? Integration.getPacienteAtual() : null;
-      if (paciente) {
+      let pacienteAtual = null;
+      try { const raw = sessionStorage.getItem('pacienteAtual'); if (raw) pacienteAtual = JSON.parse(raw); } catch(e) {}
+      if (!pacienteAtual && window.Integration) pacienteAtual = Integration.getPacienteAtual();
+      if (pacienteAtual && pacienteAtual.id) {
         const btnVoltar = document.getElementById('btnVoltarPac');
         if (btnVoltar) {
           btnVoltar.style.display = 'flex';
           btnVoltar.addEventListener('click', () => {
-            sessionStorage.setItem('abrirPacienteId', paciente.id);
+            sessionStorage.setItem('abrirPacienteId', pacienteAtual.id);
             window.location.href = '/Pacientes/';
           });
         }

@@ -940,33 +940,40 @@ async function verificarAutoAbertura() {
   const pacienteId = sessionStorage.getItem('abrirPacienteId');
   if (!pacienteId) return;
 
+  console.log("🔄 Auto-abertura: paciente ID =", pacienteId);
+
   // Limpar para não reabrir na próxima vez
   sessionStorage.removeItem('abrirPacienteId');
 
-  // Aguardar pacientes carregarem
-  const maxTentativas = 20;
-  for (let i = 0; i < maxTentativas; i++) {
-    if (pacientes.length > 0) break;
-    await new Promise(r => setTimeout(r, 200));
+  // Verificar se o paciente está no array local
+  let paciente = pacientes.find(p => p.id === pacienteId);
+  if (!paciente) {
+    console.warn("⚠️ Paciente não encontrado no array local, tentando recarregar...");
+    await carregarPacientes();
+    paciente = pacientes.find(p => p.id === pacienteId);
+  }
+  if (!paciente) {
+    console.error("❌ Paciente não encontrado:", pacienteId);
+    return;
   }
 
-  // Abrir detalhes do paciente
-  const paciente = pacientes.find(p => p.id === pacienteId);
-  if (paciente) {
-    // Pequeno delay para garantir que a UI está pronta
-    setTimeout(async () => {
-      await abrirDetalhesPaciente(pacienteId);
-      // Ir direto para a aba "Realizados" para ver o teste recém-corrigido
-      setTimeout(() => {
-        // Ativar aba realizados
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        const tabs = document.querySelectorAll('.tab');
-        if (tabs[1]) tabs[1].classList.add('active'); // Aba "Realizados" é a segunda
-        const tabRealizados = document.getElementById('tabRealizados');
-        if (tabRealizados) tabRealizados.classList.add('active');
-      }, 300);
-    }, 200);
+  // Abrir detalhes do paciente diretamente
+  try {
+    await abrirDetalhesPaciente(pacienteId);
+    console.log("✅ Modal do paciente aberto");
+
+    // Ir direto para a aba "Realizados"
+    setTimeout(() => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      const tabs = document.querySelectorAll('.tab');
+      if (tabs[1]) tabs[1].classList.add('active');
+      const tabRealizados = document.getElementById('tabRealizados');
+      if (tabRealizados) tabRealizados.classList.add('active');
+      console.log("✅ Aba Realizados ativada");
+    }, 400);
+  } catch (e) {
+    console.error("❌ Erro na auto-abertura:", e);
   }
 }
 

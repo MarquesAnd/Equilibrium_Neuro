@@ -514,6 +514,15 @@ function closeReportModal() {
 
   modal.remove();
   document.removeEventListener("keydown", _escHandler);
+
+  // Se há paciente selecionado, oferecer voltar
+  let paciente = null;
+  try { const raw = sessionStorage.getItem("pacienteAtual"); if (raw) paciente = JSON.parse(raw); } catch(e) {}
+  if (paciente && paciente.id) {
+    if (confirm(`Deseja voltar à ficha do paciente "${paciente.nome}"?`)) {
+      voltarParaPaciente();
+    }
+  }
 }
 
 /* ═══════════════════════════════════
@@ -1008,14 +1017,18 @@ async function imprimirRelatorio() {
 })();
 
 function voltarParaPaciente() {
-  const paciente = window.Integration ? Integration.getPacienteAtual() : null;
+  // Tentar obter paciente de várias fontes
+  let paciente = null;
+  try {
+    const raw = sessionStorage.getItem("pacienteAtual");
+    if (raw) paciente = JSON.parse(raw);
+  } catch(e) {}
+  if (!paciente && window.Integration) paciente = Integration.getPacienteAtual();
+
   if (paciente && paciente.id) {
-    // Manter o paciente no sessionStorage para a página de pacientes abrir os detalhes
     sessionStorage.setItem("abrirPacienteId", paciente.id);
-    window.location.href = "/Pacientes/";
-  } else {
-    window.location.href = "/Pacientes/";
   }
+  window.location.href = "/Pacientes/";
 }
 
 window.calcular = calcular;
