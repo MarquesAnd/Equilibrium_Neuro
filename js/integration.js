@@ -136,7 +136,7 @@
 
       if (result.ok) {
         console.log("✅ Teste salvo no Firebase:", result.id);
-        mostrarNotificacaoIntegracao("Resultado salvo na ficha do paciente!", "success");
+        mostrarNotificacaoComVoltar("Resultado salvo na ficha do paciente!", paciente);
       }
 
       return result;
@@ -162,6 +162,43 @@
       el.style.animation = "slideUpOut 0.3s ease";
       setTimeout(() => el.remove(), 300);
     }, 4000);
+  }
+
+  /* ── Notificação com botão de voltar ao paciente ── */
+  function mostrarNotificacaoComVoltar(texto, paciente) {
+    const el = document.createElement("div");
+    el.style.cssText = `
+      position: fixed; bottom: 24px; right: 24px; padding: 16px 20px;
+      background: #059669; color: white; border-radius: 14px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.2); z-index: 10000;
+      font-family: 'DM Sans', sans-serif; animation: slideUpIn 0.3s ease;
+      display: flex; flex-direction: column; gap: 10px; max-width: 320px;
+    `;
+    el.innerHTML = `
+      <div style="font-weight:700;font-size:14px;">✅ ${texto}</div>
+      <button id="integ-voltar-btn" style="
+        background: rgba(255,255,255,0.2); border: 1.5px solid rgba(255,255,255,0.4);
+        color: white; padding: 8px 16px; border-radius: 10px; font-size: 13px;
+        font-weight: 700; cursor: pointer; font-family: inherit;
+        transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+      ">👤 Voltar à ficha de ${paciente.nome.split(" ")[0]}</button>
+    `;
+    document.body.appendChild(el);
+
+    el.querySelector("#integ-voltar-btn").addEventListener("click", () => {
+      sessionStorage.setItem("abrirPacienteId", paciente.id);
+      window.location.href = "/Pacientes/";
+    });
+
+    // Hover effect
+    const btn = el.querySelector("#integ-voltar-btn");
+    btn.addEventListener("mouseenter", () => { btn.style.background = "rgba(255,255,255,0.35)"; });
+    btn.addEventListener("mouseleave", () => { btn.style.background = "rgba(255,255,255,0.2)"; });
+
+    setTimeout(() => {
+      el.style.animation = "slideUpOut 0.3s ease";
+      setTimeout(() => el.remove(), 300);
+    }, 8000); // Mais tempo para o usuário ver e clicar
   }
 
   /* ── Animações ── */

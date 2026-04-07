@@ -341,7 +341,8 @@
         location.href = '/login.html'; 
       } else {
         applySidebarPermissions();
-        carregarPacientes();
+        await carregarPacientes();
+        verificarAutoAbertura();
       }
     });
   </script>

@@ -934,6 +934,43 @@ style.textContent = `
 document.head.appendChild(style);
 
 /* ═══════════════════════════════════
+   AUTO-ABRIR PACIENTE (após voltar de teste)
+   ═══════════════════════════════════ */
+async function verificarAutoAbertura() {
+  const pacienteId = sessionStorage.getItem('abrirPacienteId');
+  if (!pacienteId) return;
+
+  // Limpar para não reabrir na próxima vez
+  sessionStorage.removeItem('abrirPacienteId');
+
+  // Aguardar pacientes carregarem
+  const maxTentativas = 20;
+  for (let i = 0; i < maxTentativas; i++) {
+    if (pacientes.length > 0) break;
+    await new Promise(r => setTimeout(r, 200));
+  }
+
+  // Abrir detalhes do paciente
+  const paciente = pacientes.find(p => p.id === pacienteId);
+  if (paciente) {
+    // Pequeno delay para garantir que a UI está pronta
+    setTimeout(async () => {
+      await abrirDetalhesPaciente(pacienteId);
+      // Ir direto para a aba "Realizados" para ver o teste recém-corrigido
+      setTimeout(() => {
+        // Ativar aba realizados
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        const tabs = document.querySelectorAll('.tab');
+        if (tabs[1]) tabs[1].classList.add('active'); // Aba "Realizados" é a segunda
+        const tabRealizados = document.getElementById('tabRealizados');
+        if (tabRealizados) tabRealizados.classList.add('active');
+      }, 300);
+    }, 200);
+  }
+}
+
+/* ═══════════════════════════════════
    MÁSCARAS DE INPUT
    ═══════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', () => {

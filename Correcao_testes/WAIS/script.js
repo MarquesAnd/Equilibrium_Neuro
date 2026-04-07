@@ -464,11 +464,14 @@ function openReportModal() {
   const backdrop = document.createElement("div");
   backdrop.id = "reportModal";
   backdrop.className = "report-modal-backdrop";
+  const paciente = window.Integration ? Integration.getPacienteAtual() : null;
+  const btnVoltar = paciente ? `<button class="toolbar-btn toolbar-btn-voltar" onclick="voltarParaPaciente()">👤 Voltar ao Paciente</button>` : "";
   backdrop.innerHTML = `
     <div class="report-modal">
       <div class="report-modal-toolbar no-print">
         <div class="toolbar-title">📄 Relatório Gerado</div>
         <div class="toolbar-actions">
+          ${btnVoltar}
           <button class="toolbar-btn toolbar-btn-primary" onclick="baixarPDF()">📥 Baixar PDF</button>
           <button class="toolbar-btn toolbar-btn-secondary" onclick="window.print()">🖨️ Imprimir</button>
           <button class="toolbar-btn toolbar-btn-secondary" onclick="closeReportModal()">✕ Fechar</button>
@@ -1004,9 +1007,21 @@ async function imprimirRelatorio() {
   if (document.getElementById("listaLaudos")) renderListaLaudos();
 })();
 
+function voltarParaPaciente() {
+  const paciente = window.Integration ? Integration.getPacienteAtual() : null;
+  if (paciente && paciente.id) {
+    // Manter o paciente no sessionStorage para a página de pacientes abrir os detalhes
+    sessionStorage.setItem("abrirPacienteId", paciente.id);
+    window.location.href = "/Pacientes/";
+  } else {
+    window.location.href = "/Pacientes/";
+  }
+}
+
 window.calcular = calcular;
 window.imprimirRelatorio = imprimirRelatorio;
 window.baixarPDF = baixarPDF;
 window.baixarPDFSalvo = baixarPDFSalvo;
 window.closeReportModal = closeReportModal;
 window.openReportModal = openReportModal;
+window.voltarParaPaciente = voltarParaPaciente;
