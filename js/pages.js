@@ -249,17 +249,203 @@ function renderPacientes() { location.href = '/Pacientes/index.html';        ret
    RELATÓRIOS
    ══════════════════════════ */
 function renderRelatorios() {
+  // Renderiza o container, depois carrega os dados async
+  setTimeout(_carregarRelatorios, 100);
   return `
-    <div class="card">
-      <div class="empty-state">
-        <div class="empty-icon">📄</div>
-        <div class="empty-title">Selecione um paciente para ver seus relatórios</div>
-        <div class="empty-desc">Ou gere um novo a partir da aba Correção de Testes</div>
-        <br>
-        <button class="btn-primary" onclick="navigateTo('correcao')">Ir para Correção</button>
+    <div id="relatoriosFilter" style="display:flex;gap:12px;align-items:center;margin-bottom:20px;flex-wrap:wrap;">
+      <select id="relFiltroP" class="field-input" style="padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;min-width:240px;">
+        <option value="">Todos os pacientes</option>
+      </select>
+      <input type="text" id="relBusca" placeholder="Buscar por teste ou paciente..." style="padding:10px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;flex:1;min-width:200px;" />
+    </div>
+    <div id="relatoriosContent">
+      <div class="card" style="text-align:center;padding:40px;">
+        <div style="font-size:32px;margin-bottom:12px;">⏳</div>
+        <div style="font-weight:600;color:var(--text-secondary);">Carregando relatórios...</div>
       </div>
     </div>`;
 }
+
+const _NOMES_TESTES = {
+  'wais-iii':'WAIS-III','wisc-iv':'WISC-IV','srs2-pre':'SRS-2 Pré-Escolar',
+  'srs2-esc-masc':'SRS-2 Escolar Masc','srs2-esc-fem':'SRS-2 Escolar Fem',
+  'srs2-adulto':'SRS-2 Adulto','raads-r':'RAADS-R','cat-q':'CAT-Q','bfp':'BFP',
+  'vineland-pre':'Vineland-3','vineland-adulto':'Vineland-3',
+};
+
+let _todosRelatorios = [];
+
+async function _carregarRelatorios() {
+  const container = document.getElementById('relatoriosContent');
+  const selectPac = document.getElementById('relFiltroP');
+  const inputBusca = document.getElementById('relBusca');
+  if (!container) return;
+
+  try {
+    // Carregar todos os pacientes
+    let pacientes = [];
+    if (window.DB && typeof DB.getPacientes === 'function') {
+      pacientes = await DB.getPacientes();
+      const user = typeof getAuthUser === 'function' ? getAuthUser() : null;
+      if (user && user.role !== 'admin' && user.id) {
+        pacientes = pacientes.filter(p => p.criadoPor === user.id || !p.criadoPor);
+      }
+    }
+
+    // Preencher select de pacientes
+    if (selectPac) {
+      pacientes.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = p.nome;
+        selectPac.appendChild(opt);
+      });
+    }
+
+    // Carregar testes corrigidos de todos os pacientes
+    _todosRelatorios = [];
+    await Promise.all(pacientes.map(async (pac) => {
+      if (!window.DB) return;
+      const testes = await DB.getTestesPaciente(pac.id);
+      testes.filter(t => t.status === 'corrigido').forEach(t => {
+        _todosRelatorios.push({
+          ...t,
+          pacienteId: pac.id,
+          pacienteNome: pac.nome,
+          pacienteCpf: pac.cpf || '',
+        });
+      });
+    }));
+
+    // Ordenar por data mais recente
+    _todosRelatorios.sort((a, b) => {
+      const da = a.dataCorrecao ? new Date(a.dataCorrecao.toDate ? a.dataCorrecao.toDate() : a.dataCorrecao) : new Date(0);
+      const db = b.dataCorrecao ? new Date(b.dataCorrecao.toDate ? b.dataCorrecao.toDate() : b.dataCorrecao) : new Date(0);
+      return db - da;
+    });
+
+    _renderizarListaRelatorios(_todosRelatorios);
+
+    // Filtros
+    if (selectPac) selectPac.addEventListener('change', _aplicarFiltrosRel);
+    if (inputBusca) inputBusca.addEventListener('input', _aplicarFiltrosRel);
+
+  } catch(e) {
+    console.error('Erro ao carregar relatórios:', e);
+    container.innerHTML = `<div class="card" style="text-align:center;padding:40px;">
+      <div style="font-size:32px;margin-bottom:12px;">⚠️</div>
+      <div style="font-weight:600;color:var(--red);">Erro ao carregar relatórios</div>
+    </div>`;
+  }
+}
+
+function _aplicarFiltrosRel() {
+  const pacId = document.getElementById('relFiltroP')?.value || '';
+  const busca = (document.getElementById('relBusca')?.value || '').toLowerCase();
+  let filtrados = _todosRelatorios;
+  if (pacId) filtrados = filtrados.filter(r => r.pacienteId === pacId);
+  if (busca) filtrados = filtrados.filter(r =>
+    r.pacienteNome.toLowerCase().includes(busca) ||
+    (_NOMES_TESTES[r.tipo] || r.tipo).toLowerCase().includes(busca) ||
+    (r.resultados?.resumo || '').toLowerCase().includes(busca)
+  );
+  _renderizarListaRelatorios(filtrados);
+}
+
+function _renderizarListaRelatorios(lista) {
+  const container = document.getElementById('relatoriosContent');
+  if (!container) return;
+
+  if (lista.length === 0) {
+    container.innerHTML = `<div class="card" style="text-align:center;padding:40px;">
+      <div style="font-size:32px;margin-bottom:12px;">📄</div>
+      <div style="font-weight:700;font-size:16px;margin-bottom:6px;">Nenhum relatório encontrado</div>
+      <div style="color:var(--text-secondary);font-size:13px;">Corrija testes a partir da aba de Correção para gerar relatórios</div>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;font-weight:600;">
+      ${lista.length} relatório${lista.length !== 1 ? 's' : ''} encontrado${lista.length !== 1 ? 's' : ''}
+    </div>
+    <div class="tbl-wrap">
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Teste</th>
+            <th>Resultado</th>
+            <th>Data</th>
+            <th class="center">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${lista.map(r => {
+            const nomeTeste = _NOMES_TESTES[r.tipo] || r.tipo;
+            const data = _fmtData(r.dataCorrecao);
+            const resumo = r.resultados?.resumo || '—';
+            const classif = r.resultados?.classificacao || '';
+            return `<tr>
+              <td>
+                <div style="font-weight:700;font-size:13px;">${r.pacienteNome}</div>
+                <div style="font-size:11px;color:var(--text-secondary);">${r.pacienteCpf}</div>
+              </td>
+              <td><span class="badge badge-blue">${nomeTeste}</span></td>
+              <td>
+                <div style="font-size:12px;font-weight:600;">${resumo}</div>
+                ${classif ? classifBadge(classif) : ''}
+              </td>
+              <td style="font-size:12px;">${data}</td>
+              <td class="center">
+                <button class="btn-sm" onclick="_abrirRelPaciente('${r.pacienteId}','${r.id}')" title="Ver no paciente" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;">
+                  👁️ Ver
+                </button>
+                <button class="btn-sm" onclick="_irCorrigirTeste('${r.pacienteId}','${r.tipo}','${r.id}')" title="Editar" style="background:#f1f5f9;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;">
+                  ✏️
+                </button>
+              </td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function _abrirRelPaciente(pacienteId, testeId) {
+  sessionStorage.setItem('abrirPacienteId', pacienteId);
+  window.location.href = '/Pacientes/';
+}
+
+function _irCorrigirTeste(pacienteId, tipo, testeId) {
+  // Buscar paciente para colocar no session
+  const pacientes = _todosRelatorios.filter(r => r.pacienteId === pacienteId);
+  if (pacientes.length > 0) {
+    sessionStorage.setItem('pacienteAtual', JSON.stringify({
+      id: pacienteId,
+      nome: pacientes[0].pacienteNome,
+    }));
+    sessionStorage.setItem('testeAtual', tipo);
+    sessionStorage.setItem('testeId', testeId);
+  }
+
+  const ROTAS = {
+    'wais-iii':'/Correcao_testes/WAIS/novo-laudo.html',
+    'wisc-iv':'/Correcao_testes/WISC_IV/novo-laudo.html',
+    'srs2-pre':'/Correcao_testes/SRS2/Pre-escolar/',
+    'srs2-esc-masc':'/Correcao_testes/SRS2/idade-escolar-masculino/',
+    'srs2-esc-fem':'/Correcao_testes/SRS2/idade-escolar-feminino/',
+    'srs2-adulto':'/Correcao_testes/SRS2/adulto-autorelato/',
+    'raads-r':'/Correcao_testes/RAADS-R/',
+    'vineland-pre':'/Correcao_testes/Vineland3/',
+    'vineland-adulto':'/Correcao_testes/Vineland3/',
+  };
+  window.location.href = ROTAS[tipo] || '/Correcao_testes/';
+}
+
+// Expor funções globalmente para onclick handlers
+window._abrirRelPaciente = _abrirRelPaciente;
+window._irCorrigirTeste = _irCorrigirTeste;
 
 /* ══════════════════════════
    REGISTRY
