@@ -618,6 +618,14 @@ async function baixarPDF() {
 
   showLoading("Gerando PDF...");
 
+  // Esconde elementos decorativos e remove backdrop-filter que causam falha no html2canvas
+  const decos = rel.querySelectorAll('.deco1, .deco2');
+  const badge = rel.querySelector('.rpt-hdr-badge');
+  const reportEl = rel.querySelector('.report');
+  decos.forEach(d => d.style.display = 'none');
+  if (badge) badge.style.backdropFilter = 'none';
+  if (reportEl) reportEl.style.overflow = 'visible';
+
   try {
     await html2pdf().set({
       margin: [5, 5, 5, 5],
@@ -631,6 +639,9 @@ async function baixarPDF() {
     console.error("Erro ao gerar PDF:", e);
     alert("Erro ao gerar PDF. Tente novamente.");
   } finally {
+    decos.forEach(d => d.style.display = '');
+    if (badge) badge.style.backdropFilter = '';
+    if (reportEl) reportEl.style.overflow = '';
     hideLoading();
   }
 }

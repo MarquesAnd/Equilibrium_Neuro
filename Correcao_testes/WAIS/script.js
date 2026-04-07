@@ -981,9 +981,13 @@ async function baixarPDF() {
 
   showLoading("Gerando PDF...");
 
-  // Esconde temporariamente o cabeçalho azul (rpt-hdr) antes de gerar o PDF
-  const hdr = rel.querySelector('.rpt-hdr');
-  if (hdr) hdr.style.display = 'none';
+  // Esconde elementos decorativos e remove backdrop-filter que causam falha no html2canvas
+  const decos = rel.querySelectorAll('.deco1, .deco2');
+  const badge = rel.querySelector('.rpt-hdr-badge');
+  const reportEl = rel.querySelector('.report');
+  decos.forEach(d => d.style.display = 'none');
+  if (badge) badge.style.backdropFilter = 'none';
+  if (reportEl) reportEl.style.overflow = 'visible';
 
   try {
     await html2pdf().set({
@@ -998,8 +1002,9 @@ async function baixarPDF() {
     console.error("Erro ao gerar PDF:", e);
     alert("Erro ao gerar PDF. Tente novamente.");
   } finally {
-    // Restaura o cabeçalho na tela após gerar o PDF
-    if (hdr) hdr.style.display = '';
+    decos.forEach(d => d.style.display = '');
+    if (badge) badge.style.backdropFilter = '';
+    if (reportEl) reportEl.style.overflow = '';
     hideLoading();
   }
 }
