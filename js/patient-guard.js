@@ -200,7 +200,7 @@
     style.textContent = `
       /* ── Badge do paciente ── */
       #patient-guard-badge {
-        position: fixed; bottom: 16px; right: 24px; z-index: 9000;
+        position: fixed; top: 16px; right: 24px; z-index: 9000;
         animation: pgSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
       }
       .pg-badge-inner {
@@ -321,7 +321,7 @@
       @keyframes pgScaleIn { from { transform: scale(0.92); opacity:0; } to { transform: scale(1); opacity:1; } }
 
       @media (max-width: 640px) {
-        #patient-guard-badge { bottom: 12px; right: 12px; left: auto; }
+        #patient-guard-badge { top: 12px; right: 12px; left: auto; }
         .pg-badge-inner { justify-content: center; }
         .pg-modal-box { width: 98%; max-height: 90vh; }
       }
