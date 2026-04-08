@@ -694,6 +694,12 @@ function visualizarTeste(testeId) {
   const nomeTeste = NOMES[teste.tipo] || teste.tipo;
   const nomePac = pacienteAtual?.nome || '';
 
+  // CSS por tipo de teste
+  const cssFiles = ['/Correcao_testes/style.css'];
+  if (teste.tipo && teste.tipo.startsWith('srs2')) cssFiles.push('/Correcao_testes/SRS2/srs2-shared.css');
+  if (teste.tipo === 'raads-r') cssFiles.push('/Correcao_testes/RAADS-R/styles.css');
+  const cssLinks = cssFiles.map(href => `<link rel="stylesheet" href="${href}" />`).join('\n');
+
   const prev = document.getElementById('testeViewModal');
   if (prev) prev.remove();
 
@@ -711,7 +717,7 @@ function visualizarTeste(testeId) {
         </div>
       </div>
       <div style="padding:12px;overflow:hidden;">
-        <link rel="stylesheet" href="/Correcao_testes/style.css" />
+        ${cssLinks}
         <div id="tvmContent">${teste.htmlRelatorio}</div>
       </div>
     </div>`;
@@ -725,7 +731,7 @@ function visualizarTeste(testeId) {
     const content = document.getElementById('tvmContent');
     if (!content) return;
     const win = window.open('', '_blank');
-    win.document.write('<!DOCTYPE html><html><head><title>Relatório</title><link rel="stylesheet" href="/Correcao_testes/style.css" /><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;padding:20px;font-family:"DM Sans",sans-serif;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}</style></head><body>' + content.innerHTML + '</body></html>');
+    win.document.write('<!DOCTYPE html><html><head><title>Relatório</title>' + cssLinks + '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;padding:20px;font-family:"DM Sans",sans-serif;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}</style></head><body>' + content.innerHTML + '</body></html>');
     win.document.close();
     setTimeout(() => win.print(), 500);
   });

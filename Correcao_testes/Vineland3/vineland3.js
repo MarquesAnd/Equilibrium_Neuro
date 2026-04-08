@@ -497,7 +497,7 @@ function gerarRelatorio() {
             scores: { dadosDominios: dadosDominios.map(d => ({ key: d.key, bruta: d.bruta, pp: d.pp, nivel: d.nivel })), ppCCA, somaPP },
             classificacao: clLabel,
             observacoes: comentarios,
-            htmlRelatorio: reportContent,
+            htmlRelatorio: reportStyles + reportContent,
           });
         }
     }, 800);

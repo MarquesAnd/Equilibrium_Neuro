@@ -447,6 +447,14 @@ function _irCorrigirTeste(pacienteId, tipo, testeId) {
   window.location.href = ROTAS[tipo] || '/Correcao_testes/';
 }
 
+/* ── Mapa de CSS por tipo de teste ── */
+function _getCSSForTipo(tipo) {
+  const css = ['/Correcao_testes/style.css'];
+  if (tipo && tipo.startsWith('srs2')) css.push('/Correcao_testes/SRS2/srs2-shared.css');
+  if (tipo === 'raads-r') css.push('/Correcao_testes/RAADS-R/styles.css');
+  return css;
+}
+
 /* ── Visualizar relatório em modal ── */
 async function _verRelPDF(pacienteId, testeId) {
   const rel = _todosRelatorios.find(r => r.pacienteId === pacienteId && r.id === testeId);
@@ -455,9 +463,10 @@ async function _verRelPDF(pacienteId, testeId) {
     return;
   }
 
-  // Remover modal anterior
   const prev = document.getElementById('relViewModal');
   if (prev) prev.remove();
+
+  const cssLinks = _getCSSForTipo(rel.tipo).map(href => `<link rel="stylesheet" href="${href}" />`).join('\n');
 
   const modal = document.createElement('div');
   modal.id = 'relViewModal';
@@ -468,32 +477,32 @@ async function _verRelPDF(pacienteId, testeId) {
         <div style="font-size:14px;font-weight:700;color:#0f172a;">📄 ${_NOMES_TESTES[rel.tipo] || rel.tipo} — ${rel.pacienteNome}</div>
         <div style="display:flex;gap:8px;">
           <button onclick="_baixarRelPDF('${pacienteId}','${testeId}','${rel.pacienteNome.replace(/'/g,"")}')" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:#059669;color:#fff;transition:all .15s;">📥 Baixar PDF</button>
-          <button onclick="_imprimirRel()" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:#1a56db;color:#fff;transition:all .15s;">🖨️ Imprimir</button>
+          <button onclick="_imprimirRel('${rel.tipo}')" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:#1a56db;color:#fff;transition:all .15s;">🖨️ Imprimir</button>
           <button onclick="document.getElementById('relViewModal').remove()" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:1px solid #e2e8f0;background:#f1f5f9;color:#334155;transition:all .15s;">✕ Fechar</button>
         </div>
       </div>
       <div id="relViewBody" style="padding:12px;overflow:hidden;">
-        <link rel="stylesheet" href="/Correcao_testes/style.css" />
+        ${cssLinks}
         <div id="relViewContent">${rel.htmlRelatorio}</div>
       </div>
     </div>`;
   document.body.appendChild(modal);
 
-  // Fechar com clique no backdrop
   modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-  // Fechar com ESC
   const escHandler = (e) => { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', escHandler); } };
   document.addEventListener('keydown', escHandler);
 }
 
-function _imprimirRel() {
+function _imprimirRel(tipo) {
   const content = document.getElementById('relViewContent');
   if (!content) return;
+  const cssLinks = _getCSSForTipo(tipo).map(href => `<link rel="stylesheet" href="${href}" />`).join('\n');
   const win = window.open('', '_blank');
   win.document.write(`<!DOCTYPE html><html><head><title>Relatório</title>
     <link rel="stylesheet" href="/style.css" />
-    <link rel="stylesheet" href="/Correcao_testes/style.css" />
+    ${cssLinks}
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>body{margin:0;padding:20px;font-family:'DM Sans',sans-serif;} *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}</style>
   </head><body>${content.innerHTML}</body></html>`);
   win.document.close();
@@ -507,7 +516,6 @@ async function _baixarRelPDF(pacienteId, testeId, nomeP) {
     return;
   }
 
-  // Carregar html2pdf se não estiver disponível
   if (!window.html2pdf) {
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
@@ -515,24 +523,24 @@ async function _baixarRelPDF(pacienteId, testeId, nomeP) {
     await new Promise((resolve, reject) => { script.onload = resolve; script.onerror = reject; });
   }
 
-  // Criar container temporário com estilos necessários
   const container = document.createElement('div');
   container.style.cssText = 'position:absolute;left:-9999px;top:0;width:210mm;';
 
-  // Adicionar stylesheet do relatório dentro do container
-  const styleLink = document.createElement('link');
-  styleLink.rel = 'stylesheet';
-  styleLink.href = '/Correcao_testes/style.css';
-  container.appendChild(styleLink);
+  // Carregar todos os CSS necessários para o tipo de teste
+  _getCSSForTipo(rel.tipo).forEach(href => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    container.appendChild(link);
+  });
 
-  // Adicionar o conteúdo do relatório
   const content = document.createElement('div');
   content.innerHTML = rel.htmlRelatorio;
   container.appendChild(content);
   document.body.appendChild(container);
 
   // Aguardar CSS carregar
-  await new Promise(r => setTimeout(r, 300));
+  await new Promise(r => setTimeout(r, 400));
 
   // Esconder elementos decorativos que causam problemas no html2canvas
   const decos = container.querySelectorAll('.deco1, .deco2');
