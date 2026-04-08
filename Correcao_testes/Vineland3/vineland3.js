@@ -487,5 +487,18 @@ function gerarRelatorio() {
         document.getElementById('btn-close-modal').addEventListener('click', () => modalOverlay.remove());
         document.getElementById('btn-print-modal').addEventListener('click', () => { iframe.contentWindow.focus(); iframe.contentWindow.print(); });
         modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.remove(); });
+
+        // ── Salvar no Firebase ──
+        if (window.Integration) {
+          const clLabel = clCCA.label || '';
+          Integration.salvarTesteNoFirebase("vineland-3", {
+            dataAplicacao: dataTeste,
+            resumo: ppCCA ? `CCA: ${ppCCA} — ${clLabel}` : '',
+            scores: { dadosDominios: dadosDominios.map(d => ({ key: d.key, bruta: d.bruta, pp: d.pp, nivel: d.nivel })), ppCCA, somaPP },
+            classificacao: clLabel,
+            observacoes: comentarios,
+            htmlRelatorio: reportContent,
+          });
+        }
     }, 800);
 }

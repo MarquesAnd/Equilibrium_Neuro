@@ -64,19 +64,6 @@
       }
     }
 
-    // Indicador visual de que paciente foi carregado
-    const nomeField = document.getElementById("nome");
-    if (nomeField && paciente.nome) {
-      const indicator = document.createElement("div");
-      indicator.className = "integration-badge";
-      indicator.innerHTML = `<span>👤 Paciente carregado: <strong>${paciente.nome}</strong></span>`;
-      indicator.style.cssText = `
-        background: #dbeafe; color: #1a56db; padding: 8px 14px; border-radius: 10px;
-        font-size: 12px; font-weight: 600; margin-bottom: 12px; display: inline-flex;
-        align-items: center; gap: 6px; animation: fadeIn 0.3s ease;
-      `;
-      nomeField.closest(".form-group, .field, div")?.insertAdjacentElement("beforebegin", indicator);
-    }
   }
 
   /* ── Auto-preencher dados do profissional ── */

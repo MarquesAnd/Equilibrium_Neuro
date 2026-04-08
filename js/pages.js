@@ -476,6 +476,7 @@ async function _verRelPDF(pacienteId, testeId) {
         </div>
       </div>
       <div id="relViewBody" style="padding:12px;overflow:hidden;">
+        <link rel="stylesheet" href="/Correcao_testes/style.css" />
         <div id="relViewContent">${rel.htmlRelatorio}</div>
       </div>
     </div>`;
@@ -517,24 +518,43 @@ async function _baixarRelPDF(pacienteId, testeId, nomeP) {
     await new Promise((resolve, reject) => { script.onload = resolve; script.onerror = reject; });
   }
 
-  // Criar container temporário
+  // Criar container temporário com estilos necessários
   const container = document.createElement('div');
-  container.style.cssText = 'position:absolute;left:-9999px;top:0;width:900px;';
-  container.innerHTML = rel.htmlRelatorio;
+  container.style.cssText = 'position:absolute;left:-9999px;top:0;width:210mm;';
+
+  // Adicionar stylesheet do relatório dentro do container
+  const styleLink = document.createElement('link');
+  styleLink.rel = 'stylesheet';
+  styleLink.href = '/Correcao_testes/style.css';
+  container.appendChild(styleLink);
+
+  // Adicionar o conteúdo do relatório
+  const content = document.createElement('div');
+  content.innerHTML = rel.htmlRelatorio;
+  container.appendChild(content);
   document.body.appendChild(container);
+
+  // Aguardar CSS carregar
+  await new Promise(r => setTimeout(r, 300));
+
+  // Esconder elementos decorativos que causam problemas no html2canvas
+  const decos = container.querySelectorAll('.deco1, .deco2');
+  const badge = container.querySelector('.rpt-hdr-badge');
+  decos.forEach(d => d.style.display = 'none');
+  if (badge) badge.style.backdropFilter = 'none';
 
   const nomeTeste = _NOMES_TESTES[rel.tipo] || rel.tipo;
   const fileName = `${nomeTeste} - ${nomeP}.pdf`;
 
   try {
     await html2pdf().set({
-      margin: [8, 8, 8, 8],
+      margin: [5, 5, 5, 5],
       filename: fileName,
       image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-    }).from(container).save();
+      html2canvas: { scale: 3, useCORS: true, logging: false, scrollY: 0 },
+      jsPDF: { unit: 'mm', format: [210, 900], orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all'] },
+    }).from(content).save();
   } catch(e) {
     console.error('Erro ao gerar PDF:', e);
     alert('Erro ao gerar PDF. Tente usar a opção Imprimir.');

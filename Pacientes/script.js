@@ -682,9 +682,86 @@ function renderizarTestesRealizados() {
 function visualizarTeste(testeId) {
   const teste = testesAtuais.find(t => t.id === testeId);
   if (!teste) return;
-  
-  // Implementar visualização detalhada do teste
-  alert('Visualização detalhada em desenvolvimento\n\nTeste: ' + teste.tipo + '\nStatus: ' + teste.status);
+
+  if (!teste.htmlRelatorio) {
+    alert('Relatório não disponível para este teste.\nCorrija o teste novamente para gerar o relatório completo.');
+    return;
+  }
+
+  const NOMES = {
+    'wais-iii':'WAIS-III','wisc-iv':'WISC-IV','srs2-pre':'SRS-2 Pré-Escolar',
+    'srs2-esc-masc':'SRS-2 Escolar Masc','srs2-esc-fem':'SRS-2 Escolar Fem',
+    'srs2-adulto-auto':'SRS-2 Adulto Auto','srs2-adulto-hetero':'SRS-2 Adulto Hetero',
+    'raads-r':'RAADS-R','cat-q':'CAT-Q','bfp':'BFP',
+    'vineland-pre':'Vineland-3','vineland-adulto':'Vineland-3',
+  };
+  const nomeTeste = NOMES[teste.tipo] || teste.tipo;
+  const nomePac = pacienteAtual?.nome || '';
+
+  const prev = document.getElementById('testeViewModal');
+  if (prev) prev.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'testeViewModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;';
+  modal.innerHTML = `
+    <div style="background:#f1f5f9;border-radius:16px;width:100%;max-width:960px;box-shadow:0 24px 80px rgba(0,0,0,.25);overflow:hidden;">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10;">
+        <div style="font-size:14px;font-weight:700;color:#0f172a;">${nomeTeste} — ${nomePac}</div>
+        <div style="display:flex;gap:8px;">
+          <button id="tvmBaixarPDF" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:#059669;color:#fff;">Baixar PDF</button>
+          <button id="tvmImprimir" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:#1a56db;color:#fff;">Imprimir</button>
+          <button id="tvmFechar" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:1px solid #e2e8f0;background:#f1f5f9;color:#334155;">Fechar</button>
+        </div>
+      </div>
+      <div style="padding:12px;overflow:hidden;">
+        <link rel="stylesheet" href="/Correcao_testes/style.css" />
+        <div id="tvmContent">${teste.htmlRelatorio}</div>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
+  modal.querySelector('#tvmFechar').addEventListener('click', () => modal.remove());
+  document.addEventListener('keydown', function escH(e) { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', escH); } });
+
+  modal.querySelector('#tvmImprimir').addEventListener('click', () => {
+    const content = document.getElementById('tvmContent');
+    if (!content) return;
+    const win = window.open('', '_blank');
+    win.document.write('<!DOCTYPE html><html><head><title>Relatório</title><link rel="stylesheet" href="/Correcao_testes/style.css" /><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>body{margin:0;padding:20px;font-family:"DM Sans",sans-serif;}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}</style></head><body>' + content.innerHTML + '</body></html>');
+    win.document.close();
+    setTimeout(() => win.print(), 500);
+  });
+
+  modal.querySelector('#tvmBaixarPDF').addEventListener('click', async () => {
+    if (!window.html2pdf) {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      document.head.appendChild(s);
+      await new Promise((res, rej) => { s.onload = res; s.onerror = rej; });
+    }
+    const content = document.getElementById('tvmContent');
+    if (!content) return;
+    const decos = content.querySelectorAll('.deco1, .deco2');
+    const badge = content.querySelector('.rpt-hdr-badge');
+    decos.forEach(d => d.style.display = 'none');
+    if (badge) badge.style.backdropFilter = 'none';
+    try {
+      await html2pdf().set({
+        margin: [5, 5, 5, 5],
+        filename: nomeTeste + '_' + nomePac.replace(/\s+/g, '_').substring(0, 30) + '.pdf',
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 3, useCORS: true, logging: false, scrollY: 0 },
+        jsPDF: { unit: 'mm', format: [210, 900], orientation: 'portrait' },
+        pagebreak: { mode: ['avoid-all'] }
+      }).from(content).save();
+    } catch(e) { alert('Erro ao gerar PDF.'); }
+    finally {
+      decos.forEach(d => d.style.display = '');
+      if (badge) badge.style.backdropFilter = '';
+    }
+  });
 }
 
 function editarTesteSalvo(testeId) {

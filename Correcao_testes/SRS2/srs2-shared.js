@@ -610,6 +610,29 @@ function abrirRelatorio(result){
   const frame = overlay.querySelector(".srs-report-frame");
   if(frame) frame.innerHTML = html;
   overlay.classList.add("ativo");
+
+  // ── Salvar no Firebase ──
+  if (window.Integration) {
+    const FORM_TO_TIPO = {
+      "pre_escolar": "srs2-pre",
+      "idade_escolar_feminino": "srs2-esc-fem",
+      "idade_escolar_masculino": "srs2-esc-masc",
+      "adulto_autorrelato": "srs2-adulto-auto",
+      "adulto_heterorrelato": "srs2-adulto-hetero",
+    };
+    const tipo = FORM_TO_TIPO[FORM_KEY] || "srs2";
+    const tTotal = totalRow?.t;
+    const clsLabel = classificarT(tTotal)?.label || classificarT(tTotal) || "";
+    const resumo = tTotal != null ? `T Total: ${tTotal} — ${clsLabel}` : "";
+    Integration.salvarTesteNoFirebase(tipo, {
+      dataAplicacao: data,
+      resumo,
+      scores: result.brutos || {},
+      classificacao: typeof clsLabel === 'string' ? clsLabel : "",
+      observacoes: "",
+      htmlRelatorio: html,
+    });
+  }
 }
 
 // ─── MODAL DE LOADING ─────────────────────────────────────────────────────────
