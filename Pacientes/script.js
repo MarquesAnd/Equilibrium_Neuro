@@ -188,11 +188,7 @@ async function carregarPacientes() {
   try {
     let todos = await DB.getPacientes();
 
-    // Filtrar por profissional logado (admins veem todos)
-    const user = typeof getAuthUser === "function" ? getAuthUser() : null;
-    if (user && user.role !== "admin" && user.id) {
-      todos = todos.filter(p => p.criadoPor === user.id || !p.criadoPor);
-    }
+    // Pacientes são universais — todos os profissionais veem todos
 
     pacientes = todos;
 

@@ -86,11 +86,7 @@
       if (window.DB && typeof DB.getPacientes === "function") {
         pacientes = await DB.getPacientes();
 
-        // Filtrar por profissional logado
-        const user = typeof getAuthUser === "function" ? getAuthUser() : null;
-        if (user && user.role !== "admin" && user.id) {
-          pacientes = pacientes.filter(p => p.criadoPor === user.id || !p.criadoPor);
-        }
+        // Pacientes são universais — todos os profissionais veem todos
       }
 
       todosPacientes = pacientes;
