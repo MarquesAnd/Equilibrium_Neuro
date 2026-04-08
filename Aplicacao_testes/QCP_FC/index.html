@@ -364,57 +364,7 @@
   </style>
 </head>
 <body>
-  <div class="app-shell">
-
-    <!-- ---- SIDEBAR ---- -->
-    <aside class="sidebar no-print">
-      <div class="sidebar-brand">
-        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
-        <div>
-          <div class="brand-name">Equilibrium</div>
-          <div class="brand-sub">Neuropsicologia</div>
-        </div>
-      </div>
-      <nav class="sidebar-nav">
-        <a class="nav-item" href="/" data-page="dashboard">
-          <span class="nav-icon">&#128202;</span><span>Dashboard</span>
-        </a>
-        <a class="nav-item" href="/Pacientes/" data-page="pacientes">
-          <span class="nav-icon">&#128100;</span><span>Pacientes</span>
-        </a>
-        <a class="nav-item" href="/Correcao_testes/" data-page="correcao">
-          <span class="nav-icon">&#9999;&#65039;</span><span>Correcao de Testes</span>
-        </a>
-        <a class="nav-item active" href="/Aplicacao_testes/" data-page="aplicacao">
-          <span class="nav-icon">&#129504;</span><span>Aplicacao de Testes</span>
-        </a>
-        <a class="nav-item" href="/Anamnese/" data-page="anamnese">
-          <span class="nav-icon">&#128203;</span><span>Anamnese</span>
-        </a>
-        <a class="nav-item" href="/#relatorios" data-page="relatorios">
-          <span class="nav-icon">&#128196;</span><span>Relatorios</span>
-        </a>
-        <a class="nav-item" href="/check_list/" data-page="checklist">
-          <span class="nav-icon">&#9989;</span><span>Checklist</span>
-        </a>
-        <a class="nav-item" href="/Config/" data-page="config">
-          <span class="nav-icon">&#9881;&#65039;</span><span>Configuracoes</span>
-        </a>
-      </nav>
-      <div class="sidebar-footer">
-        <div class="user-info">
-          <div class="user-avatar">?</div>
-          <div>
-            <div class="user-name">Carregando...</div>
-            <div class="user-role">&mdash;</div>
-          </div>
-        </div>
-        <button class="btn-logout" onclick="doLogout()">Sair</button>
-      </div>
-    </aside>
-
-    <!-- ---- CONTEUDO PRINCIPAL ---- -->
-    <main class="main-content">
+    <main>
 
       <!-- Modal processando -->
       <div class="qcpfc-modal-overlay" id="modalGerando">
@@ -488,7 +438,6 @@
       </div>
 
     </main>
-  </div><!-- /app-shell -->
 
   <!-- Campo avaliador oculto (compatibilidade) -->
   <input id="avaliador" type="hidden" value="Paciente" />
@@ -1026,15 +975,9 @@
 
     /* ---- Mostrar tela de sucesso ---- */
     function mostrarSucesso() {
-      var appShell = $("#appShell");
       var footer = $(".p-footer");
-      var sidebar = $(".sidebar");
-
-      if (appShell) appShell.style.display = "none";
       if (footer) footer.style.display = "none";
-      if (sidebar) sidebar.style.display = "none";
-
-      var main = $(".main-content");
+      var main = document.querySelector("main");
       if (main) {
         main.innerHTML =
           '<div class="success-screen">' +
