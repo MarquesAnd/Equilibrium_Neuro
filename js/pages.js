@@ -272,6 +272,7 @@ const _NOMES_TESTES = {
   'srs2-adulto':'SRS-2 Adulto','raads-r':'RAADS-R','cat-q':'CAT-Q','bfp':'BFP',
   'vineland-pre':'Vineland-3','vineland-adulto':'Vineland-3',
   'qcp-fc':'QCP-FC',
+  'ravlt':'RAVLT',
 };
 
 let _todosRelatorios = [];
@@ -445,6 +446,7 @@ function _irCorrigirTeste(pacienteId, tipo, testeId) {
     'vineland-pre':'/Correcao_testes/Vineland3/',
     'vineland-adulto':'/Correcao_testes/Vineland3/',
     'qcp-fc':'/Correcao_testes/QCP_FC/',
+    'ravlt':'/Correcao_testes/RAVLT/',
   };
   window.location.href = ROTAS[tipo] || '/Correcao_testes/';
 }

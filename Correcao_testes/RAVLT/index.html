@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RAVLT | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/Correcao_testes/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .trial-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; }
+    .trial-field { text-align: center; }
+    .trial-field label { display: block; font-size: 11px; font-weight: 700; color: #1e40af; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .3px; }
+    .trial-field input { width: 80px; padding: 10px; border-radius: 10px; border: 1px solid var(--border); font-size: 16px; font-weight: 600; text-align: center; font-family: inherit; outline: none; transition: border-color .2s, box-shadow .2s; }
+    .trial-field input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+    .trial-section-title { font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin: 14px 0 8px; padding-bottom: 4px; border-bottom: 1px dashed #e2e8f0; }
+    .preview-card { background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; padding: 16px; margin-top: 12px; }
+    .preview-card table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .preview-card th { text-align: left; padding: 6px 8px; font-size: 10px; font-weight: 700; color: #1e40af; text-transform: uppercase; letter-spacing: .4px; border-bottom: 2px solid #e2e8f0; background: #dbeafe; }
+    .preview-card th.ctr { text-align: center; }
+    .preview-card td { padding: 5px 8px; border-bottom: 1px solid #f1f5f9; font-size: 12px; }
+    .preview-card td.ctr { text-align: center; }
+    .preview-card tr.group-header td { background: #eff6ff; font-weight: 700; color: #1e40af; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; }
+    .badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 12px; white-space: nowrap; display: inline-block; }
+    .action-buttons { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+    .action-buttons .btn-custom { padding: 12px 24px; border-radius: 12px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit; border: none; }
+    .btn-calcular { background: #1a56db; color: #fff; }
+    .btn-calcular:hover { background: #1648b8; }
+    .btn-relatorio { background: #059669; color: #fff; }
+    .btn-relatorio:hover { background: #047857; }
+    .btn-salvar { background: #7c3aed; color: #fff; }
+    .btn-salvar:hover { background: #6d28d9; }
+    .age-info { margin-top: 8px; font-size: 13px; color: #334155; font-weight: 500; }
+    .age-info .faixa { color: #1a56db; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard">
+          <span class="nav-icon">📊</span><span>Dashboard</span>
+        </a>
+        <a class="nav-item" href="/Pacientes/" data-page="pacientes">
+          <span class="nav-icon">👤</span><span>Pacientes</span>
+        </a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao">
+          <span class="nav-icon">✏️</span><span>Correção de Testes</span>
+        </a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao">
+          <span class="nav-icon">🧠</span><span>Aplicação de Testes</span>
+        </a>
+        <a class="nav-item" href="/Anamnese/" data-page="anamnese">
+          <span class="nav-icon">📋</span><span>Anamnese</span>
+        </a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios">
+          <span class="nav-icon">📄</span><span>Relatórios</span>
+        </a>
+        <a class="nav-item" href="/check_list/" data-page="checklist">
+          <span class="nav-icon">✅</span><span>Checklist</span>
+        </a>
+        <a class="nav-item" href="/Config/" data-page="config">
+          <span class="nav-icon">⚙️</span><span>Configurações</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">?</div>
+          <div>
+            <div class="user-name">Carregando...</div>
+            <div class="user-role">—</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <p class="page-subtitle"><a href="/Correcao_testes/" class="breadcrumb">Correção de Testes</a> → RAVLT</p>
+          <h1 class="page-title">RAVLT — Teste de Aprendizagem Auditivo-Verbal de Rey</h1>
+        </div>
+        <button class="btn-secondary" onclick="history.back()">← Voltar</button>
+      </div>
+
+      <!-- CARD 1: Profissional -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">1</span>
+          <div>
+            <div class="form-card-title">Dados do Profissional</div>
+            <div class="form-card-desc">Informações do aplicador</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="profNome">Nome do Profissional</label>
+            <input type="text" id="profNome" placeholder="Nome completo" />
+          </div>
+          <div class="field">
+            <label for="profCRP">CRP</label>
+            <input type="text" id="profCRP" placeholder="CRP XX/XXXXX" />
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: Paciente -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">2</span>
+          <div>
+            <div class="form-card-title">Dados do Paciente</div>
+            <div class="form-card-desc">Identificação e datas</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="nome">Nome do Paciente</label>
+            <input type="text" id="nome" placeholder="Nome completo" />
+          </div>
+          <div class="field">
+            <label for="dataNascimento">Data de Nascimento</label>
+            <input type="date" id="dataNascimento" />
+          </div>
+          <div class="field">
+            <label for="dataAplicacao">Data de Aplicação</label>
+            <input type="date" id="dataAplicacao" />
+          </div>
+        </div>
+        <div class="age-info" id="ageInfo"></div>
+      </div>
+
+      <!-- CARD 3: Escores -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">3</span>
+          <div>
+            <div class="form-card-title">Escores Brutos</div>
+            <div class="form-card-desc">Número de palavras evocadas corretamente em cada tentativa (0-15)</div>
+          </div>
+        </div>
+
+        <div class="trial-section-title">Lista A — Tentativas de Aprendizagem</div>
+        <div class="trial-grid">
+          <div class="trial-field">
+            <label for="A1">A1</label>
+            <input type="number" id="A1" min="0" max="15" placeholder="0" />
+          </div>
+          <div class="trial-field">
+            <label for="A2">A2</label>
+            <input type="number" id="A2" min="0" max="15" placeholder="0" />
+          </div>
+          <div class="trial-field">
+            <label for="A3">A3</label>
+            <input type="number" id="A3" min="0" max="15" placeholder="0" />
+          </div>
+          <div class="trial-field">
+            <label for="A4">A4</label>
+            <input type="number" id="A4" min="0" max="15" placeholder="0" />
+          </div>
+          <div class="trial-field">
+            <label for="A5">A5</label>
+            <input type="number" id="A5" min="0" max="15" placeholder="0" />
+          </div>
+        </div>
+
+        <div class="trial-section-title">Lista B — Distrator</div>
+        <div class="trial-grid">
+          <div class="trial-field">
+            <label for="B1">B1</label>
+            <input type="number" id="B1" min="0" max="15" placeholder="0" />
+          </div>
+        </div>
+
+        <div class="trial-section-title">Evocação</div>
+        <div class="trial-grid">
+          <div class="trial-field">
+            <label for="A6">A6 (Imediata)</label>
+            <input type="number" id="A6" min="0" max="15" placeholder="0" />
+          </div>
+          <div class="trial-field">
+            <label for="A7">A7 (Tardia)</label>
+            <input type="number" id="A7" min="0" max="15" placeholder="0" />
+          </div>
+        </div>
+
+        <div class="trial-section-title">Reconhecimento</div>
+        <div class="trial-grid">
+          <div class="trial-field">
+            <label for="reconhecimento">Acertos (0-50)</label>
+            <input type="number" id="reconhecimento" min="0" max="50" placeholder="0" />
+          </div>
+        </div>
+        <p class="form-hint">Reconhecimento ajustado = Acertos - 35</p>
+      </div>
+
+      <!-- CARD 4: Observações -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">4</span>
+          <div>
+            <div class="form-card-title">Informações Adicionais</div>
+            <div class="form-card-desc">Intrusões e observações clínicas (opcional)</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="intrusoes">Total de Intrusões</label>
+            <input type="number" id="intrusoes" min="0" placeholder="0" />
+          </div>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <label for="observacoes">Observações Clínicas</label>
+          <textarea id="observacoes" rows="4" placeholder="Observações sobre o comportamento do paciente durante a aplicação, contexto clínico relevante..."></textarea>
+        </div>
+      </div>
+
+      <!-- Botões -->
+      <div class="action-buttons">
+        <button class="btn-custom btn-calcular" onclick="calcular()">Calcular Resultados</button>
+        <button class="btn-custom btn-relatorio" onclick="gerarRelatorio()" id="btnRelatorio" style="display:none;">Gerar Relatório</button>
+        <button class="btn-custom btn-salvar" onclick="salvarEGerar()" id="btnSalvar" style="display:none;">Salvar e Gerar Relatório</button>
+      </div>
+
+      <!-- Preview -->
+      <div id="previewArea" style="display:none;margin-top:20px;"></div>
+
+      <!-- Relatório (hidden, shown in modal) -->
+      <div id="relatorio" style="display:none;"></div>
+    </main>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/integration.js"></script>
+  <script src="/js/patient-guard.js"></script>
+
+  <script>
+  "use strict";
+
+  /* ═══════════════════════════════════
+     RAVLT — DADOS NORMATIVOS
+     ═══════════════════════════════════ */
+  const RAVLT_DATA = null; // loaded async
+  let ravltRules = null;
+  let resultadosCalculados = null;
+
+  async function carregarRegras() {
+    try {
+      const resp = await fetch("/Correcao_testes/RAVLT/data/ravlt_rules.json");
+      ravltRules = await resp.json();
+    } catch(e) {
+      console.error("Erro ao carregar regras RAVLT:", e);
+      alert("Erro ao carregar dados normativos. Recarregue a página.");
+    }
+  }
+
+  /* ═══════════════════════════════════
+     UTILIDADES
+     ═══════════════════════════════════ */
+  function calcularIdade(nascStr, aplStr) {
+    const nasc = new Date(nascStr + "T00:00:00");
+    const apl = new Date(aplStr + "T00:00:00");
+    if (isNaN(nasc) || isNaN(apl) || apl < nasc) return null;
+    let anos = apl.getFullYear() - nasc.getFullYear();
+    let meses = apl.getMonth() - nasc.getMonth();
+    if (apl.getDate() < nasc.getDate()) meses--;
+    if (meses < 0) { anos--; meses += 12; }
+    return { anos, meses, totalAnos: anos };
+  }
+
+  function detectarFaixaEtaria(anos) {
+    if (!ravltRules) return null;
+    const faixas = [
+      { label: "10-11", min: 10, max: 11 },
+      { label: "12-14", min: 12, max: 14 },
+      { label: "15-17", min: 15, max: 17 },
+      { label: "18-20", min: 18, max: 20 },
+      { label: "21-30", min: 21, max: 30 },
+      { label: "31-40", min: 31, max: 40 },
+      { label: "41-50", min: 41, max: 50 },
+      { label: "51-60", min: 51, max: 60 },
+      { label: "61-70", min: 61, max: 70 },
+      { label: "71-79", min: 71, max: 79 },
+      { label: "80+", min: 80, max: 999 },
+    ];
+    for (const f of faixas) {
+      if (anos >= f.min && anos <= f.max) return f.label;
+    }
+    return null;
+  }
+
+  function getNorma(faixa) {
+    if (!ravltRules) return null;
+    return ravltRules.normas.find(n => n.faixa === faixa) || null;
+  }
+
+  function zScore(raw, m, dp) {
+    if (dp === 0) return 0;
+    return (raw - m) / dp;
+  }
+
+  // Normal CDF approximation (Abramowitz & Stegun)
+  function normalCDF(z) {
+    if (z < -6) return 0;
+    if (z > 6) return 1;
+    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+    const sign = z < 0 ? -1 : 1;
+    const x = Math.abs(z) / Math.SQRT2;
+    const t = 1.0 / (1.0 + p * x);
+    const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
+    return 0.5 * (1.0 + sign * y);
+  }
+
+  function zToPercentile(z) {
+    return Math.round(normalCDF(z) * 100);
+  }
+
+  function classificar(z) {
+    if (!ravltRules) return { label: "—", cor: "#94a3b8" };
+    for (const c of ravltRules.classificacao) {
+      if (z >= c.min && z <= c.max) return { label: c.label, cor: c.cor };
+    }
+    return { label: "—", cor: "#94a3b8" };
+  }
+
+  function badgeHTML(cls) {
+    return `<span class="badge" style="background:${cls.cor}15;color:${cls.cor};border:1px solid ${cls.cor}30;">${cls.label}</span>`;
+  }
+
+  function formatarData(str) {
+    if (!str) return "—";
+    const [y, m, d] = str.split("-");
+    return `${d}/${m}/${y}`;
+  }
+
+  /* ═══════════════════════════════════
+     AGE PREVIEW
+     ═══════════════════════════════════ */
+  function atualizarIdade() {
+    const nasc = document.getElementById("dataNascimento")?.value;
+    const apl = document.getElementById("dataAplicacao")?.value;
+    const el = document.getElementById("ageInfo");
+    if (!el) return;
+    if (!nasc || !apl) { el.innerHTML = ""; return; }
+    const idade = calcularIdade(nasc, apl);
+    if (!idade) { el.innerHTML = '<span style="color:#dc2626;">Datas inválidas.</span>'; return; }
+    const faixa = detectarFaixaEtaria(idade.totalAnos);
+    el.innerHTML = `Idade na aplicação: <b>${idade.anos} anos e ${idade.meses} meses</b>` +
+      (faixa ? ` — Faixa normativa: <span class="faixa">${faixa}</span>` : ' — <span style="color:#dc2626;">Idade fora das normas disponíveis</span>');
+  }
+
+  /* ═══════════════════════════════════
+     CALCULAR
+     ═══════════════════════════════════ */
+  function calcular() {
+    if (!ravltRules) { alert("Dados normativos ainda não carregados. Aguarde."); return; }
+
+    const nome = (document.getElementById("nome")?.value || "").trim();
+    const nasc = document.getElementById("dataNascimento")?.value;
+    const apl = document.getElementById("dataAplicacao")?.value;
+    if (!nome || !nasc || !apl) { alert("Preencha Nome, Data de Nascimento e Data de Aplicação."); return; }
+
+    const idade = calcularIdade(nasc, apl);
+    if (!idade) { alert("Datas inválidas."); return; }
+
+    const faixa = detectarFaixaEtaria(idade.totalAnos);
+    if (!faixa) { alert(`Idade ${idade.totalAnos} anos está fora das faixas normativas disponíveis (10-80+).`); return; }
+
+    const norma = getNorma(faixa);
+    if (!norma) { alert("Norma não encontrada para a faixa " + faixa); return; }
+
+    // Collect raw scores
+    const trials = ["A1","A2","A3","A4","A5","B1","A6","A7"];
+    const raw = {};
+    for (const t of trials) {
+      const v = document.getElementById(t)?.value;
+      if (v === "" || v == null) { alert(`Preencha o escore de ${t}.`); return; }
+      const n = parseInt(v);
+      if (isNaN(n) || n < 0 || n > 15) { alert(`Valor inválido em ${t}. Deve ser entre 0 e 15.`); return; }
+      raw[t] = n;
+    }
+
+    const reconVal = document.getElementById("reconhecimento")?.value;
+    if (reconVal === "" || reconVal == null) { alert("Preencha o Reconhecimento."); return; }
+    const reconAcertos = parseInt(reconVal);
+    if (isNaN(reconAcertos) || reconAcertos < 0 || reconAcertos > 50) { alert("Reconhecimento deve ser entre 0 e 50."); return; }
+
+    const reconAjustado = reconAcertos - 35;
+    const intrusoes = parseInt(document.getElementById("intrusoes")?.value) || 0;
+    const observacoes = (document.getElementById("observacoes")?.value || "").trim();
+
+    // Computed indices
+    const escoreTotal = raw.A1 + raw.A2 + raw.A3 + raw.A4 + raw.A5;
+    const alt = escoreTotal - (5 * raw.A1);
+    const esquecimento = raw.A6 === 0 ? 0 : raw.A7 / raw.A6;
+    const proativa = raw.A1 === 0 ? 0 : raw.B1 / raw.A1;
+    const retroativa = raw.A5 === 0 ? 0 : raw.A6 / raw.A5;
+
+    // Build results array
+    const measures = [];
+
+    // Helper
+    function addMeasure(key, label, grupo, rawVal) {
+      const n = norma[key];
+      if (!n) { measures.push({ key, label, grupo, raw: rawVal, z: null, pct: null, cls: { label: "—", cor: "#94a3b8" } }); return; }
+      const z = zScore(rawVal, n.m, n.dp);
+      const pct = zToPercentile(z);
+      const cls = classificar(z);
+      measures.push({ key, label, grupo, raw: rawVal, z, pct, cls, normM: n.m, normDP: n.dp });
+    }
+
+    // Trial measures
+    addMeasure("A1", "Tentativa A1", "Primeiras etapas da aprendizagem", raw.A1);
+    addMeasure("A2", "Tentativa A2", "Primeiras etapas da aprendizagem", raw.A2);
+    addMeasure("A3", "Tentativa A3", "Primeiras etapas da aprendizagem", raw.A3);
+    addMeasure("A4", "Tentativa A4", "Primeiras etapas da aprendizagem", raw.A4);
+    addMeasure("A5", "Tentativa A5", "Primeiras etapas da aprendizagem", raw.A5);
+    addMeasure("B1", "Lista B (Distrator)", "Distrator", raw.B1);
+    addMeasure("A6", "Evocação Imediata (A6)", "Evocação imediata", raw.A6);
+    addMeasure("A7", "Evocação Tardia (A7)", "Evocação tardia", raw.A7);
+    addMeasure("Recon", "Reconhecimento", "Reconhecimento", reconAjustado);
+    addMeasure("Total", "Escore Total (A1-A5)", "Índices de aprendizagem", escoreTotal);
+    addMeasure("ALT", "Aprendizagem (ALT)", "Índices de aprendizagem", alt);
+    addMeasure("Esquec", "Velocidade de Esquecimento (A7/A6)", "Índice de retenção", esquecimento);
+    addMeasure("Proat", "Interferência Proativa (B1/A1)", "Índices de interferência", proativa);
+    addMeasure("Retro", "Interferência Retroativa (A6/A5)", "Índices de interferência", retroativa);
+
+    resultadosCalculados = {
+      nome, nasc, apl, idade, faixa, norma, raw, reconAcertos, reconAjustado,
+      escoreTotal, alt, esquecimento, proativa, retroativa,
+      intrusoes, observacoes, measures,
+      profNome: (document.getElementById("profNome")?.value || "").trim(),
+      profCRP: (document.getElementById("profCRP")?.value || "").trim(),
+    };
+
+    renderPreview(resultadosCalculados);
+
+    document.getElementById("btnRelatorio").style.display = "";
+    document.getElementById("btnSalvar").style.display = "";
+  }
+
+  /* ═══════════════════════════════════
+     PREVIEW TABLE
+     ═══════════════════════════════════ */
+  function renderPreview(res) {
+    const area = document.getElementById("previewArea");
+    area.style.display = "block";
+
+    let html = `<div class="preview-card"><h3 style="font-size:15px;font-weight:700;margin:0 0 12px;">Resultados — Faixa ${res.faixa}</h3>`;
+    html += `<table><thead><tr><th>Medida</th><th class="ctr">Bruto</th><th class="ctr">Z</th><th class="ctr">Percentil</th><th class="ctr">Classificação</th></tr></thead><tbody>`;
+
+    let lastGrupo = "";
+    for (const m of res.measures) {
+      if (m.grupo !== lastGrupo) {
+        html += `<tr class="group-header"><td colspan="5">${m.grupo}</td></tr>`;
+        lastGrupo = m.grupo;
+      }
+      const rawDisplay = typeof m.raw === "number" ? (Number.isInteger(m.raw) ? m.raw : m.raw.toFixed(2)) : m.raw;
+      const zDisplay = m.z != null ? m.z.toFixed(2) : "—";
+      const pctDisplay = m.pct != null ? m.pct : "—";
+      html += `<tr>
+        <td>${m.label}</td>
+        <td class="ctr">${rawDisplay}</td>
+        <td class="ctr">${zDisplay}</td>
+        <td class="ctr">${pctDisplay}</td>
+        <td class="ctr">${badgeHTML(m.cls)}</td>
+      </tr>`;
+    }
+    html += `</tbody></table></div>`;
+    area.innerHTML = html;
+    area.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  /* ═══════════════════════════════════
+     SVG LINE CHART
+     ═══════════════════════════════════ */
+  function buildLearningCurveSVG(res) {
+    const W = 600, H = 320;
+    const padL = 50, padR = 30, padT = 30, padB = 50;
+    const chartW = W - padL - padR;
+    const chartH = H - padT - padB;
+
+    const labels = ["A1","A2","A3","A4","A5","B1","A6","A7"];
+    const scores = labels.map(l => res.raw[l] != null ? res.raw[l] : 0);
+    const normMeans = labels.map(l => res.norma[l] ? res.norma[l].m : 0);
+
+    const maxY = 15;
+    const stepX = chartW / (labels.length - 1);
+
+    function x(i) { return padL + i * stepX; }
+    function y(v) { return padT + chartH - (v / maxY * chartH); }
+
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;max-width:600px;height:auto;font-family:'DM Sans',sans-serif;">`;
+
+    // Background
+    svg += `<rect x="0" y="0" width="${W}" height="${H}" fill="#f8fafc" rx="8"/>`;
+
+    // Grid lines
+    for (let v = 0; v <= 15; v += 3) {
+      const yp = y(v);
+      svg += `<line x1="${padL}" y1="${yp}" x2="${W - padR}" y2="${yp}" stroke="#e2e8f0" stroke-width="1"/>`;
+      svg += `<text x="${padL - 8}" y="${yp + 4}" text-anchor="end" fill="#94a3b8" font-size="10">${v}</text>`;
+    }
+
+    // Vertical separator between A5 and B1
+    const sepX = (x(4) + x(5)) / 2;
+    svg += `<line x1="${sepX}" y1="${padT}" x2="${sepX}" y2="${padT + chartH}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>`;
+
+    // Normative mean line (dashed, gray)
+    let normPath = "";
+    for (let i = 0; i < labels.length; i++) {
+      normPath += (i === 0 ? "M" : "L") + ` ${x(i)},${y(normMeans[i])}`;
+    }
+    svg += `<path d="${normPath}" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6,4"/>`;
+
+    // Patient score line
+    let scorePath = "";
+    for (let i = 0; i < labels.length; i++) {
+      scorePath += (i === 0 ? "M" : "L") + ` ${x(i)},${y(scores[i])}`;
+    }
+    svg += `<path d="${scorePath}" fill="none" stroke="#1a56db" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+    // Dots and values for patient
+    for (let i = 0; i < labels.length; i++) {
+      svg += `<circle cx="${x(i)}" cy="${y(scores[i])}" r="5" fill="#1a56db" stroke="#fff" stroke-width="2"/>`;
+      svg += `<text x="${x(i)}" y="${y(scores[i]) - 10}" text-anchor="middle" fill="#1a56db" font-size="11" font-weight="700">${scores[i]}</text>`;
+    }
+
+    // Dots for normative (smaller, gray)
+    for (let i = 0; i < labels.length; i++) {
+      svg += `<circle cx="${x(i)}" cy="${y(normMeans[i])}" r="3" fill="#94a3b8"/>`;
+    }
+
+    // X-axis labels
+    for (let i = 0; i < labels.length; i++) {
+      svg += `<text x="${x(i)}" y="${H - 10}" text-anchor="middle" fill="#334155" font-size="11" font-weight="600">${labels[i]}</text>`;
+    }
+
+    // Legend
+    svg += `<line x1="${padL}" y1="${H - 2}" x2="${padL + 20}" y2="${H - 2}" stroke="#1a56db" stroke-width="2.5"/>`;
+    svg += `<text x="${padL + 24}" y="${H + 2}" fill="#1a56db" font-size="9" font-weight="600">Paciente</text>`;
+    svg += `<line x1="${padL + 90}" y1="${H - 2}" x2="${padL + 110}" y2="${H - 2}" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>`;
+    svg += `<text x="${padL + 114}" y="${H + 2}" fill="#94a3b8" font-size="9" font-weight="600">Média normativa (${res.faixa})</text>`;
+
+    svg += `</svg>`;
+    return svg;
+  }
+
+  /* ═══════════════════════════════════
+     INTERPRETAÇÃO AUTOMÁTICA
+     ═══════════════════════════════════ */
+  function gerarInterpretacao(res) {
+    const m = {};
+    for (const measure of res.measures) m[measure.key] = measure;
+
+    const parts = [];
+
+    // Learning curve
+    const a1cls = m.A1?.cls?.label || "Médio";
+    const a5cls = m.A5?.cls?.label || "Médio";
+    const totalCls = m.Total?.cls?.label || "Médio";
+
+    parts.push(`O desempenho de <b>${res.nome}</b> no RAVLT foi analisado com base nas normas para a faixa etária ${res.faixa} anos.`);
+
+    // Span de atenção (A1)
+    if (m.A1) {
+      const spanDesc = m.A1.z < -0.67 ? "abaixo do esperado" : m.A1.z > 0.67 ? "acima do esperado" : "dentro da média esperada";
+      parts.push(`O span atencional inicial (A1 = ${m.A1.raw}) encontra-se ${spanDesc} para a faixa etária, indicando capacidade de atenção e registro imediato classificada como <b>${a1cls}</b>.`);
+    }
+
+    // Curva de aprendizagem
+    if (m.Total && m.ALT) {
+      const learningDesc = m.ALT.z < -0.67 ? "um ganho limitado" : m.ALT.z > 0.67 ? "um ganho expressivo" : "um ganho adequado";
+      parts.push(`A curva de aprendizagem ao longo das 5 tentativas (Escore Total = ${res.escoreTotal}; classificação: <b>${totalCls}</b>) revela ${learningDesc} ao longo das repetições (ALT = ${res.alt}; classificação: <b>${m.ALT.cls.label}</b>).`);
+    }
+
+    // Interferência
+    if (m.Proat) {
+      const proatDesc = m.Proat.z < -0.67 ? "sugere susceptibilidade à interferência proativa" : "indica adequada resistência à interferência proativa";
+      parts.push(`O índice de interferência proativa (B1/A1 = ${res.proativa.toFixed(2)}; classificação: <b>${m.Proat.cls.label}</b>) ${proatDesc}.`);
+    }
+    if (m.Retro) {
+      const retroDesc = m.Retro.z < -0.67 ? "sugere vulnerabilidade à interferência retroativa" : "indica adequada resistência à interferência retroativa";
+      parts.push(`O índice de interferência retroativa (A6/A5 = ${res.retroativa.toFixed(2)}; classificação: <b>${m.Retro.cls.label}</b>) ${retroDesc}.`);
+    }
+
+    // Evocação tardia
+    if (m.A7 && m.Esquec) {
+      const retDesc = m.A7.z < -0.67 ? "abaixo do esperado, sugerindo dificuldade na consolidação da memória a longo prazo" :
+                      m.A7.z > 0.67 ? "acima do esperado, indicando boa consolidação mnêmica" :
+                      "dentro da faixa esperada, indicando adequada consolidação da memória";
+      parts.push(`A evocação tardia (A7 = ${m.A7.raw}; classificação: <b>${m.A7.cls.label}</b>) encontra-se ${retDesc}. A velocidade de esquecimento (A7/A6 = ${res.esquecimento.toFixed(2)}) foi classificada como <b>${m.Esquec.cls.label}</b>.`);
+    }
+
+    // Reconhecimento
+    if (m.Recon) {
+      const reconDesc = m.Recon.z < -0.67 ? "abaixo do esperado, sugerindo possível déficit no armazenamento ou na discriminação das informações" :
+                        "dentro do esperado, indicando que a informação foi adequadamente armazenada";
+      parts.push(`O reconhecimento (escore ajustado = ${res.reconAjustado}; classificação: <b>${m.Recon.cls.label}</b>) encontra-se ${reconDesc}.`);
+    }
+
+    return parts.join("</p><p>");
+  }
+
+  /* ═══════════════════════════════════
+     GERAR RELATÓRIO HTML
+     ═══════════════════════════════════ */
+  function montarRelatorio(res) {
+    const rel = document.getElementById("relatorio");
+    const svgChart = buildLearningCurveSVG(res);
+    const interpretacao = gerarInterpretacao(res);
+
+    // Results table rows
+    let tblRows = "";
+    let lastGrupo = "";
+    let rowIdx = 0;
+    for (const m of res.measures) {
+      if (m.grupo !== lastGrupo) {
+        tblRows += `<tr><td colspan="6" style="background:#eff6ff;font-weight:700;color:#1e40af;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:6px 8px;">${m.grupo}</td></tr>`;
+        lastGrupo = m.grupo;
+      }
+      const alt = rowIdx % 2 === 1 ? ' class="alt"' : '';
+      const rawDisplay = typeof m.raw === "number" ? (Number.isInteger(m.raw) ? m.raw : m.raw.toFixed(2)) : m.raw;
+      const zDisplay = m.z != null ? m.z.toFixed(2) : "—";
+      const pctDisplay = m.pct != null ? m.pct + "%" : "—";
+      const badgeStyle = `display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;background:${m.cls.cor}15;color:${m.cls.cor};border:1px solid ${m.cls.cor}30;`;
+      tblRows += `<tr${alt}>
+        <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;">${m.label}</td>
+        <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:600;">${rawDisplay}</td>
+        <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;text-align:center;">${zDisplay}</td>
+        <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;text-align:center;">${pctDisplay}</td>
+        <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;text-align:center;"><span style="${badgeStyle}">${m.cls.label}</span></td>
+      </tr>`;
+      rowIdx++;
+    }
+
+    const obsHTML = res.observacoes ? `
+      <div class="rpt-sh" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;margin-top:14px;">
+        <span class="num" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#f59e0b;color:#fff;font-size:10px;font-weight:800;">5</span>
+        <span class="sh-title" style="font-weight:700;font-size:13px;color:#0f172a;">Observações Clínicas</span>
+      </div>
+      <div style="background:#fffbeb;border:1px solid rgba(245,158,11,.15);border-radius:10px;padding:12px 16px;font-size:12px;color:#334155;line-height:1.7;">
+        ${res.observacoes.replace(/\n/g, "<br>")}
+      </div>` : "";
+
+    const intrusoesText = res.intrusoes > 0 ? `<div class="sep" style="grid-column:1/-1;border-top:1px dashed rgba(26,86,219,.18);margin:3px 0;"></div>
+      <div><span class="lbl" style="font-size:10px;color:#64748b;font-weight:600;">Intrusões</span></div>
+      <div><span class="val" style="font-size:12px;color:#0f172a;">${res.intrusoes}</span></div>` : "";
+
+    rel.innerHTML = `
+    <div class="report" style="background:#fff;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 8px 40px rgba(0,0,0,.06);overflow:hidden;font-family:'DM Sans',-apple-system,system-ui,sans-serif;">
+      <!-- HEADER -->
+      <div class="rpt-hdr" style="background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);color:#fff;padding:14px 24px 12px;position:relative;overflow:hidden;">
+        <div class="deco1" style="position:absolute;top:-50px;right:-50px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.03)"></div>
+        <div class="deco2" style="position:absolute;bottom:-30px;left:40%;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.02)"></div>
+        <div class="rpt-hdr-inner" style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+              <img src="/logo2.png" alt="Logo" style="width:30px;height:30px;object-fit:contain;filter:brightness(10);" onerror="this.style.display='none'" />
+              <span style="font-size:8px;text-transform:uppercase;letter-spacing:3px;opacity:.45;">Equilibrium Neuropsicologia</span>
+            </div>
+            <div style="font-size:20px;font-weight:800;margin-top:3px;letter-spacing:-.5px;">RAVLT</div>
+            <div style="font-size:10px;opacity:.55;margin-top:2px;">Teste de Aprendizagem Auditivo-Verbal de Rey</div>
+            <div style="font-size:9px;opacity:.45;margin-top:1px;">Rey Auditory Verbal Learning Test</div>
+          </div>
+          <div style="background:rgba(255,255,255,.08);border-radius:8px;padding:6px 10px;text-align:right;">
+            <div style="font-size:7px;text-transform:uppercase;letter-spacing:2px;opacity:.5;">Faixa Normativa</div>
+            <div style="font-size:16px;font-weight:800;margin-top:1px;">${res.faixa}</div>
+            <div style="font-size:8px;opacity:.5;margin-top:1px;">${res.idade.anos}a ${res.idade.meses}m</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BODY -->
+      <div class="rpt-body" style="padding:0 24px 24px;">
+
+        <!-- 1. Identificação -->
+        <div class="rpt-sh" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;margin-top:14px;">
+          <span class="num" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">1</span>
+          <span class="sh-title" style="font-weight:700;font-size:13px;color:#0f172a;">Identificação</span>
+        </div>
+        <div class="rpt-box" style="background:#f8fafc;border-radius:10px;padding:12px 16px;border:1px solid #e2e8f0;">
+          <div class="rpt-info" style="display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;font-size:12px;">
+            <div><span class="lbl" style="font-size:10px;color:#64748b;font-weight:600;">Paciente</span></div>
+            <div><span class="val bold" style="font-size:12px;color:#0f172a;font-weight:600;">${res.nome}</span></div>
+            <div><span class="lbl" style="font-size:10px;color:#64748b;font-weight:600;">Data de Nascimento</span></div>
+            <div><span class="val" style="font-size:12px;color:#0f172a;">${formatarData(res.nasc)}</span></div>
+            <div><span class="lbl" style="font-size:10px;color:#64748b;font-weight:600;">Idade na Aplicação</span></div>
+            <div><span class="val" style="font-size:12px;color:#0f172a;">${res.idade.anos} anos e ${res.idade.meses} meses</span></div>
+            <div><span class="lbl" style="font-size:10px;color:#64748b;font-weight:600;">Data de Aplicação</span></div>
+            <div><span class="val" style="font-size:12px;color:#0f172a;">${formatarData(res.apl)}</span></div>
+            <div><span class="lbl" style="font-size:10px;color:#64748b;font-weight:600;">Faixa Normativa</span></div>
+            <div><span class="val" style="font-size:12px;color:#0f172a;font-weight:600;">${res.faixa} anos</span></div>
+            ${res.profNome ? `<div class="sep" style="grid-column:1/-1;border-top:1px dashed rgba(26,86,219,.18);margin:3px 0;"></div>
+            <div><span class="lbl" style="font-size:10px;color:#64748b;font-weight:600;">Profissional</span></div>
+            <div><span class="val" style="font-size:12px;color:#0f172a;">${res.profNome}${res.profCRP ? " — " + res.profCRP : ""}</span></div>` : ""}
+            ${intrusoesText}
+          </div>
+        </div>
+
+        <!-- 2. Curva de Aprendizagem -->
+        <div class="rpt-sh" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;margin-top:14px;">
+          <span class="num" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">2</span>
+          <span class="sh-title" style="font-weight:700;font-size:13px;color:#0f172a;">Curva de Aprendizagem</span>
+        </div>
+        <div class="rpt-box no-break" style="background:#f8fafc;border-radius:10px;padding:16px;border:1px solid #e2e8f0;text-align:center;">
+          ${svgChart}
+          <p style="font-size:10px;color:#64748b;margin-top:8px;">Linha azul: desempenho do paciente. Linha tracejada: média normativa para a faixa ${res.faixa} anos.</p>
+        </div>
+
+        <!-- 3. Resultados Detalhados -->
+        <div class="rpt-sh" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;margin-top:14px;">
+          <span class="num" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">3</span>
+          <span class="sh-title" style="font-weight:700;font-size:13px;color:#0f172a;">Resultados Detalhados</span>
+        </div>
+        <table class="rpt-tbl" style="width:100%;border-collapse:collapse;font-size:12px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;">
+          <thead>
+            <tr>
+              <th style="padding:6px 8px;text-align:left;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Medida</th>
+              <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Bruto</th>
+              <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Z-Score</th>
+              <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Percentil</th>
+              <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Classificação</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${tblRows}
+          </tbody>
+        </table>
+
+        <!-- 4. Interpretação -->
+        <div class="rpt-sh" style="display:flex;align-items:center;gap:8px;margin-bottom:10px;margin-top:14px;">
+          <span class="num" style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#7c3aed;color:#fff;font-size:10px;font-weight:800;">4</span>
+          <span class="sh-title" style="font-weight:700;font-size:13px;color:#0f172a;">Interpretação Clínica</span>
+        </div>
+        <div class="rpt-interp" style="font-size:12px;color:#334155;line-height:1.75;">
+          <p>${interpretacao}</p>
+        </div>
+
+        <!-- 5. Observações (conditional) -->
+        ${obsHTML}
+
+        <!-- Footer -->
+        <div class="rpt-foot" style="border-top:2px solid #e2e8f0;padding-top:16px;margin-top:22px;display:flex;justify-content:space-between;">
+          <div>
+            ${res.profNome ? `<div style="font-size:12px;font-weight:600;color:#0f172a;">${res.profNome}</div>` : ""}
+            ${res.profCRP ? `<div style="font-size:11px;color:#64748b;">${res.profCRP}</div>` : ""}
+            <div class="sign-line" style="margin-top:12px;border-top:1px solid #0f172a;width:200px;padding-top:4px;font-size:10px;color:#94a3b8;">Assinatura do Profissional</div>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;color:#64748b;">${formatarData(res.apl)}</div>
+            <div style="font-size:9px;color:#cbd5e1;max-width:220px;margin-top:8px;">Este documento é confidencial e destinado exclusivamente ao profissional responsável e ao paciente. A reprodução ou divulgação sem autorização é proibida.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+  }
+
+  /* ═══════════════════════════════════
+     MODAL / LOADING
+     ═══════════════════════════════════ */
+  function showLoading(msg) {
+    const overlay = document.createElement("div");
+    overlay.id = "loadingOverlay";
+    overlay.className = "loading-overlay";
+    overlay.innerHTML = `<div class="loading-card">
+      <div class="loading-spinner"></div>
+      <div class="loading-title">${msg || "Gerando relatório..."}</div>
+      <div class="loading-sub">Processando dados</div>
+    </div>`;
+    document.body.appendChild(overlay);
+  }
+
+  function hideLoading() {
+    const el = document.getElementById("loadingOverlay");
+    if (el) el.remove();
+  }
+
+  function openReportModal() {
+    const rel = document.getElementById("relatorio");
+    if (!rel) return;
+    closeReportModal();
+
+    const backdrop = document.createElement("div");
+    backdrop.id = "reportModal";
+    backdrop.className = "report-modal-backdrop";
+    const paciente = window.Integration ? Integration.getPacienteAtual() : null;
+    const btnVoltar = paciente ? `<button class="toolbar-btn toolbar-btn-voltar" onclick="voltarParaPaciente()">Voltar ao Paciente</button>` : "";
+    backdrop.innerHTML = `
+      <div class="report-modal">
+        <div class="report-modal-toolbar no-print">
+          <div class="toolbar-title">Relatório RAVLT</div>
+          <div class="toolbar-actions">
+            ${btnVoltar}
+            <button class="toolbar-btn toolbar-btn-primary" onclick="baixarPDF()">Baixar PDF</button>
+            <button class="toolbar-btn toolbar-btn-secondary" onclick="window.print()">Imprimir</button>
+            <button class="toolbar-btn toolbar-btn-secondary" onclick="closeReportModal()">Fechar</button>
+          </div>
+        </div>
+        <div class="report-modal-body" id="reportModalBody"></div>
+      </div>`;
+
+    document.body.appendChild(backdrop);
+    const body = document.getElementById("reportModalBody");
+    body.appendChild(rel);
+    rel.style.display = "block";
+
+    backdrop.addEventListener("click", function(e) {
+      if (e.target === backdrop) closeReportModal();
+    });
+    document.addEventListener("keydown", _escHandler);
+  }
+
+  function _escHandler(e) {
+    if (e.key === "Escape") closeReportModal();
+  }
+
+  function closeReportModal() {
+    const modal = document.getElementById("reportModal");
+    if (!modal) return;
+
+    const rel = document.getElementById("relatorio");
+    if (rel) {
+      const main = document.querySelector(".main-content");
+      if (main) main.appendChild(rel);
+      rel.style.display = "none";
+    }
+
+    modal.remove();
+    document.removeEventListener("keydown", _escHandler);
+
+    let paciente = null;
+    try { const raw = sessionStorage.getItem("pacienteAtual"); if (raw) paciente = JSON.parse(raw); } catch(e) {}
+    if (paciente && paciente.id) {
+      if (confirm(`Deseja voltar à ficha do paciente "${paciente.nome}"?`)) {
+        voltarParaPaciente();
+      }
+    }
+  }
+
+  function voltarParaPaciente() {
+    let paciente = null;
+    try {
+      const raw = sessionStorage.getItem("pacienteAtual");
+      if (raw) paciente = JSON.parse(raw);
+    } catch(e) {}
+    if (paciente && paciente.id) {
+      window.location.href = `/Pacientes/?id=${paciente.id}`;
+    } else {
+      window.location.href = "/Pacientes/";
+    }
+  }
+
+  /* ═══════════════════════════════════
+     PDF
+     ═══════════════════════════════════ */
+  async function esperarImagensCarregarem(el) {
+    const imgs = el.querySelectorAll("img");
+    const promises = Array.from(imgs).map(img => {
+      if (img.complete) return Promise.resolve();
+      return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+    });
+    await Promise.all(promises);
+  }
+
+  async function baixarPDF() {
+    const rel = document.getElementById("relatorio");
+    if (!rel) return;
+    await esperarImagensCarregarem(rel);
+
+    const nome = resultadosCalculados?.nome || "Relatorio";
+    const nomeArquivo = "RAVLT_" + nome.replace(/\s+/g, "_").substring(0, 30) + ".pdf";
+
+    showLoading("Gerando PDF...");
+
+    const decos = rel.querySelectorAll(".deco1, .deco2");
+    const reportEl = rel.querySelector(".report");
+    decos.forEach(d => d.style.display = "none");
+    if (reportEl) reportEl.style.overflow = "visible";
+
+    try {
+      await html2pdf().set({
+        margin: [5, 5, 5, 5],
+        filename: nomeArquivo,
+        image: { type: "jpeg", quality: 1.00 },
+        html2canvas: { scale: 4, useCORS: true, logging: false, scrollY: 0 },
+        jsPDF: { unit: "mm", format: [210, 900], orientation: "portrait" },
+        pagebreak: { mode: ["avoid-all"] }
+      }).from(rel).save();
+    } catch(e) {
+      console.error("Erro ao gerar PDF:", e);
+      alert("Erro ao gerar PDF. Tente novamente.");
+    } finally {
+      decos.forEach(d => d.style.display = "");
+      if (reportEl) reportEl.style.overflow = "";
+      hideLoading();
+    }
+  }
+
+  /* ═══════════════════════════════════
+     GERAR / SALVAR
+     ═══════════════════════════════════ */
+  function gerarRelatorio() {
+    if (!resultadosCalculados) { alert("Calcule os resultados primeiro."); return; }
+    montarRelatorio(resultadosCalculados);
+    openReportModal();
+  }
+
+  async function salvarEGerar() {
+    if (!resultadosCalculados) { alert("Calcule os resultados primeiro."); return; }
+
+    showLoading("Salvando e gerando relatório...");
+
+    try {
+      montarRelatorio(resultadosCalculados);
+
+      const rel = document.getElementById("relatorio");
+      await esperarImagensCarregarem(rel);
+      await new Promise(r => setTimeout(r, 150));
+
+      // Save to Firebase
+      if (window.Integration) {
+        const res = resultadosCalculados;
+        const totalCls = res.measures.find(m => m.key === "Total")?.cls?.label || "";
+        await Integration.salvarTesteNoFirebase("ravlt", {
+          dataAplicacao: res.apl,
+          resumo: `Total: ${res.escoreTotal} — ${totalCls}`,
+          scores: {
+            raw: res.raw,
+            reconhecimento: res.reconAcertos,
+            reconhecimentoAjustado: res.reconAjustado,
+            escoreTotal: res.escoreTotal,
+            alt: res.alt,
+            esquecimento: res.esquecimento,
+            proativa: res.proativa,
+            retroativa: res.retroativa,
+            intrusoes: res.intrusoes,
+            faixa: res.faixa,
+          },
+          measures: res.measures.map(m => ({
+            key: m.key, label: m.label, raw: m.raw,
+            z: m.z, pct: m.pct, classificacao: m.cls.label
+          })),
+          classificacao: totalCls,
+          observacoes: res.observacoes,
+          htmlRelatorio: rel.outerHTML,
+        });
+      }
+
+      hideLoading();
+      openReportModal();
+    } catch(e) {
+      hideLoading();
+      console.error("Erro ao salvar:", e);
+      alert("Erro ao salvar: " + e.message);
+    }
+  }
+
+  /* ═══════════════════════════════════
+     INIT
+     ═══════════════════════════════════ */
+  document.addEventListener("DOMContentLoaded", async () => {
+    // Load normative data
+    await carregarRegras();
+
+    // Firebase init
+    if (window.FIREBASE_CONFIGURED && window.DB) {
+      await DB.init();
+    }
+
+    // Auth guard
+    if (typeof isAuthed === "function" && !isAuthed()) {
+      location.href = "/login.html";
+      return;
+    }
+
+    // Sidebar permissions
+    if (typeof applySidebarPermissions === "function") {
+      applySidebarPermissions();
+    }
+
+    // Auto-fill from patient context
+    if (window.Integration) {
+      Integration.autoPreencherPaciente();
+      Integration.autoPreencherProfissional();
+    }
+
+    // Date listeners for age preview
+    document.getElementById("dataNascimento")?.addEventListener("change", atualizarIdade);
+    document.getElementById("dataAplicacao")?.addEventListener("change", atualizarIdade);
+
+    // Default application date to today
+    const aplInput = document.getElementById("dataAplicacao");
+    if (aplInput && !aplInput.value) {
+      aplInput.value = new Date().toISOString().slice(0, 10);
+    }
+
+    // Trigger age calc if dates already filled
+    atualizarIdade();
+  });
+  </script>
+</body>
+</html>
