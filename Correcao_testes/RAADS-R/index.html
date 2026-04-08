@@ -8,7 +8,6 @@
   <link rel="icon" type="image/png" href="/logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root { --raadsr-accent: #1a56db; --raadsr-accent-light: #3b82f6; --raadsr-accent-dark: #1e40af; }
     .form-section { margin-bottom: 32px; }
@@ -67,51 +66,15 @@
     .raadsr-report-scroll { flex: 1; overflow-y: auto; padding: 32px 24px; }
     .raadsr-report-frame { max-width: 860px; margin: 0 auto; }
 
-    /* RELATÓRIO */
-    .rep-wrapper { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
-    .rep-header { background: linear-gradient(135deg, #1e40af 0%, #1a56db 100%); padding: 32px 36px; color: #fff; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
-    .rep-header-brand { display: flex; align-items: center; gap: 14px; }
-    .rep-logo { height: 48px; border-radius: 8px; }
-    .rep-brand-name { font-size: 18px; font-weight: 800; }
-    .rep-brand-sub { font-size: 12px; opacity: 0.9; }
-    .rep-header-info { text-align: right; }
-    .rep-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
-    .rep-subtitle { font-size: 13px; opacity: 0.9; }
-    .rep-body { padding: 36px; }
-    .rep-section { margin-bottom: 32px; }
-    .rep-section-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; }
-    .rep-text { font-size: 14px; color: #475569; line-height: 1.7; margin-bottom: 12px; }
-    .rep-text strong { color: #1e293b; font-weight: 700; }
-    .rep-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #f8fafc; padding: 20px; border-radius: 12px; }
-    .rep-meta-item { display: flex; flex-direction: column; gap: 6px; }
-    .rep-meta-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-    .rep-meta-value { font-size: 16px; font-weight: 700; color: #1e293b; }
-    .rep-score-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 24px 0; }
-    .rep-score-card { border-radius: 12px; padding: 20px; color: #fff; text-align: center; }
-    .rep-score-card.patient { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); }
-    .rep-score-card.cutoff { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
-    .rep-score-card.max { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
-    .rep-score-label { font-size: 12px; opacity: 0.9; margin-bottom: 8px; }
-    .rep-score-value { font-size: 32px; font-weight: 800; }
-    .rep-chart-container { margin: 24px 0; padding: 20px; background: #fafcff; border-radius: 12px; border: 1.5px solid #e2e8f0; }
-    .rep-interpretation-box { background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 20px; }
-    .rep-interpretation-box p { color: #1e293b; line-height: 1.8; margin: 0; }
-    .rep-footer { margin-top: 40px; padding-top: 24px; border-top: 2px solid #f1f5f9; text-align: center; }
-    .rep-footer p { font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
-    .rep-footer-confidencial { font-size: 11px !important; color: #cbd5e1 !important; }
-
     @media print {
       @page { margin: 10mm 12mm; size: A4 portrait; }
 
-      /* Forçar cores de fundo na impressão */
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
 
       html, body { margin: 0 !important; padding: 0 !important; height: auto !important; background: #fff !important; overflow: visible !important; }
 
-      /* Esconder tudo exceto o relatório */
       .sidebar, .raadsr-report-topbar, .main-content, .app-shell, .modal-overlay, .action-buttons { display: none !important; }
 
-      /* Overlay do relatório — mostrar como bloco estático (sobrescreve .no-print) */
       .raadsr-report-overlay.ativo {
         display: block !important;
         position: static !important;
@@ -121,60 +84,13 @@
         overflow: visible !important;
         inset: auto !important;
       }
-      .raadsr-report-scroll {
-        padding: 0 !important;
-        overflow: visible !important;
-        height: auto !important;
-      }
-      .raadsr-report-frame {
-        max-width: 100% !important;
-        margin: 0 !important;
-      }
-      .rep-wrapper {
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        margin: 0 !important;
-        page-break-before: avoid !important;
-      }
-
-      /* Header — preservar gradiente, não quebrar */
-      .rep-header {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-        background: linear-gradient(135deg, #1e40af 0%, #1a56db 100%) !important;
-      }
-
-      /* Seções — evitar quebras */
-      .rep-section {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-      }
-      .rep-section-title {
-        break-after: avoid !important;
-        page-break-after: avoid !important;
-      }
-
-      /* Gráfico e scores — manter juntos */
-      .rep-chart-container {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-      }
-      .rep-score-cards {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-      }
-      .rep-interpretation-box {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-      }
-
-      /* Footer — manter junto */
-      .rep-footer {
-        break-inside: avoid !important;
-        page-break-inside: avoid !important;
-        break-before: avoid !important;
-        page-break-before: avoid !important;
-      }
+      .raadsr-report-scroll { padding: 0 !important; overflow: visible !important; height: auto !important; }
+      .raadsr-report-frame { max-width: 100% !important; margin: 0 !important; }
+      .rr-rpt { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; }
+      .rr-hdr { break-inside: avoid !important; page-break-inside: avoid !important; background: linear-gradient(135deg, #1e40af 0%, #1a56db 100%) !important; }
+      .rr-section { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .rr-sh { break-after: avoid !important; page-break-after: avoid !important; }
+      .rr-footer { break-inside: avoid !important; page-break-inside: avoid !important; }
     }
   </style>
 </head>
@@ -272,73 +188,7 @@
       </div>
     </div>
     <div class="raadsr-report-scroll">
-      <div class="raadsr-report-frame">
-        <div class="rep-wrapper">
-          <div class="rep-header">
-            <div class="rep-header-brand">
-              <img src="/logo2.png" alt="Logo" class="rep-logo" onerror="this.style.display='none'" />
-              <div>
-                <div class="rep-brand-name">Equilibrium</div>
-                <div class="rep-brand-sub">Neuropsicologia</div>
-              </div>
-            </div>
-            <div class="rep-header-info">
-              <div class="rep-title">RAADS-R-BR Screen</div>
-              <div class="rep-subtitle">Escala Ritvo para Diagnóstico de Autismo em Adultos</div>
-            </div>
-          </div>
-          <div class="rep-body">
-            <div class="rep-section">
-              <h2 class="rep-section-title">Dados do Paciente</h2>
-              <div class="rep-meta-grid">
-                <div class="rep-meta-item">
-                  <span class="rep-meta-label">Paciente</span>
-                  <span class="rep-meta-value" id="repPaciente">—</span>
-                </div>
-                <div class="rep-meta-item">
-                  <span class="rep-meta-label">Data da Avaliação</span>
-                  <span class="rep-meta-value" id="repData">—</span>
-                </div>
-              </div>
-            </div>
-            <div class="rep-section">
-              <h2 class="rep-section-title">Sobre o Instrumento</h2>
-              <p class="rep-text">O RAADS-R-BR Screen é uma escala de rastreio desenvolvida para identificar características do Transtorno do Espectro Autista (TEA) em adultos. A versão utilizada é composta por 20 itens que avaliam domínios centrais do perfil neurodivergente, incluindo: Interação Social, Linguagem, Sensório-Motor e Interesses Circunscritos.</p>
-              <p class="rep-text">O instrumento foi validado para o contexto brasileiro, apresentando evidências robustas de validade e confiabilidade, com <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para o ponto de corte estabelecido.</p>
-            </div>
-            <div class="rep-section">
-              <h2 class="rep-section-title">Resultados Obtidos</h2>
-              <div class="rep-score-cards">
-                <div class="rep-score-card patient">
-                  <div class="rep-score-label">Pontuação da Paciente</div>
-                  <div class="rep-score-value" id="repScore">—</div>
-                </div>
-                <div class="rep-score-card cutoff">
-                  <div class="rep-score-label">Ponto de Corte</div>
-                  <div class="rep-score-value">46</div>
-                </div>
-                <div class="rep-score-card max">
-                  <div class="rep-score-label">Pontuação Máxima</div>
-                  <div class="rep-score-value">80</div>
-                </div>
-              </div>
-              <div class="rep-chart-container">
-                <canvas id="repGrafico" width="700" height="350"></canvas>
-              </div>
-            </div>
-            <div class="rep-section">
-              <h2 class="rep-section-title">Interpretação</h2>
-              <div class="rep-interpretation-box">
-                <p id="repInterpretacao">—</p>
-              </div>
-            </div>
-            <div class="rep-footer">
-              <p>Relatório gerado por <strong>Equilibrium Neuropsicologia</strong></p>
-              <p class="rep-footer-confidencial">Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div class="raadsr-report-frame" id="repFrame"></div>
     </div>
   </div>
 
@@ -353,8 +203,6 @@
   <script>
     const questoes = [{id:1,text:"Eu sou uma pessoa altamente empática e sensível.",reverse:true},{id:2,text:"Eu frequentemente uso palavras e frases de forma diferente dos outros."},{id:3,text:"É difícil para mim entender como outras pessoas estão se sentindo quando estamos conversando."},{id:4,text:"Algumas pessoas comuns não gostam de mim."},{id:5,text:"Eu tenho facilidade em fazer novos amigos.",reverse:true},{id:6,text:"É muito difícil para mim trabalhar e funcionar em grupos."},{id:7,text:"Quando estou conversando com alguém, eu presto pouca atenção às expressões faciais da pessoa."},{id:8,text:"Eu concentro minha atenção em detalhes ao invés de no quadro geral."},{id:9,text:"Eu levo as coisas de forma muito mais literal do que outras pessoas."},{id:10,text:"Não consigo imaginar como seria ser outra pessoa."},{id:11,text:"Eu tenho sido rotulado como 'estranho' ou 'esquisito'."},{id:12,text:"Eu tenho dificuldade em entender o que é esperado de mim."},{id:13,text:"Eu gosto de estar com outras pessoas.",reverse:true},{id:14,text:"É difícil para mim descobrir o que outras pessoas esperam de mim."},{id:15,text:"Eu foco no todo ao invés de nos pequenos detalhes."},{id:16,text:"É difícil para mim saber quando é minha vez de falar ao telefone ou em uma conversa em grupo."},{id:17,text:"Fico desconfortável quando as pessoas me contam sobre seus sentimentos íntimos."},{id:18,text:"Eu não sei como manter uma amizade."},{id:19,text:"Situações sociais são fáceis para mim."},{id:20,text:"Eu tenho que 'interpretar um papel' em situações sociais."}];
     const respostas = {};
-    let graficoInstance = null;
-
     function renderizarQuestoes() {
       const container = document.getElementById('questionsContainer');
       container.innerHTML = '';
@@ -389,104 +237,366 @@
       return total;
     }
 
-    function gerarGrafico(pontuacaoPaciente, nomePaciente) {
-      const ctx = document.getElementById('repGrafico').getContext('2d');
-      if (graficoInstance) graficoInstance.destroy();
-      graficoInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Pontuação\nda Paciente', 'Ponto de\nCorte', 'Pontuação\nMáxima'],
-          datasets: [{
-            label: 'Pontuação',
-            data: [pontuacaoPaciente, 46, 80],
-            backgroundColor: ['rgba(239,68,68,0.9)', 'rgba(59,130,246,0.9)', 'rgba(107,114,128,0.9)'],
-            borderColor: ['#ef4444', '#3b82f6', '#6b7280'],
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: true,
-          aspectRatio: 2,
-          plugins: {
-            title: { display: true, text: `Resultado do Rastreio: ${nomePaciente}`, font: { size: 16, weight: 'bold', family: 'DM Sans' }, color: '#1e293b', padding: 20 },
-            legend: { display: false }
-          },
-          scales: {
-            y: { beginAtZero: true, max: 90, ticks: { font: { size: 12, family: 'DM Sans' }, color: '#64748b' }, title: { display: true, text: 'Pontuação', font: { size: 14, weight: 'bold', family: 'DM Sans' }, color: '#475569' }, grid: { color: 'rgba(203,213,225,0.3)', drawBorder: false } },
-            x: { ticks: { font: { size: 12, family: 'DM Sans' }, color: '#64748b' }, grid: { display: false } }
-          }
-        },
-        plugins: [{
-          afterDatasetsDraw: function(chart) {
-            const ctx = chart.ctx;
-            chart.data.datasets.forEach(function(dataset, i) {
-              const meta = chart.getDatasetMeta(i);
-              meta.data.forEach(function(bar, index) {
-                const data = dataset.data[index];
-                ctx.fillStyle = '#1e293b';
-                ctx.font = 'bold 20px DM Sans';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-                ctx.fillText(data, bar.x, bar.y - 5);
-              });
-            });
-          }
-        }]
+    // ── Domínios RAADS-R ──
+    const DOMINIOS = [
+      { key: 'linguagem',    label: 'Linguagem',             items: [2,7,10,17],          max: 12, color: '#7c3aed', colorLight: '#ede9fe' },
+      { key: 'social',       label: 'Interacao Social',      items: [1,3,5,8,11,14,18,20], max: 24, color: '#1a56db', colorLight: '#dbeafe' },
+      { key: 'interesses',   label: 'Interesses Circunscritos', items: [9,13,15,19],       max: 12, color: '#059669', colorLight: '#d1fae5' },
+      { key: 'sensoriomotor', label: 'Sensorio-motor',       items: [4,6,12,16],          max: 12, color: '#ea580c', colorLight: '#ffedd5' },
+    ];
+
+    function calcularDominios() {
+      const invertidos = [1,5,13];
+      const scores = {};
+      DOMINIOS.forEach(d => {
+        let soma = 0;
+        d.items.forEach(id => {
+          const v = respostas[id];
+          if (v == null) return;
+          // Scoring 0-3: direct items = value-1, reverse items = 4-value
+          soma += invertidos.includes(id) ? (4 - v) : (v - 1);
+        });
+        scores[d.key] = soma;
       });
+      return scores;
+    }
+
+    function pontuacaoItem(id) {
+      const invertidos = [1,5,13];
+      const v = respostas[id];
+      if (v == null) return 0;
+      // Scoring 0-3 to match validated scale (max 60)
+      return invertidos.includes(id) ? (4 - v) : (v - 1);
+    }
+
+    function escHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function buildSvgBarChart(domScores) {
+      const barH = 36, gap = 14, padL = 200, padR = 60, w = 740;
+      const totalH = DOMINIOS.length * (barH + gap) + 20;
+      const maxVal = 24; // largest domain max
+      const barArea = w - padL - padR;
+      let bars = '';
+      DOMINIOS.forEach((d, i) => {
+        const y = i * (barH + gap) + 10;
+        const score = domScores[d.key] || 0;
+        const pct = score / d.max;
+        const barW = Math.max(4, pct * barArea);
+        bars += `<text x="${padL - 12}" y="${y + barH/2 + 1}" text-anchor="end" font-size="13" font-weight="600" fill="#334155" dominant-baseline="middle">${d.label}</text>`;
+        bars += `<rect x="${padL}" y="${y}" width="${barArea}" height="${barH}" rx="6" fill="#f1f5f9"/>`;
+        bars += `<rect x="${padL}" y="${y}" width="${barW}" height="${barH}" rx="6" fill="${d.color}"/>`;
+        bars += `<text x="${padL + barW + 8}" y="${y + barH/2 + 1}" font-size="13" font-weight="700" fill="${d.color}" dominant-baseline="middle">${score} / ${d.max} (${Math.round(pct*100)}%)</text>`;
+      });
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${totalH}" width="100%" height="${totalH}" style="display:block">${bars}</svg>`;
     }
 
     async function gerarRelatorio() {
       const nome = document.getElementById('pacienteNome').value.trim();
       const data = document.getElementById('dataAvaliacao').value;
       if (!nome) { alert('Por favor, preencha o nome do paciente.'); return; }
-      if (!data) { alert('Por favor, preencha a data da avaliação.'); return; }
-      if (Object.keys(respostas).length < 20) { alert('Por favor, responda todas as 20 questões.'); return; }
-      
+      if (!data) { alert('Por favor, preencha a data da avaliacao.'); return; }
+      if (Object.keys(respostas).length < 20) { alert('Por favor, responda todas as 20 questoes.'); return; }
+
       const modalLoading = document.getElementById('modalLoading');
       modalLoading.classList.add('show');
-      
+
       try {
-        const pontuacao = calcularPontuacao();
+        const domScores = calcularDominios();
+        const pontuacao = Object.values(domScores).reduce((a, b) => a + b, 0);
         const dataObj = new Date(data + 'T00:00:00');
         const dataFormatada = dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
-        
-        let interpretacao = '';
-        if (pontuacao >= 46) {
-          interpretacao = `A pontuação de ${pontuacao} pontos encontra-se ACIMA do ponto de corte estabelecido (46) pelos estudos de validação. Este resultado indica que a participante reporta uma frequência de comportamentos e experiências compatível com o perfil do Espectro Autista. Estatisticamente, pontuações nesta faixa apresentam alta sensibilidade (90,1%) para a identificação do transtorno.`;
+        const dataHoje = new Date().toLocaleDateString('pt-BR');
+        const acima = pontuacao >= 46;
+
+        // Avaliador from Integration if available
+        let avaliador = '';
+        try {
+          const u = firebase.auth().currentUser;
+          if (u) avaliador = u.displayName || u.email || '';
+        } catch(e) {}
+
+        // Classification badge
+        const clsBadge = acima
+          ? '<span style="display:inline-block;background:#fef2f2;color:#dc2626;font-weight:700;font-size:13px;padding:5px 14px;border-radius:8px;border:1.5px solid #fecaca">Acima do Ponto de Corte</span>'
+          : '<span style="display:inline-block;background:#f0fdf4;color:#059669;font-weight:700;font-size:13px;padding:5px 14px;border-radius:8px;border:1.5px solid #bbf7d0">Abaixo do Ponto de Corte</span>';
+
+        // Domain table rows
+        const domRows = DOMINIOS.map((d, i) => {
+          const sc = domScores[d.key] || 0;
+          const pct = Math.round((sc / d.max) * 100);
+          const bg = i % 2 === 0 ? '#fff' : '#f8fafc';
+          return `<tr style="background:${bg}">
+            <td style="padding:10px 14px;font-weight:600;color:${d.color}">${d.label}</td>
+            <td style="padding:10px 14px;text-align:center;color:#64748b;font-size:12px">${d.items.join(', ')}</td>
+            <td style="padding:10px 14px;text-align:center;font-weight:800;font-size:15px;color:${d.color}">${sc}</td>
+            <td style="padding:10px 14px;text-align:center;color:#64748b">${d.max}</td>
+            <td style="padding:10px 14px;text-align:center;font-weight:700;color:#334155">${pct}%</td>
+          </tr>`;
+        }).join('');
+
+        // SVG chart
+        const svgChart = buildSvgBarChart(domScores);
+
+        // Domain interpretations
+        const domInterpTexts = DOMINIOS.map(d => {
+          const sc = domScores[d.key] || 0;
+          const pct = Math.round((sc / d.max) * 100);
+          let nivel = 'baixo';
+          if (pct >= 70) nivel = 'elevado';
+          else if (pct >= 40) nivel = 'moderado';
+
+          const textos = {
+            linguagem: {
+              elevado: 'O dominio de Linguagem apresenta escore elevado, sugerindo dificuldades significativas no uso pragmatico da linguagem, incluindo interpretacao literal, dificuldade em compreender expressoes idiomaticas e uso atipico de palavras.',
+              moderado: 'O dominio de Linguagem apresenta escore moderado, indicando algumas dificuldades no uso social da linguagem que merecem atencao clinica.',
+              baixo: 'O dominio de Linguagem apresenta escore dentro da faixa nao clinica, sem indicativos significativos de dificuldades pragmaticas na comunicacao.'
+            },
+            social: {
+              elevado: 'O dominio de Interacao Social apresenta escore elevado, indicando dificuldades expressivas na reciprocidade social, compreensao de normas sociais implicitas e manutencao de relacionamentos interpessoais.',
+              moderado: 'O dominio de Interacao Social apresenta escore moderado, sugerindo algumas dificuldades na interacao social que podem impactar o funcionamento interpessoal.',
+              baixo: 'O dominio de Interacao Social apresenta escore dentro da faixa nao clinica, sem dificuldades significativas na reciprocidade social.'
+            },
+            interesses: {
+              elevado: 'O dominio de Interesses Circunscritos apresenta escore elevado, sugerindo padroes restritos e repetitivos de comportamento, com foco intenso em temas especificos e dificuldade com mudancas.',
+              moderado: 'O dominio de Interesses Circunscritos apresenta escore moderado, com alguns indicativos de rigidez cognitiva e preferencia por rotinas.',
+              baixo: 'O dominio de Interesses Circunscritos apresenta escore dentro da faixa nao clinica, sem padroes significativos de restricao de interesses.'
+            },
+            sensoriomotor: {
+              elevado: 'O dominio Sensorio-motor apresenta escore elevado, indicando hiper ou hiposensibilidade sensorial significativa e possivel descoordenacao motora.',
+              moderado: 'O dominio Sensorio-motor apresenta escore moderado, com alguns indicativos de sensibilidades sensoriais ou dificuldades de processamento motor.',
+              baixo: 'O dominio Sensorio-motor apresenta escore dentro da faixa nao clinica, sem sensibilidades sensoriais ou motoras significativas.'
+            }
+          };
+          return `<div style="margin-bottom:16px;padding:14px 18px;background:${d.colorLight};border-left:4px solid ${d.color};border-radius:0 8px 8px 0">
+            <div style="font-weight:700;color:${d.color};font-size:14px;margin-bottom:6px">${d.label} — ${sc}/${d.max} (${pct}%)</div>
+            <div style="font-size:13px;color:#334155;line-height:1.7">${textos[d.key][nivel]}</div>
+          </div>`;
+        }).join('');
+
+        // General interpretation
+        let interpGeral = '';
+        if (acima) {
+          interpGeral = `A pontuacao total de <strong>${pontuacao} pontos</strong> encontra-se <strong>acima</strong> do ponto de corte estabelecido (46) pelos estudos de validacao brasileira. Este resultado indica que o(a) respondente reporta uma frequencia de comportamentos e experiencias compativeis com o perfil do Espectro Autista. Pontuacoes nesta faixa apresentam <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para identificacao do transtorno. Recomenda-se avaliacao clinica complementar para confirmacao diagnostica.`;
         } else {
-          interpretacao = `A pontuação de ${pontuacao} pontos encontra-se ABAIXO do ponto de corte estabelecido (46) pelos estudos de validação. Este resultado indica que a participante reporta uma frequência de comportamentos abaixo do limiar clínico de rastreio para o Espectro Autista nesta escala.`;
+          interpGeral = `A pontuacao total de <strong>${pontuacao} pontos</strong> encontra-se <strong>abaixo</strong> do ponto de corte estabelecido (46) pelos estudos de validacao brasileira. Este resultado indica que o(a) respondente reporta uma frequencia de comportamentos abaixo do limiar clinico de rastreio para o Espectro Autista nesta escala. Ressalta-se que um resultado negativo no rastreio nao exclui a possibilidade diagnostica, especialmente em populacoes com alto nivel de camuflagem social.`;
         }
-        
-        document.getElementById('repPaciente').textContent = nome;
-        document.getElementById('repData').textContent = dataFormatada;
-        document.getElementById('repScore').textContent = pontuacao;
-        document.getElementById('repInterpretacao').textContent = interpretacao;
-        
-        gerarGrafico(pontuacao, nome);
+
+        // Item-level table
+        const answerLabels = { 1:'(1) Nunca', 2:'(2) Algumas vezes', 3:'(3) Muitas vezes', 4:'(4) Sempre' };
+        const itemDomainMap = {};
+        DOMINIOS.forEach(d => d.items.forEach(id => { itemDomainMap[id] = d.label; }));
+
+        const itemRows = questoes.map((q, i) => {
+          const resp = respostas[q.id];
+          const respLabel = resp != null ? (answerLabels[resp] || `(${resp})`) : '--';
+          const scored = pontuacaoItem(q.id);
+          const domLabel = itemDomainMap[q.id] || '--';
+          const bg = i % 2 === 0 ? '#fff' : '#f8fafc';
+          return `<tr style="background:${bg}">
+            <td style="padding:8px 12px;text-align:center;font-weight:700;color:#1e40af">${q.id}</td>
+            <td style="padding:8px 12px;font-size:12px;color:#475569;max-width:320px">${escHtml(q.text)}${q.reverse ? ' <span style="background:#fef3c7;color:#92400e;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px">INV</span>' : ''}</td>
+            <td style="padding:8px 12px;text-align:center;font-size:12px;color:#64748b">${domLabel}</td>
+            <td style="padding:8px 12px;text-align:center;font-size:12px">${respLabel}</td>
+            <td style="padding:8px 12px;text-align:center;font-weight:700;color:#1e293b">${scored}</td>
+          </tr>`;
+        }).join('');
+
+        // Build full self-contained HTML
+        const html = `
+<style>
+  .rr-rpt * { margin:0; padding:0; box-sizing:border-box; }
+  .rr-rpt { font-family:'DM Sans',system-ui,-apple-system,sans-serif; background:#fff; border-radius:20px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.08); color:#1e293b; }
+  .rr-hdr { background:linear-gradient(135deg,#1e40af 0%,#1a56db 100%); padding:32px 36px; color:#fff; display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap; }
+  .rr-hdr-brand { display:flex; align-items:center; gap:14px; }
+  .rr-hdr-logo { height:48px; border-radius:8px; }
+  .rr-hdr-name { font-size:18px; font-weight:800; }
+  .rr-hdr-sub { font-size:12px; opacity:.9; }
+  .rr-hdr-info { text-align:right; }
+  .rr-hdr-title { font-size:22px; font-weight:800; margin-bottom:4px; }
+  .rr-hdr-subtitle { font-size:13px; opacity:.9; }
+  .rr-body { padding:36px; }
+  .rr-section { margin-bottom:32px; }
+  .rr-sh { font-size:18px; font-weight:800; color:#1e293b; margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid #f1f5f9; display:flex; align-items:center; gap:12px; }
+  .rr-sh-num { width:28px; height:28px; background:linear-gradient(135deg,#1a56db,#1e40af); color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; flex-shrink:0; }
+  .rr-text { font-size:14px; color:#475569; line-height:1.7; margin-bottom:12px; }
+  .rr-text strong { color:#1e293b; font-weight:700; }
+  .rr-meta { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; background:#f8fafc; padding:20px; border-radius:12px; }
+  .rr-meta-item label { display:block; font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
+  .rr-meta-item span { font-size:15px; font-weight:700; color:#1e293b; }
+  .rr-overview { display:flex; gap:16px; margin:20px 0; flex-wrap:wrap; }
+  .rr-score-box { flex:1; min-width:140px; border-radius:14px; padding:20px; text-align:center; color:#fff; }
+  .rr-score-box .lbl { font-size:12px; opacity:.9; margin-bottom:6px; }
+  .rr-score-box .val { font-size:32px; font-weight:800; }
+  .rr-score-box .sub { font-size:11px; opacity:.8; margin-top:4px; }
+  .rr-tbl { width:100%; border-collapse:collapse; font-size:13px; }
+  .rr-tbl th { background:#f1f5f9; padding:10px 14px; text-align:left; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.04em; border-bottom:2px solid #e2e8f0; }
+  .rr-tbl td { border-bottom:1px solid #f1f5f9; }
+  .rr-chart-wrap { background:#fafcff; border:1.5px solid #e2e8f0; border-radius:12px; padding:20px; margin:16px 0; }
+  .rr-footer { margin-top:40px; padding:24px 36px; border-top:2px solid #f1f5f9; display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; }
+  .rr-footer-left { font-size:12px; color:#64748b; }
+  .rr-footer-right { text-align:right; }
+  .rr-footer-right div:first-child { font-size:12px; color:#64748b; }
+  .rr-footer-disclaimer { font-size:10px; color:#cbd5e1; margin-top:4px; max-width:360px; }
+  .rr-sign-line { margin-top:20px; width:220px; border-top:1px solid #cbd5e1; padding-top:6px; font-size:11px; color:#94a3b8; }
+  @media print {
+    .rr-rpt { box-shadow:none !important; border-radius:0 !important; }
+    .rr-hdr { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+    .rr-section { break-inside:avoid !important; }
+    .rr-sh { break-after:avoid !important; }
+  }
+</style>
+<div class="rr-rpt">
+  <div class="rr-hdr">
+    <div class="rr-hdr-brand">
+      <img src="/logo2.png" alt="Logo" class="rr-hdr-logo" onerror="this.style.display='none'">
+      <div>
+        <div class="rr-hdr-name">Equilibrium</div>
+        <div class="rr-hdr-sub">Neuropsicologia</div>
+      </div>
+    </div>
+    <div class="rr-hdr-info">
+      <div class="rr-hdr-title">RAADS-R-BR Screen</div>
+      <div class="rr-hdr-subtitle">Escala Ritvo para Diagnostico de Autismo em Adultos</div>
+    </div>
+  </div>
+
+  <div class="rr-body">
+
+    <!-- 1. Identificacao -->
+    <div class="rr-section">
+      <div class="rr-sh"><span class="rr-sh-num">1</span> Identificacao</div>
+      <div class="rr-meta">
+        <div class="rr-meta-item"><label>Paciente</label><span>${escHtml(nome)}</span></div>
+        <div class="rr-meta-item"><label>Data da Avaliacao</label><span>${escHtml(dataFormatada)}</span></div>
+        <div class="rr-meta-item"><label>Avaliador</label><span>${avaliador ? escHtml(avaliador) : '--'}</span></div>
+      </div>
+    </div>
+
+    <!-- 2. Instrumento -->
+    <div class="rr-section">
+      <div class="rr-sh"><span class="rr-sh-num">2</span> Sobre o Instrumento</div>
+      <p class="rr-text">O RAADS-R-BR Screen e uma escala de rastreio desenvolvida para identificar caracteristicas do Transtorno do Espectro Autista (TEA) em adultos. A versao utilizada e composta por 20 itens que avaliam dominios centrais do perfil neurodivergente, incluindo: Interacao Social, Linguagem, Sensorio-Motor e Interesses Circunscritos.</p>
+      <p class="rr-text">O instrumento foi validado para o contexto brasileiro, apresentando evidencias robustas de validade e confiabilidade, com <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para o ponto de corte estabelecido.</p>
+    </div>
+
+    <!-- 3. Resultados -->
+    <div class="rr-section">
+      <div class="rr-sh"><span class="rr-sh-num">3</span> Resultados Obtidos</div>
+      <div class="rr-overview">
+        <div class="rr-score-box" style="background:linear-gradient(135deg,${acima ? '#ef4444,#dc2626' : '#059669,#047857'})">
+          <div class="lbl">Pontuacao Total</div>
+          <div class="val">${pontuacao}</div>
+          <div class="sub">de 60 pontos</div>
+        </div>
+        <div class="rr-score-box" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">
+          <div class="lbl">Ponto de Corte</div>
+          <div class="val">46</div>
+          <div class="sub">sensibilidade 90,1%</div>
+        </div>
+        <div class="rr-score-box" style="background:linear-gradient(135deg,#64748b,#475569)">
+          <div class="lbl">Pontuacao Maxima</div>
+          <div class="val">60</div>
+          <div class="sub">20 itens x 3</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin:12px 0">${clsBadge}</div>
+    </div>
+
+    <!-- 4. Dominios -->
+    <div class="rr-section">
+      <div class="rr-sh"><span class="rr-sh-num">4</span> Detalhamento por Dominio</div>
+      <div style="border-radius:12px;border:1px solid #e2e8f0;overflow:hidden">
+        <table class="rr-tbl">
+          <thead><tr>
+            <th>Dominio</th>
+            <th style="text-align:center">Itens</th>
+            <th style="text-align:center">Escore</th>
+            <th style="text-align:center">Maximo</th>
+            <th style="text-align:center">Percentual</th>
+          </tr></thead>
+          <tbody>${domRows}
+            <tr style="background:#f1f5f9;font-weight:700">
+              <td style="padding:10px 14px;font-weight:800;color:#1e293b">TOTAL</td>
+              <td style="padding:10px 14px;text-align:center;color:#64748b;font-size:12px">1-20</td>
+              <td style="padding:10px 14px;text-align:center;font-weight:800;font-size:16px;color:#1e40af">${pontuacao}</td>
+              <td style="padding:10px 14px;text-align:center;color:#64748b">60</td>
+              <td style="padding:10px 14px;text-align:center;font-weight:800;color:#1e293b">${Math.round((pontuacao/60)*100)}%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 5. Grafico -->
+    <div class="rr-section">
+      <div class="rr-sh"><span class="rr-sh-num">5</span> Perfil dos Dominios</div>
+      <div class="rr-chart-wrap">${svgChart}</div>
+    </div>
+
+    <!-- 6. Interpretacao -->
+    <div class="rr-section">
+      <div class="rr-sh"><span class="rr-sh-num">6</span> Interpretacao Clinica</div>
+      <div style="background:#f0f9ff;border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:18px 22px;margin-bottom:20px">
+        <p style="font-size:14px;color:#1e293b;line-height:1.8;margin:0">${interpGeral}</p>
+      </div>
+      ${domInterpTexts}
+    </div>
+
+    <!-- 7. Itens -->
+    <div class="rr-section">
+      <div class="rr-sh"><span class="rr-sh-num">7</span> Analise dos Itens</div>
+      <div style="border-radius:12px;border:1px solid #e2e8f0;overflow:hidden">
+        <table class="rr-tbl">
+          <thead><tr>
+            <th style="text-align:center;width:50px">Nr.</th>
+            <th>Item</th>
+            <th style="text-align:center">Dominio</th>
+            <th style="text-align:center;width:130px">Resposta</th>
+            <th style="text-align:center;width:60px">Valor</th>
+          </tr></thead>
+          <tbody>${itemRows}</tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Rodape -->
+  <div class="rr-footer">
+    <div class="rr-footer-left">
+      ${avaliador ? `<div style="font-weight:700;font-size:14px;color:#0f172a">${escHtml(avaliador)}</div>` : ''}
+      <div class="rr-sign-line">Assinatura do profissional</div>
+    </div>
+    <div class="rr-footer-right">
+      <div>Documento gerado em ${dataHoje}</div>
+      <div class="rr-footer-disclaimer">Este documento e confidencial e destina-se exclusivamente ao paciente e profissionais autorizados. Valido apenas com assinatura.</div>
+    </div>
+  </div>
+</div>`;
+
+        // Insert into overlay
+        const frame = document.getElementById('repFrame');
+        if (frame) frame.innerHTML = html;
 
         modalLoading.classList.remove('show');
         document.getElementById('repOverlay').classList.add('ativo');
 
-        // Salvar no Firebase
+        // Save to Firebase
         if (window.Integration) {
-          // Aguardar gráfico renderizar
-          await new Promise(r => setTimeout(r, 300));
-          const repWrapper = document.querySelector('.rep-wrapper');
           await Integration.salvarTesteNoFirebase("raads-r", {
             dataAplicacao: data,
-            resumo: `Pontuação: ${pontuacao} / 80 — ${pontuacao >= 46 ? 'Acima do corte' : 'Abaixo do corte'}`,
-            scores: { pontuacao, pontosCorte: 46, respostas },
-            classificacao: pontuacao >= 46 ? 'Acima do Ponto de Corte' : 'Abaixo do Ponto de Corte',
+            resumo: `Pontuacao: ${pontuacao} / 60 — ${acima ? 'Acima do corte' : 'Abaixo do corte'}`,
+            scores: { pontuacao, pontosCorte: 46, dominios: domScores, respostas },
+            classificacao: acima ? 'Acima do Ponto de Corte' : 'Abaixo do Ponto de Corte',
             observacoes: '',
-            htmlRelatorio: repWrapper ? repWrapper.outerHTML : '',
+            htmlRelatorio: html,
           });
         }
-        
+
       } catch (error) {
         console.error('Erro ao processar:', error);
         modalLoading.classList.remove('show');
-        alert('Ocorreu um erro ao gerar o relatório. Por favor, tente novamente.');
+        alert('Ocorreu um erro ao gerar o relatorio. Por favor, tente novamente.');
       }
     }
 

@@ -637,6 +637,10 @@
                 await enviarParaDrive(formData, pdfBase64);
                 await new Promise(resolve => setTimeout(resolve, 500));
 
+                updateLoadingStatus('Salvando no Firebase...');
+                await salvarResultadoFirebase(formData);
+                await new Promise(resolve => setTimeout(resolve, 400));
+
                 updateLoadingStatus('Concluído!');
                 await new Promise(resolve => setTimeout(resolve, 800));
 
@@ -1157,6 +1161,250 @@
 
             // Converter para base64
             return doc.output('datauristring').split(',')[1];
+        }
+
+        async function salvarResultadoFirebase(formData) {
+            try {
+                const hoje = new Date();
+                const dataAplicacao = hoje.toISOString();
+
+                // Recalculate scores (same logic as PDF)
+                const itensInversos = [3, 12, 19, 22, 24];
+                const respostasCorrigidas = formData.respostas.map((resposta, index) => {
+                    const numeroItem = index + 1;
+                    return itensInversos.includes(numeroItem) ? 8 - resposta : resposta;
+                });
+
+                const compensacaoItens = [1, 4, 5, 8, 11, 14, 17, 20, 23];
+                const mascaramentoItens = [2, 6, 7, 10, 15, 18, 21];
+                const assimilacaoItens = [3, 9, 12, 13, 16, 19, 22, 24, 25];
+
+                const scoreCompensacao = compensacaoItens.reduce((sum, item) => sum + respostasCorrigidas[item - 1], 0);
+                const scoreMascaramento = mascaramentoItens.reduce((sum, item) => sum + respostasCorrigidas[item - 1], 0);
+                const scoreAssimilacao = assimilacaoItens.reduce((sum, item) => sum + respostasCorrigidas[item - 1], 0);
+                const scoreTotal = scoreCompensacao + scoreMascaramento + scoreAssimilacao;
+
+                const percCompensacao = ((scoreCompensacao / 63) * 100).toFixed(1);
+                const percMascaramento = ((scoreMascaramento / 49) * 100).toFixed(1);
+                const percAssimilacao = ((scoreAssimilacao / 63) * 100).toFixed(1);
+                const percTotal = ((scoreTotal / 175) * 100).toFixed(1);
+
+                const classificacao = scoreTotal > 100
+                    ? 'Camuflagem Significativa'
+                    : 'Faixa Tipica';
+
+                function nivelPerc(perc) {
+                    if (perc >= 70) return 'MUITO ELEVADO';
+                    if (perc >= 50) return 'ELEVADO';
+                    if (perc >= 30) return 'MODERADO';
+                    return 'BAIXO';
+                }
+
+                const scores = {
+                    total: { pontuacao: scoreTotal, maximo: 175, percentual: parseFloat(percTotal) },
+                    compensacao: { pontuacao: scoreCompensacao, maximo: 63, percentual: parseFloat(percCompensacao), nivel: nivelPerc(parseFloat(percCompensacao)) },
+                    mascaramento: { pontuacao: scoreMascaramento, maximo: 49, percentual: parseFloat(percMascaramento), nivel: nivelPerc(parseFloat(percMascaramento)) },
+                    assimilacao: { pontuacao: scoreAssimilacao, maximo: 63, percentual: parseFloat(percAssimilacao), nivel: nivelPerc(parseFloat(percAssimilacao)) }
+                };
+
+                const resumo = `Total: ${scoreTotal}/175 (${percTotal}%) - ${classificacao} | Compensacao: ${scoreCompensacao}/63 | Mascaramento: ${scoreMascaramento}/49 | Assimilacao: ${scoreAssimilacao}/63`;
+
+                // Build self-contained HTML report
+                const htmlRelatorio = gerarHtmlRelatorio(formData, scores, classificacao, hoje);
+
+                if (typeof Integration !== 'undefined' && Integration.salvarTesteNoFirebase) {
+                    await Integration.salvarTesteNoFirebase('cat-q', {
+                        dataAplicacao,
+                        resumo,
+                        scores,
+                        classificacao,
+                        htmlRelatorio
+                    });
+                }
+            } catch (err) {
+                console.warn('Firebase save (non-blocking):', err);
+            }
+        }
+
+        function gerarHtmlRelatorio(formData, scores, classificacao, hoje) {
+            const nome = formData.nome || '';
+            const dataFormatada = hoje.toLocaleDateString('pt-BR');
+            const horaFormatada = hoje.toLocaleTimeString('pt-BR');
+
+            const nascimento = new Date(formData.dataNascimento + 'T00:00:00');
+            let idade = hoje.getFullYear() - nascimento.getFullYear();
+            const mes = hoje.getMonth() - nascimento.getMonth();
+            if (mes < 0 || (mes === 0 && hoje.getDate() < nascimento.getDate())) idade--;
+
+            const isSignificativa = scores.total.pontuacao > 100;
+
+            function barColor(key) {
+                if (key === 'compensacao') return '#667eea';
+                if (key === 'mascaramento') return '#764ba2';
+                return '#56ccf2';
+            }
+
+            function badgeColor(nivel) {
+                if (nivel === 'MUITO ELEVADO') return 'background:#dc2626;color:#fff;';
+                if (nivel === 'ELEVADO') return 'background:#f59e0b;color:#fff;';
+                if (nivel === 'MODERADO') return 'background:#3b82f6;color:#fff;';
+                return 'background:#10b981;color:#fff;';
+            }
+
+            const subscales = [
+                { key: 'compensacao', label: 'Compensacao', items: '1, 4, 5, 8, 11, 14, 17, 20, 23', desc: 'Estrategias aprendidas: copiar comportamentos, criar roteiros sociais, estudar regras de interacao.' },
+                { key: 'mascaramento', label: 'Mascaramento', items: '2, 6, 7, 10, 15, 18, 21', desc: 'Controle ativo de expressoes faciais e linguagem corporal para parecer "tipico".' },
+                { key: 'assimilacao', label: 'Assimilacao', items: '3, 9, 12, 13, 16, 19, 22, 24, 25', desc: 'Esforco para se encaixar socialmente, evitar se destacar e sensacao de "fingir ser normal".' }
+            ];
+
+            // SVG bar chart
+            const chartW = 560;
+            const chartH = 180;
+            const barH = 36;
+            const gap = 20;
+            const labelW = 130;
+            const maxBarW = chartW - labelW - 80;
+            const startY = 20;
+
+            let svgBars = '';
+            subscales.forEach((sc, i) => {
+                const s = scores[sc.key];
+                const pct = s.percentual / 100;
+                const bw = Math.max(4, pct * maxBarW);
+                const y = startY + i * (barH + gap);
+                const color = barColor(sc.key);
+                svgBars += `
+                    <text x="0" y="${y + barH / 2 + 5}" font-size="13" font-weight="600" fill="#334155" font-family="system-ui,sans-serif">${sc.label}</text>
+                    <rect x="${labelW}" y="${y}" width="${maxBarW}" height="${barH}" rx="6" fill="#e2e8f0"/>
+                    <rect x="${labelW}" y="${y}" width="${bw}" height="${barH}" rx="6" fill="${color}"/>
+                    <text x="${labelW + bw + 8}" y="${y + barH / 2 + 5}" font-size="13" font-weight="700" fill="#334155" font-family="system-ui,sans-serif">${s.pontuacao}/${s.maximo} (${s.percentual}%)</text>
+                `;
+            });
+
+            const svgChart = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${chartW} ${startY + 3 * (barH + gap)}" style="width:100%;max-width:600px;">${svgBars}</svg>`;
+
+            // Subscale cards
+            const subscaleCards = subscales.map(sc => {
+                const s = scores[sc.key];
+                const color = barColor(sc.key);
+                return `
+                <div style="border:1px solid #e2e8f0;border-radius:12px;padding:20px;margin-bottom:16px;border-left:4px solid ${color};background:#fafcff;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
+                        <span style="font-weight:700;font-size:15px;color:#1e293b;">${sc.label}</span>
+                        <span style="display:inline-block;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700;${badgeColor(s.nivel)}">${s.nivel}</span>
+                    </div>
+                    <div style="font-size:13px;color:#475569;margin-bottom:8px;">Itens: ${sc.items}</div>
+                    <div style="font-size:22px;font-weight:800;color:${color};margin-bottom:6px;">${s.pontuacao} <span style="font-size:14px;font-weight:500;color:#94a3b8;">/ ${s.maximo}</span> <span style="font-size:14px;font-weight:500;color:#64748b;">(${s.percentual}%)</span></div>
+                    <div style="background:#e2e8f0;border-radius:4px;height:8px;overflow:hidden;margin-bottom:10px;">
+                        <div style="width:${s.percentual}%;height:100%;background:${color};border-radius:4px;"></div>
+                    </div>
+                    <div style="font-size:12.5px;color:#64748b;line-height:1.5;">${sc.desc}</div>
+                </div>`;
+            }).join('');
+
+            return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>CAT-Q - Relatorio</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#f8fafc;color:#1e293b;line-height:1.6;}
+.report-wrap{max-width:800px;margin:0 auto;padding:32px 24px;}
+.report-header{background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:16px;padding:28px 32px;margin-bottom:24px;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.report-header-logo{display:flex;align-items:center;gap:14px;}
+.report-header-logo img{height:44px;border-radius:8px;background:#fff;padding:4px;}
+.report-header-brand{font-weight:800;font-size:18px;}
+.report-header-sub{font-size:12px;opacity:.85;}
+.report-header-title{text-align:right;font-size:15px;font-weight:600;}
+.report-header-title-main{font-size:20px;font-weight:800;letter-spacing:.02em;}
+.patient-strip{background:#fff;border-radius:12px;padding:18px 24px;margin-bottom:20px;display:flex;flex-wrap:wrap;gap:24px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.patient-field label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;letter-spacing:.06em;margin-bottom:2px;}
+.patient-field span{font-size:14px;font-weight:600;color:#1e293b;}
+.section{background:#fff;border-radius:14px;padding:24px 28px;margin-bottom:20px;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.section-title{font-size:16px;font-weight:800;color:#334155;margin-bottom:16px;padding-bottom:8px;border-bottom:2px solid #e2e8f0;}
+.total-box{text-align:center;padding:24px;border-radius:14px;margin-bottom:20px;color:#fff;}
+.total-box.significativa{background:linear-gradient(135deg,#dc2626,#b91c1c);}
+.total-box.tipica{background:linear-gradient(135deg,#059669,#047857);}
+.total-score{font-size:48px;font-weight:900;line-height:1.1;}
+.total-label{font-size:14px;opacity:.9;margin-top:4px;}
+.total-class{display:inline-block;margin-top:10px;padding:4px 16px;border-radius:20px;font-size:13px;font-weight:700;background:rgba(255,255,255,.2);}
+.interp-section{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:20px 24px;margin-bottom:20px;}
+.interp-section h4{color:#92400e;margin-bottom:10px;font-size:14px;}
+.interp-section p,.interp-section li{font-size:13px;color:#78350f;line-height:1.7;}
+.interp-section ul{padding-left:18px;margin-top:6px;}
+.report-footer{text-align:center;padding:20px 0 8px;border-top:1px solid #e2e8f0;margin-top:24px;font-size:11px;color:#94a3b8;}
+.report-footer span{display:block;margin-bottom:2px;}
+@media print{body{background:#fff;}.report-wrap{padding:0;}}
+</style>
+</head>
+<body>
+<div class="report-wrap">
+
+    <div class="report-header">
+        <div class="report-header-logo">
+            <img src="/logo.png" alt="Equilibrium" onerror="this.style.display='none'">
+            <div>
+                <div class="report-header-brand">Equilibrium</div>
+                <div class="report-header-sub">Neuropsicologia</div>
+            </div>
+        </div>
+        <div class="report-header-title">
+            <div class="report-header-title-main">CAT-Q</div>
+            <div>Camouflaging Autistic Traits Questionnaire</div>
+        </div>
+    </div>
+
+    <div class="patient-strip">
+        <div class="patient-field"><label>Paciente</label><span>${nome}</span></div>
+        <div class="patient-field"><label>Idade</label><span>${idade} anos</span></div>
+        <div class="patient-field"><label>Data de Nascimento</label><span>${nascimento.toLocaleDateString('pt-BR')}</span></div>
+        <div class="patient-field"><label>Data da Avaliacao</label><span>${dataFormatada}</span></div>
+    </div>
+
+    <div class="total-box ${isSignificativa ? 'significativa' : 'tipica'}">
+        <div class="total-score">${scores.total.pontuacao}</div>
+        <div class="total-label">de ${scores.total.maximo} pontos (${scores.total.percentual}%)</div>
+        <div class="total-class">${classificacao}</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Perfil por Subescalas</div>
+        ${svgChart}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Detalhamento por Subescala</div>
+        ${subscaleCards}
+    </div>
+
+    <div class="section">
+        <div class="section-title">Interpretacao Clinica</div>
+        ${isSignificativa
+            ? '<p style="font-size:13.5px;color:#1e293b;line-height:1.7;">A pontuacao total acima do ponto de corte clinico (>100) sugere presenca <strong>significativa</strong> de comportamentos de camuflagem social (masking). Isso indica que o avaliado investe consideravel energia cognitiva e emocional em estrategias de adaptacao social. A combinacao das tres dimensoes avaliadas aponta para um estilo de funcionamento social caracterizado por esforco consciente, monitoramento constante e possivel discrepancia entre a experiencia interna e a apresentacao externa. Este padrao pode estar associado a fadiga social, necessidade de periodos de recuperacao apos interacoes e potencial risco de burnout autistico.</p>'
+            : '<p style="font-size:13.5px;color:#1e293b;line-height:1.7;">A pontuacao total dentro da faixa tipica (<=100) sugere que o avaliado tende a experienciar interacoes sociais de forma relativamente mais natural, com menor necessidade de estrategias compensatorias intensivas. No entanto, a analise qualitativa das subescalas individuais oferece informacoes importantes sobre aspectos especificos do funcionamento social que podem beneficiar de suporte ou intervencao direcionada.</p>'
+        }
+    </div>
+
+    <div class="interp-section">
+        <h4>Consideracoes Importantes</h4>
+        <ul>
+            <li>O CAT-Q <strong>nao</strong> e um instrumento diagnostico de TEA; mede especificamente estrategias de camuflagem/masking.</li>
+            <li>Pontuacoes elevadas podem ocorrer em outras condicoes (ansiedade social, TDAH, alta sensibilidade).</li>
+            <li>Camuflagem intensa pode mascarar caracteristicas autistas, levando a diagnosticos tardios ou incorretos.</li>
+            <li>Masking prolongado esta associado a maior risco de ansiedade, depressao, esgotamento e crises autisticas.</li>
+            <li>Intervencoes devem focar em bem-estar e qualidade de vida, nao em "normalizacao".</li>
+            <li>Deve ser interpretado no contexto clinico amplo, nunca isoladamente.</li>
+        </ul>
+    </div>
+
+    <div class="report-footer">
+        <span>Equilibrium Neuropsicologia - Correcao automatizada CAT-Q</span>
+        <span>Gerado em ${dataFormatada} as ${horaFormatada}</span>
+        <span style="margin-top:6px;font-size:10px;color:#cbd5e1;">Este relatorio e de carater confidencial e deve ser interpretado por profissional qualificado em conjunto com avaliacao clinica completa.</span>
+    </div>
+
+</div>
+</body>
+</html>`;
         }
 
         async function enviarParaDrive(formData, pdfBase64) {

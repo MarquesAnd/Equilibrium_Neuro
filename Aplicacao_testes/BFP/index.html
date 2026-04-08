@@ -162,6 +162,8 @@ document.getElementById('submitBtn').addEventListener('click',async function(e){
     const chartImg=await gerarGrafico(res);
     document.getElementById('loadingStatus').textContent='Montando relatório completo...';await delay(300);
     const pdf=gerarPDF(fd,res,chartImg);
+    document.getElementById('loadingStatus').textContent='Salvando no Firebase...';await delay(300);
+    await salvarFirebase(fd,res);
     document.getElementById('loadingStatus').textContent='Enviando ao consultório...';await delay(300);
     await enviarDrive(fd,pdf);
     document.getElementById('loadingStatus').textContent='Concluído!';await delay(800);
@@ -315,6 +317,236 @@ function addFooter(doc,pg,total){
   doc.setFontSize(6.5);doc.setTextColor(140,140,140);
   doc.text('BFP - Bateria Fatorial de Personalidade',20,288);
   if(total)doc.text('Página '+pg+' de '+total,195,288,{align:'right'});
+}
+
+// ============ HTML REPORT ============
+function gerarHTMLRelatorio(fd, res) {
+  const hoje = new Date();
+  const nasc = new Date(fd.dataNascimento + 'T00:00:00');
+  let idade = hoje.getFullYear() - nasc.getFullYear();
+  const m = hoje.getMonth() - nasc.getMonth();
+  if (m < 0 || (m === 0 && hoje.getDate() < nasc.getDate())) idade--;
+
+  const corFaixa = f => ({
+    'Muito Baixo': '#dc2626', 'Baixo': '#f59e0b', 'Médio': '#3b82f6',
+    'Alto': '#059669', 'Muito Alto': '#065f46'
+  }[f] || '#6b7280');
+
+  const bgFaixa = f => ({
+    'Muito Baixo': '#fef2f2', 'Baixo': '#fffbeb', 'Médio': '#eff6ff',
+    'Alto': '#f0fdf4', 'Muito Alto': '#ecfdf5'
+  }[f] || '#f9fafb');
+
+  const corFator = k => {
+    const f = k.length === 1 ? k : k[0];
+    return { N: '#e74c3c', E: '#f39c12', S: '#27ae60', R: '#2980b9', A: '#8e44ad' }[f] || '#6b7280';
+  };
+
+  const pTxt = r => {
+    const p = r?.percentil;
+    if (!p) return '—';
+    if (p >= 95) return '> 95';
+    if (p <= 5) return '< 5';
+    return String(p);
+  };
+
+  // Build results table rows
+  let tableRows = '';
+  ORDEM.forEach(k => {
+    const r = res[k] || {};
+    const isF = k.length === 1;
+    const rowBg = isF ? '#e8f0fe' : '#ffffff';
+    const fw = isF ? '700' : '400';
+    const fc = corFaixa(r.faixa);
+    const fcBg = bgFaixa(r.faixa);
+    tableRows += `<tr style="background:${rowBg};">
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-weight:${fw};${isF ? 'color:' + corFator(k) + ';' : ''}">${NOMES_FULL[k] || k}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">${r.eb?.toFixed(1) || '—'}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">${r.z?.toFixed(1) || '—'}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">${pTxt(r)}</td>
+      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">
+        <span style="display:inline-block;padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;color:${fc};background:${fcBg};border:1px solid ${fc}33;">${r.faixa || '—'}</span>
+      </td>
+    </tr>`;
+  });
+
+  // SVG bar chart for the 5 main factors
+  const fatores = ['N', 'E', 'S', 'R', 'A'];
+  const fatNomes = { N: 'Neuroticismo', E: 'Extroversão', S: 'Socialização', R: 'Realização', A: 'Abertura' };
+  const fatCores = { N: '#e74c3c', E: '#f39c12', S: '#27ae60', R: '#2980b9', A: '#8e44ad' };
+  const barWidth = 80, barGap = 30, chartPadLeft = 60, chartTop = 30, chartH = 200;
+  const svgW = chartPadLeft + fatores.length * (barWidth + barGap) + 20;
+  const svgH = chartH + 80;
+
+  let bars = '';
+  let labels = '';
+  let gridLines = '';
+  // Grid lines for z-scores: show -3 to +3
+  for (let z = -3; z <= 3; z++) {
+    const yPos = chartTop + chartH / 2 - (z * chartH / 6);
+    gridLines += `<line x1="${chartPadLeft}" y1="${yPos}" x2="${svgW - 10}" y2="${yPos}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="${z === 0 ? '0' : '4,3'}"/>`;
+    gridLines += `<text x="${chartPadLeft - 8}" y="${yPos + 4}" text-anchor="end" font-size="11" fill="#94a3b8">${z.toFixed(1)}</text>`;
+  }
+
+  fatores.forEach((f, i) => {
+    const r = res[f] || {};
+    const zVal = r.z || 0;
+    const x = chartPadLeft + i * (barWidth + barGap) + barGap / 2;
+    const midY = chartTop + chartH / 2;
+    const barH = Math.abs(zVal) * (chartH / 6);
+    const yStart = zVal >= 0 ? midY - barH : midY;
+    bars += `<rect x="${x}" y="${yStart}" width="${barWidth}" height="${Math.max(barH, 2)}" rx="4" fill="${fatCores[f]}" opacity="0.85"/>`;
+    bars += `<text x="${x + barWidth / 2}" y="${yStart + (zVal >= 0 ? -6 : barH + 14)}" text-anchor="middle" font-size="12" font-weight="700" fill="${fatCores[f]}">${zVal.toFixed(1)}</text>`;
+    labels += `<text x="${x + barWidth / 2}" y="${chartTop + chartH + 18}" text-anchor="middle" font-size="12" font-weight="600" fill="#334155">${fatNomes[f]}</text>`;
+    labels += `<text x="${x + barWidth / 2}" y="${chartTop + chartH + 32}" text-anchor="middle" font-size="10" fill="#94a3b8">P${pTxt(r)}</text>`;
+  });
+
+  const svgChart = `<svg xmlns="http://www.w3.org/2000/svg" width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" style="max-width:100%;">
+    <rect width="${svgW}" height="${svgH}" fill="#fafcff" rx="8"/>
+    ${gridLines}
+    <line x1="${chartPadLeft}" y1="${chartTop + chartH / 2}" x2="${svgW - 10}" y2="${chartTop + chartH / 2}" stroke="#1e293b" stroke-width="1.5"/>
+    ${bars}${labels}
+    <text x="${svgW / 2}" y="18" text-anchor="middle" font-size="14" font-weight="700" fill="#1e293b">Perfil de Escores Z - Fatores BFP</text>
+  </svg>`;
+
+  // Interpretation sections
+  const descFator = {
+    N: 'O Neuroticismo avalia a instabilidade emocional, vulnerabilidade, ansiedade e tendência a emoções negativas. Escores elevados indicam maior suscetibilidade ao sofrimento emocional.',
+    E: 'A Extroversão avalia o nível de comunicação, assertividade, dinamismo e busca por interações sociais. Escores altos indicam perfil mais sociável e comunicativo.',
+    S: 'A Socialização avalia amabilidade, confiança nas pessoas e pró-sociabilidade. Escores altos indicam maior disposição para cooperação e altruísmo.',
+    R: 'A Realização avalia competência, ponderação e empenho/comprometimento. Escores altos indicam maior organização, disciplina e orientação a metas.',
+    A: 'A Abertura avalia abertura a novas ideias, liberalismo e busca por novidades. Escores altos indicam maior curiosidade intelectual e receptividade a experiências novas.'
+  };
+
+  let interpSections = '';
+  fatores.forEach(f => {
+    const r = res[f] || {};
+    interpSections += `
+    <div style="margin-bottom:20px;border-left:4px solid ${fatCores[f]};padding:12px 16px;background:#fafcff;border-radius:0 10px 10px 0;">
+      <div style="font-size:15px;font-weight:700;color:${fatCores[f]};margin-bottom:4px;">${fatNomes[f]} (${f})</div>
+      <div style="font-size:13px;color:#334155;margin-bottom:8px;">${descFator[f]}</div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:13px;">
+        <span><strong>Escore Z:</strong> ${r.z?.toFixed(1) || '—'}</span>
+        <span><strong>Percentil:</strong> ${pTxt(r)}</span>
+        <span style="font-weight:700;color:${corFaixa(r.faixa)};">${r.faixa || '—'}</span>
+      </div>
+    </div>`;
+  });
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="UTF-8"><title>BFP - Relatório</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI','DM Sans',system-ui,-apple-system,sans-serif;background:#fff;color:#1e293b;line-height:1.6}
+  .rep-wrapper{max-width:900px;margin:0 auto;padding:20px}
+  .rep-header{display:flex;align-items:center;justify-content:space-between;padding:24px 30px;background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);border-radius:14px;color:#fff;margin-bottom:24px}
+  .rep-header-brand{display:flex;align-items:center;gap:14px}
+  .rep-logo{width:48px;height:48px;border-radius:10px}
+  .rep-brand-name{font-size:20px;font-weight:800;letter-spacing:-.02em}
+  .rep-brand-sub{font-size:12px;opacity:.75}
+  .rep-test-name{font-size:16px;font-weight:700;text-align:right}
+  .rep-test-sub{font-size:12px;opacity:.75;text-align:right}
+  .rep-patient{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;padding:18px 24px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;margin-bottom:24px}
+  .rep-patient label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#64748b;font-weight:700}
+  .rep-patient span{font-size:14px;font-weight:600;color:#1e293b}
+  .rep-section{margin-bottom:28px}
+  .rep-section-title{font-size:16px;font-weight:800;color:#1e40af;padding-bottom:8px;border-bottom:2px solid #1e40af;margin-bottom:14px}
+  .rep-table{width:100%;border-collapse:collapse;font-size:13px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0}
+  .rep-table th{background:#1a56db;color:#fff;padding:10px 12px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+  .rep-table th:first-child{text-align:left}
+  .rep-chart-wrap{text-align:center;padding:16px 0}
+  .rep-footer{margin-top:30px;padding-top:16px;border-top:1.5px solid #e2e8f0;display:flex;justify-content:space-between;font-size:11px;color:#94a3b8}
+  .rep-confidential{margin-top:12px;padding:10px 16px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;font-size:11px;color:#991b1b;text-align:center}
+  @media print{body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+</style>
+</head><body>
+<div class="rep-wrapper">
+  <div class="rep-header">
+    <div class="rep-header-brand">
+      <img src="/logo.png" alt="Equilibrium" class="rep-logo" onerror="this.style.display='none'">
+      <div>
+        <div class="rep-brand-name">Equilibrium</div>
+        <div class="rep-brand-sub">Neuropsicologia</div>
+      </div>
+    </div>
+    <div>
+      <div class="rep-test-name">BFP - Bateria Fatorial de Personalidade</div>
+      <div class="rep-test-sub">Nunes, Hutz & Nunes (2010)</div>
+    </div>
+  </div>
+
+  <div class="rep-patient">
+    <div><label>Paciente</label><br><span>${fd.nome}</span></div>
+    <div><label>Data de Nascimento</label><br><span>${nasc.toLocaleDateString('pt-BR')} (${idade} anos)</span></div>
+    <div><label>Sexo</label><br><span>${fd.sexo}</span></div>
+    <div><label>Escolaridade</label><br><span>${fd.escolaridade}</span></div>
+    <div><label>Avaliador</label><br><span>WESSILON MARQUES DE SOUSA - CRP 04/53832</span></div>
+    <div><label>Data da Avaliação</label><br><span>${hoje.toLocaleDateString('pt-BR')}</span></div>
+  </div>
+
+  <div class="rep-section">
+    <div class="rep-section-title">Tabela de Resultados</div>
+    <table class="rep-table">
+      <thead><tr>
+        <th style="text-align:left;">Faceta / Fator</th>
+        <th>Escore Bruto</th>
+        <th>Escore Z</th>
+        <th>Percentil</th>
+        <th>Classificação</th>
+      </tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+  </div>
+
+  <div class="rep-section">
+    <div class="rep-section-title">Perfil Gráfico</div>
+    <div class="rep-chart-wrap">${svgChart}</div>
+  </div>
+
+  <div class="rep-section">
+    <div class="rep-section-title">Interpretação por Fator</div>
+    ${interpSections}
+  </div>
+
+  <div class="rep-footer">
+    <span>Equilibrium Neuropsicologia - Correção automatizada BFP</span>
+    <span>Gerado em ${hoje.toLocaleDateString('pt-BR')}</span>
+  </div>
+  <div class="rep-confidential">DOCUMENTO CONFIDENCIAL - Este relatório contém informações protegidas pelo sigilo profissional (CFP). Uso exclusivo do profissional responsável.</div>
+</div>
+</body></html>`;
+}
+
+// ============ FIREBASE SAVE ============
+async function salvarFirebase(fd, res) {
+  if (!window.Integration || !Integration.salvarTesteNoFirebase) {
+    console.info('Integration não disponível — Firebase save ignorado.');
+    return;
+  }
+  try {
+    const htmlRelatorio = gerarHTMLRelatorio(fd, res);
+    const fatores = ['N', 'E', 'S', 'R', 'A'];
+    const scores = {};
+    ORDEM.forEach(k => {
+      const r = res[k] || {};
+      scores[k] = { eb: r.eb, z: r.z, percentil: r.percentil, faixa: r.faixa };
+    });
+    const resumoFatores = fatores.map(f => {
+      const r = res[f] || {};
+      return (NOMES_FULL[f] || f) + ': P' + (r.percentil || '?') + ' (' + (r.faixa || '?') + ')';
+    }).join(' | ');
+    const classGeral = fatores.map(f => (f + ':' + (res[f]?.faixa || '?'))).join(', ');
+
+    await Integration.salvarTesteNoFirebase('bfp', {
+      dataAplicacao: new Date().toISOString(),
+      resumo: resumoFatores,
+      scores: scores,
+      classificacao: classGeral,
+      htmlRelatorio: htmlRelatorio
+    });
+  } catch (e) {
+    console.warn('Erro ao salvar no Firebase:', e);
+  }
 }
 
 // ============ DRIVE ============
