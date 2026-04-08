@@ -577,6 +577,7 @@ const ROTAS_APLICACAO = {
   'bfp':             '/Aplicacao_testes/BFP/',
   'vineland-pre':    '/Aplicacao_testes/Vineland3/pais-cuidadores/',
   'vineland-adulto': '/Aplicacao_testes/Vineland3/pais-cuidadores/',
+  'qcp-fc':          '/Aplicacao_testes/QCP_FC/',
 };
 
 const ROTAS_CORRECAO = {
@@ -589,6 +590,7 @@ const ROTAS_CORRECAO = {
   'raads-r':         '/Correcao_testes/RAADS-R/',
   'vineland-pre':    '/Correcao_testes/Vineland3/',
   'vineland-adulto': '/Correcao_testes/Vineland3/',
+  'qcp-fc':          '/Correcao_testes/QCP_FC/',
 };
 
 function aplicarTeste(testeId) {

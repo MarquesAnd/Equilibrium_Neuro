@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QCP-FC | Equilibrium</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* ---- Layout principal ---- */
+    body { background: #f0f4f8; }
+
+    .main-content { padding-bottom: 110px; }
+
+    .p-shell {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 16px 110px;
+    }
+
+    /* ---- Cabecalho ---- */
+    .p-header {
+      background: #fff;
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .p-brand { display: flex; align-items: center; gap: 12px; }
+    .p-logo  { height: 36px; }
+    .p-brand-name { font-weight: 800; font-size: 15px; color: #1e293b; }
+    .p-brand-sub  { font-size: 11px; color: #64748b; }
+    .p-test { text-align: right; }
+    .p-test-name  { font-weight: 700; font-size: 16px; color: #1a56db; }
+    .p-test-count { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    /* ---- Barra de progresso ---- */
+    .p-progress-bar {
+      height: 5px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .p-progress-fill {
+      height: 100%;
+      background: #1a56db;
+      width: 0%;
+      transition: width .35s ease;
+      border-radius: 4px;
+    }
+
+    /* ---- Card de formulario ---- */
+    .p-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 28px 32px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.07);
+    }
+
+    /* ---- Campos do paciente ---- */
+    .p-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 540px) { .p-fields { grid-template-columns: 1fr; } }
+    .p-field label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 6px;
+    }
+    .p-field input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #1e293b;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      background: #fafcff;
+      box-sizing: border-box;
+    }
+    .p-field input:focus {
+      border-color: #1a56db;
+      box-shadow: 0 0 0 3px rgba(26,86,219,.12);
+      background: #fff;
+    }
+
+    .p-divider {
+      border: none;
+      border-top: 1.5px solid #f1f5f9;
+      margin: 24px 0;
+    }
+    .p-items-heading {
+      font-size: 11px;
+      font-weight: 800;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 20px;
+    }
+
+    /* ---- Itens do questionario ---- */
+    .itens {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .item {
+      background: #fafcff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 20px 22px;
+      transition: all .25s ease;
+      box-shadow: 0 1px 4px rgba(0,0,0,.03);
+    }
+    .item:hover {
+      border-color: #cbd5e1;
+      background: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(26,86,219,.06);
+    }
+    .item.answered {
+      background: #fff;
+      border-color: #1a56db;
+      box-shadow: 0 0 0 3px rgba(26,86,219,.08);
+    }
+    .item-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .item-num {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #1a56db 0%, #1e3a8a 100%);
+      color: #fff;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: -.02em;
+      box-shadow: 0 2px 8px rgba(26,86,219,.25);
+    }
+    .item-text {
+      flex: 1;
+      font-size: 15.5px;
+      font-weight: 500;
+      color: #1e293b;
+      line-height: 1.55;
+      padding-top: 4px;
+    }
+
+    /* ---- Opcoes de resposta (horizontal 0-4) ---- */
+    .item-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .item-option {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+    }
+    .item-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .item-option label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 12px 6px;
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .2s ease;
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.3;
+      text-align: center;
+    }
+    .item-option label:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+    .item-option input[type="radio"]:checked + label {
+      background: rgba(26,86,219,.05);
+      border-color: #1a56db;
+      color: #1e3a8a;
+      font-weight: 600;
+      box-shadow: 0 2px 10px rgba(26,86,219,.15);
+    }
+    .item-option .opt-value {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1a56db;
+    }
+    .item-option input[type="radio"]:checked + label .opt-value {
+      color: #fff;
+      background: #1a56db;
+      border-radius: 8px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .item-option .opt-label {
+      font-size: 10px;
+      color: #94a3b8;
+      line-height: 1.2;
+    }
+    .item-option input[type="radio"]:checked + label .opt-label {
+      color: #1e3a8a;
+    }
+
+    @media (max-width: 640px) {
+      .item-header { flex-direction: column; gap: 10px; }
+      .item-num { width: 28px; height: 28px; font-size: 12px; }
+      .item-text { font-size: 14.5px; padding-top: 0; }
+      .item-option label { padding: 10px 4px; font-size: 11px; }
+      .item-option .opt-label { font-size: 9px; }
+    }
+
+    /* ---- Rodape fixo ---- */
+    .p-footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #fff;
+      border-top: 1.5px solid #e8edf2;
+      padding: 13px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 200;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+    }
+    .p-footer-info { font-size: 13px; color: #64748b; }
+    .p-footer-info strong { color: #1e293b; font-weight: 700; }
+
+    .btn-enviar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a56db;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 14px rgba(26,86,219,.35);
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+    .btn-enviar:hover   { opacity: .88; transform: translateY(-1px); }
+    .btn-enviar:active  { transform: translateY(0); opacity: 1; }
+    .btn-enviar:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ---- Modal de processamento ---- */
+    .qcpfc-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    .qcpfc-modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .qcpfc-modal-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 40px;
+      text-align: center;
+      max-width: 440px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+    .qcpfc-modal-spinner {
+      width: 52px;
+      height: 52px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #1a56db;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .qcpfc-modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    .qcpfc-modal-sub {
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    /* ---- Tela de sucesso ---- */
+    .success-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(145deg, #f0f4ff 0%, #dbeafe 100%);
+    }
+    .success-card {
+      background: #fff;
+      border-radius: 22px;
+      padding: 60px 44px;
+      text-align: center;
+      max-width: 560px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(26,86,219,.14);
+    }
+    .success-icon { font-size: 64px; margin-bottom: 22px; }
+    .success-card h1 { font-size: 26px; color: #1e40af; margin: 0 0 14px; }
+    .success-card p  { font-size: 16px; color: #555; line-height: 1.65; margin: 0 0 8px; }
+    .success-note    { font-size: 13px; color: #a0aec0; margin-top: 28px !important; }
+
+    /* ---- Print ---- */
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+      .no-print { display: none !important; }
+      .p-footer { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+
+    <!-- ---- SIDEBAR ---- -->
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard">
+          <span class="nav-icon">&#128202;</span><span>Dashboard</span>
+        </a>
+        <a class="nav-item" href="/Pacientes/" data-page="pacientes">
+          <span class="nav-icon">&#128100;</span><span>Pacientes</span>
+        </a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao">
+          <span class="nav-icon">&#9999;&#65039;</span><span>Correcao de Testes</span>
+        </a>
+        <a class="nav-item active" href="/Aplicacao_testes/" data-page="aplicacao">
+          <span class="nav-icon">&#129504;</span><span>Aplicacao de Testes</span>
+        </a>
+        <a class="nav-item" href="/Anamnese/" data-page="anamnese">
+          <span class="nav-icon">&#128203;</span><span>Anamnese</span>
+        </a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios">
+          <span class="nav-icon">&#128196;</span><span>Relatorios</span>
+        </a>
+        <a class="nav-item" href="/check_list/" data-page="checklist">
+          <span class="nav-icon">&#9989;</span><span>Checklist</span>
+        </a>
+        <a class="nav-item" href="/Config/" data-page="config">
+          <span class="nav-icon">&#9881;&#65039;</span><span>Configuracoes</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">?</div>
+          <div>
+            <div class="user-name">Carregando...</div>
+            <div class="user-role">&mdash;</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <!-- ---- CONTEUDO PRINCIPAL ---- -->
+    <main class="main-content">
+
+      <!-- Modal processando -->
+      <div class="qcpfc-modal-overlay" id="modalGerando">
+        <div class="qcpfc-modal-box">
+          <div class="qcpfc-modal-spinner"></div>
+          <div class="qcpfc-modal-title" id="modalTitle">A processar...</div>
+          <div class="qcpfc-modal-sub" id="modalSub">Por favor, nao feche esta pagina.</div>
+        </div>
+      </div>
+
+      <!-- Canvas oculto para grafico -->
+      <canvas id="hiddenChart" width="1100" height="500" style="position:absolute;left:-9999px"></canvas>
+
+      <div class="p-shell" id="appShell">
+
+        <!-- Cabecalho -->
+        <div class="p-header">
+          <div class="p-brand">
+            <img src="/logo.png" alt="Equilibrium" class="p-logo" onerror="this.style.display='none'">
+            <div>
+              <div class="p-brand-name">Equilibrium</div>
+              <div class="p-brand-sub">Neuropsicologia</div>
+            </div>
+          </div>
+          <div class="p-test">
+            <div class="p-test-name">QCP-FC</div>
+            <div class="p-test-count">
+              Respondidos: <strong id="pillAnswered">0/65</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra de progresso -->
+        <div class="p-progress-bar">
+          <div class="p-progress-fill" id="patientProgressFill"></div>
+        </div>
+
+        <!-- Card principal -->
+        <div class="p-card">
+
+          <!-- Dados do paciente -->
+          <div class="p-fields">
+            <div class="p-field">
+              <label>Nome completo</label>
+              <input id="nome" type="text" placeholder="Nome completo" autocomplete="name" />
+            </div>
+            <div class="p-field">
+              <label>Data da avaliacao</label>
+              <input id="data" type="date" />
+            </div>
+          </div>
+
+          <hr class="p-divider" />
+          <div class="p-items-heading">Por favor, responda todos os itens abaixo</div>
+
+          <!-- Itens injetados pelo JS -->
+          <div id="itens" class="itens"></div>
+
+        </div>
+      </div><!-- /p-shell -->
+
+      <!-- Rodape fixo -->
+      <div class="p-footer">
+        <div class="p-footer-info">
+          Respondidos: <strong id="footerAnswered">0</strong>
+          de <strong id="footerTotal">65</strong>
+        </div>
+        <button class="btn-enviar" id="btnEnviar" type="button" disabled>
+          Enviar Respostas
+        </button>
+      </div>
+
+    </main>
+  </div><!-- /app-shell -->
+
+  <!-- Campo avaliador oculto (compatibilidade) -->
+  <input id="avaliador" type="hidden" value="Paciente" />
+
+  <!-- SDKs do Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Configuracoes do Sistema -->
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard.js"></script>
+  <script src="/js/integration.js"></script>
+
+  <script>
+    /* ========================================================================
+       QCP-FC — Questionario de Crencas Pessoais - Forma Clinica
+       ======================================================================== */
+
+    const URL_DO_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbyYRCT08hv5hECgfLPlZqpwTAJEUodW0ChfnahUYC70YNME-5hvezW4rIeC9KS7EuwM/exec";
+
+    let QCPFC = null;
+
+    const ESCALA_KEYS = ["EVT","DEP","PAG","OBC","ANT","NAR","HIS","ESQ","PAR","BOR"];
+
+    const LIKERT_LABELS = {
+      0: "Nao acredito nisso",
+      1: "Acredito um pouco",
+      2: "Acredito moderadamente",
+      3: "Acredito bastante",
+      4: "Acredito totalmente"
+    };
+
+    const $ = (sel) => document.querySelector(sel);
+
+    /* ---- helpers ---- */
+    function escapeHtml(str) {
+      return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function normalCDF(z) {
+      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+      const sign = z < 0 ? -1 : 1;
+      z = Math.abs(z) / Math.sqrt(2);
+      const t = 1 / (1 + p * z);
+      const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
+      return 0.5 * (1 + sign * y);
+    }
+
+    function classificarZ(z) {
+      if (z >= 2) return "Muito Elevado";
+      if (z >= 1) return "Elevado";
+      if (z >= 0) return "Medio";
+      if (z >= -1) return "Baixo";
+      return "Muito Baixo";
+    }
+
+    function corDoZ(z) {
+      if (z >= 2) return [220, 38, 38];
+      if (z >= 1) return [245, 158, 11];
+      if (z >= 0) return [39, 174, 96];
+      if (z >= -1) return [41, 128, 185];
+      return [100, 116, 139];
+    }
+
+    /* ---- Carregar JSON ---- */
+    async function carregarRegras() {
+      const res = await fetch("/Aplicacao_testes/QCP_FC/data/qcpfc_rules.json", { cache: "no-store" });
+      if (!res.ok) throw new Error("Erro ao carregar qcpfc_rules.json (" + res.status + ")");
+      QCPFC = await res.json();
+      if (!QCPFC || !Array.isArray(QCPFC.itens)) {
+        throw new Error("Formato inesperado: campo 'itens' nao encontrado.");
+      }
+    }
+
+    /* ---- Renderizar itens ---- */
+    function renderItens() {
+      const container = $("#itens");
+      container.innerHTML = "";
+      const total = QCPFC.itens.length;
+
+      for (const item of QCPFC.itens) {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.dataset.itemId = item.num;
+
+        let optionsHtml = "";
+        for (let v = 0; v <= 4; v++) {
+          const inputId = "q" + item.num + "_" + v;
+          optionsHtml += '<div class="item-option">' +
+            '<input type="radio" name="q' + item.num + '" id="' + inputId + '" value="' + v + '">' +
+            '<label for="' + inputId + '">' +
+              '<span class="opt-value">' + v + '</span>' +
+              '<span class="opt-label">' + escapeHtml(LIKERT_LABELS[v]) + '</span>' +
+            '</label>' +
+          '</div>';
+        }
+
+        div.innerHTML =
+          '<div class="item-header">' +
+            '<div class="item-num">' + item.num + '</div>' +
+            '<div class="item-text">' + escapeHtml(item.texto) + '</div>' +
+          '</div>' +
+          '<div class="item-options">' + optionsHtml + '</div>';
+
+        container.appendChild(div);
+      }
+
+      // Listeners
+      container.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+        radio.addEventListener("change", function() {
+          var itemDiv = this.closest(".item");
+          if (itemDiv) itemDiv.classList.add("answered");
+          atualizarContadores();
+        });
+      });
+
+      atualizarContadores();
+    }
+
+    /* ---- Contadores de progresso ---- */
+    function atualizarContadores() {
+      var total = QCPFC.itens.length;
+      var answered = 0;
+      for (var i = 0; i < QCPFC.itens.length; i++) {
+        if (document.querySelector('input[name="q' + QCPFC.itens[i].num + '"]:checked')) {
+          answered++;
+        }
+      }
+
+      var pillEl = $("#pillAnswered");
+      if (pillEl) pillEl.textContent = answered + "/" + total;
+
+      var footA = $("#footerAnswered");
+      if (footA) footA.textContent = answered;
+
+      var footT = $("#footerTotal");
+      if (footT) footT.textContent = total;
+
+      var progressFill = $("#patientProgressFill");
+      if (progressFill) {
+        progressFill.style.width = (total > 0 ? (answered / total) * 100 : 0) + "%";
+      }
+
+      var btnEnviar = $("#btnEnviar");
+      if (btnEnviar) {
+        btnEnviar.disabled = (answered < total);
+      }
+    }
+
+    /* ---- Coletar respostas ---- */
+    function coletarRespostas() {
+      var respostas = {};
+      for (var i = 0; i < QCPFC.itens.length; i++) {
+        var item = QCPFC.itens[i];
+        var checked = document.querySelector('input[name="q' + item.num + '"]:checked');
+        if (checked) {
+          respostas[item.num] = parseInt(checked.value);
+        }
+      }
+      return respostas;
+    }
+
+    /* ---- Calcular escores por escala ---- */
+    function calcularEscores(respostas) {
+      var resultados = {};
+      for (var k = 0; k < ESCALA_KEYS.length; k++) {
+        var key = ESCALA_KEYS[k];
+        var esc = QCPFC.escalas[key];
+        var itensEscala = esc.itens;
+        var soma = 0;
+        for (var j = 0; j < itensEscala.length; j++) {
+          soma += (respostas[itensEscala[j]] || 0);
+        }
+        var z = esc.norma.dp > 0 ? Math.round(((soma - esc.norma.media) / esc.norma.dp) * 100) / 100 : 0;
+        var percentil = Math.round(normalCDF(z) * 100);
+        resultados[key] = {
+          nome: esc.nome,
+          soma: soma,
+          z: z,
+          percentil: Math.max(1, Math.min(99, percentil)),
+          maxPossivel: itensEscala.length * 4,
+          itens: itensEscala,
+          cor: esc.cor,
+          corRGB: esc.corRGB,
+          crencaCentral: esc.crencaCentral,
+          descricao: esc.descricao
+        };
+      }
+      return resultados;
+    }
+
+    /* ---- Gerar grafico (off-screen) ---- */
+    async function gerarGrafico(res) {
+      var labels = ESCALA_KEYS.map(function(k) { return QCPFC.escalas[k].nome; });
+      var data = ESCALA_KEYS.map(function(k) { return res[k] ? res[k].soma : 0; });
+      var cores = ESCALA_KEYS.map(function(k) { return QCPFC.escalas[k].cor; });
+
+      var canvas = document.getElementById("hiddenChart");
+      canvas.width = 1100;
+      canvas.height = 500;
+      var ctx = canvas.getContext("2d");
+
+      var ch = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Escore Bruto",
+            data: data,
+            backgroundColor: cores.map(function(c) { return c + "cc"; }),
+            borderColor: cores,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: false,
+          animation: false,
+          layout: { padding: { bottom: 20 } },
+          scales: {
+            y: {
+              min: 0, max: 28,
+              ticks: { stepSize: 4, font: { size: 11 } },
+              grid: { color: "rgba(0,0,0,0.08)" },
+              title: { display: true, text: "Escore Bruto", font: { size: 12 } }
+            },
+            x: {
+              ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 30 },
+              grid: { display: false }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: "QCP-FC - Perfil de Crencas de Personalidade",
+              font: { size: 15, weight: "bold" },
+              color: "#2c3e50",
+              padding: { bottom: 12 }
+            }
+          }
+        }
+      });
+
+      await delay(400);
+      var img = canvas.toDataURL("image/png");
+      ch.destroy();
+      return img;
+    }
+
+    /* ---- Gerar relatorio HTML (interno, nao visivel ao paciente) ---- */
+    function gerarRelatorioHTML(nome, dataAvaliacao, respostas, resultados) {
+      var dataFmt = new Date(dataAvaliacao + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+
+      var tabelaRows = "";
+      for (var k = 0; k < ESCALA_KEYS.length; k++) {
+        var key = ESCALA_KEYS[k];
+        var r = resultados[key];
+        var classif = classificarZ(r.z);
+        tabelaRows += '<tr>' +
+          '<td style="padding:8px 12px;font-weight:600;color:#1e293b;border-bottom:1px solid #e2e8f0;">' + r.nome + ' (' + key + ')</td>' +
+          '<td style="padding:8px 12px;text-align:center;border-bottom:1px solid #e2e8f0;">' + r.soma + '/' + r.maxPossivel + '</td>' +
+          '<td style="padding:8px 12px;text-align:center;border-bottom:1px solid #e2e8f0;">' + r.z.toFixed(2) + '</td>' +
+          '<td style="padding:8px 12px;text-align:center;border-bottom:1px solid #e2e8f0;">' + r.percentil + '</td>' +
+          '<td style="padding:8px 12px;text-align:center;border-bottom:1px solid #e2e8f0;font-weight:700;">' + classif + '</td>' +
+        '</tr>';
+      }
+
+      var escalasDetail = "";
+      for (var k = 0; k < ESCALA_KEYS.length; k++) {
+        var key = ESCALA_KEYS[k];
+        var r = resultados[key];
+        var esc = QCPFC.escalas[key];
+        escalasDetail +=
+          '<div style="margin-bottom:16px;padding:14px 18px;background:' + (esc.corLight || "#f8fafc") + ';border-radius:10px;border-left:4px solid ' + esc.cor + ';">' +
+            '<div style="font-weight:700;font-size:14px;color:#1e293b;margin-bottom:4px;">' + r.nome + ' (' + key + ')</div>' +
+            '<div style="font-size:12px;color:#475569;margin-bottom:6px;">Escore: ' + r.soma + '/' + r.maxPossivel + ' | Z = ' + r.z.toFixed(2) + ' | ' + classificarZ(r.z) + '</div>' +
+            '<div style="font-size:11px;color:#64748b;margin-bottom:4px;"><strong>Crenca central:</strong> <em>"' + escapeHtml(esc.crencaCentral) + '"</em></div>' +
+            '<div style="font-size:11px;color:#64748b;">' + escapeHtml(esc.descricao) + '</div>' +
+          '</div>';
+      }
+
+      return '<div style="font-family:DM Sans,Arial,sans-serif;max-width:800px;margin:0 auto;background:#fff;">' +
+        '<div style="background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);color:#fff;padding:28px 36px;">' +
+          '<div style="font-size:8px;text-transform:uppercase;letter-spacing:3px;opacity:.5;">Relatorio Clinico</div>' +
+          '<h1 style="color:#fff;font-size:22px;font-weight:800;margin:4px 0 0;">QCP-FC</h1>' +
+          '<p style="color:rgba(255,255,255,.6);font-size:11px;margin:4px 0 0;">Questionario de Crencas Pessoais - Forma Clinica</p>' +
+          '<p style="color:rgba(255,255,255,.4);font-size:9px;margin:2px 0 0;">Beck &amp; Beck (1991) / Butler, Beck &amp; Cohen (2007)</p>' +
+        '</div>' +
+        '<div style="padding:28px 36px;">' +
+          '<div style="background:#f8fafc;border-radius:12px;padding:16px 20px;margin-bottom:24px;border:1px solid #e2e8f0;">' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:12px;">' +
+              '<div><div style="font-size:10px;color:#64748b;font-weight:600;">Paciente</div><div style="font-size:13px;color:#0f172a;font-weight:600;">' + escapeHtml(nome) + '</div></div>' +
+              '<div><div style="font-size:10px;color:#64748b;font-weight:600;">Data da Avaliacao</div><div style="font-size:13px;color:#0f172a;font-weight:600;">' + dataFmt + '</div></div>' +
+            '</div>' +
+          '</div>' +
+          '<h2 style="font-size:15px;color:#1e40af;margin:0 0 12px;">Resultados por Escala</h2>' +
+          '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:24px;">' +
+            '<thead><tr style="background:#1e40af;color:#fff;">' +
+              '<th style="padding:10px 12px;text-align:left;border-radius:8px 0 0 0;">Escala</th>' +
+              '<th style="padding:10px 12px;text-align:center;">Bruto/Max</th>' +
+              '<th style="padding:10px 12px;text-align:center;">Z-Score</th>' +
+              '<th style="padding:10px 12px;text-align:center;">Percentil</th>' +
+              '<th style="padding:10px 12px;text-align:center;border-radius:0 8px 0 0;">Classificacao</th>' +
+            '</tr></thead>' +
+            '<tbody>' + tabelaRows + '</tbody>' +
+          '</table>' +
+          '<div id="grafico-container" style="margin:20px 0;text-align:center;padding:16px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">' +
+            '<p style="color:#94a3b8;font-size:12px;">Grafico gerado no PDF</p>' +
+          '</div>' +
+          '<h2 style="font-size:15px;color:#1e40af;margin:24px 0 12px;">Interpretacao por Escala</h2>' +
+          escalasDetail +
+          '<div style="margin-top:24px;padding:14px 18px;background:#fffbeb;border:1px solid rgba(245,158,11,.15);border-radius:12px;">' +
+            '<p style="color:#334155;font-size:11px;line-height:1.7;margin:0;">' +
+              '<strong>Nota:</strong> Escore Z = (Escore Bruto - Media) / DP. Normativa baseada em amostra psiquiatrica mista (N=683). ' +
+              'Nao ha ponto de corte empiricamente estabelecido. Escores Z elevados sao clinicamente sugestivos.' +
+            '</p>' +
+          '</div>' +
+          '<div style="border-top:2px solid #e2e8f0;padding-top:16px;margin-top:24px;display:flex;justify-content:space-between;align-items:flex-end;">' +
+            '<div>' +
+              '<div style="width:180px;border-bottom:1px solid #94a3b8;margin-bottom:4px;height:1px;"></div>' +
+              '<div style="font-size:10px;font-weight:700;color:#334155;">Profissional Responsavel</div>' +
+              '<div style="font-size:9px;color:#94a3b8;">Neuropsicologo(a)</div>' +
+            '</div>' +
+            '<div style="text-align:right;">' +
+              '<p style="color:#94a3b8;font-size:9px;margin:0;">Relatorio gerado por Equilibrium Neuropsicologia</p>' +
+              '<p style="color:#cbd5e1;font-size:8px;margin:4px 0 0;max-width:220px;">Este documento e confidencial e destina-se exclusivamente ao paciente e profissionais autorizados</p>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    /* ---- Gerar PDF via jsPDF ---- */
+    function gerarPDF(nome, dataAvaliacao, resultados, chartImg) {
+      var jsPDF = window.jspdf.jsPDF;
+      var doc = new jsPDF("p", "mm", "a4");
+      var dataFmt = new Date(dataAvaliacao + "T00:00:00").toLocaleDateString("pt-BR");
+      var y;
+
+      // ===== PAGE 1: header + data + table =====
+      doc.setFillColor(58, 124, 165);
+      doc.rect(0, 0, 210, 38, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(18);
+      doc.setFont(undefined, "bold");
+      doc.text("QCP-FC - Questionario de Crencas Pessoais", 105, 14, { align: "center" });
+      doc.setFontSize(10);
+      doc.text("Forma Clinica", 105, 21, { align: "center" });
+      doc.setFontSize(8);
+      doc.setFont(undefined, "normal");
+      doc.text("Equilibrium Med Center - Neuropsicologia", 105, 28, { align: "center" });
+      doc.text("Beck & Beck (1991) / Butler, Beck & Cohen (2007)", 105, 33, { align: "center" });
+      y = 46;
+
+      // Patient data box
+      doc.setFillColor(248, 250, 252);
+      doc.roundedRect(15, y, 180, 18, 3, 3, "F");
+      doc.setDrawColor(58, 124, 165);
+      doc.setLineWidth(0.5);
+      doc.roundedRect(15, y, 180, 18, 3, 3, "S");
+      doc.setFontSize(9);
+      doc.setFont(undefined, "normal");
+      doc.setTextColor(80, 80, 80);
+      doc.text("Nome: ", 20, y + 8);
+      doc.text("Data: ", 115, y + 8);
+      doc.setFont(undefined, "bold");
+      doc.setTextColor(30, 30, 30);
+      doc.text(nome, 38, y + 8);
+      doc.text(dataFmt, 128, y + 8);
+      y += 24;
+
+      // Table header
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text("Tabela de Resultados - Escores por Escala de Transtorno de Personalidade", 20, y);
+      y += 6;
+
+      doc.setFillColor(58, 124, 165);
+      doc.rect(15, y, 180, 7, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(7.5);
+      doc.setFont(undefined, "bold");
+      doc.text("Escala", 20, y + 5);
+      doc.text("Itens", 68, y + 5, { align: "center" });
+      doc.text("Escore Bruto", 95, y + 5, { align: "center" });
+      doc.text("Max", 118, y + 5, { align: "center" });
+      doc.text("Escore Z", 138, y + 5, { align: "center" });
+      doc.text("Classificacao", 172, y + 5, { align: "center" });
+      y += 7;
+
+      for (var k = 0; k < ESCALA_KEYS.length; k++) {
+        var key = ESCALA_KEYS[k];
+        var r = resultados[key];
+        var bg = k % 2 === 0 ? [255, 255, 255] : [248, 250, 252];
+        doc.setFillColor(bg[0], bg[1], bg[2]);
+        doc.rect(15, y, 180, 7, "F");
+        doc.setFontSize(8);
+        doc.setFont(undefined, "normal");
+        doc.setTextColor(30, 30, 30);
+        doc.text(r.nome || key, 20, y + 5);
+        doc.setFontSize(7);
+        doc.setTextColor(120, 120, 120);
+        doc.text(r.itens.join(", "), 68, y + 5, { align: "center" });
+        doc.setFontSize(8);
+        doc.setTextColor(30, 30, 30);
+        doc.text(String(r.soma), 95, y + 5, { align: "center" });
+        doc.text(String(r.maxPossivel), 118, y + 5, { align: "center" });
+        doc.text(r.z.toFixed(2), 138, y + 5, { align: "center" });
+        var cz = corDoZ(r.z);
+        var classif = classificarZ(r.z);
+        doc.setTextColor(cz[0], cz[1], cz[2]);
+        doc.setFont(undefined, "bold");
+        doc.setFontSize(7.5);
+        doc.text(classif, 172, y + 5, { align: "center" });
+        y += 7;
+      }
+
+      y += 5;
+      doc.setFontSize(7);
+      doc.setTextColor(100, 100, 100);
+      doc.setFont(undefined, "normal");
+      doc.text("Nota: Escore Z = (Escore Bruto - Media) / DP. Normativa baseada em amostra psiquiatrica mista (N=683).", 20, y);
+      y += 4;
+      doc.text("Classificacao: Muito Baixo (Z < -1) | Baixo (-1 a 0) | Medio (0 a 1) | Elevado (1 a 2) | Muito Elevado (Z > 2)", 20, y);
+      y += 4;
+      doc.text("Nao ha ponto de corte empiricamente estabelecido. Escores Z elevados sao clinicamente sugestivos.", 20, y);
+
+      addFooter(doc, 1);
+
+      // ===== PAGE 2: Chart + Interpretation =====
+      doc.addPage();
+      y = 10;
+      if (chartImg) {
+        try { doc.addImage(chartImg, "PNG", 8, y, 194, 87); } catch (e) {}
+      }
+      y += 95;
+
+      doc.setFontSize(12);
+      doc.setFont(undefined, "bold");
+      doc.setTextColor(58, 124, 165);
+      doc.text("Interpretacao por Escala", 105, y, { align: "center" });
+      y += 8;
+
+      for (var k = 0; k < ESCALA_KEYS.length; k++) {
+        var key = ESCALA_KEYS[k];
+        var esc = QCPFC.escalas[key];
+        var r = resultados[key];
+        if (y > 250) { doc.addPage(); y = 15; }
+
+        doc.setFillColor(esc.corRGB[0], esc.corRGB[1], esc.corRGB[2]);
+        doc.roundedRect(15, y, 180, 7, 2, 2, "F");
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(9);
+        doc.setFont(undefined, "bold");
+        doc.text(esc.nome + " (" + key + ")", 105, y + 5, { align: "center" });
+        y += 10;
+
+        doc.setFontSize(9);
+        doc.setFont(undefined, "normal");
+        doc.setTextColor(30, 30, 30);
+        doc.text("Escore Bruto: " + r.soma + "/" + r.maxPossivel + "  |  Z = " + r.z.toFixed(2) + "  |  " + classificarZ(r.z), 20, y);
+        y += 5;
+
+        doc.setFontSize(8);
+        doc.setFont(undefined, "bold");
+        doc.setTextColor(80, 80, 80);
+        doc.text("Crenca Central: ", 20, y);
+        doc.setFont(undefined, "italic");
+        var crencaLines = doc.splitTextToSize('"' + esc.crencaCentral + '"', 150);
+        doc.text(crencaLines, 52, y);
+        y += crencaLines.length * 3.5 + 2;
+
+        doc.setFontSize(8);
+        doc.setFont(undefined, "normal");
+        doc.setTextColor(40, 40, 40);
+        var descLines = doc.splitTextToSize(esc.descricao, 170);
+        doc.text(descLines, 20, y, { lineHeightFactor: 1.4 });
+        y += descLines.length * 3.5 + 6;
+      }
+
+      // Signature
+      if (y > 250) { doc.addPage(); y = 15; }
+      y += 15;
+      doc.setDrawColor(80, 80, 80);
+      doc.setLineWidth(0.4);
+      doc.line(110, y, 190, y);
+      doc.setFontSize(9);
+      doc.setFont(undefined, "bold");
+      doc.setTextColor(30, 30, 30);
+      doc.text("Profissional Responsavel", 150, y + 5, { align: "center" });
+      doc.setFontSize(8);
+      doc.setFont(undefined, "normal");
+      doc.text("Neuropsicologo(a)", 150, y + 10, { align: "center" });
+
+      // Page numbers
+      var tp = doc.internal.getNumberOfPages();
+      for (var i = 1; i <= tp; i++) {
+        doc.setPage(i);
+        addFooter(doc, i, tp);
+      }
+
+      return doc.output("datauristring").split(",")[1];
+    }
+
+    function addFooter(doc, pg, total) {
+      doc.setFontSize(6.5);
+      doc.setTextColor(140, 140, 140);
+      doc.text("QCP-FC - Questionario de Crencas Pessoais - Forma Clinica", 20, 288);
+      if (total) doc.text("Pagina " + pg + " de " + total, 195, 288, { align: "right" });
+    }
+
+    /* ---- Enviar ao Google Drive ---- */
+    async function enviarDrive(nome, pdfBase64) {
+      try {
+        await fetch(URL_DO_GOOGLE_SCRIPT, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            paciente: nome,
+            data: new Date().toLocaleDateString("pt-BR"),
+            teste: "QCP-FC",
+            pdfBase64: pdfBase64
+          })
+        });
+      } catch (e) {
+        console.warn("Drive upload:", e);
+      }
+    }
+
+    /* ---- Mostrar tela de sucesso ---- */
+    function mostrarSucesso() {
+      var appShell = $("#appShell");
+      var footer = $(".p-footer");
+      var sidebar = $(".sidebar");
+
+      if (appShell) appShell.style.display = "none";
+      if (footer) footer.style.display = "none";
+      if (sidebar) sidebar.style.display = "none";
+
+      var main = $(".main-content");
+      if (main) {
+        main.innerHTML =
+          '<div class="success-screen">' +
+            '<div class="success-card">' +
+              '<div class="success-icon">&#9989;</div>' +
+              '<h1>Respostas Enviadas com Sucesso!</h1>' +
+              '<p>Obrigado por completar o Questionario de Crencas Pessoais (QCP-FC).</p>' +
+              '<p>Suas respostas foram registradas e o relatorio sera analisado pelo profissional responsavel.</p>' +
+              '<p class="success-note">Voce pode fechar esta janela agora.</p>' +
+            '</div>' +
+          '</div>';
+      }
+    }
+
+    /* ---- Enviar formulario ---- */
+    async function enviarFormulario() {
+      var nome = ($("#nome") ? $("#nome").value : "").trim();
+      var dataAvaliacao = $("#data") ? $("#data").value : "";
+
+      if (!nome) {
+        alert("Por favor, preencha o nome completo.");
+        return;
+      }
+      if (!dataAvaliacao) {
+        alert("Por favor, preencha a data da avaliacao.");
+        return;
+      }
+
+      var respostas = coletarRespostas();
+      if (Object.keys(respostas).length < QCPFC.itens.length) {
+        alert("Por favor, responda todos os itens antes de enviar.");
+        return;
+      }
+
+      // Show processing modal
+      var modal = $("#modalGerando");
+      if (modal) modal.classList.add("active");
+      var modalTitle = $("#modalTitle");
+      var modalSub = $("#modalSub");
+
+      try {
+        if (modalTitle) modalTitle.textContent = "Calculando escores...";
+        if (modalSub) modalSub.textContent = "Por favor, aguarde.";
+        await delay(400);
+
+        var resultados = calcularEscores(respostas);
+
+        if (modalTitle) modalTitle.textContent = "Gerando grafico de perfil...";
+        await delay(300);
+
+        var chartImg = await gerarGrafico(resultados);
+
+        if (modalTitle) modalTitle.textContent = "Montando relatorio...";
+        await delay(300);
+
+        var relatorioHTML = gerarRelatorioHTML(nome, dataAvaliacao, respostas, resultados);
+        var pdfBase64 = gerarPDF(nome, dataAvaliacao, resultados, chartImg);
+
+        if (modalTitle) modalTitle.textContent = "Enviando ao consultorio...";
+        await delay(300);
+
+        await enviarDrive(nome, pdfBase64);
+
+        // Save to Firebase via Integration
+        if (window.Integration && typeof Integration.salvarTesteNoFirebase === "function") {
+          var scoresObj = {};
+          for (var k = 0; k < ESCALA_KEYS.length; k++) {
+            var key = ESCALA_KEYS[k];
+            var r = resultados[key];
+            scoresObj[key] = {
+              nome: r.nome,
+              bruto: r.soma,
+              max: r.maxPossivel,
+              z: r.z,
+              percentil: r.percentil,
+              classificacao: classificarZ(r.z)
+            };
+          }
+
+          await Integration.salvarTesteNoFirebase("qcp-fc", {
+            dataAplicacao: dataAvaliacao,
+            resumo: "QCP-FC - " + ESCALA_KEYS.map(function(k) { return k + ": " + resultados[k].soma; }).join(", "),
+            scores: scoresObj,
+            classificacao: "Perfil de Crencas de Personalidade",
+            htmlRelatorio: relatorioHTML,
+            observacoes: ""
+          });
+        }
+
+        if (modalTitle) modalTitle.textContent = "Concluido!";
+        await delay(600);
+
+        if (modal) modal.classList.remove("active");
+
+        // Show success screen (do NOT show report to patient)
+        mostrarSucesso();
+
+      } catch (err) {
+        console.error("Erro ao processar:", err);
+        if (modal) modal.classList.remove("active");
+        alert("Ocorreu um erro ao processar as respostas. Por favor, tente novamente.\n\n" + err.message);
+      }
+    }
+
+    /* ---- Inicializacao ---- */
+    window.addEventListener("DOMContentLoaded", async function() {
+      try {
+        await carregarRegras();
+        renderItens();
+
+        // Set default date to today
+        var dataInput = $("#data");
+        if (dataInput && !dataInput.value) {
+          dataInput.value = new Date().toISOString().split("T")[0];
+        }
+
+        // Bind submit button
+        var btnEnviar = $("#btnEnviar");
+        if (btnEnviar) {
+          btnEnviar.addEventListener("click", enviarFormulario);
+        }
+
+      } catch (err) {
+        console.error("Erro na inicializacao:", err);
+        var itensEl = $("#itens");
+        if (itensEl) {
+          itensEl.innerHTML =
+            '<div style="padding:32px;text-align:center;color:#dc2626;">' +
+              '<div style="font-size:48px;margin-bottom:16px;">&#9888;&#65039;</div>' +
+              '<div style="font-weight:700;font-size:18px;margin-bottom:8px;">Erro ao Carregar o Formulario</div>' +
+              '<div style="font-size:14px;color:#64748b;">' + escapeHtml(err.message) + '</div>' +
+            '</div>';
+        }
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,246 @@
+{
+  "meta": {
+    "teste": "QCP-FC",
+    "nome": "Questionario de Crencas Pessoais - Forma Clinica",
+    "nomeOriginal": "Personality Belief Questionnaire - Short Form (PBQ-SF)",
+    "autores": "Aaron T. Beck, Judith S. Beck",
+    "autoresFormaReduzida": "Butler, A. C., Beck, A. T., & Cohen, L. H. (2007)",
+    "referencia": "Beck, A. T., & Beck, J. S. (1991). The Personality Belief Questionnaire. Unpublished manuscript, University of Pennsylvania, Philadelphia.",
+    "referenciaFormaReduzida": "Butler, A. C., Beck, A. T., & Cohen, L. H. (2007). The Personality Belief Questionnaire-Short Form: Development and Preliminary Findings. Cognitive Therapy and Research, 31(3), 357-370.",
+    "totalItens": 65,
+    "escala": {
+      "min": 0,
+      "max": 4
+    },
+    "publicoAlvo": "Adultos (18+ anos)",
+    "descricao": "Instrumento de autorelato baseado na teoria cognitiva dos transtornos de personalidade de Aaron Beck. Avalia crencas disfuncionais associadas a 10 transtornos de personalidade do DSM."
+  },
+  "escalaLabels": {
+    "0": "Nao acredito nisso",
+    "1": "Acredito um pouco",
+    "2": "Acredito moderadamente",
+    "3": "Acredito bastante",
+    "4": "Acredito totalmente"
+  },
+  "escalas": {
+    "EVT": {
+      "nome": "Evitativo",
+      "nomeEN": "Avoidant",
+      "cor": "#6366f1",
+      "corRGB": [99, 102, 241],
+      "corLight": "#eef2ff",
+      "itens": [1, 2, 5, 31, 33, 39, 43],
+      "descricao": "Crencas de vulnerabilidade e inadequacao social. O individuo acredita ser socialmente inepto, incompetente e vulneravel a rejeicao.",
+      "crencaCentral": "Sou inaceitavel. Se as pessoas me conhecessem de verdade, me rejeitariam.",
+      "norma": {
+        "media": 10.86,
+        "dp": 6.46
+      }
+    },
+    "DEP": {
+      "nome": "Dependente",
+      "nomeEN": "Dependent",
+      "cor": "#8b5cf6",
+      "corRGB": [139, 92, 246],
+      "corLight": "#f5f3ff",
+      "itens": [15, 18, 44, 45, 56, 62, 63],
+      "descricao": "Crencas de desamparo e necessidade de apoio. O individuo acredita ser fragil, incapaz e necessitado de ajuda constante.",
+      "crencaCentral": "Sou desamparado(a). Preciso dos outros para sobreviver.",
+      "norma": {
+        "media": 9.26,
+        "dp": 6.12
+      }
+    },
+    "PAG": {
+      "nome": "Passivo-Agressivo",
+      "nomeEN": "Passive-Aggressive",
+      "cor": "#ec4899",
+      "corRGB": [236, 72, 153],
+      "corLight": "#fdf2f8",
+      "itens": [4, 7, 20, 21, 41, 47, 51],
+      "descricao": "Crencas de resistencia a autoridade e controle externo. O individuo acredita que deve resistir ao dominio dos outros e manter sua autonomia.",
+      "crencaCentral": "Ser controlado pelos outros e intoleravel. Devo fazer as coisas do meu jeito.",
+      "norma": {
+        "media": 8.09,
+        "dp": 5.97
+      }
+    },
+    "OBC": {
+      "nome": "Obsessivo-Compulsivo",
+      "nomeEN": "Obsessive-Compulsive",
+      "cor": "#0891b2",
+      "corRGB": [8, 145, 178],
+      "corLight": "#ecfeff",
+      "itens": [6, 9, 11, 19, 30, 40, 57],
+      "descricao": "Crencas de perfeccionismo e necessidade de controle. O individuo acredita que deve manter ordem, sistemas e padroes rigidos.",
+      "crencaCentral": "Nao posso falhar. Preciso de sistemas, ordem e regras para funcionar.",
+      "norma": {
+        "media": 10.56,
+        "dp": 7.20
+      }
+    },
+    "ANT": {
+      "nome": "Antissocial",
+      "nomeEN": "Antisocial",
+      "cor": "#dc2626",
+      "corRGB": [220, 38, 38],
+      "corLight": "#fef2f2",
+      "itens": [23, 32, 35, 38, 42, 59, 61],
+      "descricao": "Crencas de direito e justificacao para transgredir regras. O individuo acredita que as regras dos outros nao se aplicam a ele.",
+      "crencaCentral": "As pessoas estao ai para serem usadas. Regras sao feitas para os outros.",
+      "norma": {
+        "media": 4.25,
+        "dp": 4.30
+      }
+    },
+    "NAR": {
+      "nome": "Narcisista",
+      "nomeEN": "Narcissistic",
+      "cor": "#f59e0b",
+      "corRGB": [245, 158, 11],
+      "corLight": "#fffbeb",
+      "itens": [10, 16, 26, 27, 46, 58, 60],
+      "descricao": "Crencas de superioridade e merecimento especial. O individuo acredita ser superior e merecedor de tratamento privilegiado.",
+      "crencaCentral": "Sou especial e superior. Mereco tratamento diferenciado.",
+      "norma": {
+        "media": 3.42,
+        "dp": 4.23
+      }
+    },
+    "HIS": {
+      "nome": "Histrionico",
+      "nomeEN": "Histrionic",
+      "cor": "#e11d48",
+      "corRGB": [225, 29, 72],
+      "corLight": "#fff1f2",
+      "itens": [8, 22, 34, 37, 52, 54, 55],
+      "descricao": "Crencas sobre necessidade de impressionar e entreter os outros para ser valorizado.",
+      "crencaCentral": "Preciso impressionar as pessoas. Se nao entreter os outros, eles nao vao gostar de mim.",
+      "norma": {
+        "media": 6.47,
+        "dp": 6.09
+      }
+    },
+    "ESQ": {
+      "nome": "Esquizoide",
+      "nomeEN": "Schizoid",
+      "cor": "#475569",
+      "corRGB": [71, 85, 105],
+      "corLight": "#f1f5f9",
+      "itens": [12, 25, 28, 29, 36, 50, 53],
+      "descricao": "Crencas de autossuficiencia e preferencia pelo isolamento. O individuo acredita que relacionamentos sao problematicos e desnecessarios.",
+      "crencaCentral": "Sou basicamente sozinho(a). Relacionamentos sao confusos e indesejaveis.",
+      "norma": {
+        "media": 8.99,
+        "dp": 5.60
+      }
+    },
+    "PAR": {
+      "nome": "Paranoide",
+      "nomeEN": "Paranoid",
+      "cor": "#b91c1c",
+      "corRGB": [185, 28, 28],
+      "corLight": "#fef2f2",
+      "itens": [3, 13, 14, 17, 24, 48, 49],
+      "descricao": "Crencas de desconfianca e suspeita em relacao aos outros. O individuo acredita que as pessoas sao potencialmente perigosas e traicoeiras.",
+      "crencaCentral": "As pessoas sao potencialmente perigosas. Devo estar sempre alerta.",
+      "norma": {
+        "media": 6.00,
+        "dp": 6.00
+      }
+    },
+    "BOR": {
+      "nome": "Borderline / Limitrofe",
+      "nomeEN": "Borderline",
+      "cor": "#7c3aed",
+      "corRGB": [124, 58, 237],
+      "corLight": "#f5f3ff",
+      "itens": [31, 44, 45, 49, 56, 64, 65],
+      "descricao": "Crencas de instabilidade, abandono e vulnerabilidade emocional. Inclui itens compartilhados com as escalas evitativa, dependente e paranoide.",
+      "crencaCentral": "Sou vulneravel e posso ser abandonado(a). Nao consigo controlar minhas emocoes.",
+      "compartilhados": {
+        "31": "EVT",
+        "44": "DEP",
+        "45": "DEP",
+        "49": "PAR",
+        "56": "DEP"
+      },
+      "itensUnicos": [64, 65],
+      "norma": {
+        "media": 8.00,
+        "dp": 6.50
+      }
+    }
+  },
+  "zScoreInfo": {
+    "descricao": "Escore Z = (escore bruto da escala - media normativa) / DP normativo. Baseado em amostra de 683 pacientes psiquiatricos ambulatoriais com diagnosticos mistos.",
+    "interpretacao": "Em amostras psiquiatricas mistas, 99% dos escores Z ficam entre -3 e +3, com media 0. Nao ha ponto de corte empiricamente estabelecido. Escores Z proximos ou acima do escore Z do grupo criterio sao clinicamente sugestivos."
+  },
+  "itens": [
+    {"num": 1, "escalas": ["EVT"], "texto": "Ser exposto como inferior ou inadequado é intolerável para mim."},
+    {"num": 2, "escalas": ["EVT"], "texto": "Eu deveria evitar situações desagradáveis a todo custo."},
+    {"num": 3, "escalas": ["PAR"], "texto": "Se as pessoas agem de maneira amigável, talvez estejam tentando me usar ou explorar."},
+    {"num": 4, "escalas": ["PAG"], "texto": "Tenho que resistir à dominação das autoridades, mas manter sua aprovação."},
+    {"num": 5, "escalas": ["EVT"], "texto": "Não consigo tolerar sentimentos desagradáveis."},
+    {"num": 6, "escalas": ["OBC"], "texto": "Falhas, defeitos ou erros são intoleráveis."},
+    {"num": 7, "escalas": ["PAG"], "texto": "Outras pessoas são frequentemente muito exigentes."},
+    {"num": 8, "escalas": ["HIS"], "texto": "Eu deveria ser o centro das atenções."},
+    {"num": 9, "escalas": ["OBC"], "texto": "Se eu não tiver sistematizado, tudo irá ruir."},
+    {"num": 10, "escalas": ["NAR"], "texto": "É intolerável que eu não receba o respeito que me é devido."},
+    {"num": 11, "escalas": ["OBC"], "texto": "É importante fazer tudo perfeito."},
+    {"num": 12, "escalas": ["ESQ"], "texto": "Gosto mais de fazer as coisas sozinho do que com outras pessoas."},
+    {"num": 13, "escalas": ["PAR"], "texto": "As pessoas tentarão me usar ou manipular se eu não tomar cuidado."},
+    {"num": 14, "escalas": ["PAR"], "texto": "As pessoas possuem motivos escusos (duvidosos)."},
+    {"num": 15, "escalas": ["DEP"], "texto": "A pior coisa que poderia me acontecer é ser abandonado."},
+    {"num": 16, "escalas": ["NAR"], "texto": "As outras pessoas devem saber que sou especial."},
+    {"num": 17, "escalas": ["PAR"], "texto": "Os outros vão deliberadamente querer me prejudicar."},
+    {"num": 18, "escalas": ["DEP"], "texto": "Preciso de outras pessoas para tomar decisões ou dizer o que devo fazer."},
+    {"num": 19, "escalas": ["OBC"], "texto": "Os detalhes são extremamente importantes."},
+    {"num": 20, "escalas": ["PAG"], "texto": "O fato de achar alguém muito autoritário me dá direito de desrespeitar suas ordens."},
+    {"num": 21, "escalas": ["PAG"], "texto": "Figuras de autoridade tendem a ser intrusivas, exigentes e controladoras."},
+    {"num": 22, "escalas": ["HIS"], "texto": "A maneira para conseguir o que quero é fascinar ou divertir as pessoas."},
+    {"num": 23, "escalas": ["ANT"], "texto": "Devo fazer tudo o que puder para não ser descoberto."},
+    {"num": 24, "escalas": ["PAR"], "texto": "Se os outros descobrirem coisas a meu respeito, podem usar isso contra mim."},
+    {"num": 25, "escalas": ["ESQ"], "texto": "Relacionamentos são confusos e complicados e interferem na liberdade."},
+    {"num": 26, "escalas": ["NAR"], "texto": "Somente as pessoas tão brilhantes quanto eu podem me entender."},
+    {"num": 27, "escalas": ["NAR"], "texto": "Como sou uma pessoa superior, mereço tratamento e privilégios especiais."},
+    {"num": 28, "escalas": ["ESQ"], "texto": "É importante para mim me sentir livre e independente de outras pessoas."},
+    {"num": 29, "escalas": ["ESQ"], "texto": "Em muitas situações, prefiro ficar sozinho."},
+    {"num": 30, "escalas": ["OBC"], "texto": "É necessário fixar sempre o padrão mais elevado ou as coisas irão ruir."},
+    {"num": 31, "escalas": ["EVT", "BOR"], "texto": "Sentimentos desagradáveis podem aumentar e fugir de meu controle."},
+    {"num": 32, "escalas": ["ANT"], "texto": "Vivemos em uma selva, e sobrevive aquele que for mais forte."},
+    {"num": 33, "escalas": ["EVT"], "texto": "Eu deveria evitar situações nas quais poderia atrair atenção ou ser imperceptível."},
+    {"num": 34, "escalas": ["HIS"], "texto": "Se eu não mantiver os outros envolvidos comigo, eles não vão gostar de mim."},
+    {"num": 35, "escalas": ["ANT"], "texto": "Quando quero alguma coisa, devo fazer o que for necessário para consegui-la."},
+    {"num": 36, "escalas": ["ESQ"], "texto": "É melhor se sentir sozinho do que preso às outras pessoas."},
+    {"num": 37, "escalas": ["HIS"], "texto": "Não sou nada, a menos que eu entretenha ou impressione as pessoas."},
+    {"num": 38, "escalas": ["ANT"], "texto": "As pessoas vão me atacar se eu não as atacar primeiro."},
+    {"num": 39, "escalas": ["EVT"], "texto": "Qualquer sinal de tensão em um relacionamento indica que a relação vai mal."},
+    {"num": 40, "escalas": ["OBC"], "texto": "Se eu não tiver um desempenho no mais alto nível, falharei."},
+    {"num": 41, "escalas": ["PAG"], "texto": "Cumprir prazos e me enquadrar ferem meu orgulho e autossuficiência."},
+    {"num": 42, "escalas": ["ANT"], "texto": "Fui injustiçado e me sinto autorizado a cobrar meus direitos sem restrições."},
+    {"num": 43, "escalas": ["EVT"], "texto": "Se as pessoas se aproximarem de mim, descobrirão quem realmente sou e me rejeitarão."},
+    {"num": 44, "escalas": ["DEP", "BOR"], "texto": "Sou carente e frágil."},
+    {"num": 45, "escalas": ["DEP", "BOR"], "texto": "Sou indefeso quando sou deixado por conta própria."},
+    {"num": 46, "escalas": ["NAR"], "texto": "As outras pessoas devem satisfazer minhas necessidades."},
+    {"num": 47, "escalas": ["PAG"], "texto": "Se eu seguir as regras, isso inibirá minha liberdade de ação."},
+    {"num": 48, "escalas": ["PAR"], "texto": "Pessoas irão me explorar se eu der a elas a chance."},
+    {"num": 49, "escalas": ["PAR", "BOR"], "texto": "Tenho que estar atento, na defensiva, a todo instante."},
+    {"num": 50, "escalas": ["ESQ"], "texto": "Minha privacidade é mais importante para mim do que estar com as pessoas."},
+    {"num": 51, "escalas": ["PAG"], "texto": "Regras são arbitrárias e me paralisam."},
+    {"num": 52, "escalas": ["HIS"], "texto": "É horrível quando as pessoas me ignoram."},
+    {"num": 53, "escalas": ["ESQ"], "texto": "O que as pessoas pensam não me importa."},
+    {"num": 54, "escalas": ["HIS"], "texto": "Para ser feliz, preciso que as outras pessoas prestem atenção em mim."},
+    {"num": 55, "escalas": ["HIS"], "texto": "Se entretenho as pessoas, elas não irão perceber minhas fraquezas."},
+    {"num": 56, "escalas": ["DEP", "BOR"], "texto": "Preciso de alguém disponível a todo momento para me ajudar ou em caso de algo ruim."},
+    {"num": 57, "escalas": ["OBC"], "texto": "Qualquer defeito ou falha no desempenho pode levar a uma catástrofe."},
+    {"num": 58, "escalas": ["NAR"], "texto": "Como sou muito talentoso, as pessoas deveriam promover minha carreira."},
+    {"num": 59, "escalas": ["ANT"], "texto": "Se eu não explorar os outros, eles me explorarão."},
+    {"num": 60, "escalas": ["NAR"], "texto": "Não preciso seguir as mesmas regras aplicadas às outras pessoas."},
+    {"num": 61, "escalas": ["ANT"], "texto": "A melhor maneira de conseguir as coisas é por meio da força e esperteza."},
+    {"num": 62, "escalas": ["DEP"], "texto": "Devo me manter acessível para meu/minha companheiro/a o tempo todo."},
+    {"num": 63, "escalas": ["DEP"], "texto": "Sou preferencialmente uma pessoa só, a menos que possa me ligar a alguém mais forte."},
+    {"num": 64, "escalas": ["BOR"], "texto": "Não posso confiar nas pessoas."},
+    {"num": 65, "escalas": ["BOR"], "texto": "Não consigo enfrentar situações como outras pessoas."}
+  ]
+}

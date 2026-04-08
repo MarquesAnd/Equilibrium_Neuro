@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QCP-FC | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --qcpfc-accent: #7c3aed; --qcpfc-accent-light: #8b5cf6; --qcpfc-accent-dark: #6d28d9; }
+
+    .form-section { margin-bottom: 32px; }
+    .form-section h2 { font-size: 16px; font-weight: 700; color: var(--qcpfc-accent); margin-bottom: 16px; text-transform: uppercase; letter-spacing: .05em; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+    .form-group input { width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 15px; font-family: inherit; transition: all .2s; box-sizing: border-box; }
+    .form-group input:focus { outline: none; border-color: var(--qcpfc-accent); box-shadow: 0 0 0 3px rgba(124,58,237,.1); }
+
+    .items-grid { display: flex; flex-direction: column; gap: 12px; max-width: 780px; margin: 0 auto; }
+    .item-row { background: #fafcff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; transition: all .2s; display: flex; gap: 14px; align-items: flex-start; }
+    .item-row:hover { background: white; border-color: #cbd5e1; }
+    .item-num { flex-shrink: 0; width: 32px; height: 32px; background: linear-gradient(135deg, var(--qcpfc-accent) 0%, var(--qcpfc-accent-dark) 100%); color: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; }
+    .item-body { flex: 1; min-width: 0; }
+    .item-text { font-size: 13px; font-weight: 500; color: #1e293b; margin-bottom: 10px; line-height: 1.5; }
+    .item-scales { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px; }
+    .item-scale-tag { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; }
+    .item-options { display: flex; gap: 6px; flex-wrap: wrap; }
+    .opt-btn { padding: 6px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; background: white; cursor: pointer; font-size: 12px; text-align: center; transition: all .2s ease; font-family: inherit; font-weight: 500; color: #64748b; min-width: 32px; }
+    .opt-btn:hover { background: #f8fafc; border-color: #cbd5e1; }
+    .opt-btn.active { background: #ede9fe; border-color: var(--qcpfc-accent); color: var(--qcpfc-accent-dark); font-weight: 700; }
+
+    .action-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 32px; flex-wrap: wrap; }
+    .btn-custom { padding: 14px 32px; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-custom.primary { background: linear-gradient(135deg, var(--qcpfc-accent) 0%, var(--qcpfc-accent-dark) 100%); color: white; box-shadow: 0 4px 14px rgba(124,58,237,.35); }
+    .btn-custom.primary:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(124,58,237,.3); }
+    .btn-custom.primary:active { transform: scale(0.97); }
+    .btn-custom.secondary { background: white; color: var(--qcpfc-accent); border: 2px solid var(--qcpfc-accent); }
+    .btn-custom.secondary:hover { background: #f5f3ff; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+    .btn-custom.secondary:active { transform: scale(0.97); }
+    .btn-custom:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+
+    .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin-bottom: 24px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--qcpfc-accent), var(--qcpfc-accent-light)); border-radius: 8px; transition: width .3s ease; }
+    .progress-text { font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 8px; text-align: right; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 9999; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: white; border-radius: 20px; padding: 48px 40px; text-align: center; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+    .spinner { width: 52px; height: 52px; border: 4px solid #e2e8f0; border-top-color: var(--qcpfc-accent); border-radius: 50%; margin: 0 auto 24px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .modal-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+    .modal-sub { font-size: 14px; color: #64748b; }
+
+    /* Report overlay */
+    .qcpfc-report-overlay { position: fixed; inset: 0; background: #f1f5f9; z-index: 8000; display: none; flex-direction: column; }
+    .qcpfc-report-overlay.ativo { display: flex; }
+    .qcpfc-report-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .qcpfc-report-topbar-left { display: flex; align-items: center; gap: 12px; }
+    .qcpfc-report-topbar h2 { font-size: 16px; font-weight: 800; color: var(--qcpfc-accent-dark); margin: 0; }
+    .qcpfc-report-actions { display: flex; gap: 8px; }
+    .btn-print-rep { background: var(--qcpfc-accent); color: #fff; border: none; padding: 9px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .btn-print-rep:hover { background: var(--qcpfc-accent-dark); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(124,58,237,.2); }
+    .btn-close-rep { background: #f1f5f9; color: #374151; border: 1.5px solid #e2e8f0; padding: 9px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .btn-close-rep:hover { background: #e2e8f0; transform: translateY(-2px); }
+    .btn-voltar-pac { background: #059669; color: #fff; border: none; padding: 9px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .btn-voltar-pac:hover { background: #047857; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(5,150,105,.3); }
+    .qcpfc-report-scroll { flex: 1; overflow-y: auto; padding: 32px 24px; }
+    .qcpfc-report-frame { max-width: 860px; margin: 0 auto; }
+
+    /* Report styles */
+    .rep-wrapper { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+    .rep-header { background: linear-gradient(135deg, var(--qcpfc-accent-dark) 0%, var(--qcpfc-accent) 100%); padding: 32px 36px; color: #fff; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
+    .rep-header-brand { display: flex; align-items: center; gap: 14px; }
+    .rep-logo { height: 48px; border-radius: 8px; }
+    .rep-brand-name { font-size: 18px; font-weight: 800; }
+    .rep-brand-sub { font-size: 12px; opacity: 0.9; }
+    .rep-header-info { text-align: right; }
+    .rep-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
+    .rep-subtitle { font-size: 13px; opacity: 0.9; }
+    .rep-body { padding: 36px; }
+    .rep-section { margin-bottom: 32px; }
+    .rep-section-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; }
+    .rep-text { font-size: 14px; color: #475569; line-height: 1.7; margin-bottom: 12px; }
+    .rep-text strong { color: #1e293b; font-weight: 700; }
+    .rep-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #f8fafc; padding: 20px; border-radius: 12px; }
+    .rep-meta-item { display: flex; flex-direction: column; gap: 6px; }
+    .rep-meta-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
+    .rep-meta-value { font-size: 16px; font-weight: 700; color: #1e293b; }
+    .rep-chart-container { margin: 24px 0; padding: 20px; background: #fafcff; border-radius: 12px; border: 1.5px solid #e2e8f0; }
+    .rep-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+    .rep-table th { background: #f1f5f9; padding: 10px 14px; text-align: left; font-weight: 700; color: #475569; border-bottom: 2px solid #e2e8f0; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+    .rep-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #1e293b; }
+    .rep-table tr:hover td { background: #fafcff; }
+    .rep-class-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .rep-scale-card { border-radius: 14px; padding: 20px 22px; margin-bottom: 16px; border: 1.5px solid #e2e8f0; }
+    .rep-scale-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
+    .rep-scale-card-name { font-size: 16px; font-weight: 800; }
+    .rep-scale-card-zscore { font-size: 14px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
+    .rep-scale-card-belief { font-size: 13px; font-weight: 600; color: #475569; font-style: italic; margin-bottom: 8px; line-height: 1.5; }
+    .rep-scale-card-desc { font-size: 12px; color: #64748b; line-height: 1.6; }
+    .rep-interpretation-box { background: #f5f3ff; border-left: 4px solid var(--qcpfc-accent); border-radius: 8px; padding: 20px; }
+    .rep-interpretation-box p { color: #1e293b; line-height: 1.8; margin: 0 0 10px 0; }
+    .rep-interpretation-box p:last-child { margin-bottom: 0; }
+    .rep-footer { margin-top: 40px; padding-top: 24px; border-top: 2px solid #f1f5f9; text-align: center; }
+    .rep-footer p { font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
+    .rep-footer-confidencial { font-size: 11px !important; color: #cbd5e1 !important; }
+
+    @media print {
+      @page { margin: 10mm 12mm; size: A4 portrait; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+      html, body { margin: 0 !important; padding: 0 !important; height: auto !important; background: #fff !important; overflow: visible !important; }
+      .sidebar, .qcpfc-report-topbar, .main-content, .app-shell, .modal-overlay, .action-buttons { display: none !important; }
+      .qcpfc-report-overlay.ativo {
+        display: block !important; position: static !important; background: #fff !important;
+        width: 100% !important; height: auto !important; overflow: visible !important; inset: auto !important;
+      }
+      .qcpfc-report-scroll { padding: 0 !important; overflow: visible !important; height: auto !important; }
+      .qcpfc-report-frame { max-width: 100% !important; margin: 0 !important; }
+      .rep-wrapper { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; page-break-before: avoid !important; }
+      .rep-header { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .rep-section { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .rep-section-title { break-after: avoid !important; page-break-after: avoid !important; }
+      .rep-chart-container { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .rep-table { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .rep-scale-card { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .rep-interpretation-box { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .rep-footer { break-inside: avoid !important; page-break-inside: avoid !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard">
+          <span class="nav-icon">📊</span><span>Dashboard</span>
+        </a>
+        <a class="nav-item" href="/Pacientes/" data-page="pacientes">
+          <span class="nav-icon">👤</span><span>Pacientes</span>
+        </a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao">
+          <span class="nav-icon">✏️</span><span>Correção de Testes</span>
+        </a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao">
+          <span class="nav-icon">🧠</span><span>Aplicação de Testes</span>
+        </a>
+        <a class="nav-item" href="/Anamnese/" data-page="anamnese">
+          <span class="nav-icon">📋</span><span>Anamnese</span>
+        </a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios">
+          <span class="nav-icon">📄</span><span>Relatórios</span>
+        </a>
+        <a class="nav-item" href="/check_list/" data-page="checklist">
+          <span class="nav-icon">✅</span><span>Checklist</span>
+        </a>
+        <a class="nav-item" href="/Config/" data-page="config">
+          <span class="nav-icon">⚙️</span><span>Configurações</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">?</div>
+          <div>
+            <div class="user-name">Carregando...</div>
+            <div class="user-role">—</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <p class="page-subtitle">
+            <a href="/Correcao_testes/" style="color:var(--blue-mid);text-decoration:none;font-weight:600;">Correção de Testes</a> → QCP-FC
+          </p>
+          <h1 class="page-title">QCP-FC — Questionário de Crenças Pessoais (Forma Clínica)</h1>
+        </div>
+        <button class="btn-secondary" onclick="history.back()">← Voltar</button>
+      </div>
+
+      <div class="card" id="formulario">
+        <div class="form-section">
+          <h2>Dados do Paciente</h2>
+          <div class="form-grid">
+            <div class="form-group"><label>Nome Completo</label><input type="text" id="pacienteNome" placeholder="Nome do paciente" /></div>
+            <div class="form-group"><label>Data da Avaliação</label><input type="date" id="dataAvaliacao" /></div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2>Respostas do Questionário (65 itens)</h2>
+          <p style="color: #64748b; font-size: 13px; margin-bottom: 16px;">
+            Para cada afirmação, selecione o grau de concordância do paciente: <strong>0</strong> = Não acredito nisso, <strong>1</strong> = Acredito um pouco, <strong>2</strong> = Acredito moderadamente, <strong>3</strong> = Acredito bastante, <strong>4</strong> = Acredito totalmente.
+          </p>
+          <div class="progress-text" id="progressText">0 / 65 respondidos</div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+          <div class="items-grid" id="itemsContainer"></div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-custom primary" id="btnCalcular">📊 Calcular</button>
+          <button class="btn-custom primary" id="btnRelatorio" style="display:none">📄 Gerar Relatório</button>
+          <button class="btn-custom secondary" id="btnLimpar">🔄 Limpar Tudo</button>
+        </div>
+
+        <!-- Results preview (shown after Calcular) -->
+        <div id="resultsPreview" style="display:none; margin-top:32px;">
+          <h2 style="font-size:16px;font-weight:700;color:var(--qcpfc-accent);margin-bottom:16px;text-transform:uppercase;letter-spacing:.05em;">Resultados Preliminares</h2>
+          <div id="previewTable"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Loading modal -->
+  <div class="modal-overlay" id="modalLoading">
+    <div class="modal-box"><div class="spinner"></div><div class="modal-title">Gerando Relatório...</div><div class="modal-sub">Por favor, aguarde</div></div>
+  </div>
+
+  <!-- Report overlay -->
+  <div class="qcpfc-report-overlay no-print" id="repOverlay">
+    <div class="qcpfc-report-topbar">
+      <div class="qcpfc-report-topbar-left">
+        <h2>📄 Relatório QCP-FC</h2>
+      </div>
+      <div class="qcpfc-report-actions">
+        <button class="btn-voltar-pac" id="btnVoltarPac" style="display:none">👤 Voltar ao Paciente</button>
+        <button class="btn-print-rep" id="btnPrintRep">🖨️ Imprimir / Baixar PDF</button>
+        <button class="btn-close-rep" id="btnCloseRep">✕ Fechar</button>
+      </div>
+    </div>
+    <div class="qcpfc-report-scroll">
+      <div class="qcpfc-report-frame">
+        <div class="rep-wrapper" id="repWrapper">
+          <!-- Report content will be injected here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard.js"></script>
+  <script src="/js/integration.js"></script>
+
+  <script>
+    /* ═══════════════════════════════════════════════════
+       QCP-FC Correction Engine
+       ═══════════════════════════════════════════════════ */
+
+    let rulesData = null;
+    const respostas = {};
+    let computedResults = null;
+
+    /* ── Scale order for display ── */
+    const SCALE_ORDER = ["EVT","DEP","PAG","OBC","ANT","NAR","HIS","ESQ","PAR","BOR"];
+
+    /* ── Classification from Z-score ── */
+    function classificarZ(z) {
+      if (z < 0) return { label: "Abaixo da média", color: "#10b981", bg: "#d1fae5" };
+      if (z <= 1) return { label: "Média", color: "#3b82f6", bg: "#dbeafe" };
+      if (z <= 2) return { label: "Elevado", color: "#f59e0b", bg: "#fef3c7" };
+      return { label: "Clinicamente significativo", color: "#dc2626", bg: "#fef2f2" };
+    }
+
+    /* ── Load rules JSON ── */
+    async function loadRules() {
+      try {
+        const resp = await fetch("/Aplicacao_testes/QCP_FC/data/qcpfc_rules.json");
+        if (!resp.ok) throw new Error("HTTP " + resp.status);
+        rulesData = await resp.json();
+        renderItems();
+      } catch (e) {
+        console.error("Erro ao carregar regras QCP-FC:", e);
+        document.getElementById("itemsContainer").innerHTML =
+          '<p style="color:#dc2626;font-weight:600;">Erro ao carregar dados do questionário. Recarregue a página.</p>';
+      }
+    }
+
+    /* ── Render item inputs ── */
+    function renderItems() {
+      const container = document.getElementById("itemsContainer");
+      container.innerHTML = "";
+
+      rulesData.itens.forEach(item => {
+        const row = document.createElement("div");
+        row.className = "item-row";
+        row.id = "item-row-" + item.num;
+
+        // Scale tags
+        let tagsHtml = "";
+        item.escalas.forEach(esc => {
+          const escData = rulesData.escalas[esc];
+          tagsHtml += '<span class="item-scale-tag" style="background:' + escData.corLight + ';color:' + escData.cor + ';">' + esc + '</span>';
+        });
+
+        row.innerHTML =
+          '<div class="item-num">' + item.num + '</div>' +
+          '<div class="item-body">' +
+            '<div class="item-text">' + item.texto + '</div>' +
+            '<div class="item-scales">' + tagsHtml + '</div>' +
+            '<div class="item-options">' +
+              '<button class="opt-btn" data-item="' + item.num + '" data-v="0" title="Não acredito nisso">0</button>' +
+              '<button class="opt-btn" data-item="' + item.num + '" data-v="1" title="Acredito um pouco">1</button>' +
+              '<button class="opt-btn" data-item="' + item.num + '" data-v="2" title="Acredito moderadamente">2</button>' +
+              '<button class="opt-btn" data-item="' + item.num + '" data-v="3" title="Acredito bastante">3</button>' +
+              '<button class="opt-btn" data-item="' + item.num + '" data-v="4" title="Acredito totalmente">4</button>' +
+            '</div>' +
+          '</div>';
+
+        container.appendChild(row);
+      });
+
+      // Attach click handlers
+      document.querySelectorAll(".opt-btn").forEach(btn => {
+        btn.addEventListener("click", function() {
+          const itemNum = parseInt(this.dataset.item);
+          const value = parseInt(this.dataset.v);
+          // Deselect siblings
+          document.querySelectorAll('.opt-btn[data-item="' + itemNum + '"]').forEach(b => b.classList.remove("active"));
+          this.classList.add("active");
+          respostas[itemNum] = value;
+          updateProgress();
+        });
+      });
+    }
+
+    /* ── Progress bar ── */
+    function updateProgress() {
+      const total = rulesData ? rulesData.meta.totalItens : 65;
+      const answered = Object.keys(respostas).length;
+      const pct = Math.round((answered / total) * 100);
+      document.getElementById("progressBar").style.width = pct + "%";
+      document.getElementById("progressText").textContent = answered + " / " + total + " respondidos";
+    }
+
+    /* ── Compute scores ── */
+    function computeScores() {
+      if (!rulesData) return null;
+
+      const results = {};
+
+      SCALE_ORDER.forEach(key => {
+        const escala = rulesData.escalas[key];
+        let raw = 0;
+        escala.itens.forEach(itemNum => {
+          raw += (respostas[itemNum] !== undefined ? respostas[itemNum] : 0);
+        });
+        const z = (raw - escala.norma.media) / escala.norma.dp;
+        const classif = classificarZ(z);
+        results[key] = {
+          key: key,
+          nome: escala.nome,
+          cor: escala.cor,
+          corLight: escala.corLight,
+          raw: raw,
+          maxRaw: 28,
+          mean: escala.norma.media,
+          sd: escala.norma.dp,
+          z: z,
+          classificacao: classif,
+          crencaCentral: escala.crencaCentral,
+          descricao: escala.descricao,
+        };
+      });
+
+      return results;
+    }
+
+    /* ── Show preview table ── */
+    function showPreview(results) {
+      const container = document.getElementById("previewTable");
+      let html = '<table class="rep-table"><thead><tr><th>Escala</th><th>Bruto</th><th>Escore Z</th><th>Classificação</th></tr></thead><tbody>';
+      SCALE_ORDER.forEach(key => {
+        const r = results[key];
+        html += '<tr>' +
+          '<td style="font-weight:700;color:' + r.cor + ';">' + r.key + ' — ' + r.nome + '</td>' +
+          '<td>' + r.raw + ' / ' + r.maxRaw + '</td>' +
+          '<td>' + r.z.toFixed(2) + '</td>' +
+          '<td><span class="rep-class-badge" style="background:' + r.classificacao.bg + ';color:' + r.classificacao.color + ';">' + r.classificacao.label + '</span></td>' +
+          '</tr>';
+      });
+      html += '</tbody></table>';
+      container.innerHTML = html;
+      document.getElementById("resultsPreview").style.display = "block";
+      document.getElementById("btnRelatorio").style.display = "inline-flex";
+    }
+
+    /* ── Build SVG bar chart for Z-scores ── */
+    function buildZScoreChartSVG(results) {
+      const w = 780, h = 400;
+      const margin = { top: 40, right: 30, bottom: 80, left: 60 };
+      const plotW = w - margin.left - margin.right;
+      const plotH = h - margin.top - margin.bottom;
+      const barW = Math.floor(plotW / SCALE_ORDER.length) - 8;
+      const barGap = 8;
+
+      // Find Y range
+      let minZ = -1, maxZ = 3;
+      SCALE_ORDER.forEach(key => {
+        const z = results[key].z;
+        if (z < minZ) minZ = z - 0.5;
+        if (z > maxZ) maxZ = z + 0.5;
+      });
+      minZ = Math.floor(minZ);
+      maxZ = Math.ceil(maxZ);
+      const range = maxZ - minZ;
+
+      function yPos(z) {
+        return margin.top + plotH - ((z - minZ) / range) * plotH;
+      }
+
+      let svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + w + ' ' + h + '" style="width:100%;height:auto;font-family:DM Sans,sans-serif;">';
+
+      // Background
+      svg += '<rect width="' + w + '" height="' + h + '" fill="#fafcff" rx="12"/>';
+
+      // Title
+      svg += '<text x="' + (w / 2) + '" y="28" text-anchor="middle" font-size="16" font-weight="800" fill="#1e293b">Perfil de Escores Z por Escala</text>';
+
+      // Grid lines and Y labels
+      for (let z = minZ; z <= maxZ; z++) {
+        const y = yPos(z);
+        const color = z === 0 ? "#94a3b8" : "#e2e8f0";
+        const strokeW = z === 0 ? 1.5 : 0.8;
+        const dash = z === 0 ? "" : 'stroke-dasharray="4,4"';
+        svg += '<line x1="' + margin.left + '" y1="' + y + '" x2="' + (w - margin.right) + '" y2="' + y + '" stroke="' + color + '" stroke-width="' + strokeW + '" ' + dash + '/>';
+        svg += '<text x="' + (margin.left - 10) + '" y="' + (y + 4) + '" text-anchor="end" font-size="12" fill="#64748b" font-weight="600">' + z + '</text>';
+      }
+
+      // Classification zones
+      const zoneY2 = yPos(2);
+      const zoneY1 = yPos(1);
+      const zoneY0 = yPos(0);
+      const zoneYBottom = yPos(minZ);
+      // Clinicamente significativo (>2)
+      svg += '<rect x="' + margin.left + '" y="' + margin.top + '" width="' + plotW + '" height="' + (zoneY2 - margin.top) + '" fill="rgba(220,38,38,0.06)"/>';
+      // Elevado (1-2)
+      svg += '<rect x="' + margin.left + '" y="' + zoneY2 + '" width="' + plotW + '" height="' + (zoneY1 - zoneY2) + '" fill="rgba(245,158,11,0.06)"/>';
+      // Média (0-1)
+      svg += '<rect x="' + margin.left + '" y="' + zoneY1 + '" width="' + plotW + '" height="' + (zoneY0 - zoneY1) + '" fill="rgba(59,130,246,0.06)"/>';
+
+      // Zone labels on right
+      svg += '<text x="' + (w - margin.right + 5) + '" y="' + ((margin.top + zoneY2) / 2 + 4) + '" font-size="8" fill="#dc2626" font-weight="700">CLIN. SIGNIF.</text>';
+      svg += '<text x="' + (w - margin.right + 5) + '" y="' + ((zoneY2 + zoneY1) / 2 + 4) + '" font-size="8" fill="#f59e0b" font-weight="700">ELEVADO</text>';
+      svg += '<text x="' + (w - margin.right + 5) + '" y="' + ((zoneY1 + zoneY0) / 2 + 4) + '" font-size="8" fill="#3b82f6" font-weight="700">MEDIA</text>';
+
+      // Bars
+      SCALE_ORDER.forEach((key, i) => {
+        const r = results[key];
+        const x = margin.left + i * (barW + barGap) + barGap / 2;
+        const zeroY = yPos(0);
+        const barY = yPos(r.z);
+        let rectY, rectH;
+
+        if (r.z >= 0) {
+          rectY = barY;
+          rectH = zeroY - barY;
+        } else {
+          rectY = zeroY;
+          rectH = barY - zeroY;
+        }
+
+        if (rectH < 2) rectH = 2;
+
+        svg += '<rect x="' + x + '" y="' + rectY + '" width="' + barW + '" height="' + rectH + '" rx="4" fill="' + r.cor + '" opacity="0.85"/>';
+
+        // Value label
+        const labelY = r.z >= 0 ? barY - 6 : barY + rectH + 14;
+        svg += '<text x="' + (x + barW / 2) + '" y="' + labelY + '" text-anchor="middle" font-size="12" font-weight="800" fill="' + r.cor + '">' + r.z.toFixed(1) + '</text>';
+
+        // X label
+        svg += '<text x="' + (x + barW / 2) + '" y="' + (h - margin.bottom + 18) + '" text-anchor="middle" font-size="11" font-weight="700" fill="' + r.cor + '">' + key + '</text>';
+        svg += '<text x="' + (x + barW / 2) + '" y="' + (h - margin.bottom + 32) + '" text-anchor="middle" font-size="9" fill="#64748b" font-weight="500">' + r.nome + '</text>';
+      });
+
+      svg += '</svg>';
+      return svg;
+    }
+
+    /* ── Build full report HTML (inline styles for portability) ── */
+    function buildReportHTML(results, nome, dataFormatada) {
+      let html = '';
+
+      // Header
+      html += '<div style="background:linear-gradient(135deg,#6d28d9 0%,#7c3aed 100%);padding:32px 36px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;">';
+      html += '<div style="display:flex;align-items:center;gap:14px;"><img src="/logo2.png" alt="Logo" style="height:48px;border-radius:8px;" onerror="this.style.display=\'none\'" /><div><div style="font-size:18px;font-weight:800;">Equilibrium</div><div style="font-size:12px;opacity:0.9;">Neuropsicologia</div></div></div>';
+      html += '<div style="text-align:right;"><div style="font-size:22px;font-weight:800;margin-bottom:4px;">QCP-FC</div><div style="font-size:13px;opacity:0.9;">Questionário de Crenças Pessoais — Forma Clínica</div></div>';
+      html += '</div>';
+
+      // Body
+      html += '<div style="padding:36px;">';
+
+      // Patient info
+      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Dados do Paciente</h2>';
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;background:#f8fafc;padding:20px;border-radius:12px;">';
+      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Paciente</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + nome + '</div></div>';
+      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Data da Avaliação</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + dataFormatada + '</div></div>';
+      html += '</div></div>';
+
+      // About the instrument
+      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Sobre o Instrumento</h2>';
+      html += '<p style="font-size:14px;color:#475569;line-height:1.7;margin-bottom:12px;">O <strong style="color:#1e293b;">QCP-FC (Questionário de Crenças Pessoais — Forma Clínica)</strong> é a versão brasileira do <em>Personality Belief Questionnaire — Short Form</em> (PBQ-SF), desenvolvido por Aaron T. Beck e Judith S. Beck. O instrumento avalia <strong style="color:#1e293b;">crenças disfuncionais</strong> associadas a 10 padrões de personalidade descritos no DSM, com base na teoria cognitiva dos transtornos de personalidade.</p>';
+      html += '<p style="font-size:14px;color:#475569;line-height:1.7;margin-bottom:12px;">Composto por <strong style="color:#1e293b;">65 itens</strong> distribuídos em 10 escalas (7 itens cada), o questionário é respondido em uma escala de 0 a 4. Os escores brutos são convertidos em <strong style="color:#1e293b;">escores Z</strong> com base em dados normativos de amostra clínica psiquiátrica (N=683).</p>';
+      html += '</div>';
+
+      // Chart
+      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Perfil Gráfico</h2>';
+      html += '<div style="margin:16px 0;padding:20px;background:#fafcff;border-radius:12px;border:1.5px solid #e2e8f0;">';
+      html += buildZScoreChartSVG(results);
+      html += '</div>';
+      // Legend
+      html += '<div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:12px;">';
+      html += '<span style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:rgba(59,130,246,0.15);border:1px solid #3b82f6;border-radius:3px;display:inline-block;"></span> Média (Z 0–1)</span>';
+      html += '<span style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:rgba(245,158,11,0.15);border:1px solid #f59e0b;border-radius:3px;display:inline-block;"></span> Elevado (Z 1–2)</span>';
+      html += '<span style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:rgba(220,38,38,0.15);border:1px solid #dc2626;border-radius:3px;display:inline-block;"></span> Clin. Significativo (Z &gt;2)</span>';
+      html += '</div></div>';
+
+      // Results table
+      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Tabela de Resultados</h2>';
+      html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
+      html += '<thead><tr><th style="background:#f1f5f9;padding:10px 14px;text-align:left;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0;font-size:11px;text-transform:uppercase;">Escala</th>';
+      html += '<th style="background:#f1f5f9;padding:10px 14px;text-align:center;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0;font-size:11px;text-transform:uppercase;">Bruto (máx. 28)</th>';
+      html += '<th style="background:#f1f5f9;padding:10px 14px;text-align:center;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0;font-size:11px;text-transform:uppercase;">Escore Z</th>';
+      html += '<th style="background:#f1f5f9;padding:10px 14px;text-align:center;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0;font-size:11px;text-transform:uppercase;">Classificação</th></tr></thead><tbody>';
+
+      SCALE_ORDER.forEach(key => {
+        const r = results[key];
+        html += '<tr>';
+        html += '<td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-weight:700;color:' + r.cor + ';">' + key + ' — ' + r.nome + '</td>';
+        html += '<td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#1e293b;">' + r.raw + '</td>';
+        html += '<td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:700;color:#1e293b;">' + r.z.toFixed(2) + '</td>';
+        html += '<td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;"><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;background:' + r.classificacao.bg + ';color:' + r.classificacao.color + ';">' + r.classificacao.label + '</span></td>';
+        html += '</tr>';
+      });
+
+      html += '</tbody></table></div>';
+
+      // Scale detail cards
+      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Detalhamento por Escala</h2>';
+
+      SCALE_ORDER.forEach(key => {
+        const r = results[key];
+        html += '<div style="border-radius:14px;padding:20px 22px;margin-bottom:16px;border:1.5px solid #e2e8f0;background:' + r.corLight + ';">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">';
+        html += '<span style="font-size:16px;font-weight:800;color:' + r.cor + ';">' + key + ' — ' + r.nome + '</span>';
+        html += '<span style="font-size:14px;font-weight:700;padding:4px 12px;border-radius:20px;background:' + r.classificacao.bg + ';color:' + r.classificacao.color + ';">Z = ' + r.z.toFixed(2) + ' — ' + r.classificacao.label + '</span>';
+        html += '</div>';
+        html += '<div style="font-size:13px;font-weight:600;color:#475569;font-style:italic;margin-bottom:8px;line-height:1.5;">Crença central: "' + r.crencaCentral + '"</div>';
+        html += '<div style="font-size:12px;color:#64748b;line-height:1.6;">' + r.descricao + '</div>';
+        html += '<div style="font-size:12px;color:#94a3b8;margin-top:8px;">Escore bruto: ' + r.raw + '/28 | Média normativa: ' + r.mean.toFixed(2) + ' | DP: ' + r.sd.toFixed(2) + '</div>';
+        html += '</div>';
+      });
+
+      html += '</div>';
+
+      // Interpretation
+      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Interpretação</h2>';
+      html += '<div style="background:#f5f3ff;border-left:4px solid #7c3aed;border-radius:8px;padding:20px;">';
+
+      // Find elevated scales
+      const elevated = SCALE_ORDER.filter(k => results[k].z > 1);
+      const clinSig = SCALE_ORDER.filter(k => results[k].z > 2);
+
+      html += '<p style="color:#1e293b;line-height:1.8;margin:0 0 10px 0;">Os escores Z foram calculados a partir dos dados normativos obtidos em amostra clínica psiquiátrica ambulatorial (N=683, Butler, Beck & Cohen, 2007). Valores próximos de zero indicam crenças com intensidade similar à média da amostra normativa. Quanto mais elevado o escore Z, mais intensas são as crenças disfuncionais associadas àquele padrão de personalidade.</p>';
+
+      if (clinSig.length > 0) {
+        html += '<p style="color:#1e293b;line-height:1.8;margin:0 0 10px 0;"><strong>Escalas clinicamente significativas (Z &gt; 2):</strong> ' +
+          clinSig.map(k => '<span style="color:' + results[k].cor + ';font-weight:700;">' + k + ' (' + results[k].nome + ')</span>').join(', ') +
+          '. Estes resultados sugerem padrões de crenças marcadamente intensos que merecem atenção clínica prioritária e podem indicar traços de personalidade disfuncionais relevantes para o planejamento terapêutico.</p>';
+      }
+
+      if (elevated.length > 0 && elevated.length > clinSig.length) {
+        const onlyElevated = elevated.filter(k => results[k].z <= 2);
+        if (onlyElevated.length > 0) {
+          html += '<p style="color:#1e293b;line-height:1.8;margin:0 0 10px 0;"><strong>Escalas elevadas (Z entre 1 e 2):</strong> ' +
+            onlyElevated.map(k => '<span style="color:' + results[k].cor + ';font-weight:700;">' + k + ' (' + results[k].nome + ')</span>').join(', ') +
+            '. Estas escalas indicam crenças com intensidade acima da média normativa, sugerindo a presença de padrões cognitivos que podem ser explorados em contexto clínico.</p>';
+        }
+      }
+
+      if (elevated.length === 0) {
+        html += '<p style="color:#1e293b;line-height:1.8;margin:0 0 10px 0;">Nenhuma escala apresentou elevação significativa (Z &gt; 1). O perfil indica crenças com intensidade dentro da faixa normativa para a amostra clínica de referência.</p>';
+      }
+
+      html += '<p style="color:#1e293b;line-height:1.8;margin:0;"><strong>Nota:</strong> Este instrumento é uma ferramenta de rastreio e avaliação dimensional. Os resultados devem ser interpretados em conjunto com a entrevista clínica, a história do paciente e outros dados da avaliação neuropsicológica. Não há ponto de corte empiricamente estabelecido; a interpretação é baseada na comparação com a amostra normativa clínica.</p>';
+      html += '</div></div>';
+
+      // Footer
+      html += '<div style="margin-top:40px;padding-top:24px;border-top:2px solid #f1f5f9;text-align:center;">';
+      html += '<p style="font-size:12px;color:#94a3b8;margin-bottom:6px;">Relatório gerado por <strong>Equilibrium Neuropsicologia</strong></p>';
+      html += '<p style="font-size:11px;color:#cbd5e1;">Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados</p>';
+      html += '</div>';
+
+      html += '</div>'; // close body
+
+      return html;
+    }
+
+    /* ── Calcular button ── */
+    function handleCalcular() {
+      const nome = document.getElementById("pacienteNome").value.trim();
+      if (!nome) { alert("Por favor, preencha o nome do paciente."); return; }
+
+      const answered = Object.keys(respostas).length;
+      if (answered < 65) {
+        if (!confirm("Apenas " + answered + " de 65 itens foram respondidos. Itens não respondidos serão tratados como 0. Deseja continuar?")) return;
+      }
+
+      computedResults = computeScores();
+      showPreview(computedResults);
+
+      // Scroll to results
+      document.getElementById("resultsPreview").scrollIntoView({ behavior: "smooth" });
+    }
+
+    /* ── Generate report ── */
+    async function handleGerarRelatorio() {
+      const nome = document.getElementById("pacienteNome").value.trim();
+      const data = document.getElementById("dataAvaliacao").value;
+      if (!nome) { alert("Por favor, preencha o nome do paciente."); return; }
+      if (!data) { alert("Por favor, preencha a data da avaliação."); return; }
+      if (!computedResults) { alert("Calcule os resultados primeiro."); return; }
+
+      const modalLoading = document.getElementById("modalLoading");
+      modalLoading.classList.add("show");
+
+      try {
+        const dataObj = new Date(data + "T00:00:00");
+        const dataFormatada = dataObj.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+
+        const reportHTML = buildReportHTML(computedResults, nome, dataFormatada);
+        document.getElementById("repWrapper").innerHTML = reportHTML;
+
+        modalLoading.classList.remove("show");
+        document.getElementById("repOverlay").classList.add("ativo");
+
+        // Build summary for Firebase
+        const elevated = SCALE_ORDER.filter(k => computedResults[k].z > 1);
+        const summaryParts = elevated.length > 0
+          ? elevated.map(k => computedResults[k].key + "=" + computedResults[k].z.toFixed(1)).join(", ")
+          : "Sem escalas elevadas";
+        const resumo = "Escalas elevadas: " + summaryParts;
+
+        // Build scores object
+        const scoresObj = {};
+        SCALE_ORDER.forEach(key => {
+          scoresObj[key] = {
+            raw: computedResults[key].raw,
+            z: parseFloat(computedResults[key].z.toFixed(2)),
+            classificacao: computedResults[key].classificacao.label,
+          };
+        });
+
+        // Determine overall classification
+        const maxZ = Math.max(...SCALE_ORDER.map(k => computedResults[k].z));
+        let overallClass = "Dentro da média";
+        if (maxZ > 2) overallClass = "Clinicamente significativo";
+        else if (maxZ > 1) overallClass = "Elevado";
+
+        // Save to Firebase
+        if (window.Integration) {
+          await new Promise(r => setTimeout(r, 300));
+          const repWrapper = document.getElementById("repWrapper");
+          await Integration.salvarTesteNoFirebase("qcp-fc", {
+            dataAplicacao: data,
+            resumo: resumo,
+            scores: scoresObj,
+            classificacao: overallClass,
+            observacoes: "",
+            htmlRelatorio: repWrapper ? repWrapper.outerHTML : "",
+          });
+        }
+
+      } catch (error) {
+        console.error("Erro ao processar:", error);
+        modalLoading.classList.remove("show");
+        alert("Ocorreu um erro ao gerar o relatório. Por favor, tente novamente.");
+      }
+    }
+
+    /* ── Clear form ── */
+    function limparFormulario() {
+      if (confirm("Tem certeza que deseja limpar todas as respostas?")) {
+        document.getElementById("pacienteNome").value = "";
+        document.getElementById("dataAvaliacao").value = new Date().toISOString().split("T")[0];
+        Object.keys(respostas).forEach(key => delete respostas[key]);
+        document.querySelectorAll(".opt-btn").forEach(btn => btn.classList.remove("active"));
+        computedResults = null;
+        document.getElementById("resultsPreview").style.display = "none";
+        document.getElementById("btnRelatorio").style.display = "none";
+        updateProgress();
+      }
+    }
+
+    /* ── Init ── */
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.FIREBASE_CONFIGURED && window.DB) await DB.init();
+      if (typeof isAuthed === "function" && !isAuthed()) { location.href = "/login.html"; return; }
+      if (typeof applySidebarPermissions === "function") applySidebarPermissions();
+
+      document.getElementById("dataAvaliacao").value = new Date().toISOString().split("T")[0];
+
+      await loadRules();
+
+      document.getElementById("btnCalcular").addEventListener("click", handleCalcular);
+      document.getElementById("btnRelatorio").addEventListener("click", handleGerarRelatorio);
+      document.getElementById("btnLimpar").addEventListener("click", limparFormulario);
+      document.getElementById("btnCloseRep").addEventListener("click", () => document.getElementById("repOverlay").classList.remove("ativo"));
+      document.getElementById("btnPrintRep").addEventListener("click", () => window.print());
+
+      // Show "Voltar ao Paciente" button if patient is selected
+      let pacienteAtual = null;
+      try { const raw = sessionStorage.getItem("pacienteAtual"); if (raw) pacienteAtual = JSON.parse(raw); } catch(e) {}
+      if (!pacienteAtual && window.Integration) pacienteAtual = Integration.getPacienteAtual();
+      if (pacienteAtual && pacienteAtual.id) {
+        const btnVoltar = document.getElementById("btnVoltarPac");
+        if (btnVoltar) {
+          btnVoltar.style.display = "flex";
+          btnVoltar.addEventListener("click", () => {
+            sessionStorage.setItem("abrirPacienteId", pacienteAtual.id);
+            window.location.href = "/Pacientes/";
+          });
+        }
+      }
+    });
+  </script>
+</body>
+</html>
