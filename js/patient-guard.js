@@ -35,9 +35,11 @@
           <div class="pg-meta">${paciente.cpf || "Paciente selecionado"}</div>
         </div>
         <button class="pg-change-btn" onclick="PatientGuard.trocarPaciente()" title="Trocar paciente">Trocar</button>
+        <button class="pg-move-btn" onclick="PatientGuard.moverBadge()" title="Mover badge">&#8597;</button>
       </div>
     `;
     document.body.appendChild(badge);
+    restaurarPosicaoBadge();
   }
 
   /* ── Modal de seleção obrigatória de paciente ── */
@@ -224,6 +226,17 @@
         cursor: pointer; transition: all 0.15s ease; font-family: 'DM Sans', sans-serif;
       }
       .pg-change-btn:hover { background: #dbeafe; border-color: #93c5fd; }
+      .pg-move-btn {
+        background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 8px;
+        padding: 5px 8px; font-size: 14px; font-weight: 700; color: #94a3b8;
+        cursor: pointer; transition: all 0.15s ease; font-family: 'DM Sans', sans-serif;
+        line-height: 1;
+      }
+      .pg-move-btn:hover { background: #dbeafe; color: #1a56db; border-color: #93c5fd; }
+      #patient-guard-badge.pg-bottom { top: auto !important; bottom: 16px; }
+      @media (max-width: 640px) {
+        #patient-guard-badge.pg-bottom { bottom: 12px; }
+      }
 
       /* ── Modal obrigatório ── */
       #patient-guard-modal {
@@ -363,6 +376,24 @@
     init();
   }
 
+  /* ── Mover badge entre topo e rodapé ── */
+  function moverBadge() {
+    const badge = document.getElementById("patient-guard-badge");
+    if (!badge) return;
+    badge.classList.toggle("pg-bottom");
+    try { sessionStorage.setItem("pg-badge-pos", badge.classList.contains("pg-bottom") ? "bottom" : "top"); } catch(e) {}
+  }
+
+  /* ── Restaurar posição salva ── */
+  function restaurarPosicaoBadge() {
+    try {
+      if (sessionStorage.getItem("pg-badge-pos") === "bottom") {
+        const badge = document.getElementById("patient-guard-badge");
+        if (badge) badge.classList.add("pg-bottom");
+      }
+    } catch(e) {}
+  }
+
   /* ── API global ── */
   window.PatientGuard = {
     getPaciente: getPacienteFromSession,
@@ -370,5 +401,6 @@
     trocarPaciente,
     filtrarPacientes,
     voltar,
+    moverBadge,
   };
 })();
