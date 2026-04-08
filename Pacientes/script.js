@@ -697,11 +697,12 @@ function visualizarTeste(testeId) {
   const nomeTeste = NOMES[teste.tipo] || teste.tipo;
   const nomePac = pacienteAtual?.nome || '';
 
-  // CSS por tipo de teste
+  // CSS e fontes por tipo de teste
   const cssFiles = ['/Correcao_testes/style.css'];
   if (teste.tipo && teste.tipo.startsWith('srs2')) cssFiles.push('/Correcao_testes/SRS2/srs2-shared.css');
   if (teste.tipo === 'raads-r') cssFiles.push('/Correcao_testes/RAADS-R/styles.css');
-  const cssLinks = cssFiles.map(href => `<link rel="stylesheet" href="${href}" />`).join('\n');
+  const fontLinks = '<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">';
+  const cssLinks = fontLinks + '\n' + cssFiles.map(href => `<link rel="stylesheet" href="${href}" />`).join('\n');
 
   const prev = document.getElementById('testeViewModal');
   if (prev) prev.remove();
@@ -756,8 +757,8 @@ function visualizarTeste(testeId) {
       await html2pdf().set({
         margin: [5, 5, 5, 5],
         filename: nomeTeste + '_' + nomePac.replace(/\s+/g, '_').substring(0, 30) + '.pdf',
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 3, useCORS: true, logging: false, scrollY: 0 },
+        image: { type: 'jpeg', quality: 1.0 },
+        html2canvas: { scale: 4, useCORS: true, logging: false, scrollY: 0 },
         jsPDF: { unit: 'mm', format: [210, 900], orientation: 'portrait' },
         pagebreak: { mode: ['avoid-all'] }
       }).from(content).save();

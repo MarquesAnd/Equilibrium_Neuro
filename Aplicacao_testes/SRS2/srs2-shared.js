@@ -827,9 +827,9 @@ async function finalizarEEnviar() {
     const opt = {
       margin: [12, 12, 12, 12],  // 12mm em todos os lados — simétrico, sem corte
       filename: "resultado.pdf",
-      image: { type: "jpeg", quality: 0.97 },
+      image: { type: "jpeg", quality: 1.0 },
       html2canvas: {
-        scale: 2,
+        scale: 4,
         useCORS: true,
         allowTaint: true,
         scrollX: 0,

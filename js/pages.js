@@ -486,6 +486,8 @@ async function _verRelPDF(pacienteId, testeId) {
         </div>
       </div>
       <div id="relViewBody" style="padding:12px;overflow:hidden;">
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
         ${cssLinks}
         <div id="relViewContent">${rel.htmlRelatorio}</div>
       </div>
@@ -530,8 +532,10 @@ async function _baixarRelPDF(pacienteId, testeId, nomeP) {
   const container = document.createElement('div');
   container.style.cssText = 'position:absolute;left:-9999px;top:0;width:210mm;';
 
-  // Carregar todos os CSS necessários para o tipo de teste
-  _getCSSForTipo(rel.tipo).forEach(href => {
+  // Carregar fontes e CSS necessários para o tipo de teste
+  ['https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap',
+   'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap'
+  ].concat(_getCSSForTipo(rel.tipo)).forEach(href => {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;
@@ -559,8 +563,8 @@ async function _baixarRelPDF(pacienteId, testeId, nomeP) {
     await html2pdf().set({
       margin: [5, 5, 5, 5],
       filename: fileName,
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 3, useCORS: true, logging: false, scrollY: 0 },
+      image: { type: 'jpeg', quality: 1.0 },
+      html2canvas: { scale: 4, useCORS: true, logging: false, scrollY: 0 },
       jsPDF: { unit: 'mm', format: [210, 900], orientation: 'portrait' },
       pagebreak: { mode: ['avoid-all'] },
     }).from(content).save();
