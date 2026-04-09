@@ -288,17 +288,18 @@
   function detectarFaixaEtaria(anos) {
     if (!ravltRules) return null;
     const faixas = [
-      { label: "10-11", min: 10, max: 11 },
-      { label: "12-14", min: 12, max: 14 },
-      { label: "15-17", min: 15, max: 17 },
-      { label: "18-20", min: 18, max: 20 },
-      { label: "21-30", min: 21, max: 30 },
-      { label: "31-40", min: 31, max: 40 },
-      { label: "41-50", min: 41, max: 50 },
-      { label: "51-60", min: 51, max: 60 },
-      { label: "61-70", min: 61, max: 70 },
-      { label: "71-79", min: 71, max: 79 },
-      { label: "80+", min: 80, max: 999 },
+      { label: "6-8",   min: 6,  max: 8   },
+      { label: "9-11",  min: 9,  max: 11  },
+      { label: "12-14", min: 12, max: 14  },
+      { label: "15-17", min: 15, max: 17  },
+      { label: "18-20", min: 18, max: 20  },
+      { label: "21-30", min: 21, max: 30  },
+      { label: "31-40", min: 31, max: 40  },
+      { label: "41-50", min: 41, max: 50  },
+      { label: "51-60", min: 51, max: 60  },
+      { label: "61-70", min: 61, max: 70  },
+      { label: "71-79", min: 71, max: 79  },
+      { label: "80+",   min: 80, max: 999 },
     ];
     for (const f of faixas) {
       if (anos >= f.min && anos <= f.max) return f.label;
@@ -334,8 +335,9 @@
 
   function classificar(z) {
     if (!ravltRules) return { label: "—", cor: "#94a3b8" };
+    const pct = zToPercentile(z);
     for (const c of ravltRules.classificacao) {
-      if (z >= c.min && z <= c.max) return { label: c.label, cor: c.cor };
+      if (pct >= c.min && pct <= c.max) return { label: c.label, cor: c.cor };
     }
     return { label: "—", cor: "#94a3b8" };
   }
@@ -381,7 +383,7 @@
     if (!idade) { alert("Datas inválidas."); return; }
 
     const faixa = detectarFaixaEtaria(idade.totalAnos);
-    if (!faixa) { alert(`Idade ${idade.totalAnos} anos está fora das faixas normativas disponíveis (10-80+).`); return; }
+    if (!faixa) { alert(`Idade ${idade.totalAnos} anos está fora das faixas normativas disponíveis (6-80+).`); return; }
 
     const norma = getNorma(faixa);
     if (!norma) { alert("Norma não encontrada para a faixa " + faixa); return; }
