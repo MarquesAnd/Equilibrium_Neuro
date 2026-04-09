@@ -4,104 +4,1110 @@
     "nome": "Teste de Aprendizagem Auditivo-Verbal de Rey",
     "nomeEN": "Rey Auditory Verbal Learning Test",
     "descricao": "Avalia aprendizagem verbal, memória imediata e tardia, reconhecimento, susceptibilidade à interferência e velocidade de esquecimento.",
-    "publicoAlvo": "Crianças, adolescentes e adultos (10-80+ anos)",
+    "publicoAlvo": "Crianças, adolescentes e adultos (6-80+ anos)",
     "totalPalavras": 15,
-    "tentativas": ["A1", "A2", "A3", "A4", "A5"],
+    "tentativas": [
+      "A1",
+      "A2",
+      "A3",
+      "A4",
+      "A5"
+    ],
     "distrator": "B1",
     "evocacaoImediata": "A6",
     "evocacaoTardia": "A7",
     "reconhecimento": "Reconhecimento"
   },
-  "listaA": ["BALÃO", "FLOR", "SALA", "BOCA", "CHUVA", "MÃE", "CIRCO", "PEIXE", "LUA", "CORPO", "CESTA", "LÁPIS", "MESA", "CHAPÉU", "MILHO"],
-  "listaB": ["CARRO", "MEIA", "PATO", "FOGO", "SOFÁ", "DOCE", "PONTO", "VASO", "LIVRO", "PORTA", "ÍNDIO", "RUA", "ROUPA", "DENTE", "RIO"],
+  "listaA": [
+    "BALÃO",
+    "FLOR",
+    "SALA",
+    "BOCA",
+    "CHUVA",
+    "MÃE",
+    "CIRCO",
+    "PEIXE",
+    "LUA",
+    "CORPO",
+    "CESTA",
+    "LÁPIS",
+    "MESA",
+    "CHAPÉU",
+    "MILHO"
+  ],
+  "listaB": [
+    "CARRO",
+    "MEIA",
+    "PATO",
+    "FOGO",
+    "SOFÁ",
+    "DOCE",
+    "PONTO",
+    "VASO",
+    "LIVRO",
+    "PORTA",
+    "ÍNDIO",
+    "RUA",
+    "ROUPA",
+    "DENTE",
+    "RIO"
+  ],
   "listaReconhecimento": [
-    {"palavra": "LUA", "tipo": "A", "categoriaErro": null},
-    {"palavra": "GALO", "tipo": "D-SB", "categoriaErro": "SB"},
-    {"palavra": "FOGO", "tipo": "B", "categoriaErro": null},
-    {"palavra": "CHAPÉU", "tipo": "A", "categoriaErro": null},
-    {"palavra": "VASO", "tipo": "B", "categoriaErro": null},
-    {"palavra": "MESA", "tipo": "A", "categoriaErro": null},
-    {"palavra": "LAGO", "tipo": "D-SB", "categoriaErro": "SB"},
-    {"palavra": "PORTA", "tipo": "B", "categoriaErro": null},
-    {"palavra": "DENTE", "tipo": "D-SA", "categoriaErro": "SA"},
-    {"palavra": "RIO", "tipo": "B", "categoriaErro": null},
-    {"palavra": "COR", "tipo": "D-FA", "categoriaErro": "FA"},
-    {"palavra": "ÍNDIO", "tipo": "B", "categoriaErro": null},
-    {"palavra": "BALÃO", "tipo": "A", "categoriaErro": null},
-    {"palavra": "RUA", "tipo": "D-FA", "categoriaErro": "FA"},
-    {"palavra": "ISCA", "tipo": "D-SA", "categoriaErro": "SA"},
-    {"palavra": "PLANTA", "tipo": "D-SA/SB", "categoriaErro": "SA/SB"},
-    {"palavra": "ROUPA", "tipo": "B", "categoriaErro": null},
-    {"palavra": "CORPO", "tipo": "A", "categoriaErro": null},
-    {"palavra": "ROSA", "tipo": "D-SA", "categoriaErro": "SA"},
-    {"palavra": "LÁPIS", "tipo": "A", "categoriaErro": null},
-    {"palavra": "PONTO", "tipo": "B", "categoriaErro": null},
-    {"palavra": "FLOR", "tipo": "A", "categoriaErro": null},
-    {"palavra": "BOCA", "tipo": "A", "categoriaErro": null},
-    {"palavra": "CIRCO", "tipo": "A", "categoriaErro": null},
-    {"palavra": "CHUVA", "tipo": "A", "categoriaErro": null},
-    {"palavra": "BOLO", "tipo": "D-SB", "categoriaErro": "SB"},
-    {"palavra": "PEIXE", "tipo": "A", "categoriaErro": null},
-    {"palavra": "BOTÃO", "tipo": "D-FA", "categoriaErro": "FA"},
-    {"palavra": "LEITE", "tipo": "D-SA", "categoriaErro": "SA"},
-    {"palavra": "CARRO", "tipo": "B", "categoriaErro": null},
-    {"palavra": "SALA", "tipo": "A", "categoriaErro": null},
-    {"palavra": "BOLA", "tipo": "D-SA", "categoriaErro": "SA"},
-    {"palavra": "AULA", "tipo": "D-SA", "categoriaErro": "SA"},
-    {"palavra": "MILHO", "tipo": "A", "categoriaErro": null},
-    {"palavra": "CAIXA", "tipo": "B", "categoriaErro": null},
-    {"palavra": "BALÃO", "tipo": "A", "categoriaErro": null},
-    {"palavra": "PATO", "tipo": "B", "categoriaErro": null},
-    {"palavra": "MÃE", "tipo": "A", "categoriaErro": null},
-    {"palavra": "SOFÁ", "tipo": "B", "categoriaErro": null},
-    {"palavra": "DOCE", "tipo": "B", "categoriaErro": null},
-    {"palavra": "SOL", "tipo": "D-SA", "categoriaErro": "SA"},
-    {"palavra": "MAR", "tipo": "D-SB", "categoriaErro": "SB"},
-    {"palavra": "PAPEL", "tipo": "D-FA", "categoriaErro": "FA"},
-    {"palavra": "VENTO", "tipo": "D-FB", "categoriaErro": "FB"},
-    {"palavra": "LIVRO", "tipo": "B", "categoriaErro": null},
-    {"palavra": "VACA", "tipo": "B", "categoriaErro": null},
-    {"palavra": "FILHO", "tipo": "D-SA/FA", "categoriaErro": "SA/FA"},
-    {"palavra": "MILHO", "tipo": "A", "categoriaErro": null},
-    {"palavra": "JARDIM", "tipo": "D-SA", "categoriaErro": "SA"},
-    {"palavra": "FESTA", "tipo": "D-FA", "categoriaErro": "FA"}
+    {
+      "palavra": "LUA",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "GALO",
+      "tipo": "D-SB",
+      "categoriaErro": "SB"
+    },
+    {
+      "palavra": "FOGO",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "CHAPÉU",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "VASO",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "MESA",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "LAGO",
+      "tipo": "D-SB",
+      "categoriaErro": "SB"
+    },
+    {
+      "palavra": "PORTA",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "DENTE",
+      "tipo": "D-SA",
+      "categoriaErro": "SA"
+    },
+    {
+      "palavra": "RIO",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "COR",
+      "tipo": "D-FA",
+      "categoriaErro": "FA"
+    },
+    {
+      "palavra": "ÍNDIO",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "BALÃO",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "RUA",
+      "tipo": "D-FA",
+      "categoriaErro": "FA"
+    },
+    {
+      "palavra": "ISCA",
+      "tipo": "D-SA",
+      "categoriaErro": "SA"
+    },
+    {
+      "palavra": "PLANTA",
+      "tipo": "D-SA/SB",
+      "categoriaErro": "SA/SB"
+    },
+    {
+      "palavra": "ROUPA",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "CORPO",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "ROSA",
+      "tipo": "D-SA",
+      "categoriaErro": "SA"
+    },
+    {
+      "palavra": "LÁPIS",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "PONTO",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "FLOR",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "BOCA",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "CIRCO",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "CHUVA",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "BOLO",
+      "tipo": "D-SB",
+      "categoriaErro": "SB"
+    },
+    {
+      "palavra": "PEIXE",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "BOTÃO",
+      "tipo": "D-FA",
+      "categoriaErro": "FA"
+    },
+    {
+      "palavra": "LEITE",
+      "tipo": "D-SA",
+      "categoriaErro": "SA"
+    },
+    {
+      "palavra": "CARRO",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "SALA",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "BOLA",
+      "tipo": "D-SA",
+      "categoriaErro": "SA"
+    },
+    {
+      "palavra": "AULA",
+      "tipo": "D-SA",
+      "categoriaErro": "SA"
+    },
+    {
+      "palavra": "MILHO",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "CAIXA",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "BALÃO",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "PATO",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "MÃE",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "SOFÁ",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "DOCE",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "SOL",
+      "tipo": "D-SA",
+      "categoriaErro": "SA"
+    },
+    {
+      "palavra": "MAR",
+      "tipo": "D-SB",
+      "categoriaErro": "SB"
+    },
+    {
+      "palavra": "PAPEL",
+      "tipo": "D-FA",
+      "categoriaErro": "FA"
+    },
+    {
+      "palavra": "VENTO",
+      "tipo": "D-FB",
+      "categoriaErro": "FB"
+    },
+    {
+      "palavra": "LIVRO",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "VACA",
+      "tipo": "B",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "FILHO",
+      "tipo": "D-SA/FA",
+      "categoriaErro": "SA/FA"
+    },
+    {
+      "palavra": "MILHO",
+      "tipo": "A",
+      "categoriaErro": null
+    },
+    {
+      "palavra": "JARDIM",
+      "tipo": "D-SA",
+      "categoriaErro": "SA"
+    },
+    {
+      "palavra": "FESTA",
+      "tipo": "D-FA",
+      "categoriaErro": "FA"
+    }
   ],
   "indices": {
-    "A1": {"label": "Tentativa A1", "grupo": "Primeiras etapas da aprendizagem"},
-    "A2": {"label": "Tentativa A2", "grupo": "Primeiras etapas da aprendizagem"},
-    "A3": {"label": "Tentativa A3", "grupo": "Primeiras etapas da aprendizagem"},
-    "A4": {"label": "Tentativa A4", "grupo": "Primeiras etapas da aprendizagem"},
-    "A5": {"label": "Tentativa A5", "grupo": "Primeiras etapas da aprendizagem"},
-    "B1": {"label": "Lista B (Distrator)", "grupo": "Distrator"},
-    "A6": {"label": "Evocação Imediata (A6)", "grupo": "Evocação imediata"},
-    "A7": {"label": "Evocação Tardia (A7)", "grupo": "Evocação tardia"},
-    "Recon": {"label": "Reconhecimento", "grupo": "Reconhecimento", "formula": "Acertos - 35"},
-    "Total": {"label": "Escore Total", "grupo": "Índices de aprendizagem", "formula": "A1+A2+A3+A4+A5"},
-    "ALT": {"label": "Aprendizagem ao Longo das Tentativas", "grupo": "Índices de aprendizagem", "formula": "Escore Total - (5×A1)"},
-    "Esquec": {"label": "Velocidade de Esquecimento", "grupo": "Índice de retenção", "formula": "A7/A6"},
-    "Proat": {"label": "Interferência Proativa", "grupo": "Índices de interferência", "formula": "B1/A1"},
-    "Retro": {"label": "Interferência Retroativa", "grupo": "Índices de interferência", "formula": "A6/A5"}
+    "A1": {
+      "label": "Tentativa A1",
+      "grupo": "Primeiras etapas da aprendizagem"
+    },
+    "A2": {
+      "label": "Tentativa A2",
+      "grupo": "Primeiras etapas da aprendizagem"
+    },
+    "A3": {
+      "label": "Tentativa A3",
+      "grupo": "Primeiras etapas da aprendizagem"
+    },
+    "A4": {
+      "label": "Tentativa A4",
+      "grupo": "Primeiras etapas da aprendizagem"
+    },
+    "A5": {
+      "label": "Tentativa A5",
+      "grupo": "Primeiras etapas da aprendizagem"
+    },
+    "B1": {
+      "label": "Lista B (Distrator)",
+      "grupo": "Distrator"
+    },
+    "A6": {
+      "label": "Evocação Imediata (A6)",
+      "grupo": "Evocação imediata"
+    },
+    "A7": {
+      "label": "Evocação Tardia (A7)",
+      "grupo": "Evocação tardia"
+    },
+    "Recon": {
+      "label": "Reconhecimento",
+      "grupo": "Reconhecimento",
+      "formula": "Acertos - 35"
+    },
+    "Total": {
+      "label": "Escore Total",
+      "grupo": "Índices de aprendizagem",
+      "formula": "A1+A2+A3+A4+A5"
+    },
+    "ALT": {
+      "label": "Aprendizagem ao Longo das Tentativas",
+      "grupo": "Índices de aprendizagem",
+      "formula": "Escore Total - (5×A1)"
+    },
+    "Esquec": {
+      "label": "Velocidade de Esquecimento",
+      "grupo": "Índice de retenção",
+      "formula": "A7/A6"
+    },
+    "Proat": {
+      "label": "Interferência Proativa",
+      "grupo": "Índices de interferência",
+      "formula": "B1/A1"
+    },
+    "Retro": {
+      "label": "Interferência Retroativa",
+      "grupo": "Índices de interferência",
+      "formula": "A6/A5"
+    }
   },
   "classificacao": [
-    {"min": -999, "max": -2.01, "label": "Muito Inferior", "cor": "#dc2626"},
-    {"min": -2.0, "max": -1.34, "label": "Inferior", "cor": "#ea580c"},
-    {"min": -1.33, "max": -0.67, "label": "Médio Inferior", "cor": "#f59e0b"},
-    {"min": -0.66, "max": 0.66, "label": "Médio", "cor": "#3b82f6"},
-    {"min": 0.67, "max": 1.33, "label": "Médio Superior", "cor": "#059669"},
-    {"min": 1.34, "max": 2.0, "label": "Superior", "cor": "#047857"},
-    {"min": 2.01, "max": 999, "label": "Muito Superior", "cor": "#065f46"}
+    {
+      "min": 0,
+      "max": 4,
+      "label": "Inferior",
+      "cor": "#dc2626"
+    },
+    {
+      "min": 5,
+      "max": 25,
+      "label": "Médio Inferior",
+      "cor": "#f59e0b"
+    },
+    {
+      "min": 26,
+      "max": 75,
+      "label": "Médio",
+      "cor": "#3b82f6"
+    },
+    {
+      "min": 76,
+      "max": 95,
+      "label": "Médio Superior",
+      "cor": "#059669"
+    },
+    {
+      "min": 96,
+      "max": 100,
+      "label": "Superior",
+      "cor": "#047857"
+    }
   ],
   "normas": [
-    {"faixa": "10-11", "A1": {"m": 4.5, "dp": 1.4}, "A2": {"m": 6, "dp": 2.2}, "A3": {"m": 7, "dp": 2.4}, "A4": {"m": 7.9, "dp": 2.4}, "A5": {"m": 8.4, "dp": 2.3}, "B1": {"m": 4.3, "dp": 1.7}, "A6": {"m": 7.2, "dp": 2.5}, "A7": {"m": 7.6, "dp": 2.9}, "Recon": {"m": 10.3, "dp": 3.1}, "Total": {"m": 33.7, "dp": 8.6}, "ALT": {"m": 11.2, "dp": 7.3}, "Esquec": {"m": 1.09, "dp": 0.25}, "Proat": {"m": 1.09, "dp": 0.27}, "Retro": {"m": 0.87, "dp": 0.17}},
-    {"faixa": "12-14", "A1": {"m": 6.3, "dp": 1.7}, "A2": {"m": 8.1, "dp": 2.6}, "A3": {"m": 9.5, "dp": 2.9}, "A4": {"m": 10, "dp": 2.7}, "A5": {"m": 10.9, "dp": 2.5}, "B1": {"m": 5.6, "dp": 1.7}, "A6": {"m": 9.6, "dp": 2.2}, "A7": {"m": 9.6, "dp": 3}, "Recon": {"m": 12.5, "dp": 5}, "Total": {"m": 44.8, "dp": 9.6}, "ALT": {"m": 13.3, "dp": 7.8}, "Esquec": {"m": 1.01, "dp": 0.29}, "Proat": {"m": 0.92, "dp": 0.28}, "Retro": {"m": 0.91, "dp": 0.29}},
-    {"faixa": "15-17", "A1": {"m": 6.1, "dp": 1.4}, "A2": {"m": 8.1, "dp": 2.2}, "A3": {"m": 9.6, "dp": 2.4}, "A4": {"m": 11.1, "dp": 2.4}, "A5": {"m": 11.6, "dp": 2.3}, "B1": {"m": 5.4, "dp": 1.7}, "A6": {"m": 10.6, "dp": 2.5}, "A7": {"m": 10.5, "dp": 2.9}, "Recon": {"m": 12.6, "dp": 3.1}, "Total": {"m": 46.4, "dp": 8.6}, "ALT": {"m": 16.1, "dp": 7.3}, "Esquec": {"m": 1.01, "dp": 0.25}, "Proat": {"m": 0.91, "dp": 0.27}, "Retro": {"m": 0.93, "dp": 0.17}},
-    {"faixa": "18-20", "A1": {"m": 6.8, "dp": 1.7}, "A2": {"m": 9.5, "dp": 2.2}, "A3": {"m": 11, "dp": 2.2}, "A4": {"m": 11.8, "dp": 2.4}, "A5": {"m": 12.2, "dp": 2.4}, "B1": {"m": 6.3, "dp": 1.8}, "A6": {"m": 11.1, "dp": 2.5}, "A7": {"m": 11, "dp": 2.7}, "Recon": {"m": 10, "dp": 5.7}, "Total": {"m": 51.4, "dp": 8.7}, "ALT": {"m": 17.3, "dp": 7.3}, "Esquec": {"m": 1, "dp": 0.2}, "Proat": {"m": 0.96, "dp": 0.33}, "Retro": {"m": 0.96, "dp": 0.68}},
-    {"faixa": "21-30", "A1": {"m": 6.5, "dp": 1.7}, "A2": {"m": 8.9, "dp": 2.2}, "A3": {"m": 10.4, "dp": 2.4}, "A4": {"m": 11.4, "dp": 2.4}, "A5": {"m": 12.2, "dp": 2.2}, "B1": {"m": 5.7, "dp": 1.8}, "A6": {"m": 10.9, "dp": 2.6}, "A7": {"m": 10.7, "dp": 2.7}, "Recon": {"m": 11.4, "dp": 4.7}, "Total": {"m": 49.3, "dp": 8.6}, "ALT": {"m": 16.8, "dp": 6.5}, "Esquec": {"m": 1, "dp": 0.27}, "Proat": {"m": 0.92, "dp": 0.37}, "Retro": {"m": 0.89, "dp": 0.17}},
-    {"faixa": "31-40", "A1": {"m": 6.1, "dp": 1.6}, "A2": {"m": 8.7, "dp": 2}, "A3": {"m": 10.3, "dp": 2.1}, "A4": {"m": 11.4, "dp": 2.1}, "A5": {"m": 12.2, "dp": 2.2}, "B1": {"m": 5.3, "dp": 1.6}, "A6": {"m": 10.8, "dp": 2.4}, "A7": {"m": 10.3, "dp": 2.4}, "Recon": {"m": 11.1, "dp": 4.7}, "Total": {"m": 48.6, "dp": 8}, "ALT": {"m": 17.9, "dp": 7}, "Esquec": {"m": 0.97, "dp": 0.19}, "Proat": {"m": 0.91, "dp": 0.33}, "Retro": {"m": 0.94, "dp": 0.74}},
-    {"faixa": "41-50", "A1": {"m": 6, "dp": 1.6}, "A2": {"m": 8.5, "dp": 2}, "A3": {"m": 9.8, "dp": 2.5}, "A4": {"m": 10.7, "dp": 2.7}, "A5": {"m": 11.7, "dp": 2.6}, "B1": {"m": 4.9, "dp": 1.6}, "A6": {"m": 9.8, "dp": 2.8}, "A7": {"m": 9.6, "dp": 2.8}, "Recon": {"m": 9.9, "dp": 5.6}, "Total": {"m": 46.7, "dp": 9.6}, "ALT": {"m": 16.5, "dp": 7.3}, "Esquec": {"m": 1.01, "dp": 0.34}, "Proat": {"m": 0.86, "dp": 0.31}, "Retro": {"m": 0.84, "dp": 0.18}},
-    {"faixa": "51-60", "A1": {"m": 6, "dp": 1.9}, "A2": {"m": 8.2, "dp": 2.3}, "A3": {"m": 9.6, "dp": 2.5}, "A4": {"m": 10.6, "dp": 2.4}, "A5": {"m": 11.3, "dp": 2.3}, "B1": {"m": 4.8, "dp": 1.7}, "A6": {"m": 9.4, "dp": 3.1}, "A7": {"m": 9.5, "dp": 3.2}, "Recon": {"m": 10.9, "dp": 5.2}, "Total": {"m": 45.7, "dp": 9.7}, "ALT": {"m": 15.6, "dp": 7.4}, "Esquec": {"m": 1.02, "dp": 0.19}, "Proat": {"m": 0.82, "dp": 0.29}, "Retro": {"m": 0.82, "dp": 0.19}},
-    {"faixa": "61-70", "A1": {"m": 5.5, "dp": 1.6}, "A2": {"m": 7.8, "dp": 1.9}, "A3": {"m": 9.1, "dp": 2}, "A4": {"m": 10.3, "dp": 1.9}, "A5": {"m": 11.3, "dp": 2}, "B1": {"m": 4.7, "dp": 1.4}, "A6": {"m": 9.5, "dp": 2.6}, "A7": {"m": 9.4, "dp": 2.6}, "Recon": {"m": 10.4, "dp": 3.8}, "Total": {"m": 44, "dp": 7.6}, "ALT": {"m": 16.4, "dp": 6.1}, "Esquec": {"m": 1.01, "dp": 0.24}, "Proat": {"m": 0.92, "dp": 0.61}, "Retro": {"m": 0.84, "dp": 0.16}},
-    {"faixa": "71-79", "A1": {"m": 5.09, "dp": 1.46}, "A2": {"m": 6.96, "dp": 1.74}, "A3": {"m": 7.98, "dp": 1.99}, "A4": {"m": 9.19, "dp": 2.3}, "A5": {"m": 10.27, "dp": 2.16}, "B1": {"m": 4.05, "dp": 1.75}, "A6": {"m": 8.29, "dp": 2.37}, "A7": {"m": 8.05, "dp": 2.39}, "Recon": {"m": 7.72, "dp": 3.99}, "Total": {"m": 39.48, "dp": 8.23}, "ALT": {"m": 14.04, "dp": 5.7}, "Esquec": {"m": 0.84, "dp": 0.39}, "Proat": {"m": 0.81, "dp": 0.19}, "Retro": {"m": 1, "dp": 0.29}},
-    {"faixa": "80+", "A1": {"m": 4.1, "dp": 1.4}, "A2": {"m": 6, "dp": 1.5}, "A3": {"m": 6.9, "dp": 1.7}, "A4": {"m": 7.9, "dp": 1.6}, "A5": {"m": 9.6, "dp": 2.1}, "B1": {"m": 3.2, "dp": 1.7}, "A6": {"m": 7.5, "dp": 2.2}, "A7": {"m": 6.7, "dp": 2}, "Recon": {"m": 5.8, "dp": 5.4}, "Total": {"m": 34.5, "dp": 6.3}, "ALT": {"m": 13.9, "dp": 5.5}, "Esquec": {"m": 0.91, "dp": 0.23}, "Proat": {"m": 0.81, "dp": 0.41}, "Retro": {"m": 0.79, "dp": 0.22}}
+    {
+      "faixa": "6-8",
+      "A1": {
+        "m": 4.5,
+        "dp": 1.4
+      },
+      "A2": {
+        "m": 6.0,
+        "dp": 2.2
+      },
+      "A3": {
+        "m": 7.0,
+        "dp": 2.4
+      },
+      "A4": {
+        "m": 7.9,
+        "dp": 2.4
+      },
+      "A5": {
+        "m": 8.4,
+        "dp": 2.3
+      },
+      "B1": {
+        "m": 4.3,
+        "dp": 1.7
+      },
+      "A6": {
+        "m": 7.2,
+        "dp": 2.5
+      },
+      "A7": {
+        "m": 7.6,
+        "dp": 2.9
+      },
+      "Recon": {
+        "m": 10.3,
+        "dp": 3.1
+      },
+      "Total": {
+        "m": 33.7,
+        "dp": 8.6
+      },
+      "ALT": {
+        "m": 11.2,
+        "dp": 7.3
+      },
+      "Esquec": {
+        "m": 1.09,
+        "dp": 0.25
+      },
+      "Proat": {
+        "m": 1.09,
+        "dp": 0.27
+      },
+      "Retro": {
+        "m": 0.87,
+        "dp": 0.17
+      }
+    },
+    {
+      "faixa": "9-11",
+      "A1": {
+        "m": 5.4,
+        "dp": 1.5
+      },
+      "A2": {
+        "m": 7.1,
+        "dp": 2.3
+      },
+      "A3": {
+        "m": 8.2,
+        "dp": 2.6
+      },
+      "A4": {
+        "m": 9.2,
+        "dp": 2.5
+      },
+      "A5": {
+        "m": 10.0,
+        "dp": 2.3
+      },
+      "B1": {
+        "m": 5.0,
+        "dp": 1.8
+      },
+      "A6": {
+        "m": 8.7,
+        "dp": 2.8
+      },
+      "A7": {
+        "m": 8.7,
+        "dp": 2.9
+      },
+      "Recon": {
+        "m": 11.7,
+        "dp": 4.8
+      },
+      "Total": {
+        "m": 39.9,
+        "dp": 10.1
+      },
+      "ALT": {
+        "m": 12.8,
+        "dp": 8.1
+      },
+      "Esquec": {
+        "m": 1.03,
+        "dp": 0.35
+      },
+      "Proat": {
+        "m": 1.0,
+        "dp": 0.46
+      },
+      "Retro": {
+        "m": 0.91,
+        "dp": 0.38
+      }
+    },
+    {
+      "faixa": "12-14",
+      "A1": {
+        "m": 6.3,
+        "dp": 1.7
+      },
+      "A2": {
+        "m": 8.1,
+        "dp": 2.6
+      },
+      "A3": {
+        "m": 9.5,
+        "dp": 2.9
+      },
+      "A4": {
+        "m": 10.0,
+        "dp": 2.7
+      },
+      "A5": {
+        "m": 10.9,
+        "dp": 2.5
+      },
+      "B1": {
+        "m": 5.6,
+        "dp": 1.7
+      },
+      "A6": {
+        "m": 9.6,
+        "dp": 2.2
+      },
+      "A7": {
+        "m": 9.6,
+        "dp": 3.0
+      },
+      "Recon": {
+        "m": 12.5,
+        "dp": 5.0
+      },
+      "Total": {
+        "m": 44.8,
+        "dp": 9.6
+      },
+      "ALT": {
+        "m": 13.3,
+        "dp": 7.8
+      },
+      "Esquec": {
+        "m": 1.01,
+        "dp": 0.29
+      },
+      "Proat": {
+        "m": 0.92,
+        "dp": 0.28
+      },
+      "Retro": {
+        "m": 0.91,
+        "dp": 0.29
+      }
+    },
+    {
+      "faixa": "15-17",
+      "A1": {
+        "m": 6.1,
+        "dp": 1.4
+      },
+      "A2": {
+        "m": 8.1,
+        "dp": 2.2
+      },
+      "A3": {
+        "m": 9.6,
+        "dp": 2.4
+      },
+      "A4": {
+        "m": 11.1,
+        "dp": 2.4
+      },
+      "A5": {
+        "m": 11.6,
+        "dp": 2.3
+      },
+      "B1": {
+        "m": 5.4,
+        "dp": 1.7
+      },
+      "A6": {
+        "m": 10.6,
+        "dp": 2.5
+      },
+      "A7": {
+        "m": 10.5,
+        "dp": 2.9
+      },
+      "Recon": {
+        "m": 12.6,
+        "dp": 3.1
+      },
+      "Total": {
+        "m": 46.4,
+        "dp": 8.6
+      },
+      "ALT": {
+        "m": 16.1,
+        "dp": 7.3
+      },
+      "Esquec": {
+        "m": 1.01,
+        "dp": 0.25
+      },
+      "Proat": {
+        "m": 0.91,
+        "dp": 0.27
+      },
+      "Retro": {
+        "m": 0.93,
+        "dp": 0.17
+      }
+    },
+    {
+      "faixa": "18-20",
+      "A1": {
+        "m": 6.8,
+        "dp": 1.7
+      },
+      "A2": {
+        "m": 9.5,
+        "dp": 2.2
+      },
+      "A3": {
+        "m": 11.0,
+        "dp": 2.2
+      },
+      "A4": {
+        "m": 11.8,
+        "dp": 2.4
+      },
+      "A5": {
+        "m": 12.2,
+        "dp": 2.4
+      },
+      "B1": {
+        "m": 6.3,
+        "dp": 1.8
+      },
+      "A6": {
+        "m": 11.1,
+        "dp": 2.5
+      },
+      "A7": {
+        "m": 11.0,
+        "dp": 2.7
+      },
+      "Recon": {
+        "m": 10.0,
+        "dp": 5.7
+      },
+      "Total": {
+        "m": 51.4,
+        "dp": 8.7
+      },
+      "ALT": {
+        "m": 17.3,
+        "dp": 7.3
+      },
+      "Esquec": {
+        "m": 1.0,
+        "dp": 0.2
+      },
+      "Proat": {
+        "m": 0.96,
+        "dp": 0.33
+      },
+      "Retro": {
+        "m": 0.96,
+        "dp": 0.68
+      }
+    },
+    {
+      "faixa": "21-30",
+      "A1": {
+        "m": 6.5,
+        "dp": 1.7
+      },
+      "A2": {
+        "m": 8.9,
+        "dp": 2.2
+      },
+      "A3": {
+        "m": 10.4,
+        "dp": 2.4
+      },
+      "A4": {
+        "m": 11.4,
+        "dp": 2.4
+      },
+      "A5": {
+        "m": 12.2,
+        "dp": 2.2
+      },
+      "B1": {
+        "m": 5.7,
+        "dp": 1.8
+      },
+      "A6": {
+        "m": 10.9,
+        "dp": 2.6
+      },
+      "A7": {
+        "m": 10.7,
+        "dp": 2.7
+      },
+      "Recon": {
+        "m": 11.4,
+        "dp": 4.7
+      },
+      "Total": {
+        "m": 49.3,
+        "dp": 8.6
+      },
+      "ALT": {
+        "m": 16.8,
+        "dp": 6.5
+      },
+      "Esquec": {
+        "m": 1.0,
+        "dp": 0.27
+      },
+      "Proat": {
+        "m": 0.92,
+        "dp": 0.37
+      },
+      "Retro": {
+        "m": 0.89,
+        "dp": 0.17
+      }
+    },
+    {
+      "faixa": "31-40",
+      "A1": {
+        "m": 6.1,
+        "dp": 1.6
+      },
+      "A2": {
+        "m": 8.7,
+        "dp": 2.0
+      },
+      "A3": {
+        "m": 10.3,
+        "dp": 2.1
+      },
+      "A4": {
+        "m": 11.4,
+        "dp": 2.1
+      },
+      "A5": {
+        "m": 12.2,
+        "dp": 2.2
+      },
+      "B1": {
+        "m": 5.3,
+        "dp": 1.6
+      },
+      "A6": {
+        "m": 10.8,
+        "dp": 2.4
+      },
+      "A7": {
+        "m": 10.3,
+        "dp": 2.4
+      },
+      "Recon": {
+        "m": 11.1,
+        "dp": 4.7
+      },
+      "Total": {
+        "m": 48.6,
+        "dp": 8.0
+      },
+      "ALT": {
+        "m": 17.9,
+        "dp": 7.0
+      },
+      "Esquec": {
+        "m": 0.97,
+        "dp": 0.19
+      },
+      "Proat": {
+        "m": 0.91,
+        "dp": 0.33
+      },
+      "Retro": {
+        "m": 0.94,
+        "dp": 0.74
+      }
+    },
+    {
+      "faixa": "41-50",
+      "A1": {
+        "m": 6.0,
+        "dp": 1.6
+      },
+      "A2": {
+        "m": 8.5,
+        "dp": 2.0
+      },
+      "A3": {
+        "m": 9.8,
+        "dp": 2.5
+      },
+      "A4": {
+        "m": 10.7,
+        "dp": 2.7
+      },
+      "A5": {
+        "m": 11.7,
+        "dp": 2.6
+      },
+      "B1": {
+        "m": 4.9,
+        "dp": 1.6
+      },
+      "A6": {
+        "m": 9.8,
+        "dp": 2.8
+      },
+      "A7": {
+        "m": 9.6,
+        "dp": 2.8
+      },
+      "Recon": {
+        "m": 9.9,
+        "dp": 5.6
+      },
+      "Total": {
+        "m": 46.7,
+        "dp": 9.6
+      },
+      "ALT": {
+        "m": 16.5,
+        "dp": 7.3
+      },
+      "Esquec": {
+        "m": 1.01,
+        "dp": 0.34
+      },
+      "Proat": {
+        "m": 0.86,
+        "dp": 0.31
+      },
+      "Retro": {
+        "m": 0.84,
+        "dp": 0.18
+      }
+    },
+    {
+      "faixa": "51-60",
+      "A1": {
+        "m": 6.0,
+        "dp": 1.9
+      },
+      "A2": {
+        "m": 8.2,
+        "dp": 2.3
+      },
+      "A3": {
+        "m": 9.6,
+        "dp": 2.5
+      },
+      "A4": {
+        "m": 10.6,
+        "dp": 2.4
+      },
+      "A5": {
+        "m": 11.3,
+        "dp": 2.3
+      },
+      "B1": {
+        "m": 4.8,
+        "dp": 1.7
+      },
+      "A6": {
+        "m": 9.4,
+        "dp": 3.1
+      },
+      "A7": {
+        "m": 9.5,
+        "dp": 3.2
+      },
+      "Recon": {
+        "m": 10.9,
+        "dp": 5.2
+      },
+      "Total": {
+        "m": 45.7,
+        "dp": 9.7
+      },
+      "ALT": {
+        "m": 15.6,
+        "dp": 7.4
+      },
+      "Esquec": {
+        "m": 1.02,
+        "dp": 0.19
+      },
+      "Proat": {
+        "m": 0.82,
+        "dp": 0.29
+      },
+      "Retro": {
+        "m": 0.82,
+        "dp": 0.19
+      }
+    },
+    {
+      "faixa": "61-70",
+      "A1": {
+        "m": 5.5,
+        "dp": 1.6
+      },
+      "A2": {
+        "m": 7.8,
+        "dp": 1.9
+      },
+      "A3": {
+        "m": 9.1,
+        "dp": 2.0
+      },
+      "A4": {
+        "m": 10.3,
+        "dp": 1.9
+      },
+      "A5": {
+        "m": 11.3,
+        "dp": 2.0
+      },
+      "B1": {
+        "m": 4.7,
+        "dp": 1.4
+      },
+      "A6": {
+        "m": 9.5,
+        "dp": 2.6
+      },
+      "A7": {
+        "m": 9.4,
+        "dp": 2.6
+      },
+      "Recon": {
+        "m": 10.4,
+        "dp": 3.8
+      },
+      "Total": {
+        "m": 44.0,
+        "dp": 7.6
+      },
+      "ALT": {
+        "m": 16.4,
+        "dp": 6.1
+      },
+      "Esquec": {
+        "m": 1.01,
+        "dp": 0.24
+      },
+      "Proat": {
+        "m": 0.92,
+        "dp": 0.61
+      },
+      "Retro": {
+        "m": 0.84,
+        "dp": 0.16
+      }
+    },
+    {
+      "faixa": "71-79",
+      "A1": {
+        "m": 5.09,
+        "dp": 1.46
+      },
+      "A2": {
+        "m": 6.96,
+        "dp": 1.74
+      },
+      "A3": {
+        "m": 7.98,
+        "dp": 1.99
+      },
+      "A4": {
+        "m": 9.19,
+        "dp": 2.3
+      },
+      "A5": {
+        "m": 10.27,
+        "dp": 2.16
+      },
+      "B1": {
+        "m": 4.05,
+        "dp": 1.75
+      },
+      "A6": {
+        "m": 8.29,
+        "dp": 2.37
+      },
+      "A7": {
+        "m": 8.05,
+        "dp": 2.39
+      },
+      "Recon": {
+        "m": 7.72,
+        "dp": 3.99
+      },
+      "Total": {
+        "m": 39.48,
+        "dp": 8.23
+      },
+      "ALT": {
+        "m": 14.04,
+        "dp": 5.7
+      },
+      "Esquec": {
+        "m": 0.84,
+        "dp": 0.39
+      },
+      "Proat": {
+        "m": 0.81,
+        "dp": 0.19
+      },
+      "Retro": {
+        "m": 1.0,
+        "dp": 0.29
+      }
+    },
+    {
+      "faixa": "80+",
+      "A1": {
+        "m": 4.1,
+        "dp": 1.4
+      },
+      "A2": {
+        "m": 6.0,
+        "dp": 1.5
+      },
+      "A3": {
+        "m": 6.9,
+        "dp": 1.7
+      },
+      "A4": {
+        "m": 7.9,
+        "dp": 1.6
+      },
+      "A5": {
+        "m": 9.6,
+        "dp": 2.1
+      },
+      "B1": {
+        "m": 3.2,
+        "dp": 1.7
+      },
+      "A6": {
+        "m": 7.5,
+        "dp": 2.2
+      },
+      "A7": {
+        "m": 6.7,
+        "dp": 2.0
+      },
+      "Recon": {
+        "m": 5.8,
+        "dp": 5.4
+      },
+      "Total": {
+        "m": 34.5,
+        "dp": 6.3
+      },
+      "ALT": {
+        "m": 13.9,
+        "dp": 5.5
+      },
+      "Esquec": {
+        "m": 0.91,
+        "dp": 0.23
+      },
+      "Proat": {
+        "m": 0.81,
+        "dp": 0.41
+      },
+      "Retro": {
+        "m": 0.79,
+        "dp": 0.22
+      }
+    }
   ]
 }
