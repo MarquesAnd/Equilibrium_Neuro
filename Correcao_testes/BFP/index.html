@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BFP | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bfp-accent: #1a56db; --bfp-accent-light: #3b82f6; --bfp-accent-dark: #1e40af; }
+
+    .form-section { margin-bottom: 32px; }
+    .form-section h2 { font-size: 16px; font-weight: 700; color: var(--bfp-accent); margin-bottom: 16px; text-transform: uppercase; letter-spacing: .05em; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    @media (max-width: 640px) { .form-grid { grid-template-columns: 1fr; } }
+    .form-group label { display: block; font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 6px; }
+    .form-group input, .form-group select { width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 15px; font-family: inherit; transition: all .2s; box-sizing: border-box; }
+    .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--bfp-accent); box-shadow: 0 0 0 3px rgba(26,86,219,.1); }
+
+    .factor-section { margin-bottom: 28px; }
+    .factor-header { display: flex; align-items: center; gap: 12px; padding: 14px 20px; border-radius: 14px; margin-bottom: 16px; cursor: pointer; transition: all .2s; }
+    .factor-header:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+    .factor-header h3 { font-size: 15px; font-weight: 800; color: #fff; margin: 0; }
+    .factor-header .factor-tag { font-size: 11px; font-weight: 700; background: rgba(255,255,255,.25); color: #fff; padding: 3px 10px; border-radius: 6px; }
+    .factor-header .factor-count { margin-left: auto; font-size: 12px; color: rgba(255,255,255,.8); font-weight: 600; }
+    .factor-items { display: flex; flex-direction: column; gap: 8px; }
+    .item-row { background: #fafcff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; display: flex; gap: 12px; align-items: center; transition: all .2s; }
+    .item-row:hover { background: white; border-color: #cbd5e1; }
+    .item-row.filled { border-color: #059669; background: #f0fdf4; }
+    .item-num { flex-shrink: 0; width: 32px; height: 32px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 12px; color: #fff; }
+    .item-body { flex: 1; min-width: 0; }
+    .item-text { font-size: 13px; font-weight: 500; color: #1e293b; line-height: 1.5; }
+    .item-meta { font-size: 10px; color: #94a3b8; font-weight: 600; margin-top: 2px; }
+    .item-input { flex-shrink: 0; width: 64px; }
+    .item-input input { width: 100%; padding: 8px 10px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 15px; font-weight: 700; text-align: center; font-family: inherit; transition: all .2s; }
+    .item-input input:focus { outline: none; border-color: var(--bfp-accent); box-shadow: 0 0 0 3px rgba(26,86,219,.1); }
+    .item-input input.invalid { border-color: #ef4444; background: #fef2f2; }
+
+    .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin-bottom: 24px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--bfp-accent), var(--bfp-accent-light)); border-radius: 8px; transition: width .3s ease; }
+    .progress-text { font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 8px; text-align: right; }
+
+    .action-buttons { display: flex; gap: 12px; justify-content: center; margin-top: 32px; flex-wrap: wrap; }
+    .btn-custom { padding: 14px 32px; border: none; border-radius: 12px; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all .2s; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-custom.primary { background: linear-gradient(135deg, var(--bfp-accent) 0%, var(--bfp-accent-dark) 100%); color: white; box-shadow: 0 4px 14px rgba(26,86,219,.35); }
+    .btn-custom.primary:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(26,86,219,.3); }
+    .btn-custom.primary:active { transform: scale(0.97); }
+    .btn-custom.secondary { background: white; color: var(--bfp-accent); border: 2px solid var(--bfp-accent); }
+    .btn-custom.secondary:hover { background: #eff6ff; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+    .btn-custom:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+
+    /* Results preview */
+    .results-preview { margin-top: 32px; }
+    .results-preview h2 { font-size: 16px; font-weight: 700; color: var(--bfp-accent); margin-bottom: 16px; text-transform: uppercase; letter-spacing: .05em; }
+    .preview-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .preview-table th { background: #f1f5f9; padding: 10px 14px; text-align: left; font-weight: 700; color: #475569; border-bottom: 2px solid #e2e8f0; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+    .preview-table th:not(:first-child) { text-align: center; }
+    .preview-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #1e293b; }
+    .preview-table td:not(:first-child) { text-align: center; }
+    .preview-table tr.factor-row { background: #e8f0fe; font-weight: 700; }
+    .class-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; z-index: 9999; }
+    .modal-overlay.show { display: flex; }
+    .modal-box { background: white; border-radius: 20px; padding: 48px 40px; text-align: center; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+    .spinner { width: 52px; height: 52px; border: 4px solid #e2e8f0; border-top-color: var(--bfp-accent); border-radius: 50%; margin: 0 auto 24px; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .modal-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+    .modal-sub { font-size: 14px; color: #64748b; }
+
+    /* Report overlay */
+    .bfp-report-overlay { position: fixed; inset: 0; background: #f1f5f9; z-index: 8000; display: none; flex-direction: column; }
+    .bfp-report-overlay.ativo { display: flex; }
+    .bfp-report-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .bfp-report-topbar-left { display: flex; align-items: center; gap: 12px; }
+    .bfp-report-topbar h2 { font-size: 16px; font-weight: 800; color: var(--bfp-accent-dark); margin: 0; }
+    .bfp-report-actions { display: flex; gap: 8px; }
+    .btn-print-rep { background: var(--bfp-accent); color: #fff; border: none; padding: 9px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .btn-print-rep:hover { background: var(--bfp-accent-dark); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(26,86,219,.2); }
+    .btn-close-rep { background: #f1f5f9; color: #374151; border: 1.5px solid #e2e8f0; padding: 9px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+    .btn-close-rep:hover { background: #e2e8f0; transform: translateY(-2px); }
+    .btn-voltar-pac { background: #059669; color: #fff; border: none; padding: 9px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .btn-voltar-pac:hover { background: #047857; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(5,150,105,.3); }
+    .bfp-report-scroll { flex: 1; overflow-y: auto; padding: 32px 24px; }
+    .bfp-report-frame { max-width: 860px; margin: 0 auto; }
+    .rep-wrapper { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
+
+    @media print {
+      @page { margin: 10mm 12mm; size: A4 portrait; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+      html, body { margin: 0 !important; padding: 0 !important; height: auto !important; background: #fff !important; overflow: visible !important; }
+      .sidebar, .bfp-report-topbar, .main-content, .app-shell, .modal-overlay, .action-buttons { display: none !important; }
+      .bfp-report-overlay.ativo {
+        display: block !important; position: static !important; background: #fff !important;
+        width: 100% !important; height: auto !important; overflow: visible !important; inset: auto !important;
+      }
+      .bfp-report-scroll { padding: 0 !important; overflow: visible !important; height: auto !important; }
+      .bfp-report-frame { max-width: 100% !important; margin: 0 !important; }
+      .rep-wrapper { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard">
+          <span class="nav-icon">📊</span><span>Dashboard</span>
+        </a>
+        <a class="nav-item" href="/Pacientes/" data-page="pacientes">
+          <span class="nav-icon">👤</span><span>Pacientes</span>
+        </a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao">
+          <span class="nav-icon">✏️</span><span>Correção de Testes</span>
+        </a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao">
+          <span class="nav-icon">🧠</span><span>Aplicação de Testes</span>
+        </a>
+        <a class="nav-item" href="/Anamnese/" data-page="anamnese">
+          <span class="nav-icon">📋</span><span>Anamnese</span>
+        </a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios">
+          <span class="nav-icon">📄</span><span>Relatórios</span>
+        </a>
+        <a class="nav-item" href="/check_list/" data-page="checklist">
+          <span class="nav-icon">✅</span><span>Checklist</span>
+        </a>
+        <a class="nav-item" href="/Config/" data-page="config">
+          <span class="nav-icon">⚙️</span><span>Configurações</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">?</div>
+          <div>
+            <div class="user-name">Carregando...</div>
+            <div class="user-role">—</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <p class="page-subtitle">
+            <a href="/Correcao_testes/" style="color:var(--blue-mid);text-decoration:none;font-weight:600;">Correção de Testes</a> → BFP
+          </p>
+          <h1 class="page-title">BFP — Bateria Fatorial de Personalidade</h1>
+        </div>
+        <button class="btn-secondary" onclick="history.back()">← Voltar</button>
+      </div>
+
+      <div class="card" id="formulario">
+        <!-- Patient Info -->
+        <div class="form-section">
+          <h2>Dados do Paciente</h2>
+          <div class="form-grid">
+            <div class="form-group"><label>Nome Completo</label><input type="text" id="pacienteNome" placeholder="Nome do paciente" /></div>
+            <div class="form-group"><label>CPF</label><input type="text" id="pacienteCPF" placeholder="000.000.000-00" maxlength="14" /></div>
+            <div class="form-group"><label>Data de Nascimento</label><input type="date" id="dataNascimento" /></div>
+            <div class="form-group">
+              <label>Sexo</label>
+              <select id="pacienteSexo">
+                <option value="">Selecione</option>
+                <option value="Masculino">Masculino</option>
+                <option value="Feminino">Feminino</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Escolaridade</label>
+              <select id="pacienteEscolaridade">
+                <option value="">Selecione</option>
+                <option value="Fundamental Completo">Fundamental Completo</option>
+                <option value="Ensino Medio Incompleto">Medio Incompleto</option>
+                <option value="Ensino Medio Completo">Medio Completo</option>
+                <option value="Superior Incompleto">Superior Incompleto</option>
+                <option value="Superior Completo">Superior Completo</option>
+                <option value="Pos-Graduacao">Pos-Graduação</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Data de Aplicação</label><input type="date" id="dataAplicacao" /></div>
+          </div>
+        </div>
+
+        <!-- Professional Info -->
+        <div class="form-section">
+          <h2>Dados do Profissional</h2>
+          <div class="form-grid">
+            <div class="form-group"><label>Nome do Profissional</label><input type="text" id="profNome" placeholder="Nome completo" /></div>
+            <div class="form-group"><label>CRP</label><input type="text" id="profCRP" placeholder="00/00000" /></div>
+          </div>
+        </div>
+
+        <!-- Items Section -->
+        <div class="form-section">
+          <h2>Respostas dos 126 Itens (Escala 1 a 7)</h2>
+          <p style="color: #64748b; font-size: 13px; margin-bottom: 16px;">
+            Para cada item, insira a resposta do paciente (1 a 7). Os itens estão organizados por fator e faceta.
+            <br><strong>1</strong> = Absolutamente não me identifico — <strong>4</strong> = Mais ou menos — <strong>7</strong> = Descreve-me perfeitamente
+          </p>
+          <div class="progress-text" id="progressText">0 / 126 respondidos</div>
+          <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressBar" style="width:0%"></div></div>
+          <div id="itemsContainer"></div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn-custom primary" id="btnCalcular">Calcular</button>
+          <button class="btn-custom primary" id="btnRelatorio" style="display:none">Gerar Relatório</button>
+          <button class="btn-custom secondary" id="btnLimpar">Limpar Tudo</button>
+        </div>
+
+        <!-- Results preview -->
+        <div class="results-preview" id="resultsPreview" style="display:none;">
+          <h2>Resultados Preliminares</h2>
+          <div id="previewTable"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Loading modal -->
+  <div class="modal-overlay" id="modalLoading">
+    <div class="modal-box"><div class="spinner"></div><div class="modal-title">Gerando Relatório...</div><div class="modal-sub">Por favor, aguarde</div></div>
+  </div>
+
+  <!-- Report overlay -->
+  <div class="bfp-report-overlay no-print" id="repOverlay">
+    <div class="bfp-report-topbar">
+      <div class="bfp-report-topbar-left">
+        <h2>Relatório BFP</h2>
+      </div>
+      <div class="bfp-report-actions">
+        <button class="btn-voltar-pac" id="btnVoltarPac" style="display:none">Voltar ao Paciente</button>
+        <button class="btn-print-rep" id="btnPrintRep">Imprimir / Baixar PDF</button>
+        <button class="btn-close-rep" id="btnCloseRep">Fechar</button>
+      </div>
+    </div>
+    <div class="bfp-report-scroll">
+      <div class="bfp-report-frame">
+        <div class="rep-wrapper" id="repWrapper"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard.js"></script>
+  <script src="/js/integration.js"></script>
+
+  <script>
+    /* =====================================================================
+       BFP Correction Engine
+       ===================================================================== */
+
+    let BFP = null;
+    const respostas = {};
+    let computedResults = null;
+
+    /* -- Display order: facets then factor totals -- */
+    const ORDEM = ['N1','N2','N3','N4','N','E1','E2','E3','E4','E','S1','S2','S3','S','R1','R2','R3','R','A1','A2','A3','A'];
+
+    const NOMES_FULL = {
+      N1:'N1 - Vulnerabilidade', N2:'N2 - Instabilidade Emocional', N3:'N3 - Passividade / Falta de Energia', N4:'N4 - Depressão',
+      N:'Neuroticismo (Total)',
+      E1:'E1 - Comunicação', E2:'E2 - Altivez', E3:'E3 - Dinamismo', E4:'E4 - Interações Sociais',
+      E:'Extroversão (Total)',
+      S1:'S1 - Amabilidade', S2:'S2 - Pró-sociabilidade', S3:'S3 - Confiança nas Pessoas',
+      S:'Socialização (Total)',
+      R1:'R1 - Competência', R2:'R2 - Ponderação / Prudência', R3:'R3 - Empenho / Comprometimento',
+      R:'Realização (Total)',
+      A1:'A1 - Abertura a Ideias', A2:'A2 - Liberalismo', A3:'A3 - Busca por Novidades',
+      A:'Abertura (Total)'
+    };
+
+    const FACTOR_COLORS = {
+      N: { cor: '#e74c3c', light: '#fce4ec', bg: 'linear-gradient(135deg, #e74c3c, #c0392b)' },
+      E: { cor: '#f39c12', light: '#fff8e1', bg: 'linear-gradient(135deg, #f39c12, #e67e22)' },
+      S: { cor: '#27ae60', light: '#e8f5e9', bg: 'linear-gradient(135deg, #27ae60, #1e8449)' },
+      R: { cor: '#2980b9', light: '#e3f2fd', bg: 'linear-gradient(135deg, #2980b9, #1a5276)' },
+      A: { cor: '#8e44ad', light: '#f3e5f5', bg: 'linear-gradient(135deg, #8e44ad, #6c3483)' }
+    };
+
+    /* -- Factor structure for grouping items -- */
+    const FACTOR_STRUCTURE = [
+      { key: 'N', nome: 'Neuroticismo', facetas: ['N1','N2','N3','N4'] },
+      { key: 'E', nome: 'Extroversão', facetas: ['E1','E2','E3','E4'] },
+      { key: 'S', nome: 'Socialização', facetas: ['S1','S2','S3'] },
+      { key: 'R', nome: 'Realização', facetas: ['R1','R2','R3'] },
+      { key: 'A', nome: 'Abertura', facetas: ['A1','A2','A3'] }
+    ];
+
+    /* ================================================================
+       Load BFP rules JSON
+       ================================================================ */
+    async function loadRules() {
+      try {
+        const resp = await fetch('/Aplicacao_testes/BFP/data/bfp_rules.json');
+        if (!resp.ok) throw new Error('HTTP ' + resp.status);
+        BFP = await resp.json();
+        renderItems();
+      } catch (e) {
+        console.error('Erro ao carregar regras BFP:', e);
+        document.getElementById('itemsContainer').innerHTML =
+          '<p style="color:#dc2626;font-weight:600;">Erro ao carregar dados do questionário. Recarregue a página.</p>';
+      }
+    }
+
+    /* ================================================================
+       Render item inputs grouped by factor
+       ================================================================ */
+    function renderItems() {
+      const container = document.getElementById('itemsContainer');
+      container.innerHTML = '';
+
+      // Group items by facet
+      const itemsByFacet = {};
+      BFP.itens.forEach(item => {
+        if (!itemsByFacet[item.faceta]) itemsByFacet[item.faceta] = [];
+        itemsByFacet[item.faceta].push(item);
+      });
+
+      FACTOR_STRUCTURE.forEach(factor => {
+        const fc = FACTOR_COLORS[factor.key];
+        const section = document.createElement('div');
+        section.className = 'factor-section';
+
+        // Count items for this factor
+        let totalItems = 0;
+        factor.facetas.forEach(fac => { totalItems += (itemsByFacet[fac] || []).length; });
+
+        // Factor header
+        const header = document.createElement('div');
+        header.className = 'factor-header';
+        header.style.background = fc.bg;
+        header.innerHTML =
+          '<span class="factor-tag">' + factor.key + '</span>' +
+          '<h3>' + factor.nome + '</h3>' +
+          '<span class="factor-count">' + totalItems + ' itens</span>';
+        section.appendChild(header);
+
+        // Items container
+        const itemsDiv = document.createElement('div');
+        itemsDiv.className = 'factor-items';
+        itemsDiv.id = 'factor-items-' + factor.key;
+
+        factor.facetas.forEach(facetKey => {
+          const facetItems = itemsByFacet[facetKey] || [];
+          const facetName = BFP.facetas[facetKey] ? BFP.facetas[facetKey].nome : facetKey;
+
+          // Facet sub-header
+          const facetHeader = document.createElement('div');
+          facetHeader.style.cssText = 'font-size:12px;font-weight:700;color:' + fc.cor + ';padding:8px 4px 4px;text-transform:uppercase;letter-spacing:.04em;';
+          facetHeader.textContent = facetKey + ' - ' + facetName + ' (' + facetItems.length + ' itens)';
+          itemsDiv.appendChild(facetHeader);
+
+          facetItems.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'item-row';
+            row.id = 'item-row-' + item.num;
+            row.innerHTML =
+              '<div class="item-num" style="background:' + fc.bg + ';">' + item.num + '</div>' +
+              '<div class="item-body">' +
+                '<div class="item-text">Item ' + item.num + (item.inv ? ' <span style="color:#ef4444;font-size:10px;font-weight:700;">(INV)</span>' : '') + '</div>' +
+                '<div class="item-meta">' + facetKey + ' - ' + facetName + '</div>' +
+              '</div>' +
+              '<div class="item-input"><input type="number" min="1" max="7" step="1" id="resp_' + item.num + '" data-num="' + item.num + '" placeholder="1-7" /></div>';
+            itemsDiv.appendChild(row);
+          });
+        });
+
+        section.appendChild(itemsDiv);
+        container.appendChild(section);
+      });
+
+      // Attach events to all inputs
+      document.querySelectorAll('.item-input input').forEach(inp => {
+        inp.addEventListener('input', function() {
+          const num = parseInt(this.dataset.num);
+          const val = parseInt(this.value);
+          if (val >= 1 && val <= 7) {
+            respostas[num] = val;
+            this.classList.remove('invalid');
+            document.getElementById('item-row-' + num).classList.add('filled');
+          } else if (this.value === '') {
+            delete respostas[num];
+            this.classList.remove('invalid');
+            document.getElementById('item-row-' + num).classList.remove('filled');
+          } else {
+            this.classList.add('invalid');
+            delete respostas[num];
+            document.getElementById('item-row-' + num).classList.remove('filled');
+          }
+          updateProgress();
+        });
+        // Auto-advance on valid entry
+        inp.addEventListener('keydown', function(e) {
+          if (e.key === 'Enter' || e.key === 'Tab') {
+            const allInputs = Array.from(document.querySelectorAll('.item-input input'));
+            const idx = allInputs.indexOf(this);
+            if (idx < allInputs.length - 1) {
+              e.preventDefault();
+              allInputs[idx + 1].focus();
+              allInputs[idx + 1].select();
+            }
+          }
+        });
+      });
+
+      // Toggle factor sections
+      document.querySelectorAll('.factor-header').forEach(h => {
+        h.addEventListener('click', function() {
+          const items = this.nextElementSibling;
+          if (items.style.display === 'none') {
+            items.style.display = 'flex';
+          } else {
+            items.style.display = 'none';
+          }
+        });
+      });
+    }
+
+    /* ================================================================
+       Progress bar
+       ================================================================ */
+    function updateProgress() {
+      const total = BFP ? BFP.itens.length : 126;
+      const answered = Object.keys(respostas).length;
+      const pct = Math.round((answered / total) * 100);
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progressText').textContent = answered + ' / ' + total + ' respondidos';
+    }
+
+    /* ================================================================
+       Scoring Engine (matches application page logic)
+       ================================================================ */
+    function normalCDF(z) {
+      var a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741,
+          a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+      var sign = z < 0 ? -1 : 1;
+      z = Math.abs(z) / Math.sqrt(2);
+      var t = 1.0 / (1.0 + p * z);
+      var y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
+      return 0.5 * (1.0 + sign * y);
+    }
+
+    function classificar(percentil) {
+      if (percentil <= 14) return 'Muito Baixo';
+      if (percentil <= 29) return 'Baixo';
+      if (percentil <= 70) return 'Médio';
+      if (percentil <= 85) return 'Alto';
+      return 'Muito Alto';
+    }
+
+    function corFaixa(faixa) {
+      return { 'Muito Baixo': '#dc2626', 'Baixo': '#f59e0b', 'Médio': '#3b82f6', 'Alto': '#059669', 'Muito Alto': '#065f46' }[faixa] || '#6b7280';
+    }
+
+    function bgFaixa(faixa) {
+      return { 'Muito Baixo': '#fef2f2', 'Baixo': '#fffbeb', 'Médio': '#eff6ff', 'Alto': '#f0fdf4', 'Muito Alto': '#ecfdf5' }[faixa] || '#f9fafb';
+    }
+
+    function pTxt(r) {
+      var p = r && r.percentil;
+      if (!p && p !== 0) return '—';
+      if (p >= 95) return '> 95';
+      if (p <= 5) return '< 5';
+      return String(p);
+    }
+
+    function computeScores() {
+      if (!BFP) return null;
+
+      // Get sex-specific norms if sex is selected
+      var sexo = document.getElementById('pacienteSexo').value;
+      var normKey = 'geral';
+      if (sexo === 'Masculino') normKey = 'masculino';
+      else if (sexo === 'Feminino') normKey = 'feminino';
+
+      // Group items by facet
+      var facItens = {};
+      BFP.itens.forEach(function(i) {
+        if (!facItens[i.faceta]) facItens[i.faceta] = [];
+        facItens[i.faceta].push(i);
+      });
+
+      // Calculate facet raw scores (EB)
+      var ebF = {};
+      for (var fac in facItens) {
+        var itens = facItens[fac];
+        var pos = itens.filter(function(i) { return !i.inv; });
+        var neg = itens.filter(function(i) { return i.inv; });
+        var sP = pos.reduce(function(s, i) { return s + (respostas[i.num] || 0); }, 0);
+        var sN = neg.reduce(function(s, i) { return s + (respostas[i.num] || 0); }, 0);
+        var inr = neg.length * 8;
+        var nt = itens.filter(function(i) { return respostas[i.num] !== undefined; }).length;
+        ebF[fac] = nt > 0 ? (neg.length > 0 ? (sP + inr - sN) / nt : sP / nt) : 0;
+        ebF[fac] = Math.round(ebF[fac] * 100) / 100;
+      }
+
+      // Calculate factor scores (average of facet EBs)
+      var ebFat = {};
+      for (var f in BFP.fatores) {
+        var fData = BFP.fatores[f];
+        var ff = fData.facetas.filter(function(x) { return ebF[x] !== undefined; });
+        ebFat[f] = ff.length > 0 ? Math.round((ff.reduce(function(s, x) { return s + ebF[x]; }, 0) / ff.length) * 100) / 100 : 0;
+      }
+
+      // Calculate Z-scores, percentiles, classifications
+      var resultados = {};
+      var ebAll = Object.assign({}, ebF, ebFat);
+
+      for (var k in ebAll) {
+        var eb = ebAll[k];
+        var norm = null;
+
+        // Try sex-specific norms first
+        if (BFP.facetas[k] && BFP.facetas[k].normasPorSexo && BFP.facetas[k].normasPorSexo[normKey]) {
+          norm = BFP.facetas[k].normasPorSexo[normKey];
+        } else if (BFP.fatores[k] && BFP.fatores[k].normasPorSexo && BFP.fatores[k].normasPorSexo[normKey]) {
+          norm = BFP.fatores[k].normasPorSexo[normKey];
+        } else if (BFP.facetas[k] && BFP.facetas[k].norma) {
+          norm = BFP.facetas[k].norma;
+        } else if (BFP.fatores[k] && BFP.fatores[k].norma) {
+          norm = BFP.fatores[k].norma;
+        }
+
+        var z = 0, percentil = 50, faixa = 'Médio';
+        if (norm && norm.dp > 0) {
+          z = Math.round(((eb - norm.media) / norm.dp) * 10) / 10;
+          percentil = Math.round(normalCDF(z) * 100);
+          if (percentil < 1) percentil = 1;
+          if (percentil > 99) percentil = 99;
+        }
+        faixa = classificar(percentil);
+
+        resultados[k] = {
+          eb: eb,
+          z: z,
+          percentil: percentil,
+          faixa: faixa,
+          media: norm ? norm.media : 0,
+          dp: norm ? norm.dp : 0
+        };
+      }
+
+      return resultados;
+    }
+
+    /* ================================================================
+       Show preview table
+       ================================================================ */
+    function showPreview(results) {
+      var container = document.getElementById('previewTable');
+      var html = '<table class="preview-table"><thead><tr>';
+      html += '<th>Faceta / Fator</th><th>Escore Bruto</th><th>Escore Z</th><th>Percentil</th><th>Classificação</th>';
+      html += '</tr></thead><tbody>';
+
+      ORDEM.forEach(function(k) {
+        var r = results[k] || {};
+        var isF = k.length === 1;
+        var factorKey = k.length === 1 ? k : k[0];
+        var fc = FACTOR_COLORS[factorKey];
+        var trClass = isF ? ' class="factor-row"' : '';
+        var fxColor = corFaixa(r.faixa);
+        var fxBg = bgFaixa(r.faixa);
+
+        html += '<tr' + trClass + ' style="' + (isF ? 'background:#e8f0fe;' : '') + '">';
+        html += '<td style="font-weight:' + (isF ? '700' : '500') + ';color:' + (isF ? fc.cor : '#1e293b') + ';">' + (NOMES_FULL[k] || k) + '</td>';
+        html += '<td>' + (r.eb != null ? r.eb.toFixed(2) : '—') + '</td>';
+        html += '<td>' + (r.z != null ? r.z.toFixed(1) : '—') + '</td>';
+        html += '<td>' + pTxt(r) + '</td>';
+        html += '<td><span class="class-badge" style="background:' + fxBg + ';color:' + fxColor + ';border:1px solid ' + fxColor + '33;">' + (r.faixa || '—') + '</span></td>';
+        html += '</tr>';
+      });
+
+      html += '</tbody></table>';
+      container.innerHTML = html;
+      document.getElementById('resultsPreview').style.display = 'block';
+      document.getElementById('btnRelatorio').style.display = 'inline-flex';
+    }
+
+    /* ================================================================
+       SVG Bar Chart for 5 main factors
+       ================================================================ */
+    function buildFactorChartSVG(results) {
+      var fatores = ['N', 'E', 'S', 'R', 'A'];
+      var fatNomes = { N: 'Neuroticismo', E: 'Extroversão', S: 'Socialização', R: 'Realização', A: 'Abertura' };
+
+      var barWidth = 80, barGap = 30, chartPadLeft = 60, chartTop = 40, chartH = 200;
+      var svgW = chartPadLeft + fatores.length * (barWidth + barGap) + 40;
+      var svgH = chartH + 90;
+
+      var bars = '';
+      var labels = '';
+      var gridLines = '';
+
+      // Grid lines for z-scores: -3 to +3
+      for (var zz = -3; zz <= 3; zz++) {
+        var yPos = chartTop + chartH / 2 - (zz * chartH / 6);
+        var dashStr = zz === 0 ? '' : ' stroke-dasharray="4,3"';
+        var lineColor = zz === 0 ? '#94a3b8' : '#e2e8f0';
+        var lineW = zz === 0 ? '1.5' : '1';
+        gridLines += '<line x1="' + chartPadLeft + '" y1="' + yPos + '" x2="' + (svgW - 20) + '" y2="' + yPos + '" stroke="' + lineColor + '" stroke-width="' + lineW + '"' + dashStr + '/>';
+        gridLines += '<text x="' + (chartPadLeft - 8) + '" y="' + (yPos + 4) + '" text-anchor="end" font-size="11" fill="#94a3b8">' + zz.toFixed(1) + '</text>';
+      }
+
+      fatores.forEach(function(f, i) {
+        var r = results[f] || {};
+        var zVal = r.z || 0;
+        var fc = FACTOR_COLORS[f];
+        var x = chartPadLeft + i * (barWidth + barGap) + barGap / 2;
+        var midY = chartTop + chartH / 2;
+        var barH = Math.abs(zVal) * (chartH / 6);
+        var yStart = zVal >= 0 ? midY - barH : midY;
+
+        bars += '<rect x="' + x + '" y="' + yStart + '" width="' + barWidth + '" height="' + Math.max(barH, 2) + '" rx="4" fill="' + fc.cor + '" opacity="0.85"/>';
+        var labelY = zVal >= 0 ? yStart - 6 : yStart + barH + 14;
+        bars += '<text x="' + (x + barWidth / 2) + '" y="' + labelY + '" text-anchor="middle" font-size="12" font-weight="700" fill="' + fc.cor + '">' + zVal.toFixed(1) + '</text>';
+        labels += '<text x="' + (x + barWidth / 2) + '" y="' + (chartTop + chartH + 18) + '" text-anchor="middle" font-size="12" font-weight="600" fill="#334155">' + fatNomes[f] + '</text>';
+        labels += '<text x="' + (x + barWidth / 2) + '" y="' + (chartTop + chartH + 32) + '" text-anchor="middle" font-size="10" fill="#94a3b8">P' + pTxt(r) + '</text>';
+      });
+
+      return '<svg xmlns="http://www.w3.org/2000/svg" width="' + svgW + '" height="' + svgH + '" viewBox="0 0 ' + svgW + ' ' + svgH + '" style="max-width:100%;">' +
+        '<rect width="' + svgW + '" height="' + svgH + '" fill="#fafcff" rx="8"/>' +
+        gridLines +
+        '<line x1="' + chartPadLeft + '" y1="' + (chartTop + chartH / 2) + '" x2="' + (svgW - 20) + '" y2="' + (chartTop + chartH / 2) + '" stroke="#1e293b" stroke-width="1.5"/>' +
+        bars + labels +
+        '<text x="' + (svgW / 2) + '" y="22" text-anchor="middle" font-size="14" font-weight="700" fill="#1e293b">Perfil de Escores Z - Fatores BFP</text>' +
+        '</svg>';
+    }
+
+    /* ================================================================
+       Build full report HTML (self-contained, inline styles)
+       ================================================================ */
+    function buildReportHTML(results) {
+      var nome = document.getElementById('pacienteNome').value.trim();
+      var cpf = document.getElementById('pacienteCPF').value.trim();
+      var dataNasc = document.getElementById('dataNascimento').value;
+      var sexo = document.getElementById('pacienteSexo').value;
+      var escolaridade = document.getElementById('pacienteEscolaridade').value;
+      var dataAplic = document.getElementById('dataAplicacao').value;
+      var profNome = document.getElementById('profNome').value.trim();
+      var profCRP = document.getElementById('profCRP').value.trim();
+
+      var hoje = new Date();
+      var nascDate = dataNasc ? new Date(dataNasc + 'T00:00:00') : null;
+      var idade = '';
+      if (nascDate) {
+        var idadeAnos = hoje.getFullYear() - nascDate.getFullYear();
+        var m = hoje.getMonth() - nascDate.getMonth();
+        if (m < 0 || (m === 0 && hoje.getDate() < nascDate.getDate())) idadeAnos--;
+        idade = idadeAnos + ' anos';
+      }
+
+      var dataNascFmt = nascDate ? nascDate.toLocaleDateString('pt-BR') : '—';
+      var dataAplicFmt = dataAplic ? new Date(dataAplic + 'T00:00:00').toLocaleDateString('pt-BR') : hoje.toLocaleDateString('pt-BR');
+
+      // Build results table rows
+      var tableRows = '';
+      ORDEM.forEach(function(k) {
+        var r = results[k] || {};
+        var isF = k.length === 1;
+        var factorKey = k.length === 1 ? k : k[0];
+        var fc = FACTOR_COLORS[factorKey];
+        var rowBg = isF ? '#e8f0fe' : '#ffffff';
+        var fw = isF ? '700' : '400';
+        var fxc = corFaixa(r.faixa);
+        var fxb = bgFaixa(r.faixa);
+
+        tableRows += '<tr style="background:' + rowBg + ';">' +
+          '<td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-weight:' + fw + ';' + (isF ? 'color:' + fc.cor + ';' : '') + '">' + (NOMES_FULL[k] || k) + '</td>' +
+          '<td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">' + (r.eb != null ? r.eb.toFixed(2) : '—') + '</td>' +
+          '<td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">' + (r.z != null ? r.z.toFixed(1) : '—') + '</td>' +
+          '<td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">' + pTxt(r) + '</td>' +
+          '<td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">' +
+            '<span style="display:inline-block;padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;color:' + fxc + ';background:' + fxb + ';border:1px solid ' + fxc + '33;">' + (r.faixa || '—') + '</span>' +
+          '</td></tr>';
+      });
+
+      // SVG chart
+      var svgChart = buildFactorChartSVG(results);
+
+      // Factor descriptions
+      var descFator = {
+        N: 'O Neuroticismo avalia a instabilidade emocional, vulnerabilidade, ansiedade e tendência a emoções negativas. Escores elevados indicam maior suscetibilidade ao sofrimento emocional.',
+        E: 'A Extroversão avalia o nível de comunicação, assertividade, dinamismo e busca por interações sociais. Escores altos indicam perfil mais sociável e comunicativo.',
+        S: 'A Socialização avalia amabilidade, confiança nas pessoas e pró-sociabilidade. Escores altos indicam maior disposição para cooperação e altruísmo.',
+        R: 'A Realização avalia competência, ponderação e empenho/comprometimento. Escores altos indicam maior organização, disciplina e orientação a metas.',
+        A: 'A Abertura avalia abertura a novas ideias, liberalismo e busca por novidades. Escores altos indicam maior curiosidade intelectual e receptividade a experiências novas.'
+      };
+
+      // Build factor interpretation sections
+      var fatores = ['N', 'E', 'S', 'R', 'A'];
+      var fatNomes = { N: 'Neuroticismo', E: 'Extroversão', S: 'Socialização', R: 'Realização', A: 'Abertura' };
+
+      var interpSections = '';
+      fatores.forEach(function(f) {
+        var r = results[f] || {};
+        var fc = FACTOR_COLORS[f];
+        var fData = BFP.fatores[f];
+
+        // Factor header
+        interpSections += '<div style="margin-bottom:24px;">';
+        interpSections += '<div style="background:' + fc.bg + ';padding:14px 20px;border-radius:12px 12px 0 0;color:#fff;">';
+        interpSections += '<div style="font-size:16px;font-weight:800;">' + fatNomes[f] + ' (' + f + ')</div>';
+        interpSections += '<div style="font-size:12px;opacity:.85;margin-top:4px;">Z = ' + (r.z != null ? r.z.toFixed(1) : '—') + ' | Percentil: ' + pTxt(r) + ' | ' + (r.faixa || '—') + '</div>';
+        interpSections += '</div>';
+        interpSections += '<div style="border:1.5px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px;padding:16px 20px;">';
+        interpSections += '<p style="font-size:13px;color:#475569;line-height:1.7;margin:0 0 12px 0;">' + descFator[f] + '</p>';
+
+        // Facet details with interpretations
+        var facetas = fData.facetas;
+        facetas.forEach(function(facKey) {
+          var fr = results[facKey] || {};
+          var facData = BFP.facetas[facKey];
+          if (!facData) return;
+
+          var interpText = '';
+          if (facData.interpretacoes && fr.faixa && facData.interpretacoes[fr.faixa]) {
+            interpText = facData.interpretacoes[fr.faixa];
+          }
+
+          interpSections += '<div style="border-left:3px solid ' + fc.cor + ';padding:10px 14px;margin:10px 0;background:#fafcff;border-radius:0 8px 8px 0;">';
+          interpSections += '<div style="font-size:13px;font-weight:700;color:' + fc.cor + ';margin-bottom:4px;">' + (NOMES_FULL[facKey] || facKey) + '</div>';
+          interpSections += '<div style="font-size:12px;color:#64748b;margin-bottom:6px;">EB: ' + (fr.eb != null ? fr.eb.toFixed(2) : '—') + ' | Z: ' + (fr.z != null ? fr.z.toFixed(1) : '—') + ' | P' + pTxt(fr) + ' | <strong style="color:' + corFaixa(fr.faixa) + ';">' + (fr.faixa || '—') + '</strong></div>';
+          if (interpText) {
+            interpSections += '<div style="font-size:12px;color:#334155;line-height:1.65;">' + interpText + '</div>';
+          }
+          interpSections += '</div>';
+        });
+
+        interpSections += '</div></div>';
+      });
+
+      // Build full HTML report
+      var html = '';
+
+      // Header
+      html += '<div style="background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);padding:32px 36px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;">';
+      html += '<div style="display:flex;align-items:center;gap:14px;"><img src="/logo2.png" alt="Logo" style="height:48px;border-radius:8px;" onerror="this.style.display=\'none\'" /><div><div style="font-size:18px;font-weight:800;">Equilibrium</div><div style="font-size:12px;opacity:0.9;">Neuropsicologia</div></div></div>';
+      html += '<div style="text-align:right;"><div style="font-size:22px;font-weight:800;margin-bottom:4px;">BFP</div><div style="font-size:13px;opacity:0.9;">Bateria Fatorial de Personalidade</div><div style="font-size:11px;opacity:0.7;margin-top:2px;">Nunes, Hutz & Nunes (2010)</div></div>';
+      html += '</div>';
+
+      // Body
+      html += '<div style="padding:36px;">';
+
+      // Patient info
+      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Identificação</h2>';
+      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;background:#f8fafc;padding:20px;border-radius:12px;">';
+      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Paciente</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + nome + '</div></div>';
+      if (cpf) {
+        html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">CPF</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + cpf + '</div></div>';
+      }
+      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Data de Nascimento</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + dataNascFmt + (idade ? ' (' + idade + ')' : '') + '</div></div>';
+      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Sexo</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + (sexo || '—') + '</div></div>';
+      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Escolaridade</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + (escolaridade || '—') + '</div></div>';
+      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Data da Aplicação</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + dataAplicFmt + '</div></div>';
+      if (profNome) {
+        html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Profissional Responsável</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + profNome + (profCRP ? ' — CRP ' + profCRP : '') + '</div></div>';
+      }
+      html += '</div></div>';
+
+      // About the instrument
+      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Sobre o Instrumento</h2>';
+      html += '<p style="font-size:14px;color:#475569;line-height:1.7;margin-bottom:12px;">A <strong style="color:#1e293b;">BFP (Bateria Fatorial de Personalidade)</strong> é um instrumento de avaliação psicológica desenvolvido por Nunes, Hutz e Nunes (2010), baseado no modelo dos Cinco Grandes Fatores de Personalidade (Big Five). Composta por <strong style="color:#1e293b;">126 itens</strong> respondidos em escala Likert de 1 a 7, avalia cinco dimensões amplas da personalidade: Neuroticismo, Extroversão, Socialização, Realização e Abertura a experiências.</p>';
+      html += '<p style="font-size:14px;color:#475569;line-height:1.7;margin-bottom:12px;">Cada fator é composto por facetas que permitem análise detalhada do perfil de personalidade. Os escores brutos são convertidos em <strong style="color:#1e293b;">escores Z</strong> e <strong style="color:#1e293b;">percentis</strong> com base nos dados normativos da amostra de padronização (amostra geral ou por sexo).</p>';
+      html += '</div>';
+
+      // Results table
+      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Tabela de Resultados</h2>';
+      html += '<table style="width:100%;border-collapse:collapse;font-size:13px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;">';
+      html += '<thead><tr><th style="background:#1a56db;color:#fff;padding:10px 12px;text-align:left;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;">Faceta / Fator</th>';
+      html += '<th style="background:#1a56db;color:#fff;padding:10px 12px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;">Escore Bruto</th>';
+      html += '<th style="background:#1a56db;color:#fff;padding:10px 12px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;">Escore Z</th>';
+      html += '<th style="background:#1a56db;color:#fff;padding:10px 12px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;">Percentil</th>';
+      html += '<th style="background:#1a56db;color:#fff;padding:10px 12px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;">Classificação</th>';
+      html += '</tr></thead><tbody>' + tableRows + '</tbody></table></div>';
+
+      // Chart
+      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Perfil Gráfico</h2>';
+      html += '<div style="margin:16px 0;padding:20px;background:#fafcff;border-radius:12px;border:1.5px solid #e2e8f0;text-align:center;">' + svgChart + '</div></div>';
+
+      // Interpretation
+      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Interpretação por Fator</h2>';
+      html += interpSections;
+      html += '</div>';
+
+      // Classification note
+      html += '<div style="margin-bottom:32px;background:#eff6ff;border-left:4px solid #1a56db;border-radius:8px;padding:20px;">';
+      html += '<p style="color:#1e293b;line-height:1.8;margin:0 0 10px 0;font-size:13px;"><strong>Critérios de Classificação:</strong> Muito Baixo (percentil 1-14), Baixo (percentil 15-29), Médio (percentil 30-70), Alto (percentil 71-85), Muito Alto (percentil 86-99).</p>';
+      html += '<p style="color:#1e293b;line-height:1.8;margin:0;font-size:13px;"><strong>Nota:</strong> Os resultados devem ser interpretados em conjunto com a entrevista clínica, a história do paciente e outros dados da avaliação psicológica/neuropsicológica. A BFP é uma ferramenta de avaliação dimensional da personalidade e seus resultados não devem ser utilizados isoladamente para fins diagnósticos.</p>';
+      html += '</div>';
+
+      // Signature line
+      if (profNome) {
+        html += '<div style="margin-top:40px;text-align:center;">';
+        html += '<div style="display:inline-block;min-width:300px;border-top:1.5px solid #1e293b;padding-top:10px;">';
+        html += '<div style="font-size:14px;font-weight:700;color:#1e293b;">' + profNome + '</div>';
+        if (profCRP) html += '<div style="font-size:12px;color:#64748b;">CRP: ' + profCRP + '</div>';
+        html += '</div></div>';
+      }
+
+      // Footer
+      html += '<div style="margin-top:40px;padding-top:24px;border-top:2px solid #f1f5f9;text-align:center;">';
+      html += '<p style="font-size:12px;color:#94a3b8;margin-bottom:6px;">Relatório gerado por <strong>Equilibrium Neuropsicologia</strong></p>';
+      html += '<p style="font-size:11px;color:#cbd5e1;">Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados</p>';
+      html += '</div>';
+
+      html += '</div>'; // close body div
+
+      return html;
+    }
+
+    /* ================================================================
+       Calcular button handler
+       ================================================================ */
+    function handleCalcular() {
+      var nome = document.getElementById('pacienteNome').value.trim();
+      if (!nome) { alert('Por favor, preencha o nome do paciente.'); return; }
+
+      var sexo = document.getElementById('pacienteSexo').value;
+      if (!sexo) { alert('Por favor, selecione o sexo do paciente (necessário para normas).'); return; }
+
+      var answered = Object.keys(respostas).length;
+      if (answered < 126) {
+        if (!confirm('Apenas ' + answered + ' de 126 itens foram respondidos. Itens não respondidos serão tratados como ausentes. Deseja continuar?')) return;
+      }
+
+      computedResults = computeScores();
+      showPreview(computedResults);
+      document.getElementById('resultsPreview').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    /* ================================================================
+       Generate report handler
+       ================================================================ */
+    async function handleGerarRelatorio() {
+      var nome = document.getElementById('pacienteNome').value.trim();
+      if (!nome) { alert('Por favor, preencha o nome do paciente.'); return; }
+      if (!computedResults) { alert('Calcule os resultados primeiro.'); return; }
+
+      var modalLoading = document.getElementById('modalLoading');
+      modalLoading.classList.add('show');
+
+      try {
+        var reportHTML = buildReportHTML(computedResults);
+        document.getElementById('repWrapper').innerHTML = reportHTML;
+
+        modalLoading.classList.remove('show');
+        document.getElementById('repOverlay').classList.add('ativo');
+
+        // Build summary for Firebase
+        var fatores = ['N', 'E', 'S', 'R', 'A'];
+        var fatNomes = { N: 'Neuroticismo', E: 'Extroversão', S: 'Socialização', R: 'Realização', A: 'Abertura' };
+
+        var resumoParts = fatores.map(function(f) {
+          var r = computedResults[f] || {};
+          return fatNomes[f] + ': P' + (r.percentil || '?') + ' (' + (r.faixa || '?') + ')';
+        });
+        var resumo = resumoParts.join(' | ');
+
+        var scoresObj = {};
+        ORDEM.forEach(function(k) {
+          var r = computedResults[k] || {};
+          scoresObj[k] = { eb: r.eb, z: r.z, percentil: r.percentil, faixa: r.faixa };
+        });
+
+        var classGeral = fatores.map(function(f) { return f + ':' + (computedResults[f]?.faixa || '?'); }).join(', ');
+
+        // Save to Firebase
+        if (window.Integration && Integration.salvarTesteNoFirebase) {
+          await new Promise(function(r) { setTimeout(r, 300); });
+          var repWrapper = document.getElementById('repWrapper');
+          await Integration.salvarTesteNoFirebase('bfp', {
+            dataAplicacao: document.getElementById('dataAplicacao').value || new Date().toISOString().split('T')[0],
+            resumo: resumo,
+            scores: scoresObj,
+            classificacao: classGeral,
+            observacoes: '',
+            htmlRelatorio: repWrapper ? repWrapper.outerHTML : ''
+          });
+        }
+
+      } catch (error) {
+        console.error('Erro ao processar:', error);
+        modalLoading.classList.remove('show');
+        alert('Ocorreu um erro ao gerar o relatório. Por favor, tente novamente.');
+      }
+    }
+
+    /* ================================================================
+       Clear form
+       ================================================================ */
+    function limparFormulario() {
+      if (confirm('Tem certeza que deseja limpar todas as respostas?')) {
+        document.getElementById('pacienteNome').value = '';
+        document.getElementById('pacienteCPF').value = '';
+        document.getElementById('dataNascimento').value = '';
+        document.getElementById('pacienteSexo').value = '';
+        document.getElementById('pacienteEscolaridade').value = '';
+        document.getElementById('dataAplicacao').value = new Date().toISOString().split('T')[0];
+        document.getElementById('profNome').value = '';
+        document.getElementById('profCRP').value = '';
+
+        Object.keys(respostas).forEach(function(key) { delete respostas[key]; });
+        document.querySelectorAll('.item-input input').forEach(function(inp) {
+          inp.value = '';
+          inp.classList.remove('invalid');
+        });
+        document.querySelectorAll('.item-row').forEach(function(row) { row.classList.remove('filled'); });
+
+        computedResults = null;
+        document.getElementById('resultsPreview').style.display = 'none';
+        document.getElementById('btnRelatorio').style.display = 'none';
+        updateProgress();
+      }
+    }
+
+    /* ================================================================
+       CPF mask
+       ================================================================ */
+    function maskCPF(input) {
+      var v = input.value.replace(/\D/g, '');
+      if (v.length > 11) v = v.slice(0, 11);
+      if (v.length > 9) v = v.replace(/(\d{3})(\d{3})(\d{3})(\d{1,2})/, '$1.$2.$3-$4');
+      else if (v.length > 6) v = v.replace(/(\d{3})(\d{3})(\d{1,3})/, '$1.$2.$3');
+      else if (v.length > 3) v = v.replace(/(\d{3})(\d{1,3})/, '$1.$2');
+      input.value = v;
+    }
+
+    /* ================================================================
+       Init
+       ================================================================ */
+    document.addEventListener('DOMContentLoaded', async function() {
+      if (window.FIREBASE_CONFIGURED && window.DB) await DB.init();
+      if (typeof isAuthed === 'function' && !isAuthed()) { location.href = '/login.html'; return; }
+      if (typeof applySidebarPermissions === 'function') applySidebarPermissions();
+
+      document.getElementById('dataAplicacao').value = new Date().toISOString().split('T')[0];
+      document.getElementById('pacienteCPF').addEventListener('input', function() { maskCPF(this); });
+
+      await loadRules();
+
+      document.getElementById('btnCalcular').addEventListener('click', handleCalcular);
+      document.getElementById('btnRelatorio').addEventListener('click', handleGerarRelatorio);
+      document.getElementById('btnLimpar').addEventListener('click', limparFormulario);
+      document.getElementById('btnCloseRep').addEventListener('click', function() { document.getElementById('repOverlay').classList.remove('ativo'); });
+      document.getElementById('btnPrintRep').addEventListener('click', function() { window.print(); });
+
+      // Show "Voltar ao Paciente" if patient is selected
+      var pacienteAtual = null;
+      try { var raw = sessionStorage.getItem('pacienteAtual'); if (raw) pacienteAtual = JSON.parse(raw); } catch(e) {}
+      if (!pacienteAtual && window.Integration) pacienteAtual = Integration.getPacienteAtual();
+      if (pacienteAtual && pacienteAtual.id) {
+        var btnVoltar = document.getElementById('btnVoltarPac');
+        if (btnVoltar) {
+          btnVoltar.style.display = 'flex';
+          btnVoltar.addEventListener('click', function() {
+            sessionStorage.setItem('abrirPacienteId', pacienteAtual.id);
+            window.location.href = '/Pacientes/';
+          });
+        }
+        // Pre-fill patient name if available
+        if (pacienteAtual.nome && !document.getElementById('pacienteNome').value) {
+          document.getElementById('pacienteNome').value = pacienteAtual.nome;
+        }
+        if (pacienteAtual.cpf && !document.getElementById('pacienteCPF').value) {
+          document.getElementById('pacienteCPF').value = pacienteAtual.cpf;
+          maskCPF(document.getElementById('pacienteCPF'));
+        }
+        if (pacienteAtual.dataNascimento && !document.getElementById('dataNascimento').value) {
+          document.getElementById('dataNascimento').value = pacienteAtual.dataNascimento;
+        }
+        if (pacienteAtual.sexo && !document.getElementById('pacienteSexo').value) {
+          document.getElementById('pacienteSexo').value = pacienteAtual.sexo;
+        }
+      }
+    });
+  </script>
+</body>
+</html>
