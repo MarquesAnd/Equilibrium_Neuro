@@ -1,0 +1,156 @@
+/* === APLICAÇÃO: Aplicacao_testes/EQ15/eq15-shared.css === */
+/* ═══════════════════════════════════════════════════════════
+   EQ-15 SHARED STYLES — Sistema Equilibrium
+   Padrão visual idêntico ao SRS-2 shared.
+   ═══════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  background: #f8fafc;
+  color: #1e293b;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Variáveis base ─────────────────────────────────────── */
+:root {
+  --text:           #1e293b;
+  --text-secondary: #64748b;
+  --bg:             #f8fafc;
+  --border:         #e2e8f0;
+  --radius:         10px;
+
+  /* Cor EQ-15 — violeta caloroso */
+  --eq-accent:        #7c3aed;
+  --eq-accent-light:  #ede9fe;
+  --eq-accent-dark:   #5b21b6;
+
+  --srs-accent:       var(--eq-accent);
+  --srs-accent-light: var(--eq-accent-light);
+  --srs-accent-dark:  var(--eq-accent-dark);
+}
+
+/* ── Item de resposta ───────────────────────────────────── */
+.item {
+  padding: 18px 0;
+  border-bottom: 1.5px solid #f1f5f9;
+}
+.item:last-child { border-bottom: none; }
+
+.item .top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.item .qid {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  background: var(--eq-accent-light);
+  color: var(--eq-accent-dark);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.item .txt {
+  flex: 1;
+  font-size: 14.5px;
+  color: #1e293b;
+  line-height: 1.6;
+}
+
+.item .tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.tag-reverso { background: #fef3c7; color: #92400e; }
+.tag-normal  { background: #d1fae5; color: #065f46; }
+
+/* Opções de resposta */
+.opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.opt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: #475569;
+  transition: all .18s;
+  background: #fafcff;
+  user-select: none;
+}
+.opt:hover {
+  border-color: var(--eq-accent);
+  background: var(--eq-accent-light);
+  color: var(--eq-accent-dark);
+}
+.opt.selecionada {
+  border-color: var(--eq-accent);
+  background: var(--eq-accent-light);
+  color: var(--eq-accent-dark);
+  font-weight: 600;
+}
+.opt input[type="radio"] { accent-color: var(--eq-accent); width: 15px; height: 15px; }
+
+.item.respondido .qid {
+  background: var(--eq-accent);
+  color: #fff;
+}
+
+/* ── Modal overlay ──────────────────────────────────────── */
+.srs-modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(30,41,59,.6);
+  z-index: 9000;
+  align-items: center;
+  justify-content: center;
+}
+.srs-modal-overlay.ativo { display: flex; }
+
+.srs-modal-box {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px 48px;
+  text-align: center;
+  max-width: 340px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
+}
+.srs-modal-spinner {
+  width: 48px; height: 48px;
+  border: 5px solid #ede9fe;
+  border-top-color: var(--eq-accent);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+  margin: 0 auto 20px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.srs-modal-title { font-size: 16px; font-weight: 800; color: var(--eq-accent-dark); margin-bottom: 6px; }
+.srs-modal-sub   { font-size: 13px; color: #64748b; }
+
+/* ── Classificações ─────────────────────────────────────── */
+.cls-normal   { color: #059669; background: #d1fae5; }
+.cls-leve     { color: #1d4ed8; background: #dbeafe; }
+.cls-moderado { color: #92400e; background: #fef3c7; }
+.cls-severo   { color: #b91c1c; background: #fee2e2; }
