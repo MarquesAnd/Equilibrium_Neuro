@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>RAADS-R-BR Screen | Equilibrium</title>
   <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/Correcao_testes/style.css" />
   <link rel="icon" type="image/png" href="/logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -86,11 +87,11 @@
       }
       .raadsr-report-scroll { padding: 0 !important; overflow: visible !important; height: auto !important; }
       .raadsr-report-frame { max-width: 100% !important; margin: 0 !important; }
-      .rr-rpt { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; }
-      .rr-hdr { break-inside: avoid !important; page-break-inside: avoid !important; background: linear-gradient(135deg, #1e40af 0%, #1a56db 100%) !important; }
-      .rr-section { break-inside: avoid !important; page-break-inside: avoid !important; }
-      .rr-sh { break-after: avoid !important; page-break-after: avoid !important; }
-      .rr-footer { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .report { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; border: none !important; }
+      .rpt-hdr { break-inside: avoid !important; page-break-inside: avoid !important; background: linear-gradient(135deg, #0c1f3f 0%, #1a3a6a 50%, #1e40af 100%) !important; }
+      .no-break { break-inside: avoid !important; page-break-inside: avoid !important; }
+      .rpt-sh { break-after: avoid !important; page-break-after: avoid !important; }
+      .rpt-foot { break-inside: avoid !important; page-break-inside: avoid !important; }
     }
   </style>
 </head>
@@ -324,13 +325,13 @@
         const domRows = DOMINIOS.map((d, i) => {
           const sc = domScores[d.key] || 0;
           const pct = Math.round((sc / d.max) * 100);
-          const bg = i % 2 === 0 ? '#fff' : '#f8fafc';
-          return `<tr style="background:${bg}">
-            <td style="padding:10px 14px;font-weight:600;color:${d.color}">${d.label}</td>
-            <td style="padding:10px 14px;text-align:center;color:#64748b;font-size:12px">${d.items.join(', ')}</td>
-            <td style="padding:10px 14px;text-align:center;font-weight:800;font-size:15px;color:${d.color}">${sc}</td>
-            <td style="padding:10px 14px;text-align:center;color:#64748b">${d.max}</td>
-            <td style="padding:10px 14px;text-align:center;font-weight:700;color:#334155">${pct}%</td>
+          const altCls = i % 2 !== 0 ? ' class="alt"' : '';
+          return `<tr${altCls}>
+            <td style="font-weight:600;color:${d.color}">${d.label}</td>
+            <td class="ctr">${d.items.join(', ')}</td>
+            <td class="ctr" style="font-weight:800;font-size:14px;color:${d.color}">${sc}</td>
+            <td class="ctr">${d.max}</td>
+            <td class="ctr" style="font-weight:700">${pct}%</td>
           </tr>`;
         }).join('');
 
@@ -391,185 +392,151 @@
           const respLabel = resp != null ? (answerLabels[resp] || `(${resp})`) : '--';
           const scored = pontuacaoItem(q.id);
           const domLabel = itemDomainMap[q.id] || '--';
-          const bg = i % 2 === 0 ? '#fff' : '#f8fafc';
-          return `<tr style="background:${bg}">
-            <td style="padding:8px 12px;text-align:center;font-weight:700;color:#1e40af">${q.id}</td>
-            <td style="padding:8px 12px;font-size:12px;color:#475569;max-width:320px">${escHtml(q.text)}${q.reverse ? ' <span style="background:#fef3c7;color:#92400e;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px">INV</span>' : ''}</td>
-            <td style="padding:8px 12px;text-align:center;font-size:12px;color:#64748b">${domLabel}</td>
-            <td style="padding:8px 12px;text-align:center;font-size:12px">${respLabel}</td>
-            <td style="padding:8px 12px;text-align:center;font-weight:700;color:#1e293b">${scored}</td>
+          const altCls = i % 2 !== 0 ? ' class="alt"' : '';
+          return `<tr${altCls}>
+            <td class="ctr" style="font-weight:700;color:#1e40af">${q.id}</td>
+            <td style="max-width:320px">${escHtml(q.text)}${q.reverse ? ' <span style="background:#fef3c7;color:#92400e;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px">INV</span>' : ''}</td>
+            <td class="ctr">${domLabel}</td>
+            <td class="ctr">${respLabel}</td>
+            <td class="ctr" style="font-weight:700">${scored}</td>
           </tr>`;
         }).join('');
 
         // Build full self-contained HTML
         const html = `
-<style>
-  .rr-rpt * { margin:0; padding:0; box-sizing:border-box; }
-  .rr-rpt { font-family:'DM Sans',system-ui,-apple-system,sans-serif; background:#fff; border-radius:20px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.08); color:#1e293b; }
-  .rr-hdr { background:linear-gradient(135deg,#1e40af 0%,#1a56db 100%); padding:32px 36px; color:#fff; display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap; }
-  .rr-hdr-brand { display:flex; align-items:center; gap:14px; }
-  .rr-hdr-logo { height:48px; border-radius:8px; }
-  .rr-hdr-name { font-size:18px; font-weight:800; }
-  .rr-hdr-sub { font-size:12px; opacity:.9; }
-  .rr-hdr-info { text-align:right; }
-  .rr-hdr-title { font-size:22px; font-weight:800; margin-bottom:4px; }
-  .rr-hdr-subtitle { font-size:13px; opacity:.9; }
-  .rr-body { padding:36px; }
-  .rr-section { margin-bottom:32px; }
-  .rr-sh { font-size:18px; font-weight:800; color:#1e293b; margin-bottom:16px; padding-bottom:10px; border-bottom:2px solid #f1f5f9; display:flex; align-items:center; gap:12px; }
-  .rr-sh-num { width:28px; height:28px; background:linear-gradient(135deg,#1a56db,#1e40af); color:#fff; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:800; flex-shrink:0; }
-  .rr-text { font-size:14px; color:#475569; line-height:1.7; margin-bottom:12px; }
-  .rr-text strong { color:#1e293b; font-weight:700; }
-  .rr-meta { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; background:#f8fafc; padding:20px; border-radius:12px; }
-  .rr-meta-item label { display:block; font-size:11px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.05em; margin-bottom:4px; }
-  .rr-meta-item span { font-size:15px; font-weight:700; color:#1e293b; }
-  .rr-overview { display:flex; gap:16px; margin:20px 0; flex-wrap:wrap; }
-  .rr-score-box { flex:1; min-width:140px; border-radius:14px; padding:20px; text-align:center; color:#fff; }
-  .rr-score-box .lbl { font-size:12px; opacity:.9; margin-bottom:6px; }
-  .rr-score-box .val { font-size:32px; font-weight:800; }
-  .rr-score-box .sub { font-size:11px; opacity:.8; margin-top:4px; }
-  .rr-tbl { width:100%; border-collapse:collapse; font-size:13px; }
-  .rr-tbl th { background:#f1f5f9; padding:10px 14px; text-align:left; font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.04em; border-bottom:2px solid #e2e8f0; }
-  .rr-tbl td { border-bottom:1px solid #f1f5f9; }
-  .rr-chart-wrap { background:#fafcff; border:1.5px solid #e2e8f0; border-radius:12px; padding:20px; margin:16px 0; }
-  .rr-footer { margin-top:40px; padding:24px 36px; border-top:2px solid #f1f5f9; display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap; }
-  .rr-footer-left { font-size:12px; color:#64748b; }
-  .rr-footer-right { text-align:right; }
-  .rr-footer-right div:first-child { font-size:12px; color:#64748b; }
-  .rr-footer-disclaimer { font-size:10px; color:#cbd5e1; margin-top:4px; max-width:360px; }
-  .rr-sign-line { margin-top:20px; width:220px; border-top:1px solid #cbd5e1; padding-top:6px; font-size:11px; color:#94a3b8; }
-  @media print {
-    .rr-rpt { box-shadow:none !important; border-radius:0 !important; }
-    .rr-hdr { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
-    .rr-section { break-inside:avoid !important; }
-    .rr-sh { break-after:avoid !important; }
-  }
-</style>
-<div class="rr-rpt">
-  <div class="rr-hdr">
-    <div class="rr-hdr-brand">
-      <img src="/logo2.png" alt="Logo" class="rr-hdr-logo" onerror="this.style.display='none'">
-      <div>
-        <div class="rr-hdr-name">Equilibrium</div>
-        <div class="rr-hdr-sub">Neuropsicologia</div>
+<div class="report">
+  <div class="rpt-hdr">
+    <div class="deco1"></div><div class="deco2"></div>
+    <div class="rpt-hdr-inner">
+      <div style="display:flex;align-items:center;gap:14px">
+        <img src="/logo2.png" alt="Logo" class="hdr-logo" onerror="this.style.display='none'">
+        <div>
+          <div class="kicker">Relatorio Neuropsicologico</div>
+          <div class="title">RAADS-R</div>
+          <div class="subtitle">Escala de Rastreio de Autismo</div>
+          <div class="sub2">Ritvo et al. — Versao Brasileira (RAADS-R-BR Screen)</div>
+        </div>
       </div>
-    </div>
-    <div class="rr-hdr-info">
-      <div class="rr-hdr-title">RAADS-R-BR Screen</div>
-      <div class="rr-hdr-subtitle">Escala Ritvo para Diagnostico de Autismo em Adultos</div>
+      <div class="rpt-hdr-badge">
+        <div class="lbl">Pontuacao Total</div>
+        <div class="val">${pontuacao}</div>
+        <div class="sub">de 60 pontos</div>
+      </div>
     </div>
   </div>
 
-  <div class="rr-body">
+  <div class="rpt-body">
 
     <!-- 1. Identificacao -->
-    <div class="rr-section">
-      <div class="rr-sh"><span class="rr-sh-num">1</span> Identificacao</div>
-      <div class="rr-meta">
-        <div class="rr-meta-item"><label>Paciente</label><span>${escHtml(nome)}</span></div>
-        <div class="rr-meta-item"><label>Data da Avaliacao</label><span>${escHtml(dataFormatada)}</span></div>
-        <div class="rr-meta-item"><label>Avaliador</label><span>${avaliador ? escHtml(avaliador) : '--'}</span></div>
+    <div class="no-break">
+      <div class="rpt-sh"><span class="num">1</span><span class="sh-title">Identificacao</span></div>
+      <div class="rpt-box">
+        <div class="rpt-info">
+          <div class="lbl">Paciente</div><div class="val bold">${escHtml(nome)}</div>
+          <div class="lbl">Data da Avaliacao</div><div class="val">${escHtml(dataFormatada)}</div>
+          <div class="lbl">Avaliador</div><div class="val">${avaliador ? escHtml(avaliador) : '--'}</div>
+        </div>
       </div>
     </div>
 
     <!-- 2. Instrumento -->
-    <div class="rr-section">
-      <div class="rr-sh"><span class="rr-sh-num">2</span> Sobre o Instrumento</div>
-      <p class="rr-text">O RAADS-R-BR Screen e uma escala de rastreio desenvolvida para identificar caracteristicas do Transtorno do Espectro Autista (TEA) em adultos. A versao utilizada e composta por 20 itens que avaliam dominios centrais do perfil neurodivergente, incluindo: Interacao Social, Linguagem, Sensorio-Motor e Interesses Circunscritos.</p>
-      <p class="rr-text">O instrumento foi validado para o contexto brasileiro, apresentando evidencias robustas de validade e confiabilidade, com <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para o ponto de corte estabelecido.</p>
+    <div class="no-break">
+      <div class="rpt-sh"><span class="num">2</span><span class="sh-title">Sobre o Instrumento</span></div>
+      <div class="rpt-interp">
+        <p>O RAADS-R-BR Screen e uma escala de rastreio desenvolvida para identificar caracteristicas do Transtorno do Espectro Autista (TEA) em adultos. A versao utilizada e composta por 20 itens que avaliam dominios centrais do perfil neurodivergente, incluindo: Interacao Social, Linguagem, Sensorio-Motor e Interesses Circunscritos.</p>
+        <p>O instrumento foi validado para o contexto brasileiro, apresentando evidencias robustas de validade e confiabilidade, com <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para o ponto de corte estabelecido.</p>
+      </div>
     </div>
 
     <!-- 3. Resultados -->
-    <div class="rr-section">
-      <div class="rr-sh"><span class="rr-sh-num">3</span> Resultados Obtidos</div>
-      <div class="rr-overview">
-        <div class="rr-score-box" style="background:linear-gradient(135deg,${acima ? '#ef4444,#dc2626' : '#059669,#047857'})">
-          <div class="lbl">Pontuacao Total</div>
-          <div class="val">${pontuacao}</div>
-          <div class="sub">de 60 pontos</div>
+    <div class="no-break">
+      <div class="rpt-sh"><span class="num">3</span><span class="sh-title">Resultados Obtidos</span></div>
+      <div style="display:flex;gap:16px;margin:10px 0;flex-wrap:wrap">
+        <div style="flex:1;min-width:140px;border-radius:14px;padding:20px;text-align:center;color:#fff;background:linear-gradient(135deg,${acima ? '#ef4444,#dc2626' : '#059669,#047857'})">
+          <div style="font-size:12px;opacity:.9;margin-bottom:6px">Pontuacao Total</div>
+          <div style="font-size:32px;font-weight:800">${pontuacao}</div>
+          <div style="font-size:11px;opacity:.8;margin-top:4px">de 60 pontos</div>
         </div>
-        <div class="rr-score-box" style="background:linear-gradient(135deg,#3b82f6,#2563eb)">
-          <div class="lbl">Ponto de Corte</div>
-          <div class="val">46</div>
-          <div class="sub">sensibilidade 90,1%</div>
+        <div style="flex:1;min-width:140px;border-radius:14px;padding:20px;text-align:center;color:#fff;background:linear-gradient(135deg,#3b82f6,#2563eb)">
+          <div style="font-size:12px;opacity:.9;margin-bottom:6px">Ponto de Corte</div>
+          <div style="font-size:32px;font-weight:800">46</div>
+          <div style="font-size:11px;opacity:.8;margin-top:4px">sensibilidade 90,1%</div>
         </div>
-        <div class="rr-score-box" style="background:linear-gradient(135deg,#64748b,#475569)">
-          <div class="lbl">Pontuacao Maxima</div>
-          <div class="val">60</div>
-          <div class="sub">20 itens x 3</div>
+        <div style="flex:1;min-width:140px;border-radius:14px;padding:20px;text-align:center;color:#fff;background:linear-gradient(135deg,#64748b,#475569)">
+          <div style="font-size:12px;opacity:.9;margin-bottom:6px">Pontuacao Maxima</div>
+          <div style="font-size:32px;font-weight:800">60</div>
+          <div style="font-size:11px;opacity:.8;margin-top:4px">20 itens x 3</div>
         </div>
       </div>
       <div style="text-align:center;margin:12px 0">${clsBadge}</div>
     </div>
 
     <!-- 4. Dominios -->
-    <div class="rr-section">
-      <div class="rr-sh"><span class="rr-sh-num">4</span> Detalhamento por Dominio</div>
-      <div style="border-radius:12px;border:1px solid #e2e8f0;overflow:hidden">
-        <table class="rr-tbl">
-          <thead><tr>
-            <th>Dominio</th>
-            <th style="text-align:center">Itens</th>
-            <th style="text-align:center">Escore</th>
-            <th style="text-align:center">Maximo</th>
-            <th style="text-align:center">Percentual</th>
-          </tr></thead>
-          <tbody>${domRows}
-            <tr style="background:#f1f5f9;font-weight:700">
-              <td style="padding:10px 14px;font-weight:800;color:#1e293b">TOTAL</td>
-              <td style="padding:10px 14px;text-align:center;color:#64748b;font-size:12px">1-20</td>
-              <td style="padding:10px 14px;text-align:center;font-weight:800;font-size:16px;color:#1e40af">${pontuacao}</td>
-              <td style="padding:10px 14px;text-align:center;color:#64748b">60</td>
-              <td style="padding:10px 14px;text-align:center;font-weight:800;color:#1e293b">${Math.round((pontuacao/60)*100)}%</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+    <div class="no-break">
+      <div class="rpt-sh"><span class="num">4</span><span class="sh-title">Detalhamento por Dominio</span></div>
+      <table class="rpt-tbl">
+        <thead><tr>
+          <th>Dominio</th>
+          <th class="ctr">Itens</th>
+          <th class="ctr">Escore</th>
+          <th class="ctr">Maximo</th>
+          <th class="ctr">Percentual</th>
+        </tr></thead>
+        <tbody>${domRows}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td style="padding:8px 12px">TOTAL</td>
+            <td class="ctr" style="padding:8px 12px">1-20</td>
+            <td class="ctr" style="padding:8px 12px;font-size:14px">${pontuacao}</td>
+            <td class="ctr" style="padding:8px 12px">60</td>
+            <td class="ctr" style="padding:8px 12px">${Math.round((pontuacao/60)*100)}%</td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
 
     <!-- 5. Grafico -->
-    <div class="rr-section">
-      <div class="rr-sh"><span class="rr-sh-num">5</span> Perfil dos Dominios</div>
-      <div class="rr-chart-wrap">${svgChart}</div>
+    <div class="no-break">
+      <div class="rpt-sh"><span class="num">5</span><span class="sh-title">Perfil por Dominio</span></div>
+      <div class="rpt-box" style="padding:20px">${svgChart}</div>
     </div>
 
     <!-- 6. Interpretacao -->
-    <div class="rr-section">
-      <div class="rr-sh"><span class="rr-sh-num">6</span> Interpretacao Clinica</div>
-      <div style="background:#f0f9ff;border-left:4px solid #3b82f6;border-radius:0 8px 8px 0;padding:18px 22px;margin-bottom:20px">
-        <p style="font-size:14px;color:#1e293b;line-height:1.8;margin:0">${interpGeral}</p>
+    <div class="no-break">
+      <div class="rpt-sh"><span class="num">6</span><span class="sh-title">Interpretacao Clinica</span></div>
+      <div class="rpt-interp">
+        <p>${interpGeral}</p>
       </div>
       ${domInterpTexts}
     </div>
 
     <!-- 7. Itens -->
-    <div class="rr-section">
-      <div class="rr-sh"><span class="rr-sh-num">7</span> Analise dos Itens</div>
-      <div style="border-radius:12px;border:1px solid #e2e8f0;overflow:hidden">
-        <table class="rr-tbl">
-          <thead><tr>
-            <th style="text-align:center;width:50px">Nr.</th>
-            <th>Item</th>
-            <th style="text-align:center">Dominio</th>
-            <th style="text-align:center;width:130px">Resposta</th>
-            <th style="text-align:center;width:60px">Valor</th>
-          </tr></thead>
-          <tbody>${itemRows}</tbody>
-        </table>
-      </div>
+    <div>
+      <div class="rpt-sh"><span class="num">7</span><span class="sh-title">Analise dos Itens</span></div>
+      <table class="rpt-tbl">
+        <thead><tr>
+          <th class="ctr" style="width:50px">Nr.</th>
+          <th>Item</th>
+          <th class="ctr">Dominio</th>
+          <th class="ctr" style="width:130px">Resposta</th>
+          <th class="ctr" style="width:60px">Valor</th>
+        </tr></thead>
+        <tbody>${itemRows}</tbody>
+      </table>
     </div>
 
   </div>
 
   <!-- Rodape -->
-  <div class="rr-footer">
-    <div class="rr-footer-left">
+  <div class="rpt-foot">
+    <div>
       ${avaliador ? `<div style="font-weight:700;font-size:14px;color:#0f172a">${escHtml(avaliador)}</div>` : ''}
-      <div class="rr-sign-line">Assinatura do profissional</div>
+      <div class="sign-line">Assinatura do profissional</div>
     </div>
-    <div class="rr-footer-right">
+    <div class="rpt-foot-right">
       <div>Documento gerado em ${dataHoje}</div>
-      <div class="rr-footer-disclaimer">Este documento e confidencial e destina-se exclusivamente ao paciente e profissionais autorizados. Valido apenas com assinatura.</div>
+      <div class="rpt-foot-disclaimer">Este documento e confidencial e destina-se exclusivamente ao paciente e profissionais autorizados. Valido apenas com assinatura.</div>
     </div>
   </div>
 </div>`;

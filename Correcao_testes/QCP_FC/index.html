@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>QCP-FC | Equilibrium</title>
   <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/Correcao_testes/style.css" />
   <link rel="icon" type="image/png" href="/logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -495,73 +496,78 @@
       return svg;
     }
 
-    /* ── Build full report HTML (inline styles for portability) ── */
+    /* ── Build full report HTML (padrão WAIS com .rpt-* classes) ── */
     function buildReportHTML(results, nome, dataFormatada) {
-      let html = '';
+      const dataHoje = new Date().toLocaleDateString('pt-BR');
+      let html = '<div class="report">';
 
-      // Header
-      html += '<div style="background:linear-gradient(135deg,#6d28d9 0%,#7c3aed 100%);padding:32px 36px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;">';
-      html += '<div style="display:flex;align-items:center;gap:14px;"><img src="/logo2.png" alt="Logo" style="height:48px;border-radius:8px;" onerror="this.style.display=\'none\'" /><div><div style="font-size:18px;font-weight:800;">Equilibrium</div><div style="font-size:12px;opacity:0.9;">Neuropsicologia</div></div></div>';
-      html += '<div style="text-align:right;"><div style="font-size:22px;font-weight:800;margin-bottom:4px;">QCP-FC</div><div style="font-size:13px;opacity:0.9;">Questionário de Crenças Pessoais — Forma Clínica</div></div>';
-      html += '</div>';
-
-      // Body
-      html += '<div style="padding:36px;">';
-
-      // Patient info
-      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Dados do Paciente</h2>';
-      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;background:#f8fafc;padding:20px;border-radius:12px;">';
-      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Paciente</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + nome + '</div></div>';
-      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Data da Avaliação</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + dataFormatada + '</div></div>';
+      // Header (padrão WAIS)
+      html += '<div class="rpt-hdr"><div class="deco1"></div><div class="deco2"></div>';
+      html += '<div class="rpt-hdr-inner">';
+      html += '<div style="display:flex;align-items:center;gap:16px"><img class="hdr-logo" src="/logo2.png" alt="Logo" onerror="this.style.display=\'none\'"><div>';
+      html += '<div class="kicker">Relatório Neuropsicológico</div>';
+      html += '<div class="title">QCP-FC</div>';
+      html += '<div class="subtitle">Questionário de Crenças Pessoais — Forma Clínica</div>';
+      html += '<div class="sub2">PBQ-SF · Beck &amp; Beck · Versão brasileira</div>';
+      html += '</div></div>';
+      html += '<div class="rpt-hdr-badge"><div class="lbl">Escalas</div><div class="val">10</div><div class="sub">65 itens</div></div>';
       html += '</div></div>';
 
-      // About the instrument
-      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Sobre o Instrumento</h2>';
-      html += '<p style="font-size:14px;color:#475569;line-height:1.7;margin-bottom:12px;">O <strong style="color:#1e293b;">QCP-FC (Questionário de Crenças Pessoais — Forma Clínica)</strong> é a versão brasileira do <em>Personality Belief Questionnaire — Short Form</em> (PBQ-SF), desenvolvido por Aaron T. Beck e Judith S. Beck. O instrumento avalia <strong style="color:#1e293b;">crenças disfuncionais</strong> associadas a 10 padrões de personalidade descritos no DSM, com base na teoria cognitiva dos transtornos de personalidade.</p>';
-      html += '<p style="font-size:14px;color:#475569;line-height:1.7;margin-bottom:12px;">Composto por <strong style="color:#1e293b;">65 itens</strong> distribuídos em 10 escalas (7 itens cada), o questionário é respondido em uma escala de 0 a 4. Os escores brutos são convertidos em <strong style="color:#1e293b;">escores Z</strong> com base em dados normativos de amostra clínica psiquiátrica (N=683).</p>';
+      // Body
+      html += '<div class="rpt-body">';
+
+      // 1. Identificação
+      html += '<div class="rpt-sh"><span class="num">1</span><span class="sh-title">Identificação</span></div>';
+      html += '<div class="rpt-box no-break"><div class="rpt-info">';
+      html += '<div><span class="lbl">Nome:</span> <span class="val bold">' + nome + '</span></div>';
+      html += '<div><span class="lbl">Avaliação:</span> <span class="val">' + dataFormatada + '</span></div>';
+      html += '</div></div>';
+
+      // 2. Sobre o Instrumento
+      html += '<div class="rpt-sh"><span class="num">2</span><span class="sh-title">Sobre o Instrumento</span></div>';
+      html += '<div class="rpt-interp no-break">';
+      html += '<p>O <strong>QCP-FC (Questionário de Crenças Pessoais — Forma Clínica)</strong> é a versão brasileira do <em>Personality Belief Questionnaire — Short Form</em> (PBQ-SF), desenvolvido por Aaron T. Beck e Judith S. Beck. O instrumento avalia <strong>crenças disfuncionais</strong> associadas a 10 padrões de personalidade descritos no DSM.</p>';
+      html += '<p>Composto por <strong>65 itens</strong> distribuídos em 10 escalas (7 itens cada), respondidos em escala de 0 a 4. Os escores brutos são convertidos em <strong>escores Z</strong> com base em dados normativos de amostra clínica psiquiátrica (N=683).</p>';
       html += '</div>';
 
-      // Chart
-      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Perfil Gráfico</h2>';
-      html += '<div style="margin:16px 0;padding:20px;background:#fafcff;border-radius:12px;border:1.5px solid #e2e8f0;">';
+      // 3. Perfil Gráfico
+      html += '<div class="rpt-sh"><span class="num">3</span><span class="sh-title">Perfil Gráfico</span></div>';
+      html += '<div class="rpt-box no-break" style="text-align:center;">';
       html += buildZScoreChartSVG(results);
-      html += '</div>';
-      // Legend
       html += '<div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:12px;">';
       html += '<span style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:rgba(59,130,246,0.15);border:1px solid #3b82f6;border-radius:3px;display:inline-block;"></span> Média (Z 0–1)</span>';
       html += '<span style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:rgba(245,158,11,0.15);border:1px solid #f59e0b;border-radius:3px;display:inline-block;"></span> Elevado (Z 1–2)</span>';
       html += '<span style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="width:12px;height:12px;background:rgba(220,38,38,0.15);border:1px solid #dc2626;border-radius:3px;display:inline-block;"></span> Clin. Significativo (Z &gt;2)</span>';
       html += '</div></div>';
 
-      // Results table
-      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Tabela de Resultados</h2>';
-      html += '<table style="width:100%;border-collapse:collapse;font-size:13px;">';
-      html += '<thead><tr><th style="background:#f1f5f9;padding:10px 14px;text-align:left;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0;font-size:11px;text-transform:uppercase;">Escala</th>';
-      html += '<th style="background:#f1f5f9;padding:10px 14px;text-align:center;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0;font-size:11px;text-transform:uppercase;">Bruto (máx. 28)</th>';
-      html += '<th style="background:#f1f5f9;padding:10px 14px;text-align:center;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0;font-size:11px;text-transform:uppercase;">Escore Z</th>';
-      html += '<th style="background:#f1f5f9;padding:10px 14px;text-align:center;font-weight:700;color:#475569;border-bottom:2px solid #e2e8f0;font-size:11px;text-transform:uppercase;">Classificação</th></tr></thead><tbody>';
+      // 4. Tabela de Resultados
+      html += '<div class="rpt-sh"><span class="num">4</span><span class="sh-title">Tabela de Resultados</span></div>';
+      html += '<div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden" class="no-break">';
+      html += '<table class="rpt-tbl"><thead><tr>';
+      html += '<th>Escala</th><th class="ctr">Bruto (máx. 28)</th><th class="ctr">Escore Z</th><th class="ctr">Classificação</th>';
+      html += '</tr></thead><tbody>';
 
-      SCALE_ORDER.forEach(key => {
+      SCALE_ORDER.forEach((key, i) => {
         const r = results[key];
-        html += '<tr>';
-        html += '<td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;font-weight:700;color:' + r.cor + ';">' + key + ' — ' + r.nome + '</td>';
-        html += '<td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;color:#1e293b;">' + r.raw + '</td>';
-        html += '<td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:700;color:#1e293b;">' + r.z.toFixed(2) + '</td>';
-        html += '<td style="padding:10px 14px;border-bottom:1px solid #f1f5f9;text-align:center;"><span style="display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;background:' + r.classificacao.bg + ';color:' + r.classificacao.color + ';">' + r.classificacao.label + '</span></td>';
+        html += '<tr' + (i % 2 ? ' class="alt"' : '') + '>';
+        html += '<td style="font-weight:700;color:' + r.cor + ';">' + key + ' — ' + r.nome + '</td>';
+        html += '<td class="ctr">' + r.raw + '</td>';
+        html += '<td class="ctr" style="font-weight:700;">' + r.z.toFixed(2) + '</td>';
+        html += '<td class="ctr"><span class="cl-badge" style="background:' + r.classificacao.bg + ';color:' + r.classificacao.color + ';">' + r.classificacao.label + '</span></td>';
         html += '</tr>';
       });
 
       html += '</tbody></table></div>';
 
-      // Scale detail cards
-      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Detalhamento por Escala</h2>';
+      // 5. Detalhamento por Escala
+      html += '<div class="rpt-sh"><span class="num">5</span><span class="sh-title">Detalhamento por Escala</span></div>';
 
       SCALE_ORDER.forEach(key => {
         const r = results[key];
         html += '<div style="border-radius:14px;padding:20px 22px;margin-bottom:16px;border:1.5px solid #e2e8f0;background:' + r.corLight + ';">';
         html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">';
         html += '<span style="font-size:16px;font-weight:800;color:' + r.cor + ';">' + key + ' — ' + r.nome + '</span>';
-        html += '<span style="font-size:14px;font-weight:700;padding:4px 12px;border-radius:20px;background:' + r.classificacao.bg + ';color:' + r.classificacao.color + ';">Z = ' + r.z.toFixed(2) + ' — ' + r.classificacao.label + '</span>';
+        html += '<span class="cl-badge" style="font-size:12px;padding:4px 12px;background:' + r.classificacao.bg + ';color:' + r.classificacao.color + ';">Z = ' + r.z.toFixed(2) + ' — ' + r.classificacao.label + '</span>';
         html += '</div>';
         html += '<div style="font-size:13px;font-weight:600;color:#475569;font-style:italic;margin-bottom:8px;line-height:1.5;">Crença central: "' + r.crencaCentral + '"</div>';
         html += '<div style="font-size:12px;color:#64748b;line-height:1.6;">' + r.descricao + '</div>';
@@ -569,47 +575,47 @@
         html += '</div>';
       });
 
-      html += '</div>';
+      // 6. Interpretação
+      html += '<div class="rpt-sh"><span class="num">6</span><span class="sh-title">Interpretação</span></div>';
+      html += '<div class="rpt-interp">';
 
-      // Interpretation
-      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Interpretação</h2>';
-      html += '<div style="background:#f5f3ff;border-left:4px solid #7c3aed;border-radius:8px;padding:20px;">';
-
-      // Find elevated scales
       const elevated = SCALE_ORDER.filter(k => results[k].z > 1);
       const clinSig = SCALE_ORDER.filter(k => results[k].z > 2);
 
-      html += '<p style="color:#1e293b;line-height:1.8;margin:0 0 10px 0;">Os escores Z foram calculados a partir dos dados normativos obtidos em amostra clínica psiquiátrica ambulatorial (N=683, Butler, Beck & Cohen, 2007). Valores próximos de zero indicam crenças com intensidade similar à média da amostra normativa. Quanto mais elevado o escore Z, mais intensas são as crenças disfuncionais associadas àquele padrão de personalidade.</p>';
+      html += '<p>Os escores Z foram calculados a partir dos dados normativos obtidos em amostra clínica psiquiátrica ambulatorial (N=683, Butler, Beck & Cohen, 2007). Valores próximos de zero indicam crenças com intensidade similar à média da amostra normativa.</p>';
 
       if (clinSig.length > 0) {
-        html += '<p style="color:#1e293b;line-height:1.8;margin:0 0 10px 0;"><strong>Escalas clinicamente significativas (Z &gt; 2):</strong> ' +
+        html += '<p><strong>Escalas clinicamente significativas (Z &gt; 2):</strong> ' +
           clinSig.map(k => '<span style="color:' + results[k].cor + ';font-weight:700;">' + k + ' (' + results[k].nome + ')</span>').join(', ') +
-          '. Estes resultados sugerem padrões de crenças marcadamente intensos que merecem atenção clínica prioritária e podem indicar traços de personalidade disfuncionais relevantes para o planejamento terapêutico.</p>';
+          '. Estes resultados sugerem padrões de crenças marcadamente intensos que merecem atenção clínica prioritária.</p>';
       }
 
       if (elevated.length > 0 && elevated.length > clinSig.length) {
         const onlyElevated = elevated.filter(k => results[k].z <= 2);
         if (onlyElevated.length > 0) {
-          html += '<p style="color:#1e293b;line-height:1.8;margin:0 0 10px 0;"><strong>Escalas elevadas (Z entre 1 e 2):</strong> ' +
+          html += '<p><strong>Escalas elevadas (Z entre 1 e 2):</strong> ' +
             onlyElevated.map(k => '<span style="color:' + results[k].cor + ';font-weight:700;">' + k + ' (' + results[k].nome + ')</span>').join(', ') +
-            '. Estas escalas indicam crenças com intensidade acima da média normativa, sugerindo a presença de padrões cognitivos que podem ser explorados em contexto clínico.</p>';
+            '. Estas escalas indicam crenças acima da média normativa.</p>';
         }
       }
 
       if (elevated.length === 0) {
-        html += '<p style="color:#1e293b;line-height:1.8;margin:0 0 10px 0;">Nenhuma escala apresentou elevação significativa (Z &gt; 1). O perfil indica crenças com intensidade dentro da faixa normativa para a amostra clínica de referência.</p>';
+        html += '<p>Nenhuma escala apresentou elevação significativa (Z &gt; 1). Perfil dentro da faixa normativa.</p>';
       }
 
-      html += '<p style="color:#1e293b;line-height:1.8;margin:0;"><strong>Nota:</strong> Este instrumento é uma ferramenta de rastreio e avaliação dimensional. Os resultados devem ser interpretados em conjunto com a entrevista clínica, a história do paciente e outros dados da avaliação neuropsicológica. Não há ponto de corte empiricamente estabelecido; a interpretação é baseada na comparação com a amostra normativa clínica.</p>';
-      html += '</div></div>';
-
-      // Footer
-      html += '<div style="margin-top:40px;padding-top:24px;border-top:2px solid #f1f5f9;text-align:center;">';
-      html += '<p style="font-size:12px;color:#94a3b8;margin-bottom:6px;">Relatório gerado por <strong>Equilibrium Neuropsicologia</strong></p>';
-      html += '<p style="font-size:11px;color:#cbd5e1;">Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados</p>';
+      html += '<p><strong>Nota:</strong> Este instrumento é uma ferramenta de rastreio dimensional. Os resultados devem ser interpretados em conjunto com a entrevista clínica e outros dados da avaliação.</p>';
       html += '</div>';
 
-      html += '</div>'; // close body
+      // Footer (padrão WAIS)
+      html += '<div class="rpt-foot no-break"><div>';
+      html += '<div style="color:#64748b;font-size:12px">Equilibrium Neuropsicologia</div>';
+      html += '</div><div class="rpt-foot-right">';
+      html += '<div>Documento gerado em ' + dataHoje + '</div>';
+      html += '<div class="rpt-foot-disclaimer">Este documento é confidencial e destinado exclusivamente ao profissional solicitante.</div>';
+      html += '</div></div>';
+
+      html += '</div>'; // close rpt-body
+      html += '</div>'; // close report
 
       return html;
     }

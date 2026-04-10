@@ -521,89 +521,84 @@ function abrirRelatorio(result){
     </tr>`;
   }).join("");
 
+  const dataHoje = new Date().toLocaleDateString('pt-BR');
   const html = `
-  <div class="rep-wrapper">
-    <div class="rep-header">
-      <div class="rep-header-brand">
-        <img src="/logo.png" alt="Equilibrium" class="rep-logo">
-        <div>
-          <div class="rep-brand-name">Equilibrium</div>
-          <div class="rep-brand-sub">Neuropsicologia</div>
+  <div class="report">
+    <div class="rpt-hdr">
+      <div class="deco1"></div><div class="deco2"></div>
+      <div class="rpt-hdr-inner">
+        <div style="display:flex;align-items:center;gap:16px">
+          <img class="hdr-logo" src="/logo2.png" alt="Logo" onerror="this.style.display='none'">
+          <div>
+            <div class="kicker">Relatório Neuropsicológico</div>
+            <div class="title">SRS-2</div>
+            <div class="subtitle">Escala de Responsividade Social — 2ª Edição</div>
+            <div class="sub2">${escapeHtml(formLabel)}</div>
+          </div>
+        </div>
+        ${tTotal != null ? `
+        <div class="rpt-hdr-badge">
+          <div class="lbl">Escore T Total</div>
+          <div class="val">${tTotal}</div>
+          <div class="sub"><span class="cls-badge ${clsCSS}" style="font-size:10px;">${clsTotal}</span></div>
+        </div>` : ''}
+      </div>
+    </div>
+
+    <div class="rpt-body">
+
+      <!-- 1. Identificação -->
+      <div class="rpt-sh"><span class="num">1</span><span class="sh-title">Identificação</span></div>
+      <div class="rpt-box no-break">
+        <div class="rpt-info">
+          <div><span class="lbl">Paciente:</span> <span class="val bold">${escapeHtml(paciente)}</span></div>
+          <div><span class="lbl">Data de Avaliação:</span> <span class="val">${escapeHtml(data)}</span></div>
+          <div><span class="lbl">Avaliador:</span> <span class="val">${escapeHtml(avaliador)}</span></div>
+          <div><span class="lbl">Formulário:</span> <span class="val">${escapeHtml(formLabel)}</span></div>
         </div>
       </div>
-      <div class="rep-header-info">
-        <div class="rep-test-name">SRS-2 — Escala de Responsividade Social</div>
-        <div class="rep-test-sub">${escapeHtml(formLabel)}</div>
-      </div>
-    </div>
 
-    <div class="rep-patient-strip">
-      <div class="rep-patient-field">
-        <label>Paciente</label>
-        <span>${escapeHtml(paciente)}</span>
-      </div>
-      <div class="rep-patient-field">
-        <label>Data de Avaliação</label>
-        <span>${escapeHtml(data)}</span>
-      </div>
-      <div class="rep-patient-field">
-        <label>Avaliador</label>
-        <span>${escapeHtml(avaliador)}</span>
-      </div>
-      ${tTotal != null ? `
-      <div class="rep-patient-field">
-        <label>Resultado Geral</label>
-        <span><span class="cls-badge ${clsCSS}" style="font-size:13px;">${clsTotal} (T=${tTotal})</span></span>
-      </div>` : ''}
-    </div>
+      <!-- 2. Perfil de Escores T -->
+      <div class="rpt-sh"><span class="num">2</span><span class="sh-title">Perfil de Escores T</span></div>
+      <div class="rpt-box no-break">${svgProfileChart(rows)}</div>
 
-    <div class="rep-body">
-
-      <div class="rep-section">
-        <div class="rep-section-title">Perfil de Escores T</div>
-        <div class="rep-chart-wrap">${svgProfileChart(rows)}</div>
-      </div>
-
-      <div class="rep-section">
-        <div class="rep-section-title">Tabela de Resultados</div>
-        <table class="rep-scores-table">
-          <thead>
-            <tr>
-              <th>Escala</th>
-              <th>Bruto</th>
-              <th>Escore T</th>
-              <th>Classificação</th>
-            </tr>
-          </thead>
+      <!-- 3. Tabela de Resultados -->
+      <div class="rpt-sh"><span class="num">3</span><span class="sh-title">Tabela de Resultados</span></div>
+      <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden" class="no-break">
+        <table class="rpt-tbl">
+          <thead><tr><th>Escala</th><th class="ctr">Bruto</th><th class="ctr">Escore T</th><th>Classificação</th></tr></thead>
           <tbody>${scoreRows}</tbody>
         </table>
       </div>
 
-      <div class="rep-section">
-        <div class="rep-section-title">Detalhamento por Escala</div>
-        ${scaleSections}
-      </div>
+      <!-- 4. Detalhamento por Escala -->
+      <div class="rpt-sh"><span class="num">4</span><span class="sh-title">Detalhamento por Escala</span></div>
+      ${scaleSections}
 
-      <div class="rep-section">
-        <div class="rep-section-title">Interpretação Clínica do Escore T</div>
-        <div class="rep-interp-grid">${interpCards}</div>
-      </div>
+      <!-- 5. Interpretação Clínica -->
+      <div class="rpt-sh"><span class="num">5</span><span class="sh-title">Interpretação Clínica do Escore T</span></div>
+      <div class="rep-interp-grid">${interpCards}</div>
 
-      <div class="rep-section">
-        <div class="rep-section-title">Análise dos Itens SRS-2</div>
-        <table class="rep-scores-table rep-items-table">
-          <thead>
-            <tr><th style="width:50px">Nr.</th><th>Item (abreviado)</th><th style="width:140px">Resposta</th></tr>
-          </thead>
+      <!-- 6. Análise dos Itens -->
+      <div class="rpt-sh"><span class="num">6</span><span class="sh-title">Análise dos Itens SRS-2</span></div>
+      <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden" class="no-break">
+        <table class="rpt-tbl">
+          <thead><tr><th style="width:50px" class="ctr">Nr.</th><th>Item (abreviado)</th><th style="width:140px">Resposta</th></tr></thead>
           <tbody>${itemRows}</tbody>
         </table>
       </div>
 
-    </div>
+      <!-- Rodapé -->
+      <div class="rpt-foot no-break">
+        <div>
+          <div style="color:#64748b;font-size:12px">Equilibrium Neuropsicologia · Correção automatizada SRS-2</div>
+        </div>
+        <div class="rpt-foot-right">
+          <div>Documento gerado em ${dataHoje}</div>
+          <div class="rpt-foot-disclaimer">Este documento é confidencial e destinado exclusivamente ao profissional solicitante.</div>
+        </div>
+      </div>
 
-    <div class="rep-footer">
-      <span>Equilibrium Neuropsicologia · Correção automatizada SRS-2</span>
-      <span>Gerado em ${new Date().toLocaleDateString('pt-BR')}</span>
     </div>
   </div>`;
 

@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BFP | Equilibrium</title>
   <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/Correcao_testes/style.css" />
   <link rel="icon" type="image/png" href="/logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -724,81 +725,85 @@
         interpSections += '</div></div>';
       });
 
-      // Build full HTML report
-      var html = '';
+      // Build full HTML report using WAIS pattern (.rpt-* classes)
+      var dataHoje = new Date().toLocaleDateString('pt-BR');
+      var html = '<div class="report">';
 
       // Header
-      html += '<div style="background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);padding:32px 36px;color:#fff;display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap;">';
-      html += '<div style="display:flex;align-items:center;gap:14px;"><img src="/logo2.png" alt="Logo" style="height:48px;border-radius:8px;" onerror="this.style.display=\'none\'" /><div><div style="font-size:18px;font-weight:800;">Equilibrium</div><div style="font-size:12px;opacity:0.9;">Neuropsicologia</div></div></div>';
-      html += '<div style="text-align:right;"><div style="font-size:22px;font-weight:800;margin-bottom:4px;">BFP</div><div style="font-size:13px;opacity:0.9;">Bateria Fatorial de Personalidade</div><div style="font-size:11px;opacity:0.7;margin-top:2px;">Nunes, Hutz & Nunes (2010)</div></div>';
-      html += '</div>';
+      html += '<div class="rpt-hdr"><div class="deco1"></div><div class="deco2"></div>';
+      html += '<div class="rpt-hdr-inner">';
+      html += '<div style="display:flex;align-items:center;gap:16px"><img class="hdr-logo" src="/logo2.png" alt="Logo" onerror="this.style.display=\'none\'"><div>';
+      html += '<div class="kicker">Relatório Neuropsicológico</div>';
+      html += '<div class="title">BFP</div>';
+      html += '<div class="subtitle">Bateria Fatorial de Personalidade</div>';
+      html += '<div class="sub2">Nunes, Hutz &amp; Nunes (2010) — 126 itens, Modelo Big Five</div>';
+      html += '</div></div>';
+      html += '<div class="rpt-hdr-badge"><div class="lbl">Norma</div><div class="val">' + (sexo === 'Masculino' ? '♂ Masc.' : sexo === 'Feminino' ? '♀ Fem.' : 'Geral') + '</div><div class="sub">' + (idade || '—') + '</div></div>';
+      html += '</div></div>';
 
       // Body
-      html += '<div style="padding:36px;">';
+      html += '<div class="rpt-body">';
 
-      // Patient info
-      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Identificação</h2>';
-      html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;background:#f8fafc;padding:20px;border-radius:12px;">';
-      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Paciente</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + nome + '</div></div>';
-      if (cpf) {
-        html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">CPF</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + cpf + '</div></div>';
-      }
-      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Data de Nascimento</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + dataNascFmt + (idade ? ' (' + idade + ')' : '') + '</div></div>';
-      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Sexo</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + (sexo || '—') + '</div></div>';
-      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Escolaridade</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + (escolaridade || '—') + '</div></div>';
-      html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Data da Aplicação</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + dataAplicFmt + '</div></div>';
+      // 1. Identificação
+      html += '<div class="rpt-sh"><span class="num">1</span><span class="sh-title">Identificação</span></div>';
+      html += '<div class="rpt-box no-break"><div class="rpt-info">';
+      html += '<div><span class="lbl">Nome:</span> <span class="val bold">' + nome + '</span></div>';
+      if (cpf) html += '<div><span class="lbl">CPF:</span> <span class="val">' + cpf + '</span></div>';
+      html += '<div><span class="lbl">Nascimento:</span> <span class="val">' + dataNascFmt + (idade ? ' (' + idade + ')' : '') + '</span></div>';
+      html += '<div><span class="lbl">Sexo:</span> <span class="val">' + (sexo || '—') + '</span></div>';
+      html += '<div><span class="lbl">Escolaridade:</span> <span class="val">' + (escolaridade || '—') + '</span></div>';
+      html += '<div><span class="lbl">Aplicação:</span> <span class="val">' + dataAplicFmt + '</span></div>';
       if (profNome) {
-        html += '<div><div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Profissional Responsável</div><div style="font-size:16px;font-weight:700;color:#1e293b;">' + profNome + (profCRP ? ' — CRP ' + profCRP : '') + '</div></div>';
+        html += '<div class="sep" style="grid-column:1/-1;border-top:1px dashed rgba(26,86,219,.18);margin:3px 0;"></div>';
+        html += '<div><span class="lbl" style="color:#1a56db">Profissional:</span> <span class="val bold">' + profNome + (profCRP ? ' — CRP ' + profCRP : '') + '</span></div>';
       }
       html += '</div></div>';
 
-      // About the instrument
-      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Sobre o Instrumento</h2>';
-      html += '<p style="font-size:14px;color:#475569;line-height:1.7;margin-bottom:12px;">A <strong style="color:#1e293b;">BFP (Bateria Fatorial de Personalidade)</strong> é um instrumento de avaliação psicológica desenvolvido por Nunes, Hutz e Nunes (2010), baseado no modelo dos Cinco Grandes Fatores de Personalidade (Big Five). Composta por <strong style="color:#1e293b;">126 itens</strong> respondidos em escala Likert de 1 a 7, avalia cinco dimensões amplas da personalidade: Neuroticismo, Extroversão, Socialização, Realização e Abertura a experiências.</p>';
-      html += '<p style="font-size:14px;color:#475569;line-height:1.7;margin-bottom:12px;">Cada fator é composto por facetas que permitem análise detalhada do perfil de personalidade. Os escores brutos são convertidos em <strong style="color:#1e293b;">escores Z</strong> e <strong style="color:#1e293b;">percentis</strong> com base nos dados normativos da amostra de padronização (amostra geral ou por sexo).</p>';
+      // 2. Sobre o Instrumento
+      html += '<div class="rpt-sh"><span class="num">2</span><span class="sh-title">Sobre o Instrumento</span></div>';
+      html += '<div class="rpt-interp no-break">';
+      html += '<p>A <strong>BFP (Bateria Fatorial de Personalidade)</strong> é um instrumento de avaliação psicológica desenvolvido por Nunes, Hutz e Nunes (2010), baseado no modelo dos Cinco Grandes Fatores de Personalidade (Big Five). Composta por <strong>126 itens</strong> respondidos em escala Likert de 1 a 7, avalia cinco dimensões amplas da personalidade: Neuroticismo, Extroversão, Socialização, Realização e Abertura a experiências.</p>';
+      html += '<p>Cada fator é composto por facetas que permitem análise detalhada do perfil de personalidade. Os escores brutos são convertidos em <strong>escores Z</strong> e <strong>percentis</strong> com base nos dados normativos da amostra de padronização.</p>';
       html += '</div>';
 
-      // Results table
-      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Tabela de Resultados</h2>';
-      html += '<table style="width:100%;border-collapse:collapse;font-size:13px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;">';
-      html += '<thead><tr><th style="background:#1a56db;color:#fff;padding:10px 12px;text-align:left;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;">Faceta / Fator</th>';
-      html += '<th style="background:#1a56db;color:#fff;padding:10px 12px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;">Escore Bruto</th>';
-      html += '<th style="background:#1a56db;color:#fff;padding:10px 12px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;">Escore Z</th>';
-      html += '<th style="background:#1a56db;color:#fff;padding:10px 12px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;">Percentil</th>';
-      html += '<th style="background:#1a56db;color:#fff;padding:10px 12px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;">Classificação</th>';
+      // 3. Tabela de Resultados
+      html += '<div class="rpt-sh"><span class="num">3</span><span class="sh-title">Tabela de Resultados</span></div>';
+      html += '<div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden" class="no-break">';
+      html += '<table class="rpt-tbl"><thead><tr>';
+      html += '<th>Faceta / Fator</th><th class="ctr">Escore Bruto</th><th class="ctr">Escore Z</th><th class="ctr">Percentil</th><th class="ctr">Classificação</th>';
       html += '</tr></thead><tbody>' + tableRows + '</tbody></table></div>';
 
-      // Chart
-      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Perfil Gráfico</h2>';
-      html += '<div style="margin:16px 0;padding:20px;background:#fafcff;border-radius:12px;border:1.5px solid #e2e8f0;text-align:center;">' + svgChart + '</div></div>';
+      // 4. Perfil Gráfico
+      html += '<div class="rpt-sh"><span class="num">4</span><span class="sh-title">Perfil Gráfico dos Fatores</span></div>';
+      html += '<div class="rpt-box no-break" style="text-align:center;">' + svgChart + '</div>';
 
-      // Interpretation
-      html += '<div style="margin-bottom:32px;"><h2 style="font-size:18px;font-weight:800;color:#1e293b;margin-bottom:16px;padding-bottom:10px;border-bottom:2px solid #f1f5f9;">Interpretação por Fator</h2>';
+      // 5. Interpretação por Fator
+      html += '<div class="rpt-sh"><span class="num">5</span><span class="sh-title">Interpretação por Fator</span></div>';
       html += interpSections;
-      html += '</div>';
 
-      // Classification note
-      html += '<div style="margin-bottom:32px;background:#eff6ff;border-left:4px solid #1a56db;border-radius:8px;padding:20px;">';
-      html += '<p style="color:#1e293b;line-height:1.8;margin:0 0 10px 0;font-size:13px;"><strong>Critérios de Classificação:</strong> Muito Baixo (percentil 1-14), Baixo (percentil 15-29), Médio (percentil 30-70), Alto (percentil 71-85), Muito Alto (percentil 86-99).</p>';
-      html += '<p style="color:#1e293b;line-height:1.8;margin:0;font-size:13px;"><strong>Nota:</strong> Os resultados devem ser interpretados em conjunto com a entrevista clínica, a história do paciente e outros dados da avaliação psicológica/neuropsicológica. A BFP é uma ferramenta de avaliação dimensional da personalidade e seus resultados não devem ser utilizados isoladamente para fins diagnósticos.</p>';
+      // 6. Nota clínica
+      html += '<div class="rpt-sh"><span class="num">6</span><span class="sh-title">Critérios e Considerações</span></div>';
+      html += '<div class="rpt-box-obs no-break">';
+      html += '<p style="margin:0 0 10px 0;"><strong>Critérios de Classificação:</strong> Muito Baixo (percentil 1-14), Baixo (percentil 15-29), Médio (percentil 30-70), Alto (percentil 71-85), Muito Alto (percentil 86-99).</p>';
+      html += '<p style="margin:0;"><strong>Nota:</strong> Os resultados devem ser interpretados em conjunto com a entrevista clínica, a história do paciente e outros dados da avaliação psicológica/neuropsicológica. A BFP é uma ferramenta de avaliação dimensional da personalidade e seus resultados não devem ser utilizados isoladamente para fins diagnósticos.</p>';
       html += '</div>';
-
-      // Signature line
-      if (profNome) {
-        html += '<div style="margin-top:40px;text-align:center;">';
-        html += '<div style="display:inline-block;min-width:300px;border-top:1.5px solid #1e293b;padding-top:10px;">';
-        html += '<div style="font-size:14px;font-weight:700;color:#1e293b;">' + profNome + '</div>';
-        if (profCRP) html += '<div style="font-size:12px;color:#64748b;">CRP: ' + profCRP + '</div>';
-        html += '</div></div>';
-      }
 
       // Footer
-      html += '<div style="margin-top:40px;padding-top:24px;border-top:2px solid #f1f5f9;text-align:center;">';
-      html += '<p style="font-size:12px;color:#94a3b8;margin-bottom:6px;">Relatório gerado por <strong>Equilibrium Neuropsicologia</strong></p>';
-      html += '<p style="font-size:11px;color:#cbd5e1;">Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados</p>';
-      html += '</div>';
+      html += '<div class="rpt-foot no-break"><div>';
+      if (profNome) {
+        html += '<div style="font-weight:700;font-size:14px;color:#0f172a">' + profNome + '</div>';
+        html += '<div style="font-size:12px;color:#64748b">' + (profCRP ? 'CRP: ' + profCRP : '') + '</div>';
+        html += '<div class="sign-line">Assinatura do profissional</div>';
+      } else {
+        html += '<div style="color:#64748b;font-size:12px">Documento gerado automaticamente</div>';
+      }
+      html += '</div><div class="rpt-foot-right">';
+      html += '<div>Documento gerado em ' + dataHoje + '</div>';
+      html += '<div class="rpt-foot-disclaimer">Este documento é confidencial e destinado exclusivamente ao profissional solicitante. Válido apenas com assinatura.</div>';
+      html += '</div></div>';
 
-      html += '</div>'; // close body div
+      html += '</div>'; // close rpt-body
+      html += '</div>'; // close report
 
       return html;
     }
