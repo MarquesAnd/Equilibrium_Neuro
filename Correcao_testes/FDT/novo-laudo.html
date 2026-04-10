@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Novo Laudo FDT | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/Correcao_testes/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+        <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard">
+          <span class="nav-icon">📊</span><span>Dashboard</span>
+        </a>
+        <a class="nav-item" href="/Pacientes/" data-page="pacientes">
+          <span class="nav-icon">👤</span><span>Pacientes</span>
+        </a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao">
+          <span class="nav-icon">✏️</span><span>Correção de Testes</span>
+        </a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao">
+          <span class="nav-icon">🧠</span><span>Aplicação de Testes</span>
+        </a>
+        <a class="nav-item" href="/Anamnese/" data-page="anamnese">
+          <span class="nav-icon">📋</span><span>Anamnese</span>
+        </a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios">
+          <span class="nav-icon">📄</span><span>Relatórios</span>
+        </a>
+        <a class="nav-item" href="/check_list/" data-page="checklist">
+          <span class="nav-icon">✅</span><span>Checklist</span>
+        </a>
+        <a class="nav-item" href="/Config/" data-page="config">
+          <span class="nav-icon">⚙️</span><span>Configurações</span>
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">?</div>
+          <div>
+            <div class="user-name">Carregando...</div>
+            <div class="user-role">—</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <p class="page-subtitle"><a href="/Correcao_testes/" class="breadcrumb">Correção</a> → <a href="/Correcao_testes/FDT/" class="breadcrumb">FDT</a> → Novo Laudo</p>
+          <h1 class="page-title">Novo Laudo — FDT</h1>
+        </div>
+        <button class="btn-secondary" onclick="history.back()">← Voltar</button>
+      </div>
+
+      <!-- CARD 1: Dados do Profissional -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">1</span>
+          <div>
+            <div class="form-card-title">Dados do Profissional</div>
+            <div class="form-card-desc">Informações do aplicador — obrigatório para laudo</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="profNome">Nome do Profissional</label>
+            <input type="text" id="profNome" placeholder="Nome completo" />
+          </div>
+          <div class="field">
+            <label for="profCRP">CRP</label>
+            <input type="text" id="profCRP" placeholder="CRP XX/XXXXX" />
+          </div>
+          <div class="field">
+            <label for="profEspecialidade">Especialidade</label>
+            <input type="text" id="profEspecialidade" placeholder="Ex: Neuropsicólogo(a)" />
+          </div>
+          <div class="field">
+            <label for="profContato">Contato</label>
+            <input type="text" id="profContato" placeholder="E-mail ou telefone" />
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: Dados do Examinando -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">2</span>
+          <div>
+            <div class="form-card-title">Dados do Examinando</div>
+            <div class="form-card-desc">Informações pessoais do avaliado</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="nome">Nome completo</label>
+            <input type="text" id="nome" placeholder="Nome do avaliado" />
+          </div>
+          <div class="field">
+            <label for="cpf">CPF</label>
+            <input type="text" id="cpf" placeholder="000.000.000-00" />
+          </div>
+          <div class="field">
+            <label for="dataNascimento">Data de nascimento</label>
+            <input type="date" id="dataNascimento" />
+          </div>
+          <div class="field">
+            <label for="dataAplicacao">Data de aplicação</label>
+            <input type="date" id="dataAplicacao" />
+          </div>
+          <div class="field">
+            <label for="sexo">Sexo</label>
+            <select id="sexo">
+              <option value="">Selecione</option>
+              <option>Masculino</option>
+              <option>Feminino</option>
+              <option>Outro</option>
+              <option>Prefere não informar</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="escolaridade">Escolaridade</label>
+            <select id="escolaridade">
+              <option value="">Selecione</option>
+              <option>Educação infantil</option>
+              <option>Ensino fundamental incompleto</option>
+              <option>Ensino fundamental completo</option>
+              <option>Ensino médio incompleto</option>
+              <option>Ensino médio completo</option>
+              <option>Ensino superior incompleto</option>
+              <option>Ensino superior completo</option>
+              <option>Pós-graduação</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px;">
+          <label for="motivo">Motivo do Encaminhamento</label>
+          <textarea id="motivo" rows="2" placeholder="Ex: Avaliação de atenção e funções executivas" style="width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border);font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+        </div>
+        <p id="idadeCalculada" class="form-hint"></p>
+        <p id="faixaCalculada" class="form-hint"></p>
+      </div>
+
+      <!-- CARD 3: Tempos e Erros -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">3</span>
+          <div>
+            <div class="form-card-title">Tempos e Erros das Partes</div>
+            <div class="form-card-desc">Informe o tempo em segundos e o número de erros para cada parte. Controle Inibitório e Flexibilidade Cognitiva são calculados automaticamente.</div>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Parte</th>
+                <th class="center" style="width:120px">Tempo (seg)</th>
+                <th class="center" style="width:120px">Erros</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><b>Leitura</b> <span class="muted">(L)</span></td>
+                <td><input type="number" min="0" id="t_leitura" placeholder="seg" style="width:90px;text-align:center;padding:6px;border-radius:8px;border:1px solid var(--border);font-size:14px;"></td>
+                <td><input type="number" min="0" id="e_leitura" placeholder="erros" style="width:90px;text-align:center;padding:6px;border-radius:8px;border:1px solid var(--border);font-size:14px;"></td>
+              </tr>
+              <tr>
+                <td><b>Contagem</b> <span class="muted">(C)</span></td>
+                <td><input type="number" min="0" id="t_contagem" placeholder="seg" style="width:90px;text-align:center;padding:6px;border-radius:8px;border:1px solid var(--border);font-size:14px;"></td>
+                <td><input type="number" min="0" id="e_contagem" placeholder="erros" style="width:90px;text-align:center;padding:6px;border-radius:8px;border:1px solid var(--border);font-size:14px;"></td>
+              </tr>
+              <tr>
+                <td><b>Escolha</b> <span class="muted">(E)</span></td>
+                <td><input type="number" min="0" id="t_escolha" placeholder="seg" style="width:90px;text-align:center;padding:6px;border-radius:8px;border:1px solid var(--border);font-size:14px;"></td>
+                <td><input type="number" min="0" id="e_escolha" placeholder="erros" style="width:90px;text-align:center;padding:6px;border-radius:8px;border:1px solid var(--border);font-size:14px;"></td>
+              </tr>
+              <tr>
+                <td><b>Alternância</b> <span class="muted">(A)</span></td>
+                <td><input type="number" min="0" id="t_alternancia" placeholder="seg" style="width:90px;text-align:center;padding:6px;border-radius:8px;border:1px solid var(--border);font-size:14px;"></td>
+                <td><input type="number" min="0" id="e_alternancia" placeholder="erros" style="width:90px;text-align:center;padding:6px;border-radius:8px;border:1px solid var(--border);font-size:14px;"></td>
+              </tr>
+              <tr style="background:var(--bg-subtle,#f0f4ff);">
+                <td><b>Controle Inibitório</b> <span class="muted">(E − L)</span></td>
+                <td id="ci_tempo" style="text-align:center;font-weight:700;color:#1a56db;">—</td>
+                <td style="text-align:center;color:var(--text-muted)">n/a</td>
+              </tr>
+              <tr style="background:var(--bg-subtle,#f0f4ff);">
+                <td><b>Flexibilidade Cognitiva</b> <span class="muted">(A − L)</span></td>
+                <td id="fc_tempo" style="text-align:center;font-weight:700;color:#1a56db;">—</td>
+                <td style="text-align:center;color:var(--text-muted)">n/a</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CARD 4: Observações Comportamentais -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">4</span>
+          <div>
+            <div class="form-card-title">Observações Comportamentais</div>
+            <div class="form-card-desc">Registros qualitativos durante a aplicação</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+          <button type="button" class="chip-btn" onclick="insertObs('Colaborativo(a) e engajado(a) durante toda a sessão')">Colaborativo</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Sinais de fadiga ao longo das partes')">Fadiga</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Impulsividade nas respostas, com erros por precipitação')">Impulsividade</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Ansiedade durante a aplicação')">Ansiedade</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Estratégia de conferência antes de responder')">Estratégia cautelosa</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Dificuldade visível nas partes com conflito de estímulos')">Dificuldade no conflito</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Bom desempenho nas partes automáticas, queda nas partes executivas')">Dissociação automático/executivo</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Desatenção intermitente')">Desatenção</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Boa compreensão das instruções')">Boa compreensão</button>
+        </div>
+        <textarea id="obsComportamentais" rows="4" placeholder="Descreva o comportamento do examinando durante a aplicação..." style="width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border);font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+      </div>
+
+      <!-- CARD 5: Recomendações -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">5</span>
+          <div>
+            <div class="form-card-title">Conclusão e Recomendações</div>
+            <div class="form-card-desc">Sugestões terapêuticas, educacionais e encaminhamentos</div>
+          </div>
+        </div>
+        <textarea id="recomendacoes" rows="4" placeholder="Recomendações para o paciente, família ou equipe multidisciplinar..." style="width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border);font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+      </div>
+
+      <!-- CARD 6: Ações -->
+      <div class="form-card">
+        <div class="action-row">
+          <button class="btn-primary" onclick="calcular(true)">💾 Salvar e Gerar PDF</button>
+          <button class="btn-secondary" onclick="calcular(false)">📊 Somente Calcular</button>
+        </div>
+      </div>
+
+      <!-- RELATÓRIO (aparece após calcular) -->
+      <div id="relatorio" class="card report" style="display:none;"></div>
+    </main>
+  </div>
+
+    <!-- SDKs do Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<!-- Configurações do Sistema -->
+<script src="/js/firebase-config.js"></script>
+<script src="/js/db.js"></script>
+<script src="/js/auth.js"></script>
+
+  <script src="/js/auth.js"></script>
+<script src="/js/patient-guard.js"></script>
+  
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.FIREBASE_CONFIGURED && window.DB) {
+        await DB.init();
+      }
+      
+      if (!isAuthed()) {
+        location.href = '/login.html'; 
+      } else {
+        applySidebarPermissions();
+      }
+    });
+  </script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="/js/integration.js"></script>
+  <script src="/Correcao_testes/FDT/script.js"></script>
+
+  <script>
+    function insertObs(text) {
+      const ta = document.getElementById("obsComportamentais");
+      if (!ta) return;
+      ta.value += (ta.value ? ". " : "") + text;
+      ta.focus();
+    }
+    window.insertObs = insertObs;
+  </script>
+
+  <style>
+    .chip-btn {
+      background: #ede9fe; color: #7c3aed; border: none; border-radius: 20px;
+      padding: 5px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .chip-btn:hover { background: #ddd6fe; }
+  </style>
+</body>
+</html>
