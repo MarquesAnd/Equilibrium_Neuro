@@ -8,10 +8,17 @@
 html { font-size: 16px; }
 body {
   font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
-  background: #f8fafc;
+  background: #f0f4f8;
+  background-image:
+    radial-gradient(circle at 20% 50%, rgba(124,58,237,.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(99,102,241,.04) 0%, transparent 50%),
+    radial-gradient(circle at 50% 80%, rgba(139,92,246,.03) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 17.5 L55 42.5 L30 55 L5 42.5 L5 17.5 Z' fill='none' stroke='%237c3aed' stroke-opacity='0.04' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 100% 100%, 100% 100%, 100% 100%, 60px 60px;
   color: #1e293b;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
 }
 
 /* ── Variáveis base ─────────────────────────────────────── */

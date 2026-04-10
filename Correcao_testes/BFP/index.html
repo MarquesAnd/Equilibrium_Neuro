@@ -328,65 +328,52 @@
       const container = document.getElementById('itemsContainer');
       container.innerHTML = '';
 
-      // Group items by facet
-      const itemsByFacet = {};
-      BFP.itens.forEach(item => {
-        if (!itemsByFacet[item.faceta]) itemsByFacet[item.faceta] = [];
-        itemsByFacet[item.faceta].push(item);
+      // Build facet-to-factor lookup
+      const facetToFactor = {};
+      FACTOR_STRUCTURE.forEach(factor => {
+        factor.facetas.forEach(fac => { facetToFactor[fac] = factor.key; });
       });
 
+      // Legend with factor colors
+      const legend = document.createElement('div');
+      legend.style.cssText = 'display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;padding:12px 16px;background:#f8fafc;border-radius:12px;border:1.5px solid #e2e8f0;';
       FACTOR_STRUCTURE.forEach(factor => {
         const fc = FACTOR_COLORS[factor.key];
-        const section = document.createElement('div');
-        section.className = 'factor-section';
-
-        // Count items for this factor
-        let totalItems = 0;
-        factor.facetas.forEach(fac => { totalItems += (itemsByFacet[fac] || []).length; });
-
-        // Factor header
-        const header = document.createElement('div');
-        header.className = 'factor-header';
-        header.style.background = fc.bg;
-        header.innerHTML =
-          '<span class="factor-tag">' + factor.key + '</span>' +
-          '<h3>' + factor.nome + '</h3>' +
-          '<span class="factor-count">' + totalItems + ' itens</span>';
-        section.appendChild(header);
-
-        // Items container
-        const itemsDiv = document.createElement('div');
-        itemsDiv.className = 'factor-items';
-        itemsDiv.id = 'factor-items-' + factor.key;
-
-        factor.facetas.forEach(facetKey => {
-          const facetItems = itemsByFacet[facetKey] || [];
-          const facetName = BFP.facetas[facetKey] ? BFP.facetas[facetKey].nome : facetKey;
-
-          // Facet sub-header
-          const facetHeader = document.createElement('div');
-          facetHeader.style.cssText = 'font-size:12px;font-weight:700;color:' + fc.cor + ';padding:8px 4px 4px;text-transform:uppercase;letter-spacing:.04em;';
-          facetHeader.textContent = facetKey + ' - ' + facetName + ' (' + facetItems.length + ' itens)';
-          itemsDiv.appendChild(facetHeader);
-
-          facetItems.forEach(item => {
-            const row = document.createElement('div');
-            row.className = 'item-row';
-            row.id = 'item-row-' + item.num;
-            row.innerHTML =
-              '<div class="item-num" style="background:' + fc.bg + ';">' + item.num + '</div>' +
-              '<div class="item-body">' +
-                '<div class="item-text">Item ' + item.num + (item.inv ? ' <span style="color:#ef4444;font-size:10px;font-weight:700;">(INV)</span>' : '') + '</div>' +
-                '<div class="item-meta">' + facetKey + ' - ' + facetName + '</div>' +
-              '</div>' +
-              '<div class="item-input"><input type="number" min="1" max="7" step="1" id="resp_' + item.num + '" data-num="' + item.num + '" placeholder="1-7" /></div>';
-            itemsDiv.appendChild(row);
-          });
-        });
-
-        section.appendChild(itemsDiv);
-        container.appendChild(section);
+        const tag = document.createElement('div');
+        tag.style.cssText = 'display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:' + fc.cor + ';';
+        tag.innerHTML = '<span style="width:14px;height:14px;border-radius:4px;background:' + fc.bg + ';display:inline-block;"></span>' + factor.key + ' - ' + factor.nome;
+        legend.appendChild(tag);
       });
+      container.appendChild(legend);
+
+      // Items container (single list, numerical order)
+      const itemsDiv = document.createElement('div');
+      itemsDiv.className = 'factor-items';
+
+      // Sort items by number
+      const sortedItems = [...BFP.itens].sort((a, b) => a.num - b.num);
+
+      sortedItems.forEach(item => {
+        const factorKey = facetToFactor[item.faceta] || '?';
+        const fc = FACTOR_COLORS[factorKey] || FACTOR_COLORS['N'];
+        const facetName = BFP.facetas[item.faceta] ? BFP.facetas[item.faceta].nome : item.faceta;
+
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        row.id = 'item-row-' + item.num;
+        row.style.borderLeftColor = fc.cor;
+        row.style.borderLeftWidth = '4px';
+        row.innerHTML =
+          '<div class="item-num" style="background:' + fc.bg + ';">' + item.num + '</div>' +
+          '<div class="item-body">' +
+            '<div class="item-text">Item ' + item.num + (item.inv ? ' <span style="color:#ef4444;font-size:10px;font-weight:700;">(INV)</span>' : '') + '</div>' +
+            '<div class="item-meta"><span style="color:' + fc.cor + ';font-weight:700;">' + item.faceta + '</span> - ' + facetName + ' <span style="opacity:.5;">(' + factorKey + ' - ' + FACTOR_STRUCTURE.find(f => f.key === factorKey).nome + ')</span></div>' +
+          '</div>' +
+          '<div class="item-input"><input type="number" min="1" max="7" step="1" id="resp_' + item.num + '" data-num="' + item.num + '" placeholder="1-7" /></div>';
+        itemsDiv.appendChild(row);
+      });
+
+      container.appendChild(itemsDiv);
 
       // Attach events to all inputs
       document.querySelectorAll('.item-input input').forEach(inp => {
@@ -422,17 +409,6 @@
         });
       });
 
-      // Toggle factor sections
-      document.querySelectorAll('.factor-header').forEach(h => {
-        h.addEventListener('click', function() {
-          const items = this.nextElementSibling;
-          if (items.style.display === 'none') {
-            items.style.display = 'flex';
-          } else {
-            items.style.display = 'none';
-          }
-        });
-      });
     }
 
     /* ================================================================

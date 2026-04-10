@@ -15,9 +15,16 @@
     body {
       font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
       background: #f0f4f8;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(124,58,237,.04) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(99,102,241,.04) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(139,92,246,.03) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 17.5 L55 42.5 L30 55 L5 42.5 L5 17.5 Z' fill='none' stroke='%237c3aed' stroke-opacity='0.04' stroke-width='1'/%3E%3C/svg%3E");
+      background-size: 100% 100%, 100% 100%, 100% 100%, 60px 60px;
       color: #1e293b;
       line-height: 1.5;
       -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
     }
 
     /* ━━━ VARIÁVEIS DE COR — QA usa roxo/índigo ━━━ */
@@ -39,15 +46,16 @@
 
     /* ── Cabeçalho ── */
     .p-header {
-      background: #fff;
+      background: linear-gradient(135deg, #fff 0%, #faf5ff 100%);
       border-radius: 16px;
       padding: 18px 24px;
       margin-bottom: 16px;
-      box-shadow: 0 1px 8px rgba(0,0,0,.07);
+      box-shadow: 0 2px 12px rgba(124,58,237,.08), 0 1px 4px rgba(0,0,0,.04);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
+      border: 1px solid rgba(124,58,237,.08);
     }
     .p-brand { display: flex; align-items: center; gap: 12px; }
     .p-logo  { height: 36px; }
@@ -78,7 +86,8 @@
       background: #fff;
       border-radius: 16px;
       padding: 28px 28px 32px;
-      box-shadow: 0 1px 8px rgba(0,0,0,.07);
+      box-shadow: 0 4px 24px rgba(124,58,237,.06), 0 1px 4px rgba(0,0,0,.04);
+      border: 1px solid rgba(124,58,237,.06);
     }
 
     /* ── Campos do paciente ── */
@@ -205,15 +214,15 @@
     .p-footer {
       position: fixed;
       bottom: 0; left: 0; right: 0;
-      background: #fff;
-      border-top: 1.5px solid #e8edf2;
+      background: linear-gradient(135deg, #fff 0%, #faf5ff 100%);
+      border-top: 1.5px solid rgba(124,58,237,.1);
       padding: 13px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
       z-index: 200;
-      box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+      box-shadow: 0 -4px 24px rgba(124,58,237,.08);
     }
     .p-footer-info { font-size: 13px; color: #64748b; }
     .p-footer-info strong { color: #1e293b; font-weight: 700; }
@@ -369,56 +378,56 @@
 
   // ── Itens do questionário ─────────────────────────────────────────────
   const ITENS = [
-    { id:  1, texto: "Prefiro fazer as coisas com outras pessoas do que sozinho(a)." },
-    { id:  2, texto: "Prefiro fazer as coisas da mesma maneira repetidamente." },
-    { id:  3, texto: "Se eu tento imaginar alguma coisa, acho muito fácil criar uma imagem mental." },
-    { id:  4, texto: "Frequentemente fico tão absorto(a) em uma coisa que perco de vista outras coisas." },
-    { id:  5, texto: "Frequentemente noto pequenos sons quando outros não notam." },
-    { id:  6, texto: "Normalmente noto matrículas de carros ou sequências de informação semelhantes." },
-    { id:  7, texto: "Outras pessoas frequentemente me dizem que o que eu disse é indelicado, mesmo que eu ache que é educado." },
-    { id:  8, texto: "Quando leio histórias, consigo facilmente imaginar como os personagens podem ter aparência." },
-    { id:  9, texto: "Sou fascinado(a) por datas." },
-    { id: 10, texto: "Em um grupo social, consigo acompanhar facilmente as conversas de várias pessoas." },
-    { id: 11, texto: "Acho as situações sociais fáceis." },
-    { id: 12, texto: "Tendo a notar detalhes que outros não notam." },
-    { id: 13, texto: "Prefiro ir à biblioteca do que a festas." },
-    { id: 14, texto: "Acho histórias divertidas e fáceis de entender." },
-    { id: 15, texto: "Sinto-me mais atraído(a) por pessoas do que por coisas." },
-    { id: 16, texto: "Tendo a ter interesses muito fortes, e fico chateado(a) se não consigo segui-los." },
-    { id: 17, texto: "Acho difícil manter uma conversa com outras pessoas." },
-    { id: 18, texto: "Quando eu falo, nem sempre é fácil para os outros entenderem o que eu quero dizer." },
-    { id: 19, texto: "Estou fascinado(a) por números." },
-    { id: 20, texto: "Quando leio histórias, acho difícil descobrir a intenção do personagem." },
-    { id: 21, texto: "Não gosto particularmente de ler ficção." },
-    { id: 22, texto: "Acho difícil fazer novos amigos." },
-    { id: 23, texto: "Noto padrões em coisas o tempo todo." },
-    { id: 24, texto: "Eu preferiria ir ao teatro do que a um museu." },
-    { id: 25, texto: "Não me preocupo muito com os horários." },
-    { id: 26, texto: "Normalmente descubro que consigo trabalhar com facilidade o caminho de volta." },
-    { id: 27, texto: "Acho difícil entender as regras para se comportar socialmente." },
-    { id: 28, texto: "Não sei bem se algo é rude — a menos que alguém me diga." },
-    { id: 29, texto: "Acho difícil descobrir as intenções das pessoas." },
-    { id: 30, texto: "Não acho particularmente difícil manter o ritmo de uma conversa normal." },
-    { id: 31, texto: "Acho difícil imaginar como seria ser outra pessoa." },
-    { id: 32, texto: "Gosto de coletar informações sobre categorias de coisas (tipos de carros, tipos de pássaros, tipos de trem etc.)." },
-    { id: 33, texto: "Acho difícil descobrir o que alguém está pensando ou sentindo olhando para o rosto dele(a)." },
-    { id: 34, texto: "Consigo fazer mais de uma coisa ao mesmo tempo." },
-    { id: 35, texto: "Quando estou falando ao telefone, não sei quando é minha vez de falar." },
-    { id: 36, texto: "Gosto de fazer as coisas espontaneamente." },
-    { id: 37, texto: "Sou bom(boa) em fazer as coisas enquanto converso." },
-    { id: 38, texto: "Sou bom(boa) em jogo de palavras." },
-    { id: 39, texto: "Tenho uma mente voltada para fatos." },
-    { id: 40, texto: "Tenho dificuldade para ser pontual nos compromissos." },
-    { id: 41, texto: "Tenho uma coleção de itens relacionados aos meus interesses." },
-    { id: 42, texto: "Acho difícil imaginar como seria estar do outro lado de uma conversa." },
-    { id: 43, texto: "Gosto de planejar cuidadosamente qualquer viagem que eu faça." },
-    { id: 44, texto: "Acho situações sociais fáceis de lidar." },
-    { id: 45, texto: "Acho difícil descobrir as intenções das pessoas a partir do que elas dizem." },
-    { id: 46, texto: "Novos assuntos me interessam, mas logo passo para o próximo." },
-    { id: 47, texto: "Quando eu ouço um novo pedaço de música, eu normalmente começo a cantarolar junto." },
-    { id: 48, texto: "Sou bom(boa) em perceber quando estou sendo chateado(a) por alguém." },
-    { id: 49, texto: "Acho fácil fazer mais de uma coisa ao mesmo tempo." },
-    { id: 50, texto: "Quando estou lendo um romance ou assistindo a um programa de TV, acho difícil identificar a motivação dos personagens." }
+    { id:  1, texto: "Prefiro fazer coisas com outras pessoas do que sozinho(a)." },
+    { id:  2, texto: "Prefiro fazer as coisas sempre da mesma maneira." },
+    { id:  3, texto: "Quando tento imaginar uma coisa, tenho muita facilidade em criar uma imagem na minha mente." },
+    { id:  4, texto: "Com frequência fico tão absorvido(a) com uma coisa que esqueço todo o resto." },
+    { id:  5, texto: "Frequentemente noto pequenos ruídos que outras pessoas não ouvem." },
+    { id:  6, texto: "Costumo prestar atenção aos números das placas dos automóveis ou a outras sequências de informação do mesmo tipo." },
+    { id:  7, texto: "As outras pessoas com frequência me dizem que falei algo indelicado, apesar de eu achar que fui delicado(a)." },
+    { id:  8, texto: "Quando leio uma história, consigo imaginar facilmente a aparência dos personagens." },
+    { id:  9, texto: "Sou fascinado por datas." },
+    { id: 10, texto: "Quando estou em grupo, tenho facilidade em seguir várias conversas ao mesmo tempo." },
+    { id: 11, texto: "Tenho facilidade em compreender situações sociais." },
+    { id: 12, texto: "Tenho tendência a notar detalhes que os outros não reparam." },
+    { id: 13, texto: "Prefiro ir a uma biblioteca do que a uma festa." },
+    { id: 14, texto: "Tenho facilidade em inventar histórias." },
+    { id: 15, texto: "Tenho maior tendência a me aproximar de pessoas do que de coisas." },
+    { id: 16, texto: "Tenho tendência a ter interesses fortes e fico incomodado(a) se não posso me dedicar a eles." },
+    { id: 17, texto: "Gosto de bater papo." },
+    { id: 18, texto: "Quando estou falando, as outras pessoas têm dificuldade em tomar a palavra." },
+    { id: 19, texto: "Os números me fascinam." },
+    { id: 20, texto: "Quando leio uma história, sinto dificuldade em entender as intenções dos personagens." },
+    { id: 21, texto: "Não aprecio ler livros de ficção." },
+    { id: 22, texto: "Tenho dificuldade em fazer novos amigos." },
+    { id: 23, texto: "Vejo constantemente padrões nas coisas que me rodeiam." },
+    { id: 24, texto: "Prefiro ir ao teatro do que ir a um museu." },
+    { id: 25, texto: "Não fico incomodado(a) se minha rotina diária for alterada." },
+    { id: 26, texto: "Com frequência sinto que não sei manter uma conversa." },
+    { id: 27, texto: "Tenho facilidade em \"ler nas entrelinhas\" quando falam comigo." },
+    { id: 28, texto: "Geralmente me concentro mais no todo do que nos detalhes." },
+    { id: 29, texto: "Não sou muito bom/boa em lembrar números de telefone." },
+    { id: 30, texto: "Geralmente não reparo nas pequenas mudanças de uma situação ou na aparência de uma pessoa." },
+    { id: 31, texto: "Consigo dizer quando a pessoa com quem estou conversando fica entediada." },
+    { id: 32, texto: "Consigo facilmente fazer mais do que uma coisa ao mesmo tempo." },
+    { id: 33, texto: "Quando falo no telefone, não tenho a certeza quando é a minha vez de falar." },
+    { id: 34, texto: "Gosto de fazer as coisas de forma espontânea." },
+    { id: 35, texto: "Com frequência sou o(a) último(a) que entende uma piada." },
+    { id: 36, texto: "Tenho facilidade em entender o que uma pessoa está pensando ou sentindo apenas olhando para o seu rosto." },
+    { id: 37, texto: "Se sou interrompido(a), consigo rapidamente voltar ao que estava fazendo." },
+    { id: 38, texto: "Sou bom/boa de papo." },
+    { id: 39, texto: "Os outros frequentemente me dizem que eu insisto muito nas mesmas coisas." },
+    { id: 40, texto: "Quando era criança, gostava de brincar de faz-de-conta com as outras crianças." },
+    { id: 41, texto: "Gosto de colecionar informação sobre categorias de coisas (p. ex., tipos de carros, de aves, de trens, de plantas, etc.)." },
+    { id: 42, texto: "Tenho dificuldade de me imaginar na pele de outra pessoa." },
+    { id: 43, texto: "Gosto de planejar com cuidado todas as atividades em que participo." },
+    { id: 44, texto: "Aprecio eventos sociais." },
+    { id: 45, texto: "Tenho dificuldade em entender as intenções das outras pessoas." },
+    { id: 46, texto: "Situações novas me deixam ansioso(a)." },
+    { id: 47, texto: "Gosto de conhecer pessoas novas." },
+    { id: 48, texto: "Tenho uma postura conciliadora em situações de interação social." },
+    { id: 49, texto: "Tenho dificuldade em lembrar o dia de aniversário dos outros." },
+    { id: 50, texto: "Tenho muita facilidade em brincar de faz-de-conta com as crianças." }
   ];
 
   const LABELS = {
