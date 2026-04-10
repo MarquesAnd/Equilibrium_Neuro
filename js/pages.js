@@ -273,6 +273,8 @@ const _NOMES_TESTES = {
   'vineland-pre':'Vineland-3','vineland-adulto':'Vineland-3',
   'qcp-fc':'QCP-FC',
   'ravlt':'RAVLT',
+  'qa':'QA — Quociente do Autismo',
+  'eq15':'EQ-15 — Quociente de Empatia',
 };
 
 let _todosRelatorios = [];

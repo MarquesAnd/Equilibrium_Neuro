@@ -332,6 +332,7 @@
   <script src="/js/db.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/patient-guard-silent.js"></script>
+  <script src="/js/integration.js"></script>
 
   <script>
   // ═══════════════════════════════════════════════════════════════════════
@@ -518,91 +519,272 @@
     return { respostas, pontos, total, subEscalasPontos, missing };
   }
 
-  // ── Gerar HTML do relatório ───────────────────────────────────────────
+  // ── Gerar HTML do relatório (profissional, self-contained) ─────────────
   function gerarRelatorio(resultado) {
     const paciente = document.getElementById("paciente").value.trim() || "Não informado";
+    const cpf = document.getElementById("cpf")?.value?.trim() || "";
+    const dataNasc = document.getElementById("dataNascimento")?.value || "";
+    const respondente = document.getElementById("respondente")?.value?.trim() || "";
     const dataAval = document.getElementById("data").value || new Date().toISOString().slice(0,10);
     const dataFmt  = dataAval.split("-").reverse().join("/");
-    const { total, subEscalasPontos, missing } = resultado;
+    const dataNascFmt = dataNasc ? dataNasc.split("-").reverse().join("/") : "—";
+    const { total, subEscalasPontos, respostas, pontos, missing } = resultado;
     const interp = interpretarTotal(total);
 
-    const barPct = Math.round((total / 50) * 100);
+    // Calculate age
+    let idadeStr = "—";
+    if (dataNasc) {
+      const dn = new Date(dataNasc + "T12:00:00");
+      const da = new Date(dataAval + "T12:00:00");
+      let age = da.getFullYear() - dn.getFullYear();
+      if (da.getMonth() < dn.getMonth() || (da.getMonth() === dn.getMonth() && da.getDate() < dn.getDate())) age--;
+      idadeStr = age + " anos";
+    }
 
-    const subRows = Object.entries(subEscalasPontos).map(([nome, pts]) => `
-      <tr>
-        <td style="padding:8px 12px;font-size:12.5px;color:#374151;">${nome}</td>
-        <td style="padding:8px 12px;text-align:center;font-weight:800;color:#1e293b;">${pts}</td>
-        <td style="padding:8px 12px;text-align:center;font-size:11px;color:#64748b;">/ 10</td>
-      </tr>`).join("");
+    const barPct = Math.round((total / 50) * 100);
+    const cutoffPct = Math.round((32 / 50) * 100);
+
+    // SVG bar chart for subscales
+    const subNames = Object.keys(subEscalasPontos);
+    const barW = 80, barGap = 16, chartH = 180, padTop = 30, padBot = 70;
+    const svgW = subNames.length * (barW + barGap) + barGap + 40;
+    const svgH = chartH + padTop + padBot;
+    const maxVal = 10;
+
+    const subColors = ["#7c3aed", "#3b82f6", "#10b981", "#f59e0b", "#ef4444"];
+
+    const svgBars = subNames.map((nome, i) => {
+      const val = subEscalasPontos[nome];
+      const bH = (val / maxVal) * chartH;
+      const x = barGap + i * (barW + barGap) + 20;
+      const y = padTop + chartH - bH;
+      const color = subColors[i % subColors.length];
+      // Wrap long names
+      const words = nome.split(" ");
+      const labelLines = words.length > 1
+        ? [`<tspan x="${x + barW/2}" dy="0">${escHtml(words[0])}</tspan>`,
+           `<tspan x="${x + barW/2}" dy="14">${escHtml(words.slice(1).join(" "))}</tspan>`]
+        : [`<tspan x="${x + barW/2}" dy="0">${escHtml(nome)}</tspan>`];
+
+      return `
+        <rect x="${x}" y="${y}" width="${barW}" height="${bH}" rx="6" fill="${color}" opacity="0.85"/>
+        <text x="${x + barW/2}" y="${y - 8}" text-anchor="middle" font-size="13" font-weight="800" fill="${color}">${val}</text>
+        <text x="${x + barW/2}" y="${padTop + chartH + 18}" text-anchor="middle" font-size="10.5" fill="#64748b" font-weight="600">
+          ${labelLines.join("")}
+        </text>
+      `;
+    }).join("");
+
+    // Grid lines
+    const gridLines = [0, 2, 4, 6, 8, 10].map(v => {
+      const y = padTop + chartH - (v / maxVal) * chartH;
+      return `
+        <line x1="20" y1="${y}" x2="${svgW - 10}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>
+        <text x="14" y="${y + 4}" text-anchor="end" font-size="10" fill="#94a3b8">${v}</text>
+      `;
+    }).join("");
+
+    // Item detail rows
+    const itemRows = ITENS.map(item => {
+      const resp = respostas[item.id] || "—";
+      const pt = pontos[item.id] || 0;
+      // Find subscale
+      let sub = "—";
+      for (const [nome, ids] of Object.entries(SUBESCALAS)) {
+        if (ids.includes(item.id)) { sub = nome; break; }
+      }
+      return `
+        <tr style="border-bottom:1px solid #f1f5f9;">
+          <td style="padding:6px 10px;font-weight:700;color:#7c3aed;width:36px;text-align:center;">${item.id}</td>
+          <td style="padding:6px 10px;font-size:11.5px;color:#374151;line-height:1.4;">${escHtml(item.texto.substring(0,85))}${item.texto.length > 85 ? "..." : ""}</td>
+          <td style="padding:6px 10px;text-align:center;font-size:11.5px;color:#64748b;">${escHtml(resp)}</td>
+          <td style="padding:6px 10px;text-align:center;font-size:12px;font-weight:700;color:${pt ? '#16a34a' : '#94a3b8'};">${pt}</td>
+          <td style="padding:6px 10px;font-size:10.5px;color:#64748b;">${escHtml(sub)}</td>
+        </tr>`;
+    }).join("");
+
+    // Subscale summary rows
+    const subRows = Object.entries(subEscalasPontos).map(([nome, pts], i) => {
+      const pct = Math.round((pts / 10) * 100);
+      const color = subColors[i % subColors.length];
+      return `
+        <tr style="border-bottom:1px solid #f1f5f9;">
+          <td style="padding:10px 14px;font-size:13px;font-weight:600;color:#1e293b;">${escHtml(nome)}</td>
+          <td style="padding:10px 14px;text-align:center;font-weight:800;font-size:15px;color:${color};">${pts}</td>
+          <td style="padding:10px 14px;text-align:center;font-size:12px;color:#94a3b8;">10</td>
+          <td style="padding:10px 14px;width:180px;">
+            <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;">
+              <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;"></div>
+            </div>
+          </td>
+        </tr>`;
+    }).join("");
+
+    // Interpretation bands for visual scale
+    const bands = [
+      { label: "Baixa", min: 0, max: 10, color: "#16a34a" },
+      { label: "Media", min: 11, max: 21, color: "#0891b2" },
+      { label: "Acima", min: 22, max: 25, color: "#d97706" },
+      { label: "Limitrofe", min: 26, max: 31, color: "#ea580c" },
+      { label: "Clinica", min: 32, max: 50, color: "#dc2626" }
+    ];
+
+    const bandSvg = bands.map(b => {
+      const x1 = (b.min / 50) * 100;
+      const w = ((b.max - b.min + 1) / 50) * 100;
+      return `<div style="position:absolute;left:${x1}%;width:${w}%;height:100%;background:${b.color};opacity:0.15;"></div>`;
+    }).join("");
 
     return `
-      <div style="font-family:'DM Sans',Arial,sans-serif;padding:32px 40px;background:#fff;color:#1e293b;">
+    <div style="font-family:'DM Sans',Arial,sans-serif;color:#1e293b;max-width:760px;margin:0 auto;padding:32px 40px;background:#fff;">
 
-        <!-- Cabeçalho do relatório -->
-        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:2px solid #7c3aed;margin-bottom:28px;">
+      <!-- ===== HEADER ===== -->
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:20px;border-bottom:2.5px solid #7c3aed;margin-bottom:28px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <img src="/logo.png" alt="Equilibrium" style="height:44px;" onerror="this.style.display='none'" />
           <div>
-            <div style="font-size:18px;font-weight:800;color:#5b21b6;">QA — Quociente do Espectro do Autismo</div>
-            <div style="font-size:12px;color:#64748b;margin-top:3px;">AQ · Baron-Cohen et al. (2001) · Versão Adultos</div>
-          </div>
-          <div style="text-align:right;font-size:12px;color:#94a3b8;">
-            <div style="font-weight:700;color:#374151;">${escHtml(paciente)}</div>
-            <div>Avaliação: ${escHtml(dataFmt)}</div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#7c3aed;">Equilibrium Neuropsicologia</div>
+            <div style="font-size:20px;font-weight:800;color:#1e293b;margin-top:2px;">QA -- Quociente do Espectro do Autismo</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px;">AQ -- Baron-Cohen, Wheelwright, Skinner, Martin &amp; Clubley (2001) -- Versao Adultos (50 itens)</div>
           </div>
         </div>
-
-        <!-- Pontuação total -->
-        <div style="background:${interp.bg};border:1.5px solid ${interp.cor}30;border-radius:14px;padding:22px 28px;margin-bottom:24px;">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
-            <div>
-              <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:${interp.cor};margin-bottom:4px;">Pontuação Total</div>
-              <div style="font-size:48px;font-weight:800;color:${interp.cor};line-height:1;">${total}</div>
-              <div style="font-size:11px;color:#64748b;margin-top:2px;">de 50 pontos possíveis</div>
-            </div>
-            <div style="text-align:right;">
-              <div style="display:inline-block;background:${interp.cor};color:#fff;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:700;">${interp.faixa}</div>
-              <div style="font-size:12.5px;color:#374151;margin-top:8px;max-width:260px;line-height:1.5;">${interp.desc}</div>
-            </div>
-          </div>
-          <!-- Barra visual -->
-          <div style="margin-top:18px;">
-            <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;">
-              <div style="height:100%;width:${barPct}%;background:${interp.cor};border-radius:4px;transition:width .3s;"></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;font-size:10px;color:#94a3b8;margin-top:4px;">
-              <span>0</span><span>10</span><span>21</span><span>25</span><span>31</span><span>50</span>
-            </div>
-          </div>
-        </div>
-
-        ${missing > 0 ? `<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:12px 16px;font-size:13px;color:#dc2626;margin-bottom:20px;">⚠️ ${missing} item(s) sem resposta — resultado parcial.</div>` : ""}
-
-        <!-- Subescalas -->
-        <div style="margin-bottom:24px;">
-          <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:12px;">Pontuação por Subescala</div>
-          <table style="width:100%;border-collapse:collapse;background:#f8fafc;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;">
-            <thead>
-              <tr style="background:#ede9fe;">
-                <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:800;color:#5b21b6;text-transform:uppercase;letter-spacing:.06em;">Subescala</th>
-                <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:800;color:#5b21b6;text-transform:uppercase;letter-spacing:.06em;">Pontos</th>
-                <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:800;color:#5b21b6;text-transform:uppercase;letter-spacing:.06em;">Máx.</th>
-              </tr>
-            </thead>
-            <tbody>${subRows}</tbody>
-          </table>
-        </div>
-
-        <!-- Nota clínica -->
-        <div style="background:#f8fafc;border-radius:10px;padding:16px 20px;font-size:12px;color:#475569;line-height:1.6;border-left:3px solid #7c3aed;">
-          <strong style="color:#5b21b6;">Nota clínica:</strong> O QA/AQ é um instrumento de <em>rastreio</em>. Pontuações ≥ 32 sugerem probabilidade elevada de características do espectro autista e indicam necessidade de avaliação diagnóstica completa com profissional especializado. O instrumento não substitui o diagnóstico clínico.
-        </div>
-
-        <!-- Rodapé -->
-        <div style="margin-top:28px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;display:flex;justify-content:space-between;">
-          <span>Equilibrium Neuropsicologia</span>
-          <span>Baron-Cohen et al. (2001). The Autism-Spectrum Quotient (AQ). <em>Journal of Autism and Developmental Disorders</em>, 31(1), 5–17.</span>
+        <div style="text-align:right;flex-shrink:0;">
+          <div style="font-size:12px;color:#64748b;">Data da Avaliacao</div>
+          <div style="font-size:14px;font-weight:700;color:#1e293b;">${escHtml(dataFmt)}</div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:4px;">Gerado em ${new Date().toLocaleDateString("pt-BR")}</div>
         </div>
       </div>
-    `;
+
+      <!-- ===== PATIENT INFO ===== -->
+      <div style="background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;padding:18px 22px;margin-bottom:24px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8;margin-bottom:10px;">Identificacao do Paciente</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+          <div>
+            <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Nome</div>
+            <div style="font-size:14px;font-weight:700;color:#1e293b;margin-top:2px;">${escHtml(paciente)}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">CPF</div>
+            <div style="font-size:14px;color:#1e293b;margin-top:2px;">${escHtml(cpf || "---")}</div>
+          </div>
+          <div>
+            <div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Data Nasc. / Idade</div>
+            <div style="font-size:14px;color:#1e293b;margin-top:2px;">${escHtml(dataNascFmt)} (${escHtml(idadeStr)})</div>
+          </div>
+        </div>
+        ${respondente ? `<div style="margin-top:10px;"><div style="font-size:10px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">Respondente</div><div style="font-size:13px;color:#1e293b;margin-top:2px;">${escHtml(respondente)}</div></div>` : ""}
+      </div>
+
+      <!-- ===== TOTAL SCORE ===== -->
+      <div style="background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%);border-radius:16px;padding:26px 30px;margin-bottom:24px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:20px;">
+        <div>
+          <div style="font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.8;">Pontuacao Total</div>
+          <div style="font-size:52px;font-weight:800;line-height:1;">${total}</div>
+          <div style="font-size:13px;opacity:.7;margin-top:2px;">de 50 pontos</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:11px;opacity:.7;margin-bottom:8px;">Classificacao</div>
+          <div style="background:${interp.cor};border-radius:12px;padding:12px 24px;">
+            <div style="font-size:20px;font-weight:800;">${escHtml(interp.faixa)}</div>
+          </div>
+          <div style="font-size:12px;opacity:.8;margin-top:8px;max-width:220px;line-height:1.4;">${escHtml(interp.desc)}</div>
+        </div>
+      </div>
+
+      <!-- ===== TOTAL SCALE BAR ===== -->
+      <div style="margin-bottom:28px;">
+        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Posicao na Escala</div>
+        <div style="height:22px;background:#e2e8f0;border-radius:11px;position:relative;overflow:hidden;">
+          ${bandSvg}
+          <div style="position:absolute;top:0;left:0;height:100%;width:${barPct}%;background:${interp.cor};border-radius:11px;opacity:0.9;"></div>
+        </div>
+        <div style="position:relative;height:20px;margin-top:2px;">
+          <span style="position:absolute;left:0;font-size:9px;color:#94a3b8;">0</span>
+          <span style="position:absolute;left:${cutoffPct}%;transform:translateX(-50%);font-size:9px;color:#dc2626;font-weight:700;">| 32 (corte clinico)</span>
+          <span style="position:absolute;right:0;font-size:9px;color:#94a3b8;">50</span>
+        </div>
+      </div>
+
+      ${missing > 0 ? `<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:12px 16px;font-size:13px;color:#dc2626;margin-bottom:20px;"><strong>Atencao:</strong> ${missing} item(s) sem resposta -- resultado parcial.</div>` : ""}
+
+      <!-- ===== SVG BAR CHART ===== -->
+      <div style="margin-bottom:28px;">
+        <div style="font-size:12px;font-weight:800;color:#1e293b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:14px;">Perfil por Subescala</div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px;overflow-x:auto;">
+          <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" style="display:block;margin:0 auto;">
+            ${gridLines}
+            ${svgBars}
+          </svg>
+        </div>
+      </div>
+
+      <!-- ===== SUBSCALE TABLE ===== -->
+      <div style="margin-bottom:28px;">
+        <div style="font-size:12px;font-weight:800;color:#1e293b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;">Pontuacao por Subescala</div>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;">
+          <thead>
+            <tr style="background:#ede9fe;">
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:800;color:#5b21b6;text-transform:uppercase;letter-spacing:.06em;">Subescala</th>
+              <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:800;color:#5b21b6;text-transform:uppercase;">Pontos</th>
+              <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:800;color:#5b21b6;text-transform:uppercase;">Max.</th>
+              <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:800;color:#5b21b6;text-transform:uppercase;">Grafico</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${subRows}
+            <tr style="background:#f8fafc;border-top:2px solid #e2e8f0;">
+              <td style="padding:12px 14px;font-weight:800;font-size:13px;">TOTAL</td>
+              <td style="padding:12px 14px;text-align:center;font-weight:800;font-size:17px;color:#7c3aed;">${total}</td>
+              <td style="padding:12px 14px;text-align:center;font-size:12px;color:#94a3b8;">50</td>
+              <td style="padding:12px 14px;">
+                <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;">
+                  <div style="height:100%;width:${barPct}%;background:#7c3aed;border-radius:4px;"></div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ===== ITEM DETAIL ===== -->
+      <div style="margin-bottom:28px;">
+        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Detalhamento por Item</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
+          <thead>
+            <tr style="background:#f1f5f9;">
+              <th style="padding:7px 10px;text-align:center;color:#64748b;border-bottom:1.5px solid #e2e8f0;font-size:10px;text-transform:uppercase;">N</th>
+              <th style="padding:7px 10px;text-align:left;color:#64748b;border-bottom:1.5px solid #e2e8f0;font-size:10px;text-transform:uppercase;">Item</th>
+              <th style="padding:7px 10px;text-align:center;color:#64748b;border-bottom:1.5px solid #e2e8f0;font-size:10px;text-transform:uppercase;">Resp.</th>
+              <th style="padding:7px 10px;text-align:center;color:#64748b;border-bottom:1.5px solid #e2e8f0;font-size:10px;text-transform:uppercase;">Pts.</th>
+              <th style="padding:7px 10px;text-align:left;color:#64748b;border-bottom:1.5px solid #e2e8f0;font-size:10px;text-transform:uppercase;">Subescala</th>
+            </tr>
+          </thead>
+          <tbody>${itemRows}</tbody>
+        </table>
+      </div>
+
+      <!-- ===== CLINICAL INTERPRETATION ===== -->
+      <div style="background:#f8fafc;border-radius:12px;padding:18px 22px;margin-bottom:24px;border-left:4px solid #7c3aed;">
+        <div style="font-size:12px;font-weight:800;color:#5b21b6;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Interpretacao Clinica</div>
+        <div style="font-size:12.5px;color:#475569;line-height:1.65;">
+          <p style="margin:0 0 8px;">O <strong>Quociente do Espectro do Autismo (QA/AQ)</strong> e um instrumento de rastreio de autopreenchimento composto por 50 itens que avaliam tracos associados ao espectro autista em cinco dominios: Habilidade Social, Troca de Atencao, Atencao aos Detalhes, Comunicacao e Imaginacao.</p>
+          <p style="margin:0 0 8px;">A pontuacao total obtida foi de <strong>${total} pontos</strong>, classificada como <strong style="color:${interp.cor};">${interp.faixa}</strong>. ${total >= 32 ? 'Este resultado esta acima do ponto de corte clinico (32), sugerindo probabilidade elevada de caracteristicas do espectro autista. Recomenda-se avaliacao diagnostica completa com profissional especializado.' : total >= 26 ? 'Este resultado encontra-se na faixa limitrofe, sugerindo a presenca de alguns tracos do espectro autista. Uma avaliacao mais detalhada pode ser considerada.' : 'Este resultado encontra-se dentro da faixa tipica da populacao geral.'}</p>
+          <p style="margin:0;"><strong>Nota:</strong> O QA/AQ e um instrumento de rastreio e nao substitui o diagnostico clinico. Os resultados devem ser interpretados no contexto de uma avaliacao neuropsicologica abrangente.</p>
+        </div>
+      </div>
+
+      <!-- ===== FOOTER ===== -->
+      <div style="border-top:1.5px solid #e2e8f0;padding-top:16px;display:flex;justify-content:space-between;align-items:flex-end;font-size:10px;color:#94a3b8;">
+        <div>
+          <div style="font-weight:700;color:#64748b;">Equilibrium Neuropsicologia</div>
+          <div>Correcao automatizada QA/AQ</div>
+        </div>
+        <div style="text-align:right;max-width:380px;line-height:1.5;">
+          Baron-Cohen, S., Wheelwright, S., Skinner, R., Martin, C.E. &amp; Clubley, E. (2001). The Autism-Spectrum Quotient (AQ). <em>Journal of Autism and Developmental Disorders</em>, 31(1), 5-17.
+        </div>
+      </div>
+
+    </div>`;
   }
 
   // ── Envio ─────────────────────────────────────────────────────────────
@@ -627,6 +809,33 @@
     document.getElementById("repFrame").innerHTML = repHtml;
     document.getElementById("repOverlay").style.display = "block";
     document.getElementById("repOverlay").style.left = "-9999px";
+
+    // ── Salvar no Firebase via Integration ──
+    if (window.Integration && typeof Integration.salvarTesteNoFirebase === "function") {
+      try {
+        const interp = interpretarTotal(total);
+        const scoresObj = {};
+        Object.entries(subEscalasPontos).forEach(([nome, pts]) => {
+          scoresObj[nome] = { bruto: pts, maximo: 10 };
+        });
+        scoresObj["Total"] = { bruto: total, maximo: 50 };
+
+        await Integration.salvarTesteNoFirebase("qa", {
+          dataAplicacao: new Date().toISOString(),
+          resumo: "QA - Total: " + total + "/50 (" + interp.faixa + ") | " +
+                  Object.entries(subEscalasPontos).map(([n, p]) => n + ": " + p).join(", "),
+          scores: scoresObj,
+          classificacao: interp.faixa,
+          htmlRelatorio: repHtml,
+          observacoes: ""
+        });
+        console.log("QA salvo no Firebase com sucesso.");
+      } catch (fbErr) {
+        console.warn("Erro ao salvar QA no Firebase (continuando envio):", fbErr);
+      }
+    } else {
+      console.info("Integration nao disponivel - Firebase save ignorado.");
+    }
 
     const btnEnviar = document.getElementById("btnEnviar");
     btnEnviar.disabled = true;

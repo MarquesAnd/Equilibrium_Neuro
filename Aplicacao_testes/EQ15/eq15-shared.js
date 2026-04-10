@@ -148,7 +148,7 @@ function calcularFatores(respostas) {
 // ─── RELATÓRIO HTML ───────────────────────────────────────────────────────────
 function gerarRelatorioHTML(paciente, data, fatores, total) {
   const cls = getClassification(total);
-  const dataFmt = data ? new Date(data + "T12:00:00").toLocaleDateString("pt-BR") : "—";
+  const dataFmt = data ? new Date(data + "T12:00:00").toLocaleDateString("pt-BR") : "---";
 
   // Barras de fator
   const factorBars = EQ15_RULES.factors.map(f => {
@@ -436,6 +436,19 @@ async function finalizarEEnviar() {
       body: JSON.stringify({ pdf: base64, nome: paciente, form: "eq15" })
     });
     const resData = await res.json();
+
+    // Salvar no Firebase
+    if (window.Integration && typeof Integration.salvarTesteNoFirebase === "function") {
+      try {
+        await Integration.salvarTesteNoFirebase("eq15", {
+          dataAplicacao: data,
+          resumo: `EQ Total: ${total}`,
+          scores: fatores,
+          classificacao: total >= 30 ? "Alta empatia" : total >= 20 ? "Média empatia" : "Baixa empatia",
+          htmlRelatorio: repHTML,
+        });
+      } catch(e) { console.warn("Firebase save failed:", e); }
+    }
 
     if (resData.status === "sucesso") {
       document.body.innerHTML = `

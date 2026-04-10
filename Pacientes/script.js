@@ -694,6 +694,8 @@ function visualizarTeste(testeId) {
     'srs2-adulto-auto':'SRS-2 Adulto Auto','srs2-adulto-hetero':'SRS-2 Adulto Hetero',
     'raads-r':'RAADS-R','cat-q':'CAT-Q','bfp':'BFP',
     'vineland-pre':'Vineland-3','vineland-adulto':'Vineland-3',
+    'qcp-fc':'QCP-FC','ravlt':'RAVLT',
+    'qa':'QA','eq15':'EQ-15',
   };
   const nomeTeste = NOMES[teste.tipo] || teste.tipo;
   const nomePac = pacienteAtual?.nome || '';
