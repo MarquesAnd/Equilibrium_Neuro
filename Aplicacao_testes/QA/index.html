@@ -276,12 +276,24 @@
       <!-- Dados do paciente -->
       <div class="p-fields">
         <div class="p-field">
-          <label>Nome do paciente</label>
+          <label>Nome completo</label>
           <input id="paciente" type="text" placeholder="Nome completo" autocomplete="name" />
+        </div>
+        <div class="p-field">
+          <label>CPF</label>
+          <input id="cpf" type="text" placeholder="000.000.000-00" autocomplete="off" />
+        </div>
+        <div class="p-field">
+          <label>Data de Nascimento</label>
+          <input id="dataNascimento" type="date" />
         </div>
         <div class="p-field">
           <label>Data da avaliação</label>
           <input id="data" type="date" />
+        </div>
+        <div class="p-field" style="grid-column: 1 / -1;">
+          <label>Respondente / Relação com o paciente</label>
+          <input id="respondente" type="text" placeholder='Ex: "O próprio paciente", "Mãe", "Pai"' autocomplete="off" />
         </div>
       </div>
 

@@ -472,12 +472,24 @@
             <form id="catqForm">
                 <div class="p-fields">
                     <div class="p-field">
-                        <label>Nome Completo</label>
+                        <label>Nome completo</label>
                         <input type="text" id="nome" name="nome" required placeholder="Nome completo" autocomplete="name">
+                    </div>
+                    <div class="p-field">
+                        <label>CPF</label>
+                        <input type="text" id="cpf" placeholder="000.000.000-00" autocomplete="off">
                     </div>
                     <div class="p-field">
                         <label>Data de Nascimento</label>
                         <input type="date" id="dataNascimento" name="dataNascimento" required>
+                    </div>
+                    <div class="p-field">
+                        <label>Data da avaliação</label>
+                        <input type="date" id="data" name="data">
+                    </div>
+                    <div class="p-field" style="grid-column: 1 / -1;">
+                        <label>Respondente / Relação com o paciente</label>
+                        <input type="text" id="respondente" placeholder='Ex: "O próprio paciente", "Mãe", "Pai"' autocomplete="off">
                     </div>
                 </div>
 
@@ -539,6 +551,12 @@
             "Em interações sociais, não presto atenção ao que meu rosto ou corpo estão fazendo.",
             "Em situações sociais, sinto que estou fingindo ser 'normal'."
         ];
+
+        // Definir data da avaliação como hoje por padrão
+        const dataInput = document.getElementById('data');
+        if (dataInput && !dataInput.value) {
+            dataInput.value = new Date().toISOString().split('T')[0];
+        }
 
         // Renderizar perguntas
         const container = document.getElementById('questionsContainer');
