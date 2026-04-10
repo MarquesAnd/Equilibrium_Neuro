@@ -12,7 +12,7 @@ let EQ15_RULES = null;
 const $ = (sel) => document.querySelector(sel);
 
 if (typeof DATA_PATH === "undefined") {
-  var DATA_PATH = "./data/eq15_rules.json";
+  window.DATA_PATH = "./data/eq15_rules.json";
 }
 
 // ─── INICIALIZAÇÃO ────────────────────────────────────────────────────────────
