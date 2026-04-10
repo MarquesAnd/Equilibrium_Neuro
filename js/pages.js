@@ -447,6 +447,7 @@ function _irCorrigirTeste(pacienteId, tipo, testeId) {
     'vineland-adulto':'/Correcao_testes/Vineland3/',
     'qcp-fc':'/Correcao_testes/QCP_FC/',
     'ravlt':'/Correcao_testes/RAVLT/',
+    'bfp':'/Correcao_testes/BFP/',
   };
   window.location.href = ROTAS[tipo] || '/Correcao_testes/';
 }
@@ -550,9 +551,22 @@ async function _baixarRelPDF(pacienteId, testeId, nomeP) {
   // Aguardar CSS carregar
   await new Promise(r => setTimeout(r, 400));
 
+  // Converter SVGs inline para imagens (html2canvas não renderiza SVG corretamente)
+  const svgs = content.querySelectorAll('svg');
+  for (const svg of svgs) {
+    try {
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const svgBlob = new Blob([svgData], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+      const img = await new Promise(r => { const i = new Image(); i.onload = () => { URL.revokeObjectURL(url); r(i); }; i.onerror = () => { URL.revokeObjectURL(url); r(null); }; i.src = url; });
+      if (img) { img.style.cssText = svg.getAttribute('style') || 'width:100%;height:auto;'; svg.parentNode.replaceChild(img, svg); }
+    } catch(e) {}
+  }
+  await new Promise(r => setTimeout(r, 200));
+
   // Esconder elementos decorativos que causam problemas no html2canvas
-  const decos = container.querySelectorAll('.deco1, .deco2');
-  const badge = container.querySelector('.rpt-hdr-badge');
+  const decos = content.querySelectorAll('.deco1, .deco2');
+  const badge = content.querySelector('.rpt-hdr-badge');
   decos.forEach(d => d.style.display = 'none');
   if (badge) badge.style.backdropFilter = 'none';
 

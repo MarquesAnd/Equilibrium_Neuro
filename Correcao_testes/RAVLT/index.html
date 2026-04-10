@@ -883,15 +883,40 @@
     await Promise.all(promises);
   }
 
+  async function svgToImg(svgEl) {
+    const svgData = new XMLSerializer().serializeToString(svgEl);
+    const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+    const url = URL.createObjectURL(svgBlob);
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+      img.src = url;
+    });
+  }
+
   async function baixarPDF() {
     const rel = document.getElementById("relatorio");
     if (!rel) return;
-    await esperarImagensCarregarem(rel);
 
     const nome = resultadosCalculados?.nome || "Relatorio";
     const nomeArquivo = "RAVLT_" + nome.replace(/\s+/g, "_").substring(0, 30) + ".pdf";
 
     showLoading("Gerando PDF...");
+
+    // Converter SVGs para imagens (html2canvas não renderiza SVG inline corretamente)
+    const svgs = rel.querySelectorAll("svg");
+    const svgBackups = [];
+    for (const svg of svgs) {
+      const img = await svgToImg(svg);
+      if (img) {
+        img.style.cssText = svg.getAttribute("style") || "width:100%;max-width:600px;height:auto;";
+        svgBackups.push({ parent: svg.parentNode, svg, img });
+        svg.parentNode.replaceChild(img, svg);
+      }
+    }
+
+    await esperarImagensCarregarem(rel);
 
     const decos = rel.querySelectorAll(".deco1, .deco2");
     const reportEl = rel.querySelector(".report");
@@ -913,6 +938,8 @@
     } finally {
       decos.forEach(d => d.style.display = "");
       if (reportEl) reportEl.style.overflow = "";
+      // Restaurar SVGs originais
+      svgBackups.forEach(b => b.parent.replaceChild(b.svg, b.img));
       hideLoading();
     }
   }

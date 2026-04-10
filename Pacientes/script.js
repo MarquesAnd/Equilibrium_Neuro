@@ -592,6 +592,7 @@ const ROTAS_CORRECAO = {
   'vineland-adulto': '/Correcao_testes/Vineland3/',
   'qcp-fc':          '/Correcao_testes/QCP_FC/',
   'ravlt':            '/Correcao_testes/RAVLT/',
+  'bfp':              '/Correcao_testes/BFP/',
 };
 
 function aplicarTeste(testeId) {
