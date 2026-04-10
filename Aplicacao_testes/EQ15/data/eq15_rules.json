@@ -1,0 +1,62 @@
+{
+  "instrument": "EQ-15",
+  "full_name": "Quociente de Empatia — Versão Reduzida Brasileira (EQ-15)",
+  "reference": "Gouveia et al. (2012)",
+  "answer_labels": {
+    "1": "Discordo totalmente",
+    "2": "Discordo parcialmente",
+    "3": "Concordo parcialmente",
+    "4": "Concordo totalmente"
+  },
+  "factors": [
+    {
+      "key": "empatia_cognitiva",
+      "label": "Empatia Cognitiva",
+      "items": [1, 2, 3, 4, 5],
+      "min": 5,
+      "max": 20,
+      "ref_mean": 13.8
+    },
+    {
+      "key": "habilidades_sociais",
+      "label": "Habilidades Sociais",
+      "items": [6, 7, 8, 9, 10],
+      "min": 5,
+      "max": 20,
+      "ref_mean": 9.8
+    },
+    {
+      "key": "reatividade_emocional",
+      "label": "Reatividade Emocional",
+      "items": [11, 12, 13, 14, 15],
+      "min": 5,
+      "max": 20,
+      "ref_mean": 10.5
+    }
+  ],
+  "items": [
+    { "id": 1,  "text": "Consigo perceber quando alguém está desconfortável em uma conversa, mesmo que essa pessoa não diga nada.", "reverse": false, "factor": "empatia_cognitiva" },
+    { "id": 2,  "text": "Consigo imaginar facilmente como seria estar no lugar de outra pessoa.", "reverse": false, "factor": "empatia_cognitiva" },
+    { "id": 3,  "text": "Fico perturbado(a) quando alguém me conta algo triste que aconteceu com ele(a).", "reverse": false, "factor": "empatia_cognitiva" },
+    { "id": 4,  "text": "Consigo perceber quando alguém está fingindo que está bem, mas na realidade não está.", "reverse": false, "factor": "empatia_cognitiva" },
+    { "id": 5,  "text": "Quando alguém está chateado(a), consigo entender por quê.", "reverse": false, "factor": "empatia_cognitiva" },
+    { "id": 6,  "text": "Tenho dificuldade em saber o que dizer quando alguém está chateado comigo.", "reverse": true, "factor": "habilidades_sociais" },
+    { "id": 7,  "text": "Em situações sociais, fico em silêncio porque não sei o que dizer.", "reverse": true, "factor": "habilidades_sociais" },
+    { "id": 8,  "text": "Tenho dificuldade em entender as regras de comportamento aceitáveis em situações sociais.", "reverse": true, "factor": "habilidades_sociais" },
+    { "id": 9,  "text": "Fico desconfortável(a) em reuniões sociais, especialmente quando são com pessoas que não conheço.", "reverse": true, "factor": "habilidades_sociais" },
+    { "id": 10, "text": "Costumo conseguir perceber o que os outros estão sentindo.", "reverse": false, "factor": "habilidades_sociais" },
+    { "id": 11, "text": "Quando vejo alguém ser maltratado(a), fico emocionado(a).", "reverse": false, "factor": "reatividade_emocional" },
+    { "id": 12, "text": "Não me abalo com situações emocionais.", "reverse": true, "factor": "reatividade_emocional" },
+    { "id": 13, "text": "Não costumo me comover com facilidade.", "reverse": true, "factor": "reatividade_emocional" },
+    { "id": 14, "text": "Raramente me deixo envolver pelos sentimentos das pessoas ao meu redor.", "reverse": true, "factor": "reatividade_emocional" },
+    { "id": 15, "text": "Quando vejo alguém chorar, fico emocionado(a).", "reverse": false, "factor": "reatividade_emocional" }
+  ],
+  "classification": [
+    { "min": 0,  "max": 25, "label": "Baixa",      "cls": "cls-severo",   "color": "#dc2626" },
+    { "min": 26, "max": 39, "label": "Média",      "cls": "cls-moderado", "color": "#f59e0b" },
+    { "min": 40, "max": 50, "label": "Alta",       "cls": "cls-leve",     "color": "#3b82f6" },
+    { "min": 51, "max": 60, "label": "Muito Alta", "cls": "cls-normal",   "color": "#10b981" }
+  ],
+  "clinical_cutoff": 30,
+  "max_total": 60
+}
