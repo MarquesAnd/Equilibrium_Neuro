@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QA · Quociente do Espectro do Autismo | Equilibrium</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    /* ━━━ RESET E BASE ━━━ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+    body {
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      background: #f0f4f8;
+      color: #1e293b;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ━━━ VARIÁVEIS DE COR — QA usa roxo/índigo ━━━ */
+    :root {
+      --qa-accent:       #7c3aed;
+      --qa-accent-light: #ede9fe;
+      --qa-accent-dark:  #5b21b6;
+      --text:            #1e293b;
+      --text-secondary:  #64748b;
+      --border:          #e2e8f0;
+    }
+
+    /* ━━━ LAYOUT PRINCIPAL ━━━ */
+    .p-shell {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 16px 110px;
+    }
+
+    /* ── Cabeçalho ── */
+    .p-header {
+      background: #fff;
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .p-brand { display: flex; align-items: center; gap: 12px; }
+    .p-logo  { height: 36px; }
+    .p-brand-name { font-weight: 800; font-size: 15px; color: #1e293b; }
+    .p-brand-sub  { font-size: 11px; color: #64748b; }
+    .p-test { text-align: right; }
+    .p-test-name  { font-weight: 700; font-size: 16px; color: var(--qa-accent); }
+    .p-test-count { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    /* ── Barra de progresso ── */
+    .p-progress-bar {
+      height: 5px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .p-progress-fill {
+      height: 100%;
+      background: var(--qa-accent);
+      width: 0%;
+      transition: width .35s ease;
+      border-radius: 4px;
+    }
+
+    /* ── Card principal ── */
+    .p-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 28px 32px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.07);
+    }
+
+    /* ── Campos do paciente ── */
+    .p-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 540px) { .p-fields { grid-template-columns: 1fr; } }
+    .p-field label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 6px;
+    }
+    .p-field input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #1e293b;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      background: #fafcff;
+    }
+    .p-field input:focus {
+      border-color: var(--qa-accent);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--qa-accent) 12%, transparent);
+      background: #fff;
+    }
+
+    /* ── Divisor e heading ── */
+    .p-divider {
+      border: none;
+      border-top: 1.5px solid #f1f5f9;
+      margin: 24px 0;
+    }
+    .p-items-heading {
+      font-size: 11px;
+      font-weight: 800;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 20px;
+    }
+
+    /* ━━━ ITENS ━━━ */
+    .item {
+      padding: 16px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .item:last-child { border-bottom: none; }
+    .item.respondido .top { color: #475569; }
+    .top {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .qid {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--qa-accent-light);
+      color: var(--qa-accent-dark);
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .item.respondido .qid {
+      background: var(--qa-accent);
+      color: #fff;
+    }
+    .txt {
+      font-size: 14.5px;
+      color: #1e293b;
+      line-height: 1.55;
+      flex: 1;
+    }
+
+    /* Opções de resposta — grade 2×2 */
+    .opts {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    @media (max-width: 480px) { .opts { grid-template-columns: 1fr; } }
+
+    .opt {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      font-size: 13.5px;
+      color: #374151;
+      user-select: none;
+    }
+    .opt:hover { border-color: var(--qa-accent); background: var(--qa-accent-light); }
+    .opt.selecionada {
+      border-color: var(--qa-accent);
+      background: var(--qa-accent-light);
+      color: var(--qa-accent-dark);
+      font-weight: 700;
+    }
+    .opt input[type=radio] { display: none; }
+
+    /* Subescala tag — oculta no modo paciente */
+    .tag-subescala { display: none; }
+
+    /* ── Rodapé fixo ── */
+    .p-footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #fff;
+      border-top: 1.5px solid #e8edf2;
+      padding: 13px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 200;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+    }
+    .p-footer-info { font-size: 13px; color: #64748b; }
+    .p-footer-info strong { color: #1e293b; font-weight: 700; }
+
+    /* Botão Enviar */
+    .btn-enviar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--qa-accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 14px color-mix(in srgb, var(--qa-accent) 35%, transparent);
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+    .btn-enviar:hover   { opacity: .88; transform: translateY(-1px); }
+    .btn-enviar:active  { transform: translateY(0); opacity: 1; }
+    .btn-enviar:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+  </style>
+</head>
+<body>
+
+  <!-- ━━ CONTEÚDO PRINCIPAL ━━ -->
+  <div class="p-shell" id="appShell">
+
+    <!-- Cabeçalho -->
+    <div class="p-header">
+      <div class="p-brand">
+        <img src="/logo.png" alt="Equilibrium" class="p-logo"
+             onerror="this.style.display='none'">
+        <div>
+          <div class="p-brand-name">Equilibrium</div>
+          <div class="p-brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <div class="p-test">
+        <div class="p-test-name">QA — Quociente do Autismo</div>
+        <div class="p-test-count">
+          Respondidos: <strong id="pillAnswered">0/50</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Barra de progresso -->
+    <div class="p-progress-bar">
+      <div class="p-progress-fill" id="patientProgressFill"></div>
+    </div>
+
+    <!-- Card principal -->
+    <div class="p-card">
+
+      <!-- Dados do paciente -->
+      <div class="p-fields">
+        <div class="p-field">
+          <label>Nome do paciente</label>
+          <input id="paciente" type="text" placeholder="Nome completo" autocomplete="name" />
+        </div>
+        <div class="p-field">
+          <label>Data da avaliação</label>
+          <input id="data" type="date" />
+        </div>
+      </div>
+
+      <hr class="p-divider" />
+      <div class="p-items-heading">Por favor, responda todos os itens abaixo</div>
+
+      <!-- Itens gerados pelo JS -->
+      <div id="itens"></div>
+
+    </div>
+  </div><!-- /p-shell -->
+
+  <!-- ━━ RODAPÉ FIXO ━━ -->
+  <div class="p-footer">
+    <div class="p-footer-info">
+      Respondidos: <strong id="footerAnswered">0</strong>
+      de <strong>50</strong>
+    </div>
+    <button class="btn-enviar" id="btnEnviar" type="button">
+      📤 Enviar Respostas
+    </button>
+  </div>
+
+  <!-- ━━ RELATÓRIO OCULTO ━━ -->
+  <div id="repOverlay" style="display:none; position:absolute; left:-99999px; width:800px; background:#fff; font-family:'DM Sans',Arial,sans-serif;">
+    <div id="repFrame"></div>
+  </div>
+
+  <!-- SDKs do Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Configurações do Sistema -->
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard-silent.js"></script>
+
+  <script>
+  // ═══════════════════════════════════════════════════════════════════════
+  // QA — QUOCIENTE DO ESPECTRO DO AUTISMO (AQ)
+  // Baron-Cohen, Wheelwright, Skinner, Martin & Clubley (2001)
+  // Versão adultos — 50 itens — correção binária
+  // ═══════════════════════════════════════════════════════════════════════
+
+  const URL_DO_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbwqbFoQmDvmTpu-zmKRG2kT4P2FaVn2BIRRHaAJg3gaNakbLcv3cgtpBlLY5p2M2oEWjQ/exec";
+
+  // ── Gabarito de correção ─────────────────────────────────────────────
+  // Grupo A: pontua se CONCORDA (CT ou CP)
+  const GRUPO_A = new Set([2,4,5,6,7,9,12,13,16,18,19,20,21,22,23,26,33,35,39,41,42,43,45,46]);
+  // Grupo B: pontua se DISCORDA (DP ou DT)
+  const GRUPO_B = new Set([1,3,8,10,11,14,15,17,24,25,27,28,29,30,31,32,34,36,37,38,40,44,47,48,49,50]);
+
+  // ── Subescalas ───────────────────────────────────────────────────────
+  const SUBESCALAS = {
+    "Habilidade Social":       [1,11,13,15,22,36,44,45,47,48],
+    "Troca de Atenção":        [2,4,10,16,29,32,34,37,46,49],
+    "Atenção aos Detalhes":    [5,6,9,12,19,23,28,39,41,43],
+    "Comunicação":             [7,17,18,26,27,31,33,35,38,42],
+    "Imaginação":              [3,8,14,20,21,24,25,40,50]
+  };
+
+  // ── Faixas de interpretação ──────────────────────────────────────────
+  function interpretarTotal(total) {
+    if (total <= 10) return { faixa: "Baixa", cor: "#16a34a", bg: "#dcfce7", desc: "Pontuação baixa (comum na população geral)" };
+    if (total <= 21) return { faixa: "Média", cor: "#0891b2", bg: "#cffafe", desc: "Pontuação média da população geral" };
+    if (total <= 25) return { faixa: "Acima da média", cor: "#d97706", bg: "#fef3c7", desc: "Ligeiramente acima da média" };
+    if (total <= 31) return { faixa: "Limítrofe", cor: "#ea580c", bg: "#ffedd5", desc: "Pontuação limítrofe — pode indicar alguns traços" };
+    return { faixa: "Clinicamente Significativa", cor: "#dc2626", bg: "#fee2e2", desc: "Pontuação clinicamente significativa (≥ 32)" };
+  }
+
+  // ── Itens do questionário ─────────────────────────────────────────────
+  const ITENS = [
+    { id:  1, texto: "Prefiro fazer as coisas com outras pessoas do que sozinho(a)." },
+    { id:  2, texto: "Prefiro fazer as coisas da mesma maneira repetidamente." },
+    { id:  3, texto: "Se eu tento imaginar alguma coisa, acho muito fácil criar uma imagem mental." },
+    { id:  4, texto: "Frequentemente fico tão absorto(a) em uma coisa que perco de vista outras coisas." },
+    { id:  5, texto: "Frequentemente noto pequenos sons quando outros não notam." },
+    { id:  6, texto: "Normalmente noto matrículas de carros ou sequências de informação semelhantes." },
+    { id:  7, texto: "Outras pessoas frequentemente me dizem que o que eu disse é indelicado, mesmo que eu ache que é educado." },
+    { id:  8, texto: "Quando leio histórias, consigo facilmente imaginar como os personagens podem ter aparência." },
+    { id:  9, texto: "Sou fascinado(a) por datas." },
+    { id: 10, texto: "Em um grupo social, consigo acompanhar facilmente as conversas de várias pessoas." },
+    { id: 11, texto: "Acho as situações sociais fáceis." },
+    { id: 12, texto: "Tendo a notar detalhes que outros não notam." },
+    { id: 13, texto: "Prefiro ir à biblioteca do que a festas." },
+    { id: 14, texto: "Acho histórias divertidas e fáceis de entender." },
+    { id: 15, texto: "Acho difícil fazer novos amigos." },
+    { id: 16, texto: "Noto padrões em coisas o tempo todo." },
+    { id: 17, texto: "Acho difícil manter uma conversa com outras pessoas." },
+    { id: 18, texto: "Quando eu falo, nem sempre é fácil para os outros entenderem o que eu quero dizer." },
+    { id: 19, texto: "Estou fascinado(a) por números." },
+    { id: 20, texto: "Quando leio histórias, acho difícil descobrir a intenção do personagem." },
+    { id: 21, texto: "Não gosto particularmente de ler ficção." },
+    { id: 22, texto: "Acho difícil fazer novos amigos." },
+    { id: 23, texto: "Noto padrões em coisas o tempo todo." },
+    { id: 24, texto: "Eu preferiria ir ao teatro do que a um museu." },
+    { id: 25, texto: "Não me preocupo muito com os horários." },
+    { id: 26, texto: "Normalmente descubro que consigo trabalhar com facilidade o caminho de volta." },
+    { id: 27, texto: "Acho difícil entender as regras para se comportar socialmente." },
+    { id: 28, texto: "Não sei bem se algo é rude — a menos que alguém me diga." },
+    { id: 29, texto: "Acho difícil descobrir as intenções das pessoas." },
+    { id: 30, texto: "Não acho particularmente difícil manter o ritmo de uma conversa normal." },
+    { id: 31, texto: "Acho difícil imaginar como seria ser outra pessoa." },
+    { id: 32, texto: "Gosto de coletar informações sobre categorias de coisas (tipos de carros, tipos de pássaros, tipos de trem etc.)." },
+    { id: 33, texto: "Acho difícil descobrir o que alguém está pensando ou sentindo olhando para o rosto dele(a)." },
+    { id: 34, texto: "Consigo fazer mais de uma coisa ao mesmo tempo." },
+    { id: 35, texto: "Quando estou falando ao telefone, não sei quando é minha vez de falar." },
+    { id: 36, texto: "Gosto de fazer as coisas espontaneamente." },
+    { id: 37, texto: "Sou bom(boa) em fazer as coisas enquanto converso." },
+    { id: 38, texto: "Sou bom(boa) em jogo de palavras." },
+    { id: 39, texto: "Tenho uma mente voltada para fatos." },
+    { id: 40, texto: "Tenho dificuldade para ser pontual nos compromissos." },
+    { id: 41, texto: "Tenho uma coleção de itens relacionados aos meus interesses." },
+    { id: 42, texto: "Acho difícil imaginar como seria estar do outro lado de uma conversa." },
+    { id: 43, texto: "Gosto de planejar cuidadosamente qualquer viagem que eu faça." },
+    { id: 44, texto: "Acho situações sociais fáceis de lidar." },
+    { id: 45, texto: "Acho difícil descobrir as intenções das pessoas a partir do que elas dizem." },
+    { id: 46, texto: "Novos assuntos me interessam, mas logo passo para o próximo." },
+    { id: 47, texto: "Quando eu ouço um novo pedaço de música, eu normalmente começo a cantarolar junto." },
+    { id: 48, texto: "Sou bom(boa) em perceber quando estou sendo chateado(a) por alguém." },
+    { id: 49, texto: "Acho fácil fazer mais de uma coisa ao mesmo tempo." },
+    { id: 50, texto: "Quando estou lendo um romance ou assistindo a um programa de TV, acho difícil identificar a motivação dos personagens." }
+  ];
+
+  const LABELS = {
+    CT: "Concordo totalmente",
+    CP: "Concordo parcialmente",
+    DP: "Discordo parcialmente",
+    DT: "Discordo totalmente"
+  };
+
+  // ── Renderizar itens ─────────────────────────────────────────────────
+  function renderItens() {
+    const container = document.getElementById("itens");
+    container.innerHTML = "";
+
+    ITENS.forEach(item => {
+      const div = document.createElement("div");
+      div.className = "item";
+      div.dataset.id = item.id;
+
+      div.innerHTML = `
+        <div class="top">
+          <div class="qid">${item.id}</div>
+          <div class="txt">${escHtml(item.texto)}</div>
+        </div>
+        <div class="opts">
+          ${["CT","CP","DP","DT"].map(v => `
+            <label class="opt">
+              <input type="radio" name="q${item.id}" value="${v}" />
+              <span>${escHtml(LABELS[v])}</span>
+            </label>
+          `).join("")}
+        </div>
+      `;
+
+      div.addEventListener("change", (e) => {
+        div.classList.add("respondido");
+        div.querySelectorAll(".opt").forEach(o => o.classList.remove("selecionada"));
+        e.target.closest(".opt")?.classList.add("selecionada");
+        atualizarProgresso();
+      });
+
+      container.appendChild(div);
+    });
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+  }
+
+  // ── Progresso ────────────────────────────────────────────────────────
+  function atualizarProgresso() {
+    let answered = 0;
+    ITENS.forEach(item => {
+      if (document.querySelector(`input[name="q${item.id}"]:checked`)) answered++;
+    });
+    const pct = Math.round((answered / 50) * 100);
+    document.getElementById("patientProgressFill").style.width = pct + "%";
+    document.getElementById("pillAnswered").textContent = `${answered}/50`;
+    document.getElementById("footerAnswered").textContent = answered;
+  }
+
+  // ── Cálculo de pontuação ──────────────────────────────────────────────
+  function pontuar(id, resp) {
+    // resp é "CT" | "CP" | "DP" | "DT"
+    const concorda = (resp === "CT" || resp === "CP");
+    const discorda = (resp === "DP" || resp === "DT");
+    if (GRUPO_A.has(id) && concorda) return 1;
+    if (GRUPO_B.has(id) && discorda) return 1;
+    return 0;
+  }
+
+  function calcularResultados() {
+    const respostas = {};
+    let missing = 0;
+    ITENS.forEach(item => {
+      const el = document.querySelector(`input[name="q${item.id}"]:checked`);
+      if (el) respostas[item.id] = el.value;
+      else missing++;
+    });
+
+    let total = 0;
+    const pontos = {};
+    ITENS.forEach(item => {
+      const r = respostas[item.id];
+      const p = r ? pontuar(item.id, r) : 0;
+      pontos[item.id] = p;
+      total += p;
+    });
+
+    // Subescalas
+    const subEscalasPontos = {};
+    Object.entries(SUBESCALAS).forEach(([nome, ids]) => {
+      subEscalasPontos[nome] = ids.reduce((acc, id) => acc + (pontos[id] || 0), 0);
+    });
+
+    return { respostas, pontos, total, subEscalasPontos, missing };
+  }
+
+  // ── Gerar HTML do relatório ───────────────────────────────────────────
+  function gerarRelatorio(resultado) {
+    const paciente = document.getElementById("paciente").value.trim() || "Não informado";
+    const dataAval = document.getElementById("data").value || new Date().toISOString().slice(0,10);
+    const dataFmt  = dataAval.split("-").reverse().join("/");
+    const { total, subEscalasPontos, missing } = resultado;
+    const interp = interpretarTotal(total);
+
+    const barPct = Math.round((total / 50) * 100);
+
+    const subRows = Object.entries(subEscalasPontos).map(([nome, pts]) => `
+      <tr>
+        <td style="padding:8px 12px;font-size:12.5px;color:#374151;">${nome}</td>
+        <td style="padding:8px 12px;text-align:center;font-weight:800;color:#1e293b;">${pts}</td>
+        <td style="padding:8px 12px;text-align:center;font-size:11px;color:#64748b;">/ 10</td>
+      </tr>`).join("");
+
+    return `
+      <div style="font-family:'DM Sans',Arial,sans-serif;padding:32px 40px;background:#fff;color:#1e293b;">
+
+        <!-- Cabeçalho do relatório -->
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:2px solid #7c3aed;margin-bottom:28px;">
+          <div>
+            <div style="font-size:18px;font-weight:800;color:#5b21b6;">QA — Quociente do Espectro do Autismo</div>
+            <div style="font-size:12px;color:#64748b;margin-top:3px;">AQ · Baron-Cohen et al. (2001) · Versão Adultos</div>
+          </div>
+          <div style="text-align:right;font-size:12px;color:#94a3b8;">
+            <div style="font-weight:700;color:#374151;">${escHtml(paciente)}</div>
+            <div>Avaliação: ${escHtml(dataFmt)}</div>
+          </div>
+        </div>
+
+        <!-- Pontuação total -->
+        <div style="background:${interp.bg};border:1.5px solid ${interp.cor}30;border-radius:14px;padding:22px 28px;margin-bottom:24px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+            <div>
+              <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:${interp.cor};margin-bottom:4px;">Pontuação Total</div>
+              <div style="font-size:48px;font-weight:800;color:${interp.cor};line-height:1;">${total}</div>
+              <div style="font-size:11px;color:#64748b;margin-top:2px;">de 50 pontos possíveis</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="display:inline-block;background:${interp.cor};color:#fff;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:700;">${interp.faixa}</div>
+              <div style="font-size:12.5px;color:#374151;margin-top:8px;max-width:260px;line-height:1.5;">${interp.desc}</div>
+            </div>
+          </div>
+          <!-- Barra visual -->
+          <div style="margin-top:18px;">
+            <div style="height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;">
+              <div style="height:100%;width:${barPct}%;background:${interp.cor};border-radius:4px;transition:width .3s;"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:#94a3b8;margin-top:4px;">
+              <span>0</span><span>10</span><span>21</span><span>25</span><span>31</span><span>50</span>
+            </div>
+          </div>
+        </div>
+
+        ${missing > 0 ? `<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:12px 16px;font-size:13px;color:#dc2626;margin-bottom:20px;">⚠️ ${missing} item(s) sem resposta — resultado parcial.</div>` : ""}
+
+        <!-- Subescalas -->
+        <div style="margin-bottom:24px;">
+          <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:#64748b;margin-bottom:12px;">Pontuação por Subescala</div>
+          <table style="width:100%;border-collapse:collapse;background:#f8fafc;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;">
+            <thead>
+              <tr style="background:#ede9fe;">
+                <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:800;color:#5b21b6;text-transform:uppercase;letter-spacing:.06em;">Subescala</th>
+                <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:800;color:#5b21b6;text-transform:uppercase;letter-spacing:.06em;">Pontos</th>
+                <th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:800;color:#5b21b6;text-transform:uppercase;letter-spacing:.06em;">Máx.</th>
+              </tr>
+            </thead>
+            <tbody>${subRows}</tbody>
+          </table>
+        </div>
+
+        <!-- Nota clínica -->
+        <div style="background:#f8fafc;border-radius:10px;padding:16px 20px;font-size:12px;color:#475569;line-height:1.6;border-left:3px solid #7c3aed;">
+          <strong style="color:#5b21b6;">Nota clínica:</strong> O QA/AQ é um instrumento de <em>rastreio</em>. Pontuações ≥ 32 sugerem probabilidade elevada de características do espectro autista e indicam necessidade de avaliação diagnóstica completa com profissional especializado. O instrumento não substitui o diagnóstico clínico.
+        </div>
+
+        <!-- Rodapé -->
+        <div style="margin-top:28px;padding-top:16px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;display:flex;justify-content:space-between;">
+          <span>Equilibrium Neuropsicologia</span>
+          <span>Baron-Cohen et al. (2001). The Autism-Spectrum Quotient (AQ). <em>Journal of Autism and Developmental Disorders</em>, 31(1), 5–17.</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── Envio ─────────────────────────────────────────────────────────────
+  async function finalizarEEnviar() {
+    const { respostas, pontos, total, subEscalasPontos, missing } = calcularResultados();
+
+    if (missing > 0) {
+      const confirmou = confirm(`⚠️ Há ${missing} item(s) sem resposta.\n\nDeseja enviar mesmo assim com resultado parcial?`);
+      if (!confirmou) return;
+    }
+
+    const paciente = document.getElementById("paciente").value.trim();
+    if (!paciente) {
+      alert("Por favor, informe o nome do paciente antes de enviar.");
+      document.getElementById("paciente").focus();
+      return;
+    }
+
+    // Gerar HTML do relatório
+    const resultado = { respostas, pontos, total, subEscalasPontos, missing };
+    const repHtml = gerarRelatorio(resultado);
+    document.getElementById("repFrame").innerHTML = repHtml;
+    document.getElementById("repOverlay").style.display = "block";
+    document.getElementById("repOverlay").style.left = "-9999px";
+
+    const btnEnviar = document.getElementById("btnEnviar");
+    btnEnviar.disabled = true;
+    btnEnviar.textContent = "A processar…";
+
+    // Cortina de processamento
+    const cortina = document.createElement("div");
+    cortina.id = "__qa_cortina__";
+    cortina.style.cssText = [
+      "position:fixed","inset:0",
+      "background:#3b0764",
+      "z-index:999999",
+      "display:flex","align-items:center","justify-content:center"
+    ].join(";");
+    cortina.innerHTML = `
+      <div style="background:#fff;border-radius:20px;padding:40px 48px;text-align:center;
+                  box-shadow:0 24px 60px rgba(0,0,0,0.35);max-width:340px;width:90%;">
+        <div style="width:52px;height:52px;border:5px solid #ede9fe;border-top-color:#7c3aed;
+                    border-radius:50%;animation:__qaspin__ 0.8s linear infinite;margin:0 auto 20px;"></div>
+        <div id="__qa_msg__" style="font-size:16px;font-weight:800;color:#5b21b6;margin-bottom:6px;">
+          A processar as suas respostas…
+        </div>
+        <div style="font-size:13px;color:#64748b;">Por favor, não feche esta página.</div>
+      </div>
+      <style>@keyframes __qaspin__{to{transform:rotate(360deg)}}</style>
+    `;
+    document.body.appendChild(cortina);
+
+    const setMsg = (txt) => {
+      const el = document.getElementById("__qa_msg__");
+      if (el) el.textContent = txt;
+    };
+
+    try {
+      await new Promise(r => setTimeout(r, 120));
+
+      // Mover overlay para posição renderizável
+      const repOverlay = document.getElementById("repOverlay");
+      repOverlay.style.left = "0";
+      repOverlay.style.position = "absolute";
+      repOverlay.style.top = "0";
+      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
+      const captureHeight = repOverlay.scrollHeight;
+
+      setMsg("A formatar em PDF…");
+
+      const opt = {
+        margin: [12, 12, 12, 12],
+        filename: `QA_${paciente.replace(/\s+/g,"_")}.pdf`,
+        image: { type: "jpeg", quality: 1.0 },
+        html2canvas: {
+          scale: 3,
+          useCORS: true,
+          allowTaint: true,
+          scrollX: 0, scrollY: 0,
+          x: 0, y: 0,
+          width: 760,
+          height: captureHeight,
+          windowWidth: 760,
+          windowHeight: captureHeight,
+          logging: false
+        },
+        jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+      };
+
+      const pdfUri = await html2pdf().set(opt).from(document.getElementById("repFrame")).outputPdf("datauristring");
+
+      repOverlay.style.display = "none";
+
+      setMsg("A enviar com segurança…");
+
+      const base64 = pdfUri.split(",")[1];
+      const res  = await fetch(URL_DO_GOOGLE_SCRIPT, {
+        method: "POST",
+        body: JSON.stringify({ pdf: base64, nome: paciente, form: "qa_adultos" })
+      });
+      const data = await res.json();
+
+      if (data.status === "sucesso") {
+        document.body.innerHTML = `
+          <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;
+                      background:#3b0764;padding:24px;">
+            <div style="background:#fff;border-radius:20px;padding:56px 44px;text-align:center;
+                        max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+              <div style="width:72px;height:72px;background:#ede9fe;border-radius:50%;
+                          display:flex;align-items:center;justify-content:center;
+                          margin:0 auto 24px;font-size:32px;">✅</div>
+              <h1 style="font-size:22px;font-weight:800;color:#5b21b6;margin:0 0 12px;">
+                Avaliação Finalizada!
+              </h1>
+              <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 8px;">
+                As suas respostas foram processadas e enviadas com segurança.
+              </p>
+              <p style="font-size:13px;color:#94a3b8;margin:24px 0 0;">
+                Já pode fechar esta janela.
+              </p>
+            </div>
+          </div>`;
+      } else {
+        throw new Error(data.mensagem || "Resposta inesperada do servidor.");
+      }
+
+    } catch (err) {
+      console.error("Erro ao enviar:", err);
+      const ct = document.getElementById("__qa_cortina__");
+      if (ct) ct.remove();
+      document.getElementById("repOverlay").style.display = "none";
+      btnEnviar.disabled = false;
+      btnEnviar.textContent = "📤 Enviar Respostas";
+      alert("Não foi possível enviar as respostas.\n\nVerifique a sua ligação à internet e tente novamente.\n\nDetalhe: " + err.message);
+    }
+  }
+
+  // ── Inicialização ─────────────────────────────────────────────────────
+  document.addEventListener("DOMContentLoaded", () => {
+    // Data padrão = hoje
+    const dataEl = document.getElementById("data");
+    if (dataEl) dataEl.value = new Date().toISOString().slice(0,10);
+
+    renderItens();
+    atualizarProgresso();
+
+    document.getElementById("btnEnviar").addEventListener("click", finalizarEEnviar);
+  });
+  </script>
+</body>
+</html>
