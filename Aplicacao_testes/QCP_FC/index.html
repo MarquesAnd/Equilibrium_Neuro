@@ -656,13 +656,21 @@
 
     /* ---- Gerar grafico (off-screen) ---- */
     async function gerarGrafico(res) {
-      var labels = ESCALA_KEYS.map(function(k) { return QCPFC.escalas[k].nome; });
+      var labels = ESCALA_KEYS.map(function(k) {
+        var nome = QCPFC.escalas[k].nome;
+        // Quebra nomes longos em duas linhas
+        var palavras = nome.split(" ");
+        if (palavras.length <= 2) return nome;
+        var metade = Math.ceil(palavras.length / 2);
+        return [palavras.slice(0, metade).join(" "), palavras.slice(metade).join(" ")];
+      });
+
       var data = ESCALA_KEYS.map(function(k) { return res[k] ? res[k].soma : 0; });
       var cores = ESCALA_KEYS.map(function(k) { return QCPFC.escalas[k].cor; });
 
       var canvas = document.getElementById("hiddenChart");
       canvas.width = 1100;
-      canvas.height = 500;
+      canvas.height = 560;   // <- aumentado para dar espaço ao eixo X
       var ctx = canvas.getContext("2d");
 
       var ch = new Chart(ctx, {
@@ -680,7 +688,7 @@
         options: {
           responsive: false,
           animation: false,
-          layout: { padding: { top: 20, bottom: 60, left: 10, right: 10 } },
+          layout: { padding: { top: 20, bottom: 20, left: 10, right: 10 } },
           scales: {
             y: {
               min: 0, max: 28,
@@ -691,9 +699,10 @@
             x: {
               ticks: {
                 font: { size: 10 },
-                maxRotation: 45,
-                minRotation: 45,
-                padding: 8
+                maxRotation: 0,    // <- sem rotação; nomes quebrados em 2 linhas
+                minRotation: 0,
+                padding: 6,
+                autoSkip: false
               },
               grid: { display: false }
             }
