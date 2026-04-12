@@ -360,12 +360,12 @@ function gerarHTMLRelatorio(fd, res) {
     const fc = corFaixa(r.faixa);
     const fcBg = bgFaixa(r.faixa);
     tableRows += `<tr style="background:${rowBg};">
-      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;font-weight:${fw};${isF ? 'color:' + corFator(k) + ';' : ''}">${NOMES_FULL[k] || k}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">${r.eb?.toFixed(1) || '—'}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">${r.z?.toFixed(1) || '—'}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">${pTxt(r)}</td>
-      <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;">
-        <span style="display:inline-block;padding:3px 10px;border-radius:8px;font-size:12px;font-weight:700;color:${fc};background:${fcBg};border:1px solid ${fc}33;">${r.faixa || '—'}</span>
+      <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;font-weight:${fw};font-size:11px;${isF ? 'color:' + corFator(k) + ';' : ''}">${NOMES_FULL[k] || k}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:11px;">${r.eb?.toFixed(1) || '—'}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:11px;">${r.z?.toFixed(1) || '—'}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:11px;">${pTxt(r)}</td>
+      <td style="padding:6px 8px;border-bottom:1px solid #e2e8f0;text-align:center;">
+        <span style="display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:700;color:${fc};background:${fcBg};border:1px solid ${fc}33;">${r.faixa || '—'}</span>
       </td>
     </tr>`;
   });
@@ -422,13 +422,13 @@ function gerarHTMLRelatorio(fd, res) {
   fatores.forEach(f => {
     const r = res[f] || {};
     interpSections += `
-    <div style="margin-bottom:20px;border-left:4px solid ${fatCores[f]};padding:12px 16px;background:#fafcff;border-radius:0 10px 10px 0;">
-      <div style="font-size:15px;font-weight:700;color:${fatCores[f]};margin-bottom:4px;">${fatNomes[f]} (${f})</div>
-      <div style="font-size:13px;color:#334155;margin-bottom:8px;">${descFator[f]}</div>
-      <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:13px;">
+    <div style="margin-bottom:14px;border-left:3px solid ${fatCores[f]};padding:10px 14px;background:#f8fafc;border-radius:0 10px 10px 0;border:1px solid #e2e8f0;border-left:3px solid ${fatCores[f]};">
+      <div style="font-size:13px;font-weight:700;color:${fatCores[f]};margin-bottom:3px;">${fatNomes[f]} (${f})</div>
+      <div style="font-size:12px;color:#334155;line-height:1.75;margin-bottom:6px;">${descFator[f]}</div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:11px;color:#334155;">
         <span><strong>Escore Z:</strong> ${r.z?.toFixed(1) || '—'}</span>
         <span><strong>Percentil:</strong> ${pTxt(r)}</span>
-        <span style="font-weight:700;color:${corFaixa(r.faixa)};">${r.faixa || '—'}</span>
+        <span style="font-weight:700;color:${corFaixa(r.faixa)};background:${bgFaixa(r.faixa)};padding:1px 8px;border-radius:6px;border:1px solid ${corFaixa(r.faixa)}33;">${r.faixa || '—'}</span>
       </div>
     </div>`;
   });
@@ -437,82 +437,97 @@ function gerarHTMLRelatorio(fd, res) {
 <html lang="pt-BR"><head><meta charset="UTF-8"><title>BFP - Relatório</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Segoe UI','DM Sans',system-ui,-apple-system,sans-serif;background:#fff;color:#1e293b;line-height:1.6}
-  .rep-wrapper{max-width:900px;margin:0 auto;padding:20px}
-  .rep-header{display:flex;align-items:center;justify-content:space-between;padding:24px 30px;background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);border-radius:14px;color:#fff;margin-bottom:24px}
-  .rep-header-brand{display:flex;align-items:center;gap:14px}
-  .rep-logo{width:48px;height:48px;border-radius:10px}
-  .rep-brand-name{font-size:20px;font-weight:800;letter-spacing:-.02em}
-  .rep-brand-sub{font-size:12px;opacity:.75}
-  .rep-test-name{font-size:16px;font-weight:700;text-align:right}
-  .rep-test-sub{font-size:12px;opacity:.75;text-align:right}
-  .rep-patient{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;padding:18px 24px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:12px;margin-bottom:24px}
-  .rep-patient label{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:#64748b;font-weight:700}
-  .rep-patient span{font-size:14px;font-weight:600;color:#1e293b}
-  .rep-section{margin-bottom:28px}
-  .rep-section-title{font-size:16px;font-weight:800;color:#1e40af;padding-bottom:8px;border-bottom:2px solid #1e40af;margin-bottom:14px}
-  .rep-table{width:100%;border-collapse:collapse;font-size:13px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0}
-  .rep-table th{background:#1a56db;color:#fff;padding:10px 12px;text-align:center;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
-  .rep-table th:first-child{text-align:left}
-  .rep-chart-wrap{text-align:center;padding:16px 0}
-  .rep-footer{margin-top:30px;padding-top:16px;border-top:1.5px solid #e2e8f0;display:flex;justify-content:space-between;font-size:11px;color:#94a3b8}
-  .rep-confidential{margin-top:12px;padding:10px 16px;background:#fef2f2;border:1px solid #fca5a5;border-radius:8px;font-size:11px;color:#991b1b;text-align:center}
+  body{font-family:'DM Sans',Arial,sans-serif;background:#f0f4f8;color:#1e293b;line-height:1.6}
   @media print{body{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
 </style>
 </head><body>
-<div class="rep-wrapper">
-  <div class="rep-header">
-    <div class="rep-header-brand">
-      <img src="/logo.png" alt="Equilibrium" class="rep-logo" onerror="this.style.display='none'">
-      <div>
-        <div class="rep-brand-name">Equilibrium</div>
-        <div class="rep-brand-sub">Neuropsicologia</div>
+<div style="font-family:'DM Sans',Arial,sans-serif;color:#1e293b;background:#fff;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 8px 40px rgba(0,0,0,.06);overflow:hidden;max-width:900px;margin:20px auto;">
+
+  <!-- Header -->
+  <div style="background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);color:#fff;padding:14px 24px 12px;position:relative;overflow:hidden;">
+    <div style="position:absolute;top:-50px;right:-50px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.03)"></div>
+    <div style="position:absolute;bottom:-30px;left:40%;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.02)"></div>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <img src="/logo.png" alt="Equilibrium" style="width:30px;height:30px;object-fit:contain;filter:brightness(10);flex-shrink:0;" onerror="this.style.display='none'">
+        <div>
+          <div style="font-size:8px;text-transform:uppercase;letter-spacing:3px;opacity:.45;">Relat\u00f3rio Neuropsicol\u00f3gico</div>
+          <div style="font-size:20px;font-weight:800;margin-top:3px;letter-spacing:-.5px;">BFP - Bateria Fatorial de Personalidade</div>
+          <div style="font-size:10px;opacity:.55;margin-top:2px;">Nunes, Hutz & Nunes (2010)</div>
+        </div>
+      </div>
+      <div style="background:rgba(255,255,255,.08);border-radius:8px;padding:6px 10px;backdrop-filter:blur(8px);text-align:right;">
+        <div style="font-size:7px;text-transform:uppercase;letter-spacing:2px;opacity:.5;">Fatores</div>
+        <div style="font-size:16px;font-weight:800;margin-top:1px;">5</div>
+        <div style="font-size:8px;opacity:.5;margin-top:1px;">Big Five</div>
       </div>
     </div>
-    <div>
-      <div class="rep-test-name">BFP - Bateria Fatorial de Personalidade</div>
-      <div class="rep-test-sub">Nunes, Hutz & Nunes (2010)</div>
+  </div>
+
+  <!-- Body -->
+  <div style="padding:0 24px 24px;">
+
+    <!-- Section: Dados do Paciente -->
+    <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;">
+      <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">1</span>
+      <span style="font-weight:700;font-size:13px;color:#0f172a;">Dados do Paciente</span>
     </div>
-  </div>
+    <div style="background:#f8fafc;border-radius:10px;padding:12px 16px;border:1px solid #e2e8f0;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;">
+        <div><div style="font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Paciente</div><div style="font-weight:600;font-size:13px;margin-top:2px;">${fd.nome}</div></div>
+        <div><div style="font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Data de Nascimento</div><div style="font-weight:600;font-size:13px;margin-top:2px;">${nasc.toLocaleDateString('pt-BR')} (${idade} anos)</div></div>
+        <div><div style="font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Sexo</div><div style="font-weight:600;font-size:13px;margin-top:2px;">${fd.sexo}</div></div>
+        <div><div style="font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Escolaridade</div><div style="font-weight:600;font-size:13px;margin-top:2px;">${fd.escolaridade}</div></div>
+        <div><div style="font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Avaliador</div><div style="font-weight:600;font-size:13px;margin-top:2px;">WESSILON MARQUES DE SOUSA - CRP 04/53832</div></div>
+        <div><div style="font-size:10px;color:#64748b;font-weight:600;text-transform:uppercase;letter-spacing:.4px;">Data da Avalia\u00e7\u00e3o</div><div style="font-weight:600;font-size:13px;margin-top:2px;">${hoje.toLocaleDateString('pt-BR')}</div></div>
+      </div>
+    </div>
 
-  <div class="rep-patient">
-    <div><label>Paciente</label><br><span>${fd.nome}</span></div>
-    <div><label>Data de Nascimento</label><br><span>${nasc.toLocaleDateString('pt-BR')} (${idade} anos)</span></div>
-    <div><label>Sexo</label><br><span>${fd.sexo}</span></div>
-    <div><label>Escolaridade</label><br><span>${fd.escolaridade}</span></div>
-    <div><label>Avaliador</label><br><span>WESSILON MARQUES DE SOUSA - CRP 04/53832</span></div>
-    <div><label>Data da Avaliação</label><br><span>${hoje.toLocaleDateString('pt-BR')}</span></div>
-  </div>
-
-  <div class="rep-section">
-    <div class="rep-section-title">Tabela de Resultados</div>
-    <table class="rep-table">
+    <!-- Section: Tabela de Resultados -->
+    <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;">
+      <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">2</span>
+      <span style="font-weight:700;font-size:13px;color:#0f172a;">Tabela de Resultados</span>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;">
       <thead><tr>
-        <th style="text-align:left;">Faceta / Fator</th>
-        <th>Escore Bruto</th>
-        <th>Escore Z</th>
-        <th>Percentil</th>
-        <th>Classificação</th>
+        <th style="padding:6px 8px;text-align:left;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Faceta / Fator</th>
+        <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Escore Bruto</th>
+        <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Escore Z</th>
+        <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Percentil</th>
+        <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Classifica\u00e7\u00e3o</th>
       </tr></thead>
       <tbody>${tableRows}</tbody>
     </table>
-  </div>
 
-  <div class="rep-section">
-    <div class="rep-section-title">Perfil Gráfico</div>
-    <div class="rep-chart-wrap">${svgChart}</div>
-  </div>
+    <!-- Section: Perfil Gráfico -->
+    <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;">
+      <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">3</span>
+      <span style="font-weight:700;font-size:13px;color:#0f172a;">Perfil Gr\u00e1fico</span>
+    </div>
+    <div style="text-align:center;padding:12px 0;">${svgChart}</div>
 
-  <div class="rep-section">
-    <div class="rep-section-title">Interpretação por Fator</div>
-    ${interpSections}
-  </div>
+    <!-- Section: Interpretação por Fator -->
+    <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;">
+      <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">4</span>
+      <span style="font-weight:700;font-size:13px;color:#0f172a;">Interpreta\u00e7\u00e3o por Fator</span>
+    </div>
+    <div style="font-size:12px;color:#334155;line-height:1.75;">
+      ${interpSections}
+    </div>
 
-  <div class="rep-footer">
-    <span>Equilibrium Neuropsicologia - Correção automatizada BFP</span>
-    <span>Gerado em ${hoje.toLocaleDateString('pt-BR')}</span>
+    <!-- Footer -->
+    <div style="border-top:2px solid #e2e8f0;padding-top:16px;margin-top:22px;display:flex;justify-content:space-between;align-items:flex-start;">
+      <div>
+        <div style="font-weight:700;font-size:11px;color:#0f172a;">Equilibrium Neuropsicologia</div>
+        <div style="font-size:9px;color:#94a3b8;margin-top:2px;">Corre\u00e7\u00e3o automatizada BFP</div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-size:10px;color:#64748b;">Gerado em ${hoje.toLocaleDateString('pt-BR')}</div>
+        <div style="font-size:8px;color:#94a3b8;margin-top:4px;max-width:260px;">Documento confidencial - Informa\u00e7\u00f5es protegidas pelo sigilo profissional (CFP). Uso exclusivo do profissional respons\u00e1vel.</div>
+      </div>
+    </div>
+
   </div>
-  <div class="rep-confidential">DOCUMENTO CONFIDENCIAL - Este relatório contém informações protegidas pelo sigilo profissional (CFP). Uso exclusivo do profissional responsável.</div>
 </div>
 </body></html>`;
 }

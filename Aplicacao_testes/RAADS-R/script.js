@@ -230,139 +230,115 @@ async function gerarRelatorio(paciente, data, respostas, resultado){
     year: 'numeric'
   });
 
+  // Collect extra patient fields
+  const cpf = document.getElementById("cpf")?.value?.trim() || "";
+  const dataNasc = document.getElementById("dataNascimento")?.value || "";
+  const respondente = document.getElementById("respondente")?.value?.trim() || "";
+  const dataNascFmt = dataNasc ? dataNasc.split("-").reverse().join("/") : "---";
+
+  // Calculate age
+  let idadeStr = "---";
+  if (dataNasc && data) {
+    const dn = new Date(dataNasc + "T12:00:00");
+    const da = new Date(data + "T12:00:00");
+    let age = da.getFullYear() - dn.getFullYear();
+    if (da.getMonth() < dn.getMonth() || (da.getMonth() === dn.getMonth() && da.getDate() < dn.getDate())) age--;
+    idadeStr = age + " anos";
+  }
+
+  const dataHoje = new Date().toLocaleDateString("pt-BR");
+
   return `
-    <div style="font-family: 'DM Sans', Arial, sans-serif; max-width: 800px; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 40px rgba(0,0,0,.06); border: 1px solid #e2e8f0;">
+    <div style="font-family:'DM Sans',Arial,sans-serif;color:#1e293b;background:#fff;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 8px 40px rgba(0,0,0,.06);overflow:hidden;">
 
-      <!-- Cabeçalho com gradiente -->
-      <div style="background: linear-gradient(135deg, #0c1f3f 0%, #1a3a6a 50%, #1e40af 100%); color: #fff; padding: 28px 36px; position: relative; overflow: hidden;">
-        <div style="position: absolute; top: -50px; right: -50px; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,.04);"></div>
-        <div style="position: absolute; bottom: -30px; left: 40%; width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.03);"></div>
-        <div style="display: flex; justify-content: space-between; align-items: flex-start; position: relative;">
-          <div>
-            <div style="font-size: 8px; text-transform: uppercase; letter-spacing: 3px; opacity: .5;">Relatório Clínico</div>
-            <h1 style="color: #fff; font-size: 22px; font-weight: 800; margin: 4px 0 0; letter-spacing: -0.5px;">
-              RAADS-R-BR Screen
-            </h1>
-            <p style="color: rgba(255,255,255,.6); font-size: 11px; margin: 4px 0 0;">
-              Escala Ritvo para Diagnóstico de Autismo em Adultos
-            </p>
-            <p style="color: rgba(255,255,255,.4); font-size: 9px; margin: 2px 0 0;">
-              Versão Brasileira Reduzida
-            </p>
+      <!-- HEADER (padrão WAIS) -->
+      <div style="background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);color:#fff;padding:14px 24px 12px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-50px;right:-50px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.03);"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <img src="/logo2.png" alt="Logo" style="width:30px;height:30px;object-fit:contain;filter:brightness(10);" onerror="this.style.display='none'" />
+            <div>
+              <div style="font-size:8px;text-transform:uppercase;letter-spacing:3px;opacity:.45;">Relatório Neuropsicológico</div>
+              <div style="font-size:20px;font-weight:800;margin-top:3px;letter-spacing:-.5px;">RAADS-R-BR Screen</div>
+              <div style="font-size:10px;opacity:.55;margin-top:2px;">Escala Ritvo para Diagnóstico de Autismo em Adultos</div>
+              <div style="font-size:9px;opacity:.45;margin-top:1px;">Versão Brasileira Reduzida</div>
+            </div>
           </div>
-          <div style="background: rgba(255,255,255,.08); border-radius: 10px; padding: 10px 16px; backdrop-filter: blur(8px); text-align: right;">
-            <div style="font-size: 7px; text-transform: uppercase; letter-spacing: 2px; opacity: .5;">Pontuação</div>
-            <div style="font-size: 24px; font-weight: 800; margin-top: 2px;">${resultado.total}</div>
-            <div style="font-size: 8px; opacity: .5;">de ${resultado.maxScore} pontos</div>
+          <div style="background:rgba(255,255,255,.08);border-radius:8px;padding:6px 10px;backdrop-filter:blur(8px);text-align:right;">
+            <div style="font-size:7px;text-transform:uppercase;letter-spacing:2px;opacity:.5;">Pontuação</div>
+            <div style="font-size:16px;font-weight:800;margin-top:1px;">${resultado.total}</div>
+            <div style="font-size:8px;opacity:.5;margin-top:1px;">de ${resultado.maxScore} pontos</div>
           </div>
         </div>
       </div>
 
-      <div style="padding: 28px 36px;">
+      <div style="padding:0 24px 24px;">
 
-      <!-- Informações do Paciente -->
-      <div style="background: #f8fafc; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; border: 1px solid #e2e8f0;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px 20px; font-size: 12px;">
-          <div>
-            <div style="font-size: 10px; color: #64748b; font-weight: 600;">Paciente</div>
-            <div style="font-size: 13px; color: #0f172a; font-weight: 600;">${escapeHtml(paciente)}</div>
-          </div>
-          <div>
-            <div style="font-size: 10px; color: #64748b; font-weight: 600;">Data da Avaliacao</div>
-            <div style="font-size: 13px; color: #0f172a; font-weight: 600;">${dataFormatada}</div>
-          </div>
+      <!-- 1. Identificação -->
+      <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">1</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Identificação</span></div>
+      <div style="background:#f8fafc;border-radius:10px;padding:12px 16px;border:1px solid #e2e8f0;">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;font-size:12px;">
+          <div><span style="font-size:10px;color:#64748b;font-weight:600;">Nome:</span> <span style="font-weight:600;">${escapeHtml(paciente)}</span></div>
+          <div><span style="font-size:10px;color:#64748b;font-weight:600;">CPF:</span> <span>${escapeHtml(cpf || "—")}</span></div>
+          <div><span style="font-size:10px;color:#64748b;font-weight:600;">Nascimento:</span> <span>${escapeHtml(dataNascFmt)} (${escapeHtml(idadeStr)})</span></div>
+          <div><span style="font-size:10px;color:#64748b;font-weight:600;">Avaliação:</span> <span>${dataFormatada}</span></div>
+          ${respondente ? `<div style="grid-column:1/-1;"><span style="font-size:10px;color:#64748b;font-weight:600;">Respondente:</span> <span>${escapeHtml(respondente)}</span></div>` : ""}
         </div>
       </div>
 
-      <!-- Descrição do Instrumento -->
-      <div style="margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-          <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: #1a56db; color: #fff; font-size: 10px; font-weight: 800;">1</span>
-          <span style="font-weight: 700; font-size: 13px; color: #0f172a;">Sobre o Instrumento</span>
-        </div>
-        <div style="background: #f8fafc; border-radius: 10px; padding: 14px 18px; border: 1px solid #e2e8f0;">
-          <p style="color: #334155; font-size: 12px; line-height: 1.75; margin: 0 0 10px;">
+      <!-- 2. Sobre o Instrumento -->
+      <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">2</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Sobre o Instrumento</span></div>
+      <div style="background:#f8fafc;border-radius:10px;padding:14px 18px;border:1px solid #e2e8f0;">
+          <p style="color:#334155;font-size:12px;line-height:1.75;margin:0 0 10px;">
             O RAADS-R-BR Screen e uma escala de rastreio desenvolvida para identificar caracteristicas do Transtorno do Espectro Autista (TEA) em adultos. A versao utilizada e composta por 20 itens que avaliam dominios centrais do perfil neurodivergente, incluindo: Interacao Social, Linguagem, Sensorio-Motor e Interesses Circunscritos.
           </p>
-          <p style="color: #334155; font-size: 12px; line-height: 1.75; margin: 0;">
+          <p style="color:#334155;font-size:12px;line-height:1.75;margin:0;">
             O instrumento foi validado para o contexto brasileiro, apresentando evidencias robustas de validade e confiabilidade, com <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para o ponto de corte estabelecido.
           </p>
-        </div>
       </div>
 
-      <!-- Resultados Obtidos -->
-      <div style="margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-          <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: #1a56db; color: #fff; font-size: 10px; font-weight: 800;">2</span>
-          <span style="font-weight: 700; font-size: 13px; color: #0f172a;">Resultados Obtidos</span>
-        </div>
+      <!-- 3. Resultados Obtidos -->
+      <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">3</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Resultados Obtidos</span></div>
 
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
-          <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 14px; padding: 18px 16px; color: white; text-align: center; box-shadow: 0 4px 14px rgba(220,38,38,.2);">
-            <div style="font-size: 10px; opacity: 0.85; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px;">
-              Paciente
-            </div>
-            <div style="font-size: 32px; font-weight: 800; letter-spacing: -1px;">
-              ${resultado.total}
-            </div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+          <div style="background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%);border-radius:14px;padding:18px 16px;color:white;text-align:center;box-shadow:0 4px 14px rgba(220,38,38,.2);">
+            <div style="font-size:10px;opacity:0.85;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Paciente</div>
+            <div style="font-size:32px;font-weight:800;letter-spacing:-1px;">${resultado.total}</div>
           </div>
-
-          <div style="background: linear-gradient(135deg, #1a56db 0%, #1e40af 100%); border-radius: 14px; padding: 18px 16px; color: white; text-align: center; box-shadow: 0 4px 14px rgba(26,86,219,.2);">
-            <div style="font-size: 10px; opacity: 0.85; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px;">
-              Ponto de Corte
-            </div>
-            <div style="font-size: 32px; font-weight: 800; letter-spacing: -1px;">
-              ${resultado.cutoff}
-            </div>
+          <div style="background:linear-gradient(135deg,#1a56db 0%,#1e40af 100%);border-radius:14px;padding:18px 16px;color:white;text-align:center;box-shadow:0 4px 14px rgba(26,86,219,.2);">
+            <div style="font-size:10px;opacity:0.85;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Ponto de Corte</div>
+            <div style="font-size:32px;font-weight:800;letter-spacing:-1px;">${resultado.cutoff}</div>
           </div>
-
-          <div style="background: linear-gradient(135deg, #475569 0%, #334155 100%); border-radius: 14px; padding: 18px 16px; color: white; text-align: center; box-shadow: 0 4px 14px rgba(51,65,85,.2);">
-            <div style="font-size: 10px; opacity: 0.85; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px;">
-              Maximo
-            </div>
-            <div style="font-size: 32px; font-weight: 800; letter-spacing: -1px;">
-              ${resultado.maxScore}
-            </div>
+          <div style="background:linear-gradient(135deg,#475569 0%,#334155 100%);border-radius:14px;padding:18px 16px;color:white;text-align:center;box-shadow:0 4px 14px rgba(51,65,85,.2);">
+            <div style="font-size:10px;opacity:0.85;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;">Maximo</div>
+            <div style="font-size:32px;font-weight:800;letter-spacing:-1px;">${resultado.maxScore}</div>
           </div>
         </div>
 
         <!-- Gráfico -->
-        <div id="grafico-container" style="margin: 20px 0;">
-          <div style="text-align: center; padding: 32px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
-            <p style="color: #94a3b8; font-size: 12px;">
-              O grafico comparativo sera gerado automaticamente
-            </p>
+        <div id="grafico-container" style="margin:20px 0;">
+          <div style="text-align:center;padding:32px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
+            <p style="color:#94a3b8;font-size:12px;">O grafico comparativo sera gerado automaticamente</p>
           </div>
         </div>
-      </div>
 
-      <!-- Interpretação -->
-      <div style="margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
-          <span style="display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; background: #1a56db; color: #fff; font-size: 10px; font-weight: 800;">3</span>
-          <span style="font-weight: 700; font-size: 13px; color: #0f172a;">Interpretacao</span>
-        </div>
-        <div style="background: #fffbeb; border: 1px solid rgba(245,158,11,.15); border-radius: 12px; padding: 16px 20px;">
-          <p style="color: #334155; font-size: 12px; line-height: 1.8; margin: 0;">
+      <!-- 4. Interpretação -->
+      <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">4</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Interpretação</span></div>
+      <div style="background:#fffbeb;border:1px solid rgba(245,158,11,.15);border-radius:12px;padding:16px 20px;">
+          <p style="color:#334155;font-size:12px;line-height:1.8;margin:0;">
             ${resultado.interpretacao}
           </p>
-        </div>
       </div>
 
-      <!-- Rodapé -->
-      <div style="border-top: 2px solid #e2e8f0; padding-top: 16px; margin-top: 24px; display: flex; justify-content: space-between; align-items: flex-end;">
+      <!-- FOOTER (padrão WAIS) -->
+      <div style="border-top:2px solid #e2e8f0;padding-top:16px;margin-top:22px;display:flex;justify-content:space-between;">
         <div>
-          <div style="width: 180px; border-bottom: 1px solid #94a3b8; margin-bottom: 4px; height: 1px;"></div>
-          <div style="font-size: 10px; font-weight: 700; color: #334155;">Profissional Responsavel</div>
-          <div style="font-size: 9px; color: #94a3b8;">Neuropsicologo(a)</div>
+          <div style="color:#64748b;font-size:12px;">Equilibrium Neuropsicologia</div>
+          <div style="font-size:10px;color:#94a3b8;margin-top:4px;">Correção automatizada RAADS-R-BR Screen</div>
         </div>
-        <div style="text-align: right;">
-          <p style="color: #94a3b8; font-size: 9px; margin: 0;">
-            Relatório gerado por Equilibrium Neuropsicologia
-          </p>
-          <p style="color: #cbd5e1; font-size: 8px; margin: 4px 0 0; max-width: 220px;">
-            Este documento e confidencial e destina-se exclusivamente ao paciente e profissionais autorizados
-          </p>
+        <div style="text-align:right;font-size:11px;color:#64748b;">
+          <div>Documento gerado em ${dataHoje}</div>
+          <div style="font-size:9px;color:#cbd5e1;max-width:220px;margin-top:8px;">Este documento é confidencial e destinado exclusivamente ao profissional solicitante.</div>
         </div>
       </div>
 
