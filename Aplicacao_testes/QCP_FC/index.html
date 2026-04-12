@@ -680,16 +680,21 @@
         options: {
           responsive: false,
           animation: false,
-          layout: { padding: { bottom: 20 } },
+          layout: { padding: { top: 20, bottom: 60, left: 10, right: 10 } },
           scales: {
             y: {
               min: 0, max: 28,
-              ticks: { stepSize: 4, font: { size: 11 } },
+              ticks: { stepSize: 4, font: { size: 11 }, padding: 6 },
               grid: { color: "rgba(0,0,0,0.08)" },
               title: { display: true, text: "Escore Bruto", font: { size: 12 } }
             },
             x: {
-              ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 30 },
+              ticks: {
+                font: { size: 10 },
+                maxRotation: 45,
+                minRotation: 45,
+                padding: 8
+              },
               grid: { display: false }
             }
           },
