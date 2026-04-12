@@ -230,120 +230,117 @@ async function gerarRelatorio(paciente, data, respostas, resultado){
   });
 
   return `
-    <div style="font-family: 'DM Sans', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px;">
-      
-      <!-- Cabeçalho -->
-      <div style="text-align: center; margin-bottom: 40px; border-bottom: 3px solid #7c3aed; padding-bottom: 30px;">
-        <h1 style="color: #7c3aed; font-size: 26px; font-weight: 800; margin: 0 0 10px;">
-          RAADS-R-BR Screen
-        </h1>
-        <p style="color: #64748b; font-size: 14px; margin: 0;">
-          Escala Ritvo para Diagnóstico de Autismo em Adultos - Versão Brasileira Reduzida
-        </p>
-      </div>
+    <div style="font-family:'DM Sans',Arial,sans-serif;max-width:800px;margin:0 auto;">
 
-      <!-- Informações do Paciente -->
-      <div style="background: #f8fafc; border-radius: 12px; padding: 24px; margin-bottom: 30px;">
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-          <div>
-            <div style="font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">
-              Paciente
-            </div>
-            <div style="font-size: 16px; color: #1e293b; font-weight: 600;">
-              ${escapeHtml(paciente)}
+      <!-- HEADER -->
+      <div style="background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);color:#fff;padding:14px 24px 12px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:-50px;right:-50px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.03)"></div>
+        <div style="position:absolute;bottom:-30px;left:40%;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,.02)"></div>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <img src="/logo2.png" alt="Logo" style="width:30px;height:30px;object-fit:contain;filter:brightness(10);flex-shrink:0;" onerror="this.style.display='none'">
+            <div>
+              <div style="font-size:8px;text-transform:uppercase;letter-spacing:3px;opacity:.45;">Relatório Neuropsicológico</div>
+              <div style="font-size:20px;font-weight:800;margin-top:3px;letter-spacing:-.5px;">RAADS-R-BR Screen</div>
+              <div style="font-size:10px;opacity:.55;margin-top:2px;">Escala Ritvo para Diagnóstico de Autismo em Adultos — Versão Brasileira Reduzida</div>
+              <div style="font-size:9px;opacity:.45;margin-top:1px;">Rastreio de Transtorno do Espectro Autista em adultos</div>
             </div>
           </div>
-          <div>
-            <div style="font-size: 11px; color: #94a3b8; font-weight: 700; text-transform: uppercase; margin-bottom: 6px;">
-              Data da Avaliação
-            </div>
-            <div style="font-size: 16px; color: #1e293b; font-weight: 600;">
-              ${dataFormatada}
-            </div>
+          <div style="background:rgba(255,255,255,.08);border-radius:8px;padding:6px 10px;backdrop-filter:blur(8px);text-align:right;">
+            <div style="font-size:7px;text-transform:uppercase;letter-spacing:2px;opacity:.5;">Pontuação</div>
+            <div style="font-size:16px;font-weight:800;margin-top:1px;">${resultado.total} / ${resultado.maxScore}</div>
+            <div style="font-size:8px;opacity:.5;margin-top:1px;">Corte: ${resultado.cutoff}</div>
           </div>
         </div>
       </div>
 
-      <!-- Descrição do Instrumento -->
-      <div style="margin-bottom: 30px;">
-        <h2 style="color: #1e293b; font-size: 18px; font-weight: 700; margin: 0 0 16px;">
-          Sobre o RAADS-R-BR Screen
-        </h2>
-        <p style="color: #475569; font-size: 14px; line-height: 1.7; margin: 0 0 12px;">
-          O RAADS-R-BR Screen é uma escala de rastreio desenvolvida para identificar características do Transtorno do Espectro Autista (TEA) em adultos. A versão utilizada é composta por 20 itens que avaliam domínios centrais do perfil neurodivergente, incluindo: Interação Social, Linguagem, Sensório-Motor e Interesses Circunscritos.
-        </p>
-        <p style="color: #475569; font-size: 14px; line-height: 1.7; margin: 0;">
-          O instrumento foi validado para o contexto brasileiro, apresentando evidências robustas de validade e confiabilidade, com <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para o ponto de corte estabelecido.
-        </p>
-      </div>
+      <div style="padding:0 24px 24px;">
 
-      <!-- Resultados Obtidos -->
-      <div style="margin-bottom: 30px;">
-        <h2 style="color: #1e293b; font-size: 18px; font-weight: 700; margin: 0 0 20px;">
-          Resultados Obtidos
-        </h2>
-        
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px;">
-          <div style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border-radius: 12px; padding: 20px; color: white; text-align: center;">
-            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">
-              Pontuação da Paciente
-            </div>
-            <div style="font-size: 32px; font-weight: 800;">
-              ${resultado.total}
-            </div>
-          </div>
-          
-          <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 12px; padding: 20px; color: white; text-align: center;">
-            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">
-              Ponto de Corte
-            </div>
-            <div style="font-size: 32px; font-weight: 800;">
-              ${resultado.cutoff}
-            </div>
-          </div>
-          
-          <div style="background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); border-radius: 12px; padding: 20px; color: white; text-align: center;">
-            <div style="font-size: 12px; opacity: 0.9; margin-bottom: 8px;">
-              Pontuação Máxima
-            </div>
-            <div style="font-size: 32px; font-weight: 800;">
-              ${resultado.maxScore}
-            </div>
+        <!-- 1. IDENTIFICAÇÃO -->
+        <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">1</span>
+          <span style="font-weight:700;font-size:13px;color:#0f172a;">Identificação</span>
+        </div>
+        <div style="background:#f8fafc;border-radius:10px;padding:12px 16px;border:1px solid #e2e8f0;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;color:#334155;">
+            <div><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.3px;">Paciente:</span> <span style="font-weight:700;">${escapeHtml(paciente)}</span></div>
+            <div><span style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.3px;">Data da Avaliação:</span> <span style="font-weight:600;">${dataFormatada}</span></div>
           </div>
         </div>
 
-        <!-- Gráfico será inserido aqui via Python -->
-        <div id="grafico-container" style="margin: 30px 0;">
-          <div style="text-align: center; padding: 40px; background: #f8fafc; border-radius: 12px;">
-            <p style="color: #64748b; font-size: 14px;">
-              📊 O gráfico comparativo será gerado automaticamente
-            </p>
+        <!-- 2. SOBRE O INSTRUMENTO -->
+        <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">2</span>
+          <span style="font-weight:700;font-size:13px;color:#0f172a;">Sobre o Instrumento</span>
+        </div>
+        <div style="background:#f8fafc;border-radius:10px;padding:12px 16px;border:1px solid #e2e8f0;">
+          <p style="color:#475569;font-size:11px;line-height:1.7;margin:0 0 8px;">
+            O RAADS-R-BR Screen é uma escala de rastreio desenvolvida para identificar características do Transtorno do Espectro Autista (TEA) em adultos. A versão utilizada é composta por 20 itens que avaliam domínios centrais do perfil neurodivergente, incluindo: Interação Social, Linguagem, Sensório-Motor e Interesses Circunscritos.
+          </p>
+          <p style="color:#475569;font-size:11px;line-height:1.7;margin:0;">
+            O instrumento foi validado para o contexto brasileiro, apresentando evidências robustas de validade e confiabilidade, com <strong>sensibilidade de 90,1%</strong> e <strong>especificidade de 87,9%</strong> para o ponto de corte estabelecido.
+          </p>
+        </div>
+
+        <!-- 3. RESULTADOS OBTIDOS -->
+        <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">3</span>
+          <span style="font-weight:700;font-size:13px;color:#0f172a;">Resultados Obtidos</span>
+        </div>
+
+        <div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden;margin-bottom:16px;">
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <thead>
+              <tr>
+                <th style="padding:6px 8px;text-align:left;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Medida</th>
+                <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;font-weight:600;">Pontuação do Paciente</td>
+                <td style="padding:5px 8px;font-size:15px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:800;color:#dc2626;">${resultado.total}</td>
+              </tr>
+              <tr style="background:#f8fafc;">
+                <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;font-weight:600;">Ponto de Corte</td>
+                <td style="padding:5px 8px;font-size:15px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:800;color:#1e40af;">${resultado.cutoff}</td>
+              </tr>
+              <tr>
+                <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;font-weight:600;">Pontuação Máxima</td>
+                <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:700;color:#334155;">${resultado.maxScore}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Gráfico -->
+        <div id="grafico-container" style="margin:16px 0;">
+          <div style="text-align:center;padding:30px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">
+            <p style="color:#64748b;font-size:11px;margin:0;">O gráfico comparativo será gerado automaticamente</p>
           </div>
         </div>
-      </div>
 
-      <!-- Interpretação -->
-      <div style="margin-bottom: 30px;">
-        <h2 style="color: #1e293b; font-size: 18px; font-weight: 700; margin: 0 0 16px;">
-          Interpretação
-        </h2>
-        <div style="background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 8px; padding: 20px;">
-          <p style="color: #1e293b; font-size: 14px; line-height: 1.8; margin: 0;">
+        <!-- 4. INTERPRETAÇÃO -->
+        <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;">
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">4</span>
+          <span style="font-weight:700;font-size:13px;color:#0f172a;">Interpretação</span>
+        </div>
+        <div style="background:#f8fafc;border-radius:10px;padding:12px 16px;border:1px solid #e2e8f0;">
+          <p style="color:#334155;font-size:11px;line-height:1.8;margin:0;">
             ${resultado.interpretacao}
           </p>
         </div>
-      </div>
 
-      <!-- Rodapé -->
-      <div style="border-top: 2px solid #e2e8f0; padding-top: 24px; margin-top: 40px; text-align: center;">
-        <p style="color: #94a3b8; font-size: 12px; margin: 0;">
-          Relatório gerado por Equilibrium Neuropsicologia
-        </p>
-        <p style="color: #cbd5e1; font-size: 11px; margin: 8px 0 0;">
-          Este documento é confidencial e destina-se exclusivamente ao paciente e profissionais autorizados
-        </p>
-      </div>
+        <!-- RODAPÉ -->
+        <div style="border-top:2px solid #e2e8f0;padding-top:16px;margin-top:22px;display:flex;justify-content:space-between;">
+          <div style="color:#64748b;font-size:12px;">Documento gerado automaticamente</div>
+          <div style="text-align:right;">
+            <div style="font-size:11px;color:#64748b;">Documento gerado em ${new Date().toLocaleDateString('pt-BR')}</div>
+            <div style="font-size:9px;color:#cbd5e1;max-width:220px;margin-top:8px;">Este documento é confidencial e destinado exclusivamente ao profissional solicitante.</div>
+          </div>
+        </div>
 
+      </div>
     </div>
   `;
 }
