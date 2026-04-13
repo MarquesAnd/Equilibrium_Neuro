@@ -138,6 +138,17 @@ function setLaudos(arr) { localStorage.setItem(LAUDOS_KEY, JSON.stringify(arr));
 /* ═══════════════════════════════════
    INICIALIZAÇÃO DA TABELA DE ITENS
    ═══════════════════════════════════ */
+// Armazena respostas de cada aba ao alternar
+const _respostasSaved = { c: {}, p: {} };
+
+function _salvarRespostasAtuais() {
+  const prefixo = tabAtiva === "pais" ? "p" : "c";
+  ITENS_SCARED.forEach(item => {
+    const el = document.getElementById(`${prefixo}_${item.n}`);
+    if (el) _respostasSaved[prefixo][item.n] = el.value;
+  });
+}
+
 function renderTabelaItens() {
   const tbody = document.getElementById("tbodyItens");
   if (!tbody) return;
@@ -150,17 +161,21 @@ function renderTabelaItens() {
     escolar:     "#ede9fe",
   };
 
+  const prefixo = tabAtiva === "pais" ? "p" : "c";
+  const saved = _respostasSaved[prefixo];
+
   tbody.innerHTML = ITENS_SCARED.map(item => {
     const bg = corSub[item.sub] || "#fff";
+    const val = saved[item.n] || "";
     return `<tr style="background:${bg}15">
       <td style="font-weight:700;color:#64748b;font-size:12px">${item.n}</td>
       <td style="font-size:12px">${item.texto}</td>
       <td class="center">
-        <select id="c_${item.n}" style="width:56px;padding:5px 4px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;font-weight:600;text-align:center;font-family:inherit;outline:none;">
-          <option value="">—</option>
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
+        <select id="${prefixo}_${item.n}" style="width:56px;padding:5px 4px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;font-weight:600;text-align:center;font-family:inherit;outline:none;">
+          <option value="" ${val === "" ? "selected" : ""}>—</option>
+          <option value="0" ${val === "0" ? "selected" : ""}>0</option>
+          <option value="1" ${val === "1" ? "selected" : ""}>1</option>
+          <option value="2" ${val === "2" ? "selected" : ""}>2</option>
         </select>
       </td>
     </tr>`;
@@ -168,8 +183,11 @@ function renderTabelaItens() {
 }
 
 function alternarTab(tab) {
-  // Mantido para compatibilidade, mas não faz mais nada
+  _salvarRespostasAtuais();
   tabAtiva = tab;
+  document.getElementById("tabCrianca").className = "tab-btn" + (tab === "crianca" ? " tab-active" : "");
+  document.getElementById("tabPais").className = "tab-btn" + (tab === "pais" ? " tab-active" : "");
+  renderTabelaItens();
 }
 
 function insertObs(text) {
@@ -258,13 +276,36 @@ function calcular(salvar) {
 
   if (!nome) { alert("Informe o nome do avaliado."); return; }
 
+  // Salvar respostas da aba actual antes de calcular
+  _salvarRespostasAtuais();
+
   const idade = calcularIdade(nasc, apl);
   const faixa = faixaEtaria(idade);
   const sexoNorm = (sexo === "Masculino" || sexo === "Feminino") ? sexo : null;
 
+  // Reconstruir inputs de ambas as abas para leitura pelo cálculo
+  // Criar inputs temporários para a aba que não está visível
+  const outroPrefixo = tabAtiva === "pais" ? "c" : "p";
+  const outroSaved = _respostasSaved[outroPrefixo];
+  const tempInputs = [];
+  ITENS_SCARED.forEach(item => {
+    const val = outroSaved[item.n];
+    if (val !== undefined && val !== "") {
+      const inp = document.createElement("input");
+      inp.type = "hidden";
+      inp.id = `${outroPrefixo}_${item.n}`;
+      inp.value = val;
+      document.body.appendChild(inp);
+      tempInputs.push(inp);
+    }
+  });
+
   // Calcular subescalas
   const crianca = calcularSubescalas("c");
   const pais    = calcularSubescalas("p");
+
+  // Remover inputs temporários
+  tempInputs.forEach(inp => inp.remove());
 
   // Normas para Z-score
   let normas = null;
@@ -276,7 +317,7 @@ function calcular(salvar) {
     nome, nasc, apl, sexo, escolaridade, respondente,
     idade, faixa, normas, crianca, pais,
     profNome, profCRP, profEspecialidade, motivo, obsComportamentais, recomendacoes,
-    temHetero: respondente && respondente !== "",
+    temHetero: pais.total != null,
   };
 
   montarRelatorio(data, salvar);
