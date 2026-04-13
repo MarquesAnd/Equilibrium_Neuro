@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AQ-Adolescente · Quociente do Espectro Autista | Equilibrium</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+
+    :root {
+      --aq-accent:       #0d9488;
+      --aq-accent-light: #ccfbf1;
+      --aq-accent-dark:  #0f766e;
+      --aq-accent-rgb:   13,148,136;
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      background: #f0f4f8;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(13,148,136,.07) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(15,118,110,.07) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(13,148,136,.04) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 17.5 L55 42.5 L30 55 L5 42.5 L5 17.5 Z' fill='none' stroke='%230d9488' stroke-opacity='0.08' stroke-width='1'/%3E%3C/svg%3E");
+      background-size: 100% 100%, 100% 100%, 100% 100%, 60px 60px;
+      color: #1e293b;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    .p-shell {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 16px 110px;
+    }
+
+    /* ── Cabeçalho ── */
+    .p-header {
+      background: linear-gradient(135deg, #fff 0%, #f0fdfa 100%);
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(13,148,136,.08), 0 1px 4px rgba(0,0,0,.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 1px solid rgba(13,148,136,.10);
+    }
+    .p-brand { display: flex; align-items: center; gap: 12px; }
+    .p-logo  { height: 36px; }
+    .p-brand-name { font-weight: 800; font-size: 15px; color: #1e293b; }
+    .p-brand-sub  { font-size: 11px; color: #64748b; }
+    .p-test { text-align: right; }
+    .p-test-name  { font-weight: 700; font-size: 16px; color: var(--aq-accent); }
+    .p-test-version { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    /* ── Barra de progresso ── */
+    .p-progress-bar {
+      height: 5px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .p-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--aq-accent), var(--aq-accent-dark));
+      width: 0%;
+      transition: width .35s ease;
+      border-radius: 4px;
+    }
+
+    /* ── Card principal ── */
+    .p-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 28px 32px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.07);
+    }
+
+    /* ── Campos do paciente ── */
+    .p-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 540px) { .p-fields { grid-template-columns: 1fr; } }
+    .p-field label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 6px;
+    }
+    .p-field input, .p-field select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #1e293b;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      background: #fafcff;
+      appearance: none;
+    }
+    .p-field input:focus, .p-field select:focus {
+      border-color: var(--aq-accent);
+      box-shadow: 0 0 0 3px rgba(13,148,136,.12);
+      background: #fff;
+    }
+
+    .p-divider {
+      border: none;
+      border-top: 1.5px solid #f1f5f9;
+      margin: 24px 0;
+    }
+    .p-items-heading {
+      font-size: 11px;
+      font-weight: 800;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 20px;
+    }
+
+    /* ── Itens ── */
+    .item {
+      padding: 18px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .item:last-child { border-bottom: none; }
+    .item-top {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .item-num {
+      font-weight: 800;
+      font-size: 13px;
+      color: var(--aq-accent);
+      min-width: 28px;
+      padding-top: 1px;
+    }
+    .item-txt {
+      font-size: 15px;
+      color: #1e293b;
+      line-height: 1.55;
+    }
+    .item-opts {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-left: 38px;
+    }
+    @media (max-width: 500px) { .item-opts { grid-template-columns: 1fr; } }
+
+    .opt {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .18s;
+      font-size: 13.5px;
+      color: #475569;
+      user-select: none;
+    }
+    .opt:hover { border-color: var(--aq-accent); background: #f0fdfa; }
+    .opt.selecionada {
+      border-color: var(--aq-accent);
+      background: var(--aq-accent-light);
+      color: var(--aq-accent-dark);
+      font-weight: 600;
+    }
+    .opt input[type="radio"] { display: none; }
+    .opt-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid #cbd5e1;
+      flex-shrink: 0;
+      transition: all .18s;
+      position: relative;
+    }
+    .opt.selecionada .opt-dot {
+      border-color: var(--aq-accent);
+      background: var(--aq-accent);
+    }
+    .opt.selecionada .opt-dot::after {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    /* ── Rodapé fixo ── */
+    .p-footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #fff;
+      border-top: 1.5px solid #e8edf2;
+      padding: 13px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 200;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+    }
+    .p-footer-info { font-size: 13px; color: #64748b; }
+    .p-footer-info strong { color: #1e293b; font-weight: 700; }
+
+    .btn-enviar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--aq-accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 14px rgba(13,148,136,.35);
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+    .btn-enviar:hover   { opacity: .88; transform: translateY(-1px); }
+    .btn-enviar:active  { transform: translateY(0); opacity: 1; }
+    .btn-enviar:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ── Modal enviando ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(3px);
+    }
+    .modal-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 44px 48px;
+      text-align: center;
+      max-width: 380px;
+      width: 90%;
+      box-shadow: 0 24px 60px rgba(0,0,0,.2);
+    }
+    .modal-spinner {
+      width: 48px; height: 48px;
+      border: 4px solid #e2e8f0;
+      border-top-color: var(--aq-accent);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+      margin: 0 auto 20px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .modal-title { font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+    .modal-sub   { font-size: 14px; color: #64748b; }
+
+    /* ── Tela de sucesso ── */
+    .success-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(145deg, #f0fdfa 0%, #ccfbf1 100%);
+    }
+    .success-card {
+      background: #fff;
+      border-radius: 22px;
+      padding: 60px 44px;
+      text-align: center;
+      max-width: 560px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(13,148,136,.14);
+    }
+    .success-icon { font-size: 64px; margin-bottom: 22px; }
+    .success-card h1 { font-size: 26px; color: #0f766e; margin: 0 0 14px; }
+    .success-card p  { font-size: 16px; color: #555; line-height: 1.65; margin: 0 0 8px; }
+    .success-note    { font-size: 13px; color: #a0aec0; margin-top: 28px !important; }
+  </style>
+</head>
+<body>
+
+  <!-- Modal: enviando -->
+  <div class="modal-overlay" id="modalEnviando" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-spinner"></div>
+      <div class="modal-title">Enviando respostas…</div>
+      <div class="modal-sub">Por favor, não feche esta página.</div>
+    </div>
+  </div>
+
+  <!-- App principal -->
+  <div id="appShell">
+    <div class="p-shell">
+
+      <!-- Cabeçalho -->
+      <div class="p-header">
+        <div class="p-brand">
+          <img src="/logo.png" alt="Equilibrium" class="p-logo" onerror="this.style.display='none'">
+          <div>
+            <div class="p-brand-name">Equilibrium</div>
+            <div class="p-brand-sub">Neuropsicologia</div>
+          </div>
+        </div>
+        <div class="p-test">
+          <div class="p-test-name">AQ — Adolescente</div>
+          <div class="p-test-version">Respondidos: <strong id="pillAnswered">0/50</strong></div>
+        </div>
+      </div>
+
+      <!-- Barra de progresso -->
+      <div class="p-progress-bar">
+        <div class="p-progress-fill" id="progressFill"></div>
+      </div>
+
+      <!-- Card principal -->
+      <div class="p-card">
+
+        <!-- Dados do paciente -->
+        <div class="p-fields">
+          <div class="p-field">
+            <label>Nome completo do adolescente</label>
+            <input id="paciente" type="text" placeholder="Nome completo" autocomplete="name" />
+          </div>
+          <div class="p-field">
+            <label>CPF</label>
+            <input id="cpf" type="text" placeholder="000.000.000-00" autocomplete="off" />
+          </div>
+          <div class="p-field">
+            <label>Data de Nascimento</label>
+            <input id="dataNascimento" type="date" />
+          </div>
+          <div class="p-field">
+            <label>Data da avaliação</label>
+            <input id="dataAvaliacao" type="date" />
+          </div>
+          <div class="p-field">
+            <label>Sexo</label>
+            <select id="sexo">
+              <option value="">Selecione</option>
+              <option>Masculino</option>
+              <option>Feminino</option>
+              <option>Outro / Prefere não informar</option>
+            </select>
+          </div>
+          <div class="p-field">
+            <label>Escolaridade</label>
+            <input id="escolaridade" type="text" placeholder="Ex: 8º ano do Ensino Fundamental" />
+          </div>
+          <div class="p-field" style="grid-column: 1 / -1;">
+            <label>Respondente / Relação com o adolescente</label>
+            <input id="respondente" type="text" placeholder='Ex: "O próprio adolescente", "Mãe", "Pai", "Responsável"' autocomplete="off" />
+          </div>
+        </div>
+
+        <hr class="p-divider" />
+        <div class="p-items-heading">Por favor, leia cada afirmação e indique sua opinião</div>
+
+        <!-- Itens injetados pelo JS -->
+        <div id="itens"></div>
+
+      </div><!-- /p-card -->
+    </div><!-- /p-shell -->
+  </div><!-- /appShell -->
+
+  <!-- Rodapé fixo -->
+  <div class="p-footer">
+    <div class="p-footer-info">
+      Respondidos: <strong id="footerAnswered">0</strong> de <strong>50</strong>
+    </div>
+    <button class="btn-enviar" id="btnEnviar" type="button">
+      📤 Enviar Respostas
+    </button>
+  </div>
+
+  <!-- SDKs do Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard-silent.js"></script>
+
+  <script>
+    // ─── CONFIGURAÇÃO ─────────────────────────────────────────────────────────
+    // ⚠️  Substitua pela URL do seu Google Apps Script após publicar
+    const URL_DO_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbxMsam8icotp7GvBXb3G43oST7MjmlZE6cpRhLrXjq-gWmQECR3EHMvNBI5K2S04CA1DQ/exec";
+
+    // ─── ITENS DO AQ-ADOLESCENTE ─────────────────────────────────────────────
+    // Cada item: { n: número, txt: texto, direto: array de respostas que PONTUAM }
+    // direto=true  → pontua em "Concordo plenamente" ou "Concordo"
+    // direto=false → pontua em "Discordo" ou "Discordo totalmente"
+    const AQ_ITEMS = [
+      { n:1,  txt:"Ele/a gosta mais de fazer coisas em grupo do que sozinho/a.", direto:false },
+      { n:2,  txt:"Ele/a prefere fazer as coisas sempre da mesma forma.", direto:true },
+      { n:3,  txt:"Se ele/a tenta imaginar algo, tem facilidade em criar uma imagem mental.", direto:false },
+      { n:4,  txt:"Ele/a fica frequentemente tão absorvido/a numa coisa, que se esquece do que está à volta.", direto:true },
+      { n:5,  txt:"Ele/a repara frequentemente em pequenos sons que os outros não notam.", direto:true },
+      { n:6,  txt:"Ele/a costuma prestar atenção em matrículas de carro ou pequenas informações similares.", direto:true },
+      { n:7,  txt:"As outras pessoas dizem-lhe com frequência que o que disse é inconveniente, mesmo se ele/a pensa que não tem mal nenhum.", direto:true },
+      { n:8,  txt:"Quando ele/a lê uma história, consegue imaginar facilmente o aspeto das personagens.", direto:false },
+      { n:9,  txt:"Ele/a é fascinado/a por datas.", direto:true },
+      { n:10, txt:"Num grupo social, ele/a consegue facilmente seguir várias conversas ao mesmo tempo.", direto:false },
+      { n:11, txt:"Ele/a acha as situações sociais fáceis.", direto:false },
+      { n:12, txt:"Ele/a tende a reparar em detalhes que os outros não notam.", direto:true },
+      { n:13, txt:"Ele/a prefere ir a uma livraria do que a uma festa.", direto:true },
+      { n:14, txt:"Ele/a cria e inventa histórias facilmente.", direto:false },
+      { n:15, txt:"Ele/a demonstra mais interesse por pessoas do que por objetos.", direto:false },
+      { n:16, txt:"Ele/a tende a ter interesses muito vincados, ficando aborrecido/a quando é interrompido/a.", direto:true },
+      { n:17, txt:"Ele/a gosta de conversar socialmente.", direto:false },
+      { n:18, txt:"Quando ele/a fala, não é fácil para os outros darem a sua opinião.", direto:true },
+      { n:19, txt:"Ele/a é fascinado/a por números.", direto:true },
+      { n:20, txt:"Quando lê uma história, ele/a acha difícil detetar as intenções das personagens.", direto:true },
+      { n:21, txt:"Ele/a tem preferência por livros de ficção.", direto:false },
+      { n:22, txt:"Ele/a tem dificuldades em fazer novas amizades.", direto:true },
+      { n:23, txt:"Ele/a repara sempre nos padrões dos detalhes.", direto:true },
+      { n:24, txt:"Ele/a prefere ir ao teatro em vez de ir ao museu.", direto:false },
+      { n:25, txt:"Se a rotina diária for alterada, ele/a não fica aborrecido/a.", direto:false },
+      { n:26, txt:"Ele/a não sabe frequentemente como manter uma conversa.", direto:true },
+      { n:27, txt:"É fácil para ele/a \"ler entre as linhas\" quando alguém fala.", direto:false },
+      { n:28, txt:"Ele/a costuma concentrar-se mais na globalidade de uma imagem ou conteúdo do que nos seus detalhes.", direto:false },
+      { n:29, txt:"Ele/a não costuma ter facilidade em lembrar-se de números de telefone.", direto:false },
+      { n:30, txt:"Ele/a não costuma reparar em pequenas alterações num espaço ou numa pessoa.", direto:false },
+      { n:31, txt:"Ele/a consegue perceber quando alguém fica aborrecido quando ele/a fala.", direto:false },
+      { n:32, txt:"Ele/a tem mais facilidade em fazer várias coisas ao mesmo tempo, do que fazer uma coisa de cada vez.", direto:false },
+      { n:33, txt:"Quando ele/a fala ao telefone/telemóvel, tem dificuldades em perceber os turnos de fala.", direto:true },
+      { n:34, txt:"Ele/a gosta de fazer as coisas de forma espontânea.", direto:false },
+      { n:35, txt:"Muitas vezes, ele/a é o/a último/a a perceber o sentido de uma piada.", direto:true },
+      { n:36, txt:"Ele/a consegue facilmente detetar o que alguém está a pensar ou sentir, olhando para o rosto.", direto:false },
+      { n:37, txt:"Face a uma interrupção, ele/a consegue facilmente voltar ao que estava a fazer.", direto:false },
+      { n:38, txt:"Ele/a é bom/boa nas conversas sociais do quotidiano.", direto:false },
+      { n:39, txt:"Frequentemente, as pessoas dizem-lhe que fala muito ou insiste demasiado sobre um determinado assunto.", direto:true },
+      { n:40, txt:"Quando ele/a era mais novo/a, ele/a costuma participar em jogos de faz-de-conta com outras crianças.", direto:false },
+      { n:41, txt:"Ele/a gosta de colecionar informações sobre categorias de coisas (p.e. tipos de carros, de animais, de comboios, plantas, etc.).", direto:true },
+      { n:42, txt:"Ele/a tem dificuldades em imaginar como seria estar no lugar de outra pessoa.", direto:true },
+      { n:43, txt:"Ele/a gosta de planear todas as atividades nas quais participa.", direto:true },
+      { n:44, txt:"Ele/a gosta de eventos sociais.", direto:false },
+      { n:45, txt:"Ele/a tem dificuldades em detetar as intenções dos outros.", direto:true },
+      { n:46, txt:"As novas situações deixam-no/na ansioso/a.", direto:true },
+      { n:47, txt:"Ele/a gosta de conhecer novas pessoas.", direto:false },
+      { n:48, txt:"Ele/a é bom/a na capacidade de diplomacia.", direto:false },
+      { n:49, txt:"Ele/a não é muito bom/boa em recordar datas de aniversário.", direto:false },
+      { n:50, txt:"Ele/a brinca facilmente com outras crianças/jovens em jogos de faz-de-conta.", direto:false },
+    ];
+
+    const OPCOES = ["Concordo plenamente", "Concordo", "Discordo", "Discordo totalmente"];
+
+    // ─── RENDERIZAR ITENS ───────────────────────────────────────────────────
+    function renderItens() {
+      const container = document.getElementById("itens");
+      container.innerHTML = "";
+      AQ_ITEMS.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.dataset.n = item.n;
+
+        const optsHTML = OPCOES.map((label, idx) => `
+          <label class="opt">
+            <input type="radio" name="q${item.n}" value="${idx}" />
+            <span class="opt-dot"></span>
+            <span>${label}</span>
+          </label>
+        `).join("");
+
+        div.innerHTML = `
+          <div class="item-top">
+            <span class="item-num">${item.n}.</span>
+            <span class="item-txt">${escapeHtml(item.txt)}</span>
+          </div>
+          <div class="item-opts">${optsHTML}</div>
+        `;
+
+        div.querySelectorAll(".opt").forEach(opt => {
+          opt.addEventListener("click", () => {
+            const radio = opt.querySelector("input");
+            radio.checked = true;
+            div.querySelectorAll(".opt").forEach(o => o.classList.remove("selecionada"));
+            opt.classList.add("selecionada");
+            atualizarProgresso();
+          });
+        });
+
+        container.appendChild(div);
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    // ─── PROGRESSO ───────────────────────────────────────────────────────────
+    function atualizarProgresso() {
+      let answered = 0;
+      AQ_ITEMS.forEach(item => {
+        if (document.querySelector(`input[name="q${item.n}"]:checked`)) answered++;
+      });
+      const total = AQ_ITEMS.length;
+      const pct = Math.round((answered / total) * 100);
+      document.getElementById("progressFill").style.width = pct + "%";
+      document.getElementById("pillAnswered").textContent = `${answered}/50`;
+      document.getElementById("footerAnswered").textContent = answered;
+    }
+
+    // ─── COLETAR RESPOSTAS ───────────────────────────────────────────────────
+    function coletarRespostas() {
+      const respostas = {};
+      let missing = 0;
+      AQ_ITEMS.forEach(item => {
+        const el = document.querySelector(`input[name="q${item.n}"]:checked`);
+        if (!el) { missing++; return; }
+        respostas[item.n] = parseInt(el.value, 10); // 0=CP, 1=C, 2=D, 3=DT
+      });
+      return { respostas, missing };
+    }
+
+    // ─── CALCULAR PONTUAÇÃO ──────────────────────────────────────────────────
+    function calcularPontuacao(respostas) {
+      // item.direto=true  → pontua se resposta é 0 (CP) ou 1 (C)
+      // item.direto=false → pontua se resposta é 2 (D) ou 3 (DT)
+      const facetas = {
+        "Habilidades Sociais":   { itens: [1,11,13,15,22,36,44,45,47,48], score: 0 },
+        "Mudança de Atenção":    { itens: [2,4,10,16,25,32,34,37,43,46], score: 0 },
+        "Atenção aos Detalhes":  { itens: [5,6,9,12,19,23,28,29,30,49], score: 0 },
+        "Comunicação":           { itens: [7,17,18,26,27,31,33,35,38,39], score: 0 },
+        "Imaginação":            { itens: [3,8,14,20,21,24,40,41,42,50], score: 0 },
+      };
+
+      AQ_ITEMS.forEach(item => {
+        const resp = respostas[item.n];
+        if (resp === undefined) return;
+        const pontua = item.direto ? (resp <= 1) : (resp >= 2);
+        if (!pontua) return;
+        // Encontrar faceta
+        for (const [fname, fdata] of Object.entries(facetas)) {
+          if (fdata.itens.includes(item.n)) { fdata.score++; break; }
+        }
+      });
+
+      const total = Object.values(facetas).reduce((s, f) => s + f.score, 0);
+      return { facetas, total };
+    }
+
+    // ─── ENVIAR ──────────────────────────────────────────────────────────────
+    document.getElementById("btnEnviar").addEventListener("click", async () => {
+      const paciente      = document.getElementById("paciente").value.trim();
+      const cpf           = document.getElementById("cpf").value.trim();
+      const dataNasc      = document.getElementById("dataNascimento").value;
+      const dataAval      = document.getElementById("dataAvaliacao").value;
+      const sexo          = document.getElementById("sexo").value;
+      const escolaridade  = document.getElementById("escolaridade").value.trim();
+      const respondente   = document.getElementById("respondente").value.trim();
+
+      if (!paciente) { alert("Por favor, preencha o nome do adolescente."); return; }
+      if (!dataNasc) { alert("Por favor, informe a data de nascimento."); return; }
+      if (!dataAval) { alert("Por favor, informe a data da avaliação."); return; }
+      if (!respondente) { alert("Por favor, informe quem está respondendo."); return; }
+
+      const { respostas, missing } = coletarRespostas();
+      if (missing > 0) {
+        const ok = confirm(`Ainda há ${missing} item(ns) sem resposta. Deseja enviar assim mesmo?`);
+        if (!ok) return;
+      }
+
+      const { facetas, total } = calcularPontuacao(respostas);
+
+      const payload = {
+        instrumento:  "AQ-Adolescente",
+        paciente,
+        cpf,
+        dataNascimento: dataNasc,
+        dataAvaliacao:  dataAval,
+        sexo,
+        escolaridade,
+        respondente,
+        respostas_raw: JSON.stringify(respostas),
+        facetas: JSON.stringify(
+          Object.fromEntries(Object.entries(facetas).map(([k, v]) => [k, v.score]))
+        ),
+        total_aq: total,
+        timestamp: new Date().toISOString(),
+      };
+
+      document.getElementById("modalEnviando").style.display = "flex";
+      document.getElementById("btnEnviar").disabled = true;
+
+      try {
+        const resp = await fetch(URL_DO_GOOGLE_SCRIPT, {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        const json = await resp.json().catch(() => ({}));
+        document.getElementById("modalEnviando").style.display = "none";
+
+        if (json.status === "ok" || resp.ok) {
+          mostrarSucesso(paciente);
+        } else {
+          throw new Error(json.message || "Erro desconhecido");
+        }
+      } catch (err) {
+        document.getElementById("modalEnviando").style.display = "none";
+        document.getElementById("btnEnviar").disabled = false;
+        alert("Erro ao enviar respostas. Por favor, tente novamente.\n\nDetalhe: " + err.message);
+      }
+    });
+
+    function mostrarSucesso(nome) {
+      document.getElementById("appShell").style.display = "none";
+      document.querySelector(".p-footer").style.display = "none";
+      document.getElementById("progressFill").parentElement.style.display = "none";
+
+      const screen = document.createElement("div");
+      screen.className = "success-screen";
+      screen.innerHTML = `
+        <div class="success-card">
+          <div class="success-icon">✅</div>
+          <h1>Respostas enviadas!</h1>
+          <p>Obrigado pela participação, <strong>${escapeHtml(nome)}</strong>.</p>
+          <p>Suas respostas foram registradas com sucesso e serão analisadas pela equipe.</p>
+          <p class="success-note">Esta janela pode ser fechada.</p>
+        </div>
+      `;
+      document.body.appendChild(screen);
+      window.scrollTo(0, 0);
+    }
+
+    // ─── INICIALIZAR ─────────────────────────────────────────────────────────
+    document.addEventListener("DOMContentLoaded", () => {
+      // Pré-preencher data de hoje
+      const hoje = new Date().toISOString().split("T")[0];
+      document.getElementById("dataAvaliacao").value = hoje;
+
+      renderItens();
+      atualizarProgresso();
+    });
+  </script>
+</body>
+</html>
