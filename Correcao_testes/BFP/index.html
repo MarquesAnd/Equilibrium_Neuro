@@ -766,16 +766,16 @@
       html += '<p>Cada fator é composto por facetas que permitem análise detalhada do perfil de personalidade. Os escores brutos são convertidos em <strong>escores Z</strong> e <strong>percentis</strong> com base nos dados normativos da amostra de padronização.</p>';
       html += '</div>';
 
-      // 3. Tabela de Resultados
-      html += '<div class="rpt-sh"><span class="num">3</span><span class="sh-title">Tabela de Resultados</span></div>';
+      // 3. Perfil Gráfico
+      html += '<div class="rpt-sh"><span class="num">3</span><span class="sh-title">Perfil Gráfico dos Fatores</span></div>';
+      html += '<div class="rpt-box no-break" style="text-align:center;">' + svgChart + '</div>';
+
+      // 4. Tabela de Resultados
+      html += '<div class="rpt-sh"><span class="num">4</span><span class="sh-title">Tabela de Resultados</span></div>';
       html += '<div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden" class="no-break">';
       html += '<table class="rpt-tbl"><thead><tr>';
       html += '<th>Faceta / Fator</th><th class="ctr">Escore Bruto</th><th class="ctr">Escore Z</th><th class="ctr">Percentil</th><th class="ctr">Classificação</th>';
       html += '</tr></thead><tbody>' + tableRows + '</tbody></table></div>';
-
-      // 4. Perfil Gráfico
-      html += '<div class="rpt-sh"><span class="num">4</span><span class="sh-title">Perfil Gráfico dos Fatores</span></div>';
-      html += '<div class="rpt-box no-break" style="text-align:center;">' + svgChart + '</div>';
 
       // 5. Interpretação por Fator
       html += '<div class="rpt-sh"><span class="num">5</span><span class="sh-title">Interpretação por Fator</span></div>';
