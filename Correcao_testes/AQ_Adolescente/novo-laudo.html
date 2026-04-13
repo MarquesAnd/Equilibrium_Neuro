@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Novo Laudo AQ-Adolescente | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/Correcao_testes/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .chip-btn {
+      background: #ccfbf1; color: #0f766e; border: none; border-radius: 20px;
+      padding: 5px 14px; font-size: 12px; font-weight: 600; cursor: pointer;
+      font-family: inherit; transition: all 0.15s;
+    }
+    .chip-btn:hover { background: #99f6e4; }
+    .score-badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 36px; height: 36px; border-radius: 10px;
+      font-size: 15px; font-weight: 800; margin-left: auto;
+    }
+    .faceta-row td { vertical-align: middle; }
+    .score-input {
+      width: 70px; padding: 8px 10px; border: 1.5px solid var(--border);
+      border-radius: 10px; font-size: 15px; font-family: inherit;
+      text-align: center; outline: none;
+    }
+    .score-input:focus { border-color: #0d9488; box-shadow: 0 0 0 3px rgba(13,148,136,.12); }
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a class="nav-item" href="/Pacientes/" data-page="pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
+        <a class="nav-item" href="/Anamnese/" data-page="anamnese"><span class="nav-icon">📋</span><span>Anamnese</span></a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
+        <a class="nav-item" href="/check_list/" data-page="checklist"><span class="nav-icon">✅</span><span>Checklist</span></a>
+        <a class="nav-item" href="/Config/" data-page="config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">?</div>
+          <div>
+            <div class="user-name">Carregando...</div>
+            <div class="user-role">—</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <p class="page-subtitle"><a href="/Correcao_testes/" class="breadcrumb">Correção</a> → <a href="/Correcao_testes/AQ_Adolescente/" class="breadcrumb">AQ-Adolescente</a> → Novo Laudo</p>
+          <h1 class="page-title">Novo Laudo — AQ-Adolescente</h1>
+        </div>
+        <button class="btn-secondary" onclick="history.back()">← Voltar</button>
+      </div>
+
+      <!-- CARD 1: Profissional -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">1</span>
+          <div>
+            <div class="form-card-title">Dados do Profissional</div>
+            <div class="form-card-desc">Informações do aplicador — obrigatório para o laudo</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="profNome">Nome do Profissional</label>
+            <input type="text" id="profNome" placeholder="Nome completo" />
+          </div>
+          <div class="field">
+            <label for="profCRP">CRP</label>
+            <input type="text" id="profCRP" placeholder="CRP XX/XXXXX" />
+          </div>
+          <div class="field">
+            <label for="profEspecialidade">Especialidade</label>
+            <input type="text" id="profEspecialidade" placeholder="Ex: Neuropsicóloga" />
+          </div>
+          <div class="field">
+            <label for="profContato">Contato</label>
+            <input type="text" id="profContato" placeholder="E-mail ou telefone" />
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: Examinando -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">2</span>
+          <div>
+            <div class="form-card-title">Dados do Examinando</div>
+            <div class="form-card-desc">Informações pessoais do adolescente avaliado</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="nome">Nome completo</label>
+            <input type="text" id="nome" placeholder="Nome do adolescente" />
+          </div>
+          <div class="field">
+            <label for="cpf">CPF</label>
+            <input type="text" id="cpf" placeholder="000.000.000-00" />
+          </div>
+          <div class="field">
+            <label for="dataNascimento">Data de nascimento</label>
+            <input type="date" id="dataNascimento" oninput="calcularIdade()" />
+          </div>
+          <div class="field">
+            <label for="dataAplicacao">Data de aplicação</label>
+            <input type="date" id="dataAplicacao" oninput="calcularIdade()" />
+          </div>
+          <div class="field">
+            <label for="sexo">Sexo</label>
+            <select id="sexo">
+              <option value="">Selecione</option>
+              <option>Masculino</option>
+              <option>Feminino</option>
+              <option>Outro</option>
+              <option>Prefere não informar</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="escolaridade">Escolaridade</label>
+            <select id="escolaridade">
+              <option value="">Selecione</option>
+              <option>6º ano do Ensino Fundamental</option>
+              <option>7º ano do Ensino Fundamental</option>
+              <option>8º ano do Ensino Fundamental</option>
+              <option>9º ano do Ensino Fundamental</option>
+              <option>1º ano do Ensino Médio</option>
+              <option>2º ano do Ensino Médio</option>
+              <option>3º ano do Ensino Médio</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="respondente">Respondente / Relação</label>
+            <input type="text" id="respondente" placeholder='Ex: "O próprio adolescente", "Mãe"' />
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px;">
+          <label for="motivo">Motivo do Encaminhamento</label>
+          <textarea id="motivo" rows="2" placeholder="Ex: Rastreio de traços do espectro autista mediante queixas de dificuldades sociais e comportamento repetitivo" style="width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border);font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+        </div>
+        <p id="idadeCalculada" class="form-hint"></p>
+      </div>
+
+      <!-- CARD 3: Pontuações por faceta -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">3</span>
+          <div>
+            <div class="form-card-title">Pontuações por Faceta</div>
+            <div class="form-card-desc">Informe a pontuação bruta de cada faceta (0–10) ou preencha automaticamente a partir das respostas do paciente</div>
+          </div>
+        </div>
+
+        <!-- Botão de preenchimento automático -->
+        <div style="background:#f0fdfa; border:1px solid #99f6e4; border-radius:12px; padding:14px 18px; margin-bottom:20px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+          <span style="font-size:13px; color:#0f766e;">📋 Paciente respondeu pelo formulário online?</span>
+          <div class="field" style="margin:0; flex:1; min-width:200px;">
+            <input type="text" id="cpfBusca" placeholder="CPF do paciente" style="height:36px;" />
+          </div>
+          <button class="btn-secondary" onclick="buscarRespostasFirestore()" style="height:36px; font-size:13px; padding:0 16px;">🔍 Buscar Respostas</button>
+        </div>
+
+        <div class="table-wrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th style="width:40px;">#</th>
+                <th>Faceta</th>
+                <th>Itens</th>
+                <th class="center" style="width:110px;">Pontuação (0–10)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="faceta-row">
+                <td><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#0d9488;"></span></td>
+                <td><strong>Habilidades Sociais</strong></td>
+                <td style="font-size:12px;color:#94a3b8;">1, 11, 13, 15, 22, 36, 44, 45, 47, 48</td>
+                <td class="center"><input type="number" class="score-input" id="f_social" min="0" max="10" placeholder="0" oninput="atualizarTotal()" /></td>
+              </tr>
+              <tr class="faceta-row">
+                <td><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#3b82f6;"></span></td>
+                <td><strong>Mudança de Atenção</strong></td>
+                <td style="font-size:12px;color:#94a3b8;">2, 4, 10, 16, 25, 32, 34, 37, 43, 46</td>
+                <td class="center"><input type="number" class="score-input" id="f_atencao" min="0" max="10" placeholder="0" oninput="atualizarTotal()" /></td>
+              </tr>
+              <tr class="faceta-row">
+                <td><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#f59e0b;"></span></td>
+                <td><strong>Atenção aos Detalhes</strong></td>
+                <td style="font-size:12px;color:#94a3b8;">5, 6, 9, 12, 19, 23, 28, 29, 30, 49</td>
+                <td class="center"><input type="number" class="score-input" id="f_detalhes" min="0" max="10" placeholder="0" oninput="atualizarTotal()" /></td>
+              </tr>
+              <tr class="faceta-row">
+                <td><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#8b5cf6;"></span></td>
+                <td><strong>Comunicação</strong></td>
+                <td style="font-size:12px;color:#94a3b8;">7, 17, 18, 26, 27, 31, 33, 35, 38, 39</td>
+                <td class="center"><input type="number" class="score-input" id="f_comunicacao" min="0" max="10" placeholder="0" oninput="atualizarTotal()" /></td>
+              </tr>
+              <tr class="faceta-row">
+                <td><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#ec4899;"></span></td>
+                <td><strong>Imaginação</strong></td>
+                <td style="font-size:12px;color:#94a3b8;">3, 8, 14, 20, 21, 24, 40, 41, 42, 50</td>
+                <td class="center"><input type="number" class="score-input" id="f_imaginacao" min="0" max="10" placeholder="0" oninput="atualizarTotal()" /></td>
+              </tr>
+              <tr style="background:#f8fafc; font-weight:700;">
+                <td colspan="2"><strong>TOTAL AQ</strong></td>
+                <td style="font-size:12px; color:#64748b;">Soma das 5 facetas (0–50)</td>
+                <td class="center">
+                  <span id="totalAQ" style="font-size:22px; font-weight:800; color:#0d9488;">0</span>
+                  <span style="font-size:12px; color:#94a3b8;">/50</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p id="classificacaoTotal" class="form-hint" style="margin-top:12px; font-size:14px; font-weight:600;"></p>
+      </div>
+
+      <!-- CARD 4: Observações comportamentais -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">4</span>
+          <div>
+            <div class="form-card-title">Observações Comportamentais</div>
+            <div class="form-card-desc">Registros qualitativos durante a aplicação</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+          <button type="button" class="chip-btn" onclick="insertObs('Colaborativo(a) e engajado(a) durante toda a sessão')">Colaborativo(a)</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Compreensão adequada das instruções')">Boa compreensão</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Sinais de ansiedade durante a aplicação')">Ansiedade</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Dificuldade em manter contato visual')">Contato visual reduzido</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Rigidez comportamental observada')">Rigidez comportamental</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Discurso centrado em tópicos específicos de interesse restrito')">Interesse restrito</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Dificuldade em interagir com o avaliador de forma espontânea')">Dificuldade social</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Movimentos estereotipados ou repetitivos observados')">Estereotipias</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Boa regulação emocional durante a sessão')">Boa regulação</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Necessitou de pausas durante a aplicação')">Pausas necessárias</button>
+        </div>
+        <textarea id="obsComportamentais" rows="4" placeholder="Descreva o comportamento do adolescente durante a aplicação..." style="width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border);font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+      </div>
+
+      <!-- CARD 5: Recomendações -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">5</span>
+          <div>
+            <div class="form-card-title">Conclusão e Recomendações</div>
+            <div class="form-card-desc">Sugestões terapêuticas, educacionais e encaminhamentos</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+          <button type="button" class="chip-btn" onclick="insertRec('Encaminhamento para avaliação diagnóstica multiprofissional (psiquiatria/neuropediatria)')">Encaminhamento diagnóstico</button>
+          <button type="button" class="chip-btn" onclick="insertRec('Acompanhamento psicoterapêutico com foco em habilidades sociais')">Psicoterapia — habilidades sociais</button>
+          <button type="button" class="chip-btn" onclick="insertRec('Adaptações curriculares e suporte pedagógico especializado')">Suporte pedagógico</button>
+          <button type="button" class="chip-btn" onclick="insertRec('Orientação familiar quanto às necessidades específicas do adolescente')">Orientação familiar</button>
+          <button type="button" class="chip-btn" onclick="insertRec('Grupo terapêutico de habilidades sociais')">Grupo de habilidades sociais</button>
+        </div>
+        <textarea id="recomendacoes" rows="4" placeholder="Recomendações para o paciente, família ou equipe multiprofissional..." style="width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border);font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+      </div>
+
+      <!-- CARD 6: Ações -->
+      <div class="form-card">
+        <div class="action-row">
+          <button class="btn-primary" onclick="calcular(true)">💾 Salvar e Gerar PDF</button>
+          <button class="btn-secondary" onclick="calcular(false)">📊 Somente Calcular</button>
+        </div>
+      </div>
+
+      <!-- Relatório -->
+      <div id="relatorio" class="card report" style="display:none;"></div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="/js/integration.js"></script>
+  <script src="/Correcao_testes/AQ_Adolescente/script.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.FIREBASE_CONFIGURED && window.DB) await DB.init();
+      if (!isAuthed()) { location.href = '/login.html'; }
+      else { applySidebarPermissions(); }
+      const hoje = new Date().toISOString().split("T")[0];
+      document.getElementById("dataAplicacao").value = hoje;
+    });
+    function insertObs(text) {
+      const ta = document.getElementById("obsComportamentais");
+      ta.value += (ta.value ? ". " : "") + text;
+      ta.focus();
+    }
+    function insertRec(text) {
+      const ta = document.getElementById("recomendacoes");
+      ta.value += (ta.value ? ". " : "") + text;
+      ta.focus();
+    }
+  </script>
+</body>
+</html>
