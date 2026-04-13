@@ -336,8 +336,8 @@ function countMissingByScale(form){
 
 // ─── SVG: Perfil ─────────────────────────────────────────────────────────────
 function svgProfileChart(rows){
-  const W=860, H=420;
-  const left=100, right=260, top=50, bottom=40;
+  const W=960, H=420;
+  const left=100, right=320, top=50, bottom=40;
   const plotW=W-left-right, plotH=H-top-bottom;
   const tMin=20, tMax=80;
 
@@ -348,7 +348,7 @@ function svgProfileChart(rows){
   const yStep = plotH/Math.max(1,rows.length);
   function yOfI(i){ return top+(i+0.5)*yStep; }
 
-  let svg = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="font-family:Arial,sans-serif;display:block">
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;margin:0 auto;max-width:100%;font-family:Arial,sans-serif;">
     <rect x="0" y="0" width="${W}" height="${H}" fill="#fff" rx="10"/>`;
 
   // Fundo da área de plot
@@ -403,8 +403,7 @@ function svgProfileChart(rows){
     svg += `<circle cx="${x}" cy="${y}" r="7" fill="${color}" stroke="#fff" stroke-width="2"/>`;
     svg += `<circle cx="${x}" cy="${y}" r="3" fill="#fff"/>`;
 
-    const label = r.label.length > 30 ? r.label.slice(0,28)+'…' : r.label;
-    svg += `<text x="${xOfT(80)+14}" y="${y+4}" font-size="12" fill="#1e293b" font-weight="700">${escapeHtml(label)}</text>`;
+    svg += `<text x="${xOfT(80)+14}" y="${y+4}" font-size="12" fill="#1e293b" font-weight="700">${escapeHtml(r.label)}</text>`;
   });
 
   svg += `</svg>`;
