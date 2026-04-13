@@ -1,43 +1,107 @@
-console.log("SCRIPT FDT CARREGADO v1 — RELATÓRIO COMPLETO");
+console.log("SCRIPT FDT CARREGADO — PERCENTIS NORMATIVOS FIXOS (Sedó, 2007)");
 const LAUDOS_KEY = "empresa_laudos_fdt";
 
-/* ═══════════════════════════════════
-   BANCO NORMATIVO (extraído da planilha)
-   Fonte: Sedó, 2007 — normas brasileiras
-   Estrutura: { faixa: { tempo: { media, dp }, erros: { media, dp } } }
-   ═══════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   BANCO NORMATIVO — PONTOS DE CORTE POR PERCENTIL
+   Fonte: Sedó (2007) — FDT Five Digit Test, normas brasileiras
+   Estrutura: { faixa: { subteste: { p95, p75, p50, p25, p5 } } }
+
+   IMPORTANTE — lógica invertida para TEMPOS e ERROS:
+     Valores MENORES = desempenho MELHOR (mais rápido / menos erros)
+     Logo: se tempo do paciente ≤ p95 → percentil ≥ 95 (Superior)
+           se tempo do paciente >  p5  → percentil ≤ 5  (Inferior)
+
+   Para tempos: p95 < p75 < p50 < p25 < p5  (mais tempo = pior)
+   Para erros:  p95 ≤ p75 ≤ p50 ≤ p25 < p5  (mais erros = pior)
+   ═══════════════════════════════════════════════════════════════ */
 const FDT_NORMAS = {
   "6-8": {
-    tempo:  { L: { m: 35.4, dp: 9.3 }, C: { m: 51.0, dp: 18.7 }, E: { m: 79.4, dp: 24.1 }, A: { m: 93.7, dp: 26.3 }, CI: { m: 44.0, dp: 19.5 }, FC: { m: 58.3, dp: 20.8 } },
-    erros:  { L: { m: 0.0, dp: 0.2 }, C: { m: 0.5, dp: 1.2 }, E: { m: 2.6, dp: 2.6 }, A: { m: 3.9, dp: 4.7 } },
+    Leitura:      { p95: 25, p75: 29, p50: 34, p25: 39, p5: 48 },
+    Contagem:     { p95: 32, p75: 40, p50: 48, p25: 56, p5: 83 },
+    Escolha:      { p95: 41, p75: 66, p50: 79, p25: 94, p5: 109 },
+    Alternancia:  { p95: 58, p75: 75, p50: 91, p25: 113, p5: 133 },
+    CI:           { p95: 17, p75: 31, p50: 43, p25: 55, p5: 76 },
+    FC:           { p95: 26, p75: 41, p50: 55, p25: 75, p5: 92 },
+    Erro_Contagem:   { p95: 0, p75: 0, p50: 0, p25: 0, p5: 4 },
+    Erro_Escolha:    { p95: 0, p75: 0, p50: 2, p25: 4, p5: 9 },
+    Erro_Alternancia:{ p95: 0, p75: 1, p50: 2, p25: 5, p5: 10 },
   },
   "9-10": {
-    tempo:  { L: { m: 29.4, dp: 5.2 }, C: { m: 39.4, dp: 7.1 }, E: { m: 65.1, dp: 13.5 }, A: { m: 78.5, dp: 23.2 }, CI: { m: 35.7, dp: 11.7 }, FC: { m: 49.1, dp: 21.8 } },
-    erros:  { L: { m: 0.0, dp: 0.2 }, C: { m: 0.4, dp: 0.8 }, E: { m: 1.9, dp: 1.9 }, A: { m: 3.1, dp: 2.9 } },
+    Leitura:      { p95: 22, p75: 26, p50: 29, p25: 32, p5: 38 },
+    Contagem:     { p95: 28, p75: 34, p50: 39, p25: 43, p5: 52 },
+    Escolha:      { p95: 46, p75: 56, p50: 63, p25: 73, p5: 88 },
+    Alternancia:  { p95: 54, p75: 67, p50: 75, p25: 87, p5: 101 },
+    CI:           { p95: 19, p75: 28, p50: 35, p25: 42, p5: 57 },
+    FC:           { p95: 28, p75: 39, p50: 46, p25: 57, p5: 73 },
+    Erro_Contagem:   { p95: 0, p75: 0, p50: 0, p25: 0, p5: 2 },
+    Erro_Escolha:    { p95: 0, p75: 0, p50: 1, p25: 3, p5: 6 },
+    Erro_Alternancia:{ p95: 0, p75: 1, p50: 2, p25: 4, p5: 8 },
   },
   "11-12": {
-    tempo:  { L: { m: 29.4, dp: 13.5 }, C: { m: 38.2, dp: 11.4 }, E: { m: 59.4, dp: 28.9 }, A: { m: 68.6, dp: 27.5 }, CI: { m: 30.0, dp: 18.0 }, FC: { m: 39.2, dp: 17.7 } },
-    erros:  { L: { m: 0.1, dp: 0.3 }, C: { m: 0.4, dp: 1.1 }, E: { m: 1.7, dp: 2.7 }, A: { m: 2.6, dp: 3.2 } },
+    Leitura:      { p95: 20, p75: 24, p50: 27, p25: 32, p5: 47 },
+    Contagem:     { p95: 25, p75: 32, p50: 36, p25: 44, p5: 54 },
+    Escolha:      { p95: 38, p75: 48, p50: 56, p25: 62, p5: 93 },
+    Alternancia:  { p95: 46, p75: 55, p50: 66, p25: 73, p5: 96 },
+    CI:           { p95: 12, p75: 20, p50: 28, p25: 35, p5: 51 },
+    FC:           { p95: 16, p75: 30, p50: 39, p25: 44, p5: 68 },
+    Erro_Contagem:   { p95: 0, p75: 0, p50: 0, p25: 0, p5: 3 },
+    Erro_Escolha:    { p95: 0, p75: 0, p50: 1, p25: 2, p5: 10 },
+    Erro_Alternancia:{ p95: 0, p75: 0, p50: 2, p25: 3, p5: 10 },
   },
   "13-15": {
-    tempo:  { L: { m: 23.3, dp: 5.2 }, C: { m: 30.0, dp: 7.3 }, E: { m: 47.1, dp: 11.8 }, A: { m: 56.9, dp: 15.2 }, CI: { m: 23.8, dp: 9.0 }, FC: { m: 33.6, dp: 12.5 } },
-    erros:  { L: { m: 0.0, dp: 0.0 }, C: { m: 0.2, dp: 0.5 }, E: { m: 1.6, dp: 2.4 }, A: { m: 1.9, dp: 2.1 } },
+    Leitura:      { p95: 17, p75: 20, p50: 23, p25: 26, p5: 34 },
+    Contagem:     { p95: 21, p75: 24, p50: 28, p25: 35, p5: 44 },
+    Escolha:      { p95: 33, p75: 40, p50: 45, p25: 53, p5: 68 },
+    Alternancia:  { p95: 36, p75: 46, p50: 53, p25: 67, p5: 81 },
+    CI:           { p95: 8,  p75: 19, p50: 23.5, p25: 29, p5: 42 },
+    FC:           { p95: 14, p75: 25, p50: 32, p25: 43, p5: 53 },
+    Erro_Contagem:   { p95: 0, p75: 0, p50: 0, p25: 0, p5: 2 },
+    Erro_Escolha:    { p95: 0, p75: 0, p50: 1, p25: 2, p5: 7 },
+    Erro_Alternancia:{ p95: 0, p75: 0, p50: 1, p25: 3, p5: 5 },
   },
   "16-18": {
-    tempo:  { L: { m: 20.4, dp: 4.1 }, C: { m: 23.8, dp: 3.5 }, E: { m: 34.0, dp: 5.9 }, A: { m: 44.8, dp: 9.1 }, CI: { m: 13.6, dp: 4.9 }, FC: { m: 24.4, dp: 7.8 } },
-    erros:  { L: { m: 0.0, dp: 0.0 }, C: { m: 0.0, dp: 0.2 }, E: { m: 0.6, dp: 1.8 }, A: { m: 1.5, dp: 1.7 } },
+    Leitura:      { p95: 16, p75: 17, p50: 20, p25: 23, p5: 29 },
+    Contagem:     { p95: 19, p75: 21, p50: 24, p25: 26, p5: 30 },
+    Escolha:      { p95: 25, p75: 29, p50: 33, p25: 39, p5: 44 },
+    Alternancia:  { p95: 34, p75: 38, p50: 42, p25: 51, p5: 63 },
+    CI:           { p95: 6,  p75: 10.5, p50: 13, p25: 16.5, p5: 22 },
+    FC:           { p95: 16, p75: 19, p50: 22, p25: 27, p5: 44 },
+    Erro_Contagem:   { p95: 0, p75: 0, p50: 0, p25: 0, p5: 0 },
+    Erro_Escolha:    { p95: 0, p75: 0, p50: 0, p25: 0, p5: 3 },
+    Erro_Alternancia:{ p95: 0, p75: 0, p50: 1, p25: 2, p5: 4 },
   },
   "19-34": {
-    tempo:  { L: { m: 22.0, dp: 5.6 }, C: { m: 24.8, dp: 5.2 }, E: { m: 36.9, dp: 10.0 }, A: { m: 46.0, dp: 13.0 }, CI: { m: 14.8, dp: 8.3 }, FC: { m: 23.9, dp: 10.8 } },
-    erros:  { L: { m: 0.0, dp: 0.2 }, C: { m: 0.1, dp: 0.4 }, E: { m: 0.4, dp: 0.9 }, A: { m: 0.9, dp: 1.5 } },
+    Leitura:      { p95: 16, p75: 19, p50: 21, p25: 25, p5: 31 },
+    Contagem:     { p95: 19, p75: 22, p50: 24, p25: 27, p5: 34 },
+    Escolha:      { p95: 27, p75: 31, p50: 35, p25: 40, p5: 52 },
+    Alternancia:  { p95: 33, p75: 38, p50: 44, p25: 50, p5: 64 },
+    CI:           { p95: 5,  p75: 11, p50: 14, p25: 18, p5: 28 },
+    FC:           { p95: 10, p75: 17, p50: 22, p25: 29, p5: 42 },
+    Erro_Contagem:   { p95: 0, p75: 0, p50: 0, p25: 0, p5: 1 },
+    Erro_Escolha:    { p95: 0, p75: 0, p50: 0, p25: 1, p5: 2 },
+    Erro_Alternancia:{ p95: 0, p75: 0, p50: 0, p25: 1, p5: 3 },
   },
   "35-59": {
-    tempo:  { L: { m: 23.9, dp: 6.5 }, C: { m: 27.1, dp: 7.2 }, E: { m: 41.7, dp: 14.5 }, A: { m: 53.6, dp: 18.4 }, CI: { m: 17.8, dp: 12.0 }, FC: { m: 29.7, dp: 15.7 } },
-    erros:  { L: { m: 0.0, dp: 0.2 }, C: { m: 0.0, dp: 0.2 }, E: { m: 0.7, dp: 1.9 }, A: { m: 1.5, dp: 2.6 } },
+    Leitura:      { p95: 17, p75: 20, p50: 23, p25: 26, p5: 37 },
+    Contagem:     { p95: 19, p75: 22, p50: 26, p25: 30, p5: 40 },
+    Escolha:      { p95: 28, p75: 32, p50: 39, p25: 46, p5: 65 },
+    Alternancia:  { p95: 34, p75: 43, p50: 48, p25: 60, p5: 89 },
+    CI:           { p95: 5,  p75: 11, p50: 15, p25: 21, p5: 38 },
+    FC:           { p95: 14, p75: 20, p50: 26, p25: 34, p5: 55 },
+    Erro_Contagem:   { p95: 0, p75: 0, p50: 0, p25: 0, p5: 0 },
+    Erro_Escolha:    { p95: 0, p75: 0, p50: 0, p25: 1, p5: 3 },
+    Erro_Alternancia:{ p95: 0, p75: 0, p50: 1, p25: 2, p5: 6 },
   },
   "60-75": {
-    tempo:  { L: { m: 26.6, dp: 6.2 }, C: { m: 29.7, dp: 6.3 }, E: { m: 47.4, dp: 11.3 }, A: { m: 65.3, dp: 18.0 }, CI: { m: 20.8, dp: 9.0 }, FC: { m: 38.7, dp: 15.7 } },
-    erros:  { L: { m: 0.0, dp: 0.1 }, C: { m: 0.1, dp: 0.3 }, E: { m: 0.8, dp: 1.1 }, A: { m: 1.7, dp: 2.0 } },
+    Leitura:      { p95: 18, p75: 22, p50: 25, p25: 30, p5: 37 },
+    Contagem:     { p95: 21, p75: 25, p50: 28, p25: 33, p5: 41 },
+    Escolha:      { p95: 30, p75: 39, p50: 46, p25: 53, p5: 68 },
+    Alternancia:  { p95: 41, p75: 52, p50: 62, p25: 78, p5: 93 },
+    CI:           { p95: 9,  p75: 15, p50: 19.5, p25: 26, p5: 39 },
+    FC:           { p95: 18, p75: 28, p50: 35, p25: 49, p5: 63 },
+    Erro_Contagem:   { p95: 0, p75: 0, p50: 0, p25: 0, p5: 1 },
+    Erro_Escolha:    { p95: 0, p75: 0, p50: 0, p25: 1, p5: 3 },
+    Erro_Alternancia:{ p95: 0, p75: 0, p50: 1, p25: 3, p5: 6 },
   },
 };
 
@@ -99,37 +163,34 @@ function formatarData(iso) {
   return `${d}/${m}/${y}`;
 }
 
-/* ═══════════════════════════════════
-   CÁLCULO NORMATIVO (z-score → percentil)
-   Para TEMPO: escore > média = pior, então invertemos o z
-   Para ERROS: idem — mais erros = pior
-   ═══════════════════════════════════ */
-function normcdf(z) {
-  // Aproximação racional (Abramowitz & Stegun 26.2.17)
-  const sign = z < 0 ? -1 : 1;
-  const x = Math.abs(z);
-  const a1 = 0.319381530, a2 = -0.356563782, a3 = 1.781477937, a4 = -1.821255978, a5 = 1.330274429;
-  const p = 0.2316419;
-  const t = 1 / (1 + p * x);
-  const poly = t * (a1 + t * (a2 + t * (a3 + t * (a4 + t * a5))));
-  const phi = 1 - (1 / Math.sqrt(2 * Math.PI)) * Math.exp(-0.5 * x * x) * poly;
-  return sign === 1 ? phi : 1 - phi;
+/* ═══════════════════════════════════════════════════════════════
+   CÁLCULO NORMATIVO — PONTOS DE CORTE FIXOS
+   Retorna { label, numerico } onde:
+     label   = string exibida  (ex.: "≥ 95", "> 25", "= 5", "< 5")
+     numerico = valor numérico aproximado para posicionar no gráfico
+   ═══════════════════════════════════════════════════════════════ */
+function calcularPercentilFix(valor, norm) {
+  if (!norm || valor == null || valor === "") return { label: "—", numerico: null };
+  const v = parseFloat(valor);
+  if (isNaN(v)) return { label: "—", numerico: null };
+
+  // Tempos e erros: menor valor = melhor desempenho
+  if (v <= norm.p95) return { label: "≥ 95", numerico: 97 };
+  if (v <= norm.p75) return { label: "> 75", numerico: 87 };
+  if (v <= norm.p50) return { label: "> 50", numerico: 62 };
+  if (v <= norm.p25) return { label: "> 25", numerico: 37 };
+  if (v <= norm.p5)  return { label: "> 5",  numerico: 15 };
+  return               { label: "< 5",  numerico: 3  };
 }
 
-function calcularPercentil(valor, media, dp, inverter = true) {
-  if (valor == null || valor === "" || media == null || dp == null) return null;
-  if (dp === 0) return valor <= media ? 99 : 1;
-  const z = (media - valor) / dp; // invertido: maior tempo = z negativo = menor percentil
-  const pct = inverter ? Math.round(normcdf(z) * 100) : Math.round(normcdf(-z) * 100);
-  return Math.max(1, Math.min(99, pct));
-}
-
-function classificarPercentil(p) {
-  if (p == null) return "—";
-  if (p <= 5)  return "Inferior";
-  if (p <= 25) return "Médio Inferior";
-  if (p <= 75) return "Média";
-  return "Superior";
+/* ─── Classificação conforme manual FDT ─── */
+function classificarPercentil(label) {
+  if (!label || label === "—") return "—";
+  if (["≥ 95", "> 75"].includes(label))       return "Superior";
+  if (["> 50", "> 25"].includes(label))        return "Média";
+  if (label === "> 5")                          return "Dificuldade Discreta";
+  if (label === "< 5")                          return "Dificuldade Acentuada";
+  return "—";
 }
 
 /* ═══════════════════════════════════
@@ -139,16 +200,18 @@ function calcularResultados(tempos, erros, faixa) {
   const norma = FDT_NORMAS[faixa];
   if (!norma) return null;
 
-  const partes = ["L", "C", "E", "A"];
-  const nomes  = { L: "Leitura", C: "Contagem", E: "Escolha", A: "Alternância" };
+  const partes  = ["L", "C", "E", "A"];
+  const nomes   = { L: "Leitura", C: "Contagem", E: "Escolha", A: "Alternância" };
+  const chaves  = { L: "Leitura", C: "Contagem", E: "Escolha", A: "Alternancia" };
+  const chavesErro = { C: "Erro_Contagem", E: "Erro_Escolha", A: "Erro_Alternancia" };
   const derivados = [
-    { cod: "CI", nome: "Controle Inibitório", formula: "E − L" },
-    { cod: "FC", nome: "Flexibilidade Cognitiva", formula: "A − L" },
+    { cod: "CI", nome: "Controle Inibitório", formula: "Escolha − Leitura",    chave: "CI" },
+    { cod: "FC", nome: "Flexibilidade Cognitiva", formula: "Alternância − Leitura", chave: "FC" },
   ];
 
   const resultados = {};
 
-  // Calcular CI e FC
+  // Calcular índices derivados
   const t_CI = (tempos.E != null && tempos.L != null) ? tempos.E - tempos.L : null;
   const t_FC = (tempos.A != null && tempos.L != null) ? tempos.A - tempos.L : null;
   const temposCompletos = { ...tempos, CI: t_CI, FC: t_FC };
@@ -157,27 +220,37 @@ function calcularResultados(tempos, erros, faixa) {
   partes.forEach(cod => {
     const t = tempos[cod];
     const e = erros[cod];
-    const nT = norma.tempo[cod];
-    const nE = norma.erros[cod];
-    const pctTempo  = calcularPercentil(t, nT?.m, nT?.dp, true);
-    const pctErros  = calcularPercentil(e, nE?.m, nE?.dp, true);
+    const nT = norma[chaves[cod]];
+    const nE = chavesErro[cod] ? norma[chavesErro[cod]] : null;
+
+    const pT = calcularPercentilFix(t, nT);
+    const pE = calcularPercentilFix(e, nE);
+
     resultados[cod] = {
       cod, nome: nomes[cod],
-      tempo: t, pctTempo, classTempo: classificarPercentil(pctTempo),
-      erros: e, pctErros, classErros: classificarPercentil(pctErros),
+      tempo: t,
+      pctLabel: pT.label,
+      pctNum:   pT.numerico,
+      classTempo: classificarPercentil(pT.label),
+      erros: e,
+      pctErrosLabel: pE.label,
+      pctErrosNum:   pE.numerico,
+      classErros: classificarPercentil(pE.label),
     };
   });
 
   // Índices derivados (somente tempo, sem erros)
-  derivados.forEach(({ cod, nome, formula }) => {
-    const t = temposCompletos[cod];
-    const nT = norma.tempo[cod];
-    const pctTempo = calcularPercentil(t, nT?.m, nT?.dp, true);
+  derivados.forEach(({ cod, nome, formula, chave }) => {
+    const t  = temposCompletos[cod];
+    const nT = norma[chave];
+    const pT = calcularPercentilFix(t, nT);
     resultados[cod] = {
-      cod, nome, formula,
-      tempo: t, pctTempo, classTempo: classificarPercentil(pctTempo),
-      erros: null, pctErros: null, classErros: null,
-      derivado: true,
+      cod, nome, formula, derivado: true,
+      tempo: t,
+      pctLabel: pT.label,
+      pctNum:   pT.numerico,
+      classTempo: classificarPercentil(pT.label),
+      erros: null, pctErrosLabel: null, pctErrosNum: null, classErros: null,
     };
   });
 
@@ -294,16 +367,21 @@ function atualizarDerivedos() {
    BADGE / COR de classificação
    ═══════════════════════════════════ */
 function clBadgeClass(cl) {
-  const m = { "Superior": "cl-s", "Média": "cl-m", "Médio Inferior": "cl-mi", "Inferior": "cl-eb" };
+  const m = {
+    "Superior":             "cl-s",
+    "Média":                "cl-m",
+    "Dificuldade Discreta": "cl-mi",
+    "Dificuldade Acentuada":"cl-eb",
+  };
   return m[cl] || "cl-m";
 }
-function clBadge(cl) { return cl ? `<span class="cl-badge ${clBadgeClass(cl)}">${cl}</span>` : "—"; }
+function clBadge(cl) { return cl && cl !== "—" ? `<span class="cl-badge ${clBadgeClass(cl)}">${cl}</span>` : "—"; }
 
-function barColorFDT(pct) {
-  if (pct == null) return "#94a3b8";
-  if (pct >= 76) return "#059669";
-  if (pct >= 26) return "#1a56db";
-  if (pct >= 6)  return "#f59e0b";
+function barColorFDT(pctNum) {
+  if (pctNum == null) return "#94a3b8";
+  if (pctNum >= 75)  return "#059669";
+  if (pctNum >= 25)  return "#1a56db";
+  if (pctNum >= 6)   return "#f59e0b";
   return "#dc2626";
 }
 
@@ -325,11 +403,11 @@ function renderTabelaResultados(resultados) {
         ${r.nome}${derivado ? ` <span style="font-size:10px;opacity:.7">(${r.formula})</span>` : ` <span style="color:#94a3b8;">(${cod})</span>`}
       </td>
       <td class="ctr" style="${tempoBold}">${r.tempo != null ? r.tempo : "—"}</td>
-      <td class="ctr">${r.pctTempo != null ? r.pctTempo + "%" : "—"}</td>
+      <td class="ctr">${r.pctLabel && r.pctLabel !== "—" ? r.pctLabel : "—"}</td>
       <td>${clBadge(r.classTempo)}</td>
-      <td class="ctr">${!r.derivado && r.erros != null ? r.erros : derivado ? "<span style='color:#94a3b8;font-size:11px'>—</span>" : "—"}</td>
-      <td class="ctr">${!r.derivado && r.pctErros != null ? r.pctErros + "%" : derivado ? "<span style='color:#94a3b8;font-size:11px'>—</span>" : "—"}</td>
-      <td>${!r.derivado ? clBadge(r.classErros) : "<span style='color:#94a3b8;font-size:11px'>n/a</span>"}</td>
+      <td class="ctr">${!derivado && r.erros != null ? r.erros : derivado ? "<span style='color:#94a3b8;font-size:11px'>—</span>" : "—"}</td>
+      <td class="ctr">${!derivado && r.pctErrosLabel && r.pctErrosLabel !== "—" ? r.pctErrosLabel : derivado ? "<span style='color:#94a3b8;font-size:11px'>—</span>" : "—"}</td>
+      <td>${!derivado ? clBadge(r.classErros) : "<span style='color:#94a3b8;font-size:11px'>n/a</span>"}</td>
     </tr>`;
   }).join("");
 
@@ -342,10 +420,10 @@ function renderTabelaResultados(resultados) {
       </tr>
       <tr>
         <th class="ctr" style="font-size:10px;width:60px">Tempo</th>
-        <th class="ctr" style="font-size:10px;width:55px">Percentil</th>
+        <th class="ctr" style="font-size:10px;width:70px">Percentil</th>
         <th style="font-size:10px">Classificação</th>
         <th class="ctr" style="font-size:10px;width:50px">Erros</th>
-        <th class="ctr" style="font-size:10px;width:55px">Percentil</th>
+        <th class="ctr" style="font-size:10px;width:70px">Percentil</th>
         <th style="font-size:10px">Classificação</th>
       </tr>
     </thead><tbody>${rows}</tbody></table>
@@ -354,6 +432,7 @@ function renderTabelaResultados(resultados) {
 
 /* ═══════════════════════════════════
    RENDER: PERFIL GRÁFICO (barras horizontais)
+   Usa pctNum (valor numérico aproximado) para posicionamento
    ═══════════════════════════════════ */
 function renderPerfil(resultados) {
   const partes = [
@@ -368,7 +447,7 @@ function renderPerfil(resultados) {
   const barras = partes.map(({ cod, nome, derivado }) => {
     const r = resultados[cod];
     if (!r || r.tempo == null) return "";
-    const p = r.pctTempo;
+    const p = r.pctNum;
     const col = barColorFDT(p);
     const pct = p != null ? pctScale(p) : 0;
     const cl = r.classTempo;
@@ -379,60 +458,82 @@ function renderPerfil(resultados) {
         <div class="bar-avg-zone" style="left:${(25/99*100).toFixed(1)}%;width:${((75-25)/99*100).toFixed(1)}%"></div>
         <div class="bar-fill" style="width:${pct}%;background:${col}"></div>
       </div>
-      <div class="bar-val" style="width:40px">${p != null ? p + "%" : "—"}</div>
+      <div class="bar-val" style="width:65px;font-size:11px">${r.pctLabel || "—"}</div>
       <div class="bar-badge">${clBadge(cl)}</div>
     </div>`;
   }).join("");
 
   return `<div class="rpt-box no-break">
-    <div style="font-size:11px;color:#64748b;margin-bottom:8px">Eixo = percentil (1–99) · Faixa azul = faixa média (P26–P75) · Baseado nos tempos</div>
+    <div style="font-size:11px;color:#64748b;margin-bottom:8px">Eixo = percentil estimado (1–99) · Faixa azul = faixa média (P25–P75) · Baseado nos tempos</div>
     ${barras}
   </div>`;
 }
 
 /* ═══════════════════════════════════
-   RENDER: GRÁFICO IC STYLE (comparação com norma)
+   RENDER: GRÁFICO DE PONTOS DE CORTE
+   Substitui ±1DP pelos 5 marcos normativos (p5/p25/p50/p75/p95)
    ═══════════════════════════════════ */
 function renderComparativoNorma(resultados, faixa) {
   const norma = FDT_NORMAS[faixa];
   if (!norma) return "";
-  const partes = ["L", "C", "E", "A", "CI", "FC"];
-  const nomes  = { L: "Leitura", C: "Contagem", E: "Escolha", A: "Alternância", CI: "Controle Inibitório", FC: "Flexibilidade" };
-  const maxTempo = 120; // eixo máximo em segundos
 
-  const rows = partes.map(cod => {
+  const config = [
+    { cod: "L", chave: "Leitura",     nome: "Leitura" },
+    { cod: "C", chave: "Contagem",    nome: "Contagem" },
+    { cod: "E", chave: "Escolha",     nome: "Escolha" },
+    { cod: "A", chave: "Alternancia", nome: "Alternância" },
+    { cod: "CI", chave: "CI",         nome: "Controle Inibitório" },
+    { cod: "FC", chave: "FC",         nome: "Flexibilidade" },
+  ];
+
+  // Eixo máximo dinâmico: maior p5 entre todos os subtestes da faixa × 1.15
+  const allP5 = config.map(c => norma[c.chave]?.p5 || 0);
+  const maxTempo = Math.ceil(Math.max(...allP5) * 1.15 / 10) * 10;
+
+  const rows = config.map(({ cod, chave, nome }) => {
     const r = resultados[cod];
     if (!r || r.tempo == null) return "";
-    const n = norma.tempo[cod];
+    const n = norma[chave];
     if (!n) return "";
-    const scale = v => Math.min(100, (v / maxTempo) * 100);
-    const colPac = barColorFDT(r.pctTempo);
-    // Intervalo ±1 DP da norma
-    const lo = Math.max(0, n.m - n.dp);
-    const hi = n.m + n.dp;
     const derivado = cod === "CI" || cod === "FC";
+    const scale = v => Math.min(100, (Math.max(0, v) / maxTempo) * 100);
+    const colPac = barColorFDT(r.pctNum);
+
+    // Faixa normativa média (p25 a p75)
+    const bandLeft  = scale(n.p75).toFixed(1); // p75 maior → direita no eixo
+    const bandWidth = (scale(n.p25) - scale(n.p75)).toFixed(1);
+
     return `<div class="ic-row">
-      <div class="ic-label" style="color:${colPac};width:165px;font-size:12px">${derivado ? `<b style="color:#1a56db">${nomes[cod]}</b>` : `<b>${nomes[cod]}</b>`}</div>
+      <div class="ic-label" style="color:${colPac};width:165px;font-size:12px">${derivado ? `<b style="color:#1a56db">${nome}</b>` : `<b>${nome}</b>`}</div>
       <div class="ic-track" style="flex:1;position:relative;height:28px;margin:0 10px">
-        <!-- banda normativa ±1DP -->
-        <div style="position:absolute;top:8px;height:12px;left:${scale(lo).toFixed(1)}%;width:${(scale(hi)-scale(lo)).toFixed(1)}%;background:rgba(148,163,184,.25);border:1px solid rgba(148,163,184,.4);border-radius:3px"></div>
-        <!-- linha da média normativa -->
-        <div style="position:absolute;top:4px;width:2px;height:20px;left:${scale(n.m).toFixed(1)}%;background:rgba(100,116,139,.5);border-radius:1px"></div>
+        <!-- marcas p5 e p95 -->
+        <div title="P5"  style="position:absolute;top:10px;width:2px;height:8px;left:${scale(n.p5).toFixed(1)}%;background:#f87171;border-radius:1px;opacity:.7"></div>
+        <div title="P95" style="position:absolute;top:10px;width:2px;height:8px;left:${scale(n.p95).toFixed(1)}%;background:#34d399;border-radius:1px;opacity:.7"></div>
+        <!-- banda normativa P25–P75 -->
+        <div style="position:absolute;top:8px;height:12px;left:${bandLeft}%;width:${bandWidth}%;background:rgba(148,163,184,.25);border:1px solid rgba(148,163,184,.4);border-radius:3px"></div>
+        <!-- linha p50 -->
+        <div title="P50" style="position:absolute;top:4px;width:2px;height:20px;left:${scale(n.p50).toFixed(1)}%;background:rgba(100,116,139,.55);border-radius:1px"></div>
         <!-- ponto do paciente -->
         <div style="position:absolute;top:6px;width:16px;height:16px;left:calc(${scale(r.tempo).toFixed(1)}% - 8px);background:${colPac};border-radius:50%;box-shadow:0 2px 6px ${colPac}50;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:800;color:#fff">${r.tempo}</div>
       </div>
-      <div style="width:80px;font-size:11px;text-align:right">${clBadge(r.classTempo)}</div>
+      <div style="width:85px;font-size:11px;text-align:right">${clBadge(r.classTempo)}</div>
     </div>`;
   }).join("");
 
-  const ticks = [0, 20, 40, 60, 80, 100, 120].map(v =>
+  const step = Math.ceil(maxTempo / 6 / 5) * 5;
+  const tickVals = [];
+  for (let v = 0; v <= maxTempo; v += step) tickVals.push(v);
+  const ticks = tickVals.map(v =>
     `<span style="position:absolute;left:${(v/maxTempo*100).toFixed(1)}%;transform:translateX(-50%)">${v}</span>`
   ).join("");
 
   return `<div class="rpt-box no-break">
     <div style="position:relative;height:18px;margin-bottom:4px;font-size:10px;color:#64748b">${ticks}</div>
     ${rows}
-    <div style="font-size:10px;color:#64748b;margin-top:8px">Círculo = tempo do paciente (seg) · Faixa cinza = média normativa ±1DP (${faixa} anos) · Linha = média</div>
+    <div style="font-size:10px;color:#64748b;margin-top:8px">
+      Círculo = tempo do paciente (seg) · Faixa cinza = P25–P75 normativo · Linha = P50 · 
+      <span style="color:#34d399">▎P95</span> · <span style="color:#f87171">▎P5</span>
+    </div>
   </div>`;
 }
 
@@ -448,33 +549,33 @@ function gerarTextoInterpretativo(nome, resultados, faixa) {
     CI: "eficiência do controle inibitório puro, medido pela diferença Escolha − Leitura",
     FC: "custo cognitivo da flexibilidade executiva, medido pela diferença Alternância − Leitura",
   };
-  const partes = ["L", "C", "E", "A"];
+  const partes  = ["L", "C", "E", "A"];
   const abertura = ["Em relação à", "Quanto à", "No que se refere à", "Em relação à"];
+
+  const verbMap = {
+    "Superior":             "situa-se acima da média normativa",
+    "Média":                "situa-se dentro da faixa média normativa",
+    "Dificuldade Discreta": "situa-se levemente abaixo da média normativa",
+    "Dificuldade Acentuada":"situa-se significativamente abaixo da média normativa",
+  };
 
   const parts = partes.map((cod, i) => {
     const r = resultados[cod];
-    if (!r || r.pctTempo == null) return null;
-    const cls = r.classTempo;
-    const verbMap = {
-      "Superior": "situa-se acima da média normativa",
-      "Média": "situa-se dentro da faixa média normativa",
-      "Médio Inferior": "situa-se abaixo da média normativa",
-      "Inferior": "situa-se significativamente abaixo da média normativa",
-    };
-    const verb = verbMap[cls] || "situa-se";
-    return `${abertura[i]} <b>${r.nome}</b>, a habilidade de ${descricoes[cod]} ${verb} (tempo = ${r.tempo} seg; percentil = ${r.pctTempo}%; classificação: ${cls}).`;
+    if (!r || r.pctLabel == null || r.pctLabel === "—") return null;
+    const verb = verbMap[r.classTempo] || "situa-se";
+    return `${abertura[i]} <b>${r.nome}</b>, a habilidade de ${descricoes[cod]} ${verb} (tempo = ${r.tempo} seg; percentil ${r.pctLabel}; classificação: ${r.classTempo}).`;
   }).filter(Boolean);
 
   const ci = resultados["CI"];
   const fc = resultados["FC"];
-  if (ci?.pctTempo != null || fc?.pctTempo != null) {
+  if (ci?.pctLabel || fc?.pctLabel) {
     let exec = "Em relação aos índices executivos: ";
-    if (ci?.pctTempo != null) {
-      exec += `o <b>Controle Inibitório</b> (${ci.tempo} seg; P${ci.pctTempo}%) apresenta-se na faixa <b>${ci.classTempo}</b>`;
+    if (ci?.pctLabel && ci.pctLabel !== "—") {
+      exec += `o <b>Controle Inibitório</b> (${ci.tempo} seg; percentil ${ci.pctLabel}) apresenta-se na faixa <b>${ci.classTempo}</b>`;
     }
-    if (ci?.pctTempo != null && fc?.pctTempo != null) exec += "; ";
-    if (fc?.pctTempo != null) {
-      exec += `a <b>Flexibilidade Cognitiva</b> (${fc.tempo} seg; P${fc.pctTempo}%) apresenta-se na faixa <b>${fc.classTempo}</b>`;
+    if (ci?.pctLabel && ci.pctLabel !== "—" && fc?.pctLabel && fc.pctLabel !== "—") exec += "; ";
+    if (fc?.pctLabel && fc.pctLabel !== "—") {
+      exec += `a <b>Flexibilidade Cognitiva</b> (${fc.tempo} seg; percentil ${fc.pctLabel}) apresenta-se na faixa <b>${fc.classTempo}</b>`;
     }
     exec += ".";
     parts.push(exec);
@@ -543,20 +644,20 @@ function montarRelatorio(data) {
       ${obsComportamentais ? `<div class="rpt-sh"><span class="num" style="background:#7c3aed">2</span><span class="sh-title">Observações Comportamentais</span><span class="sh-new">Clínico</span></div><div class="rpt-box-obs no-break">${obsComportamentais}</div>` : ""}
 
       <!-- 3. RESULTADOS -->
-      <div class="rpt-sh"><span class="num">3</span><span class="sh-title">Resultados por Parte</span><div class="sh-sub">Tempos em segundos e erros, com percentis e classificações por faixa etária (${faixa} anos).</div></div>
+      <div class="rpt-sh"><span class="num">3</span><span class="sh-title">Resultados por Parte</span><div class="sh-sub">Tempos em segundos e erros, com percentis normativos e classificações por faixa etária (${faixa} anos).</div></div>
       <div class="no-break">${tabelaHTML}</div>
       <div style="font-size:10px;color:#64748b;margin-top:6px;">
-        ⓘ Percentis calculados via z-score: tempo maior = desempenho inferior.
-        CI = Escolha − Leitura · FC = Alternância − Leitura.
-        Erros não normatizados para CI e FC.
+        ⓘ Percentis por pontos de corte normativos (Sedó, 2007). CI = Escolha − Leitura · FC = Alternância − Leitura.
+        Classificação: <b>≥ 95 / &gt; 75</b> = Superior · <b>&gt; 50 / &gt; 25</b> = Média ·
+        <b>&gt; 5</b> = Dificuldade Discreta · <b>&lt; 5</b> = Dificuldade Acentuada.
       </div>
 
       <!-- 4. PERFIL PERCENTÍLICO -->
-      <div class="rpt-sh"><span class="num">4</span><span class="sh-title">Perfil Percentílico dos Tempos</span><div class="sh-sub">Barras indicam o percentil obtido. Faixa azul = desempenho médio (P26–P75).</div></div>
+      <div class="rpt-sh"><span class="num">4</span><span class="sh-title">Perfil Percentílico dos Tempos</span><div class="sh-sub">Barras indicam o percentil normativo obtido. Faixa azul = desempenho médio (P25–P75).</div></div>
       ${perfilHTML}
 
       <!-- 5. COMPARAÇÃO COM NORMA -->
-      <div class="rpt-sh"><span class="num">5</span><span class="sh-title">Comparação com a Norma (${faixa} anos)</span><div class="sh-sub">Círculo = tempo do paciente. Faixa cinza = intervalo ±1DP da norma.</div></div>
+      <div class="rpt-sh"><span class="num">5</span><span class="sh-title">Comparação com a Norma (${faixa} anos)</span><div class="sh-sub">Círculo = tempo do paciente · Faixa cinza = P25–P75 normativo · Linha = P50.</div></div>
       ${comparHTML}
 
       <!-- 6. INTERPRETAÇÃO -->
@@ -654,11 +755,11 @@ async function calcular(salvar) {
       setLaudos(laudos);
 
       if (window.Integration) {
-        const ciPct = resultados?.CI?.pctTempo;
-        const fcPct = resultados?.FC?.pctTempo;
+        const ciLabel = resultados?.CI?.pctLabel;
+        const fcLabel = resultados?.FC?.pctLabel;
         const resumo = [
-          ciPct != null ? `CI: P${ciPct} (${resultados.CI.classTempo})` : "",
-          fcPct != null ? `FC: P${fcPct} (${resultados.FC.classTempo})` : "",
+          ciLabel ? `CI: ${ciLabel} (${resultados.CI.classTempo})` : "",
+          fcLabel ? `FC: ${fcLabel} (${resultados.FC.classTempo})` : "",
         ].filter(Boolean).join(" · ");
         await Integration.salvarTesteNoFirebase("fdt", {
           dataAplicacao: apl,
@@ -768,14 +869,12 @@ function voltarParaPaciente() {
    INIT
    ═══════════════════════════════════ */
 (function init() {
-  // Preview de idade e derivados ao mudar datas/tempos
   document.getElementById("dataNascimento")?.addEventListener("change", atualizarPreviewIdade);
   document.getElementById("dataAplicacao")?.addEventListener("change", atualizarPreviewIdade);
   ["t_leitura", "t_escolha", "t_alternancia"].forEach(id => {
     document.getElementById(id)?.addEventListener("input", atualizarDerivedos);
   });
 
-  // Lista de laudos
   if (document.getElementById("listaLaudos")) renderListaLaudos();
 })();
 
