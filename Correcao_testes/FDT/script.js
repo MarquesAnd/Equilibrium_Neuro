@@ -452,14 +452,14 @@ function renderPerfil(resultados) {
     const pct = p != null ? pctScale(p) : 0;
     const cl = r.classTempo;
     const label = derivado ? `<b style="color:#1a56db">${nome}</b>` : `<b>${nome}</b>`;
-    return `<div class="bar-row">
-      <div class="bar-code" style="width:170px;font-size:12px">${label}</div>
-      <div class="bar-track" style="flex:1;margin:0 10px">
+    return `<div class="bar-row" style="display:flex;align-items:center;flex-wrap:nowrap;overflow:hidden">
+      <div class="bar-code" style="width:160px;min-width:160px;font-size:12px">${label}</div>
+      <div class="bar-track" style="flex:1;min-width:60px;margin:0 8px">
         <div class="bar-avg-zone" style="left:${(25/99*100).toFixed(1)}%;width:${((75-25)/99*100).toFixed(1)}%"></div>
         <div class="bar-fill" style="width:${pct}%;background:${col}"></div>
       </div>
-      <div class="bar-val" style="width:65px;font-size:11px">${r.pctLabel || "—"}</div>
-      <div class="bar-badge">${clBadge(cl)}</div>
+      <div class="bar-val" style="width:40px;min-width:40px;font-size:11px;text-align:right">${r.pctLabel || "—"}</div>
+      <div class="bar-badge" style="min-width:130px;text-align:right;padding-left:6px">${clBadge(cl)}</div>
     </div>`;
   }).join("");
 
