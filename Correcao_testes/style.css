@@ -101,7 +101,7 @@
 .bar-avg-zone{position:absolute;top:0;bottom:0;background:rgba(26,86,219,.06);border-left:1px dashed rgba(26,86,219,.15);border-right:1px dashed rgba(26,86,219,.15)}
 .bar-fill{position:absolute;left:0;top:2px;bottom:2px;border-radius:3px;transition:width .3s}
 .bar-val{width:22px;font-size:11px;font-weight:700;color:#0f172a;text-align:right}
-.bar-badge{width:55px}
+.bar-badge{min-width:55px;width:auto;flex-shrink:0}
 
 /* ─── IC BAR CHART (indices) ─── */
 .ic-scale{display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;margin-bottom:4px;padding:0 36px}
@@ -112,7 +112,7 @@
 .ic-bar{position:absolute;top:5px;bottom:5px;border-radius:4px;z-index:2}
 .ic-whisker{position:absolute;top:6px;bottom:6px;width:2px;border-radius:1px;z-index:3}
 .ic-dot{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;transform:translate(-8px,-8px);z-index:4;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:800;color:#fff}
-.ic-badge{width:75px}
+.ic-badge{min-width:75px;width:auto;flex-shrink:0}
 .ic-legend{font-size:9px;color:#94a3b8;margin-top:6px;text-align:center}
 
 /* ─── SW CARDS (fortes/fracos) ─── */

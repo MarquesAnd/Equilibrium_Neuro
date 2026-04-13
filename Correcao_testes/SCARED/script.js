@@ -142,7 +142,6 @@ function renderTabelaItens() {
   const tbody = document.getElementById("tbodyItens");
   if (!tbody) return;
 
-  // Agrupar itens por subescala para exibição colorida
   const corSub = {
     panico:      "#dbeafe",
     generalizada:"#d1fae5",
@@ -153,7 +152,6 @@ function renderTabelaItens() {
 
   tbody.innerHTML = ITENS_SCARED.map(item => {
     const bg = corSub[item.sub] || "#fff";
-    const thHetero = tabAtiva === "pais" ? "" : "display:none";
     return `<tr style="background:${bg}15">
       <td style="font-weight:700;color:#64748b;font-size:12px">${item.n}</td>
       <td style="font-size:12px">${item.texto}</td>
@@ -165,27 +163,13 @@ function renderTabelaItens() {
           <option value="2">2</option>
         </select>
       </td>
-      <td class="center hetero-col" style="${thHetero}">
-        <select id="p_${item.n}" style="width:56px;padding:5px 4px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;font-weight:600;text-align:center;font-family:inherit;outline:none;">
-          <option value="">—</option>
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-        </select>
-      </td>
     </tr>`;
   }).join("");
 }
 
 function alternarTab(tab) {
+  // Mantido para compatibilidade, mas não faz mais nada
   tabAtiva = tab;
-  document.getElementById("tabCrianca").className = "tab-btn" + (tab === "crianca" ? " tab-active" : "");
-  document.getElementById("tabPais").className = "tab-btn" + (tab === "pais" ? " tab-active" : "");
-  document.querySelectorAll(".hetero-col").forEach(el => {
-    el.style.display = tab === "pais" ? "" : "none";
-  });
-  const thHetero = document.getElementById("thHetero");
-  if (thHetero) thHetero.style.display = tab === "pais" ? "" : "none";
 }
 
 function insertObs(text) {
