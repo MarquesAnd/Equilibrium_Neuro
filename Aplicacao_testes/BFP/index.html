@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:#f0f4f8;background-image:radial-gradient(circle at 20% 50%,rgba(26,86,219,.04) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(59,130,246,.04) 0%,transparent 50%),radial-gradient(circle at 50% 80%,rgba(30,64,175,.03) 0%,transparent 50%),url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 17.5 L55 42.5 L30 55 L5 42.5 L5 17.5 Z' fill='none' stroke='%231a56db' stroke-opacity='0.04' stroke-width='1'/%3E%3C/svg%3E");background-size:100% 100%,100% 100%,100% 100%,60px 60px;min-height:100vh;padding:20px;-webkit-font-smoothing:antialiased;color:#1e293b;line-height:1.5}
+        body{font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:#f0f4f8;background-image:radial-gradient(circle at 20% 50%,rgba(26,86,219,.07) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(59,130,246,.07) 0%,transparent 50%),radial-gradient(circle at 50% 80%,rgba(30,64,175,.05) 0%,transparent 50%),url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 17.5 L55 42.5 L30 55 L5 42.5 L5 17.5 Z' fill='none' stroke='%231a56db' stroke-opacity='0.08' stroke-width='1'/%3E%3C/svg%3E");background-size:100% 100%,100% 100%,100% 100%,60px 60px;min-height:100vh;padding:20px;-webkit-font-smoothing:antialiased;color:#1e293b;line-height:1.5}
 
         .container{max-width:900px;margin:0 auto;background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(0,0,0,.06);overflow:hidden;border:1px solid #e2e8f0}
         .header{background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);padding:40px;text-align:center;color:#fff;position:relative;overflow:hidden}
@@ -97,11 +97,12 @@
             <form id="bfpForm">
                 <div class="p-fields">
                     <div class="p-field"><label>Nome Completo</label><input type="text" id="nome" required placeholder="Nome completo" autocomplete="name"></div>
+                    <div class="p-field"><label>CPF</label><input type="text" id="cpf" placeholder="000.000.000-00" autocomplete="off"></div>
                     <div class="p-field"><label>Data de Nascimento</label><input type="date" id="dataNascimento" required></div>
-                </div>
-                <div class="p-fields">
+                    <div class="p-field"><label>Data da avaliação</label><input type="date" id="data"></div>
                     <div class="p-field"><label>Sexo</label><select id="sexo" required><option value="">Selecione</option><option value="Masculino">Masculino</option><option value="Feminino">Feminino</option></select></div>
                     <div class="p-field"><label>Escolaridade</label><select id="escolaridade" required><option value="">Selecione</option><option value="Fundamental Completo">Fundamental Completo</option><option value="Ensino Medio Incompleto">Medio Incompleto</option><option value="Ensino Medio Completo">Medio Completo</option><option value="Superior Incompleto">Superior Incompleto</option><option value="Superior Completo">Superior Completo</option><option value="Pos-Graduacao">Pos-Graduacao</option></select></div>
+                    <div class="p-field" style="grid-column:1/-1;"><label>Respondente / Relação com o paciente</label><input type="text" id="respondente" placeholder='Ex: "O próprio paciente", "Mãe", "Pai"' autocomplete="off"></div>
                 </div>
                 <hr class="p-divider"><div id="questionsContainer"></div>
             </form>

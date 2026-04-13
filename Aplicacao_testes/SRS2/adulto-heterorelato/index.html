@@ -17,10 +17,10 @@
     body {
       background: #f0f4f8;
       background-image:
-        radial-gradient(circle at 20% 50%, rgba(16,185,129,.04) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(4,120,87,.04) 0%, transparent 50%),
-        radial-gradient(circle at 50% 80%, rgba(16,185,129,.03) 0%, transparent 50%),
-        url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 17.5 L55 42.5 L30 55 L5 42.5 L5 17.5 Z' fill='none' stroke='%2310b981' stroke-opacity='0.04' stroke-width='1'/%3E%3C/svg%3E");
+        radial-gradient(circle at 20% 50%, rgba(16,185,129,.07) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(4,120,87,.07) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(16,185,129,.05) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 17.5 L55 42.5 L30 55 L5 42.5 L5 17.5 Z' fill='none' stroke='%2310b981' stroke-opacity='0.08' stroke-width='1'/%3E%3C/svg%3E");
       background-size: 100% 100%, 100% 100%, 100% 100%, 60px 60px;
       min-height: 100vh;
     }
@@ -240,12 +240,32 @@
       <!-- Dados do paciente -->
       <div class="p-fields">
         <div class="p-field">
-          <label>Nome do paciente</label>
+          <label>Nome completo</label>
           <input id="paciente" type="text" placeholder="Nome completo" autocomplete="name" />
+        </div>
+        <div class="p-field">
+          <label>CPF</label>
+          <input id="cpf" type="text" placeholder="000.000.000-00" autocomplete="off" />
+        </div>
+        <div class="p-field">
+          <label>Data de Nascimento</label>
+          <input id="dataNascimento" type="date" />
         </div>
         <div class="p-field">
           <label>Data da avaliação</label>
           <input id="data" type="date" />
+        </div>
+        <div class="p-field">
+          <label>Sexo</label>
+          <input id="sexo" type="text" placeholder="Masculino / Feminino" />
+        </div>
+        <div class="p-field">
+          <label>Escolaridade</label>
+          <input id="escolaridade" type="text" placeholder="Ex: Ensino Médio Completo" />
+        </div>
+        <div class="p-field" style="grid-column: 1 / -1;">
+          <label>Respondente / Relação com o paciente</label>
+          <input id="respondente" type="text" placeholder='Ex: "O próprio paciente", "Mãe", "Pai"' autocomplete="off" />
         </div>
       </div>
 
