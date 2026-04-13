@@ -188,7 +188,7 @@ function classificarPercentil(label) {
   if (!label || label === "—") return "—";
   if (["≥ 95", "> 75"].includes(label))       return "Superior";
   if (["> 50", "> 25"].includes(label))        return "Média";
-  if (label === "> 5")                          return "Dificuldade Discreta";
+  if (label === "> 5")                          return "Média Inferior";
   if (label === "< 5")                          return "Dificuldade Acentuada";
   return "—";
 }
@@ -370,7 +370,7 @@ function clBadgeClass(cl) {
   const m = {
     "Superior":             "cl-s",
     "Média":                "cl-m",
-    "Dificuldade Discreta": "cl-mi",
+    "Média Inferior": "cl-mi",
     "Dificuldade Acentuada":"cl-eb",
   };
   return m[cl] || "cl-m";
@@ -555,7 +555,7 @@ function gerarTextoInterpretativo(nome, resultados, faixa) {
   const verbMap = {
     "Superior":             "situa-se acima da média normativa",
     "Média":                "situa-se dentro da faixa média normativa",
-    "Dificuldade Discreta": "situa-se levemente abaixo da média normativa",
+    "Média Inferior":    "situa-se levemente abaixo da média normativa",
     "Dificuldade Acentuada":"situa-se significativamente abaixo da média normativa",
   };
 
@@ -649,7 +649,7 @@ function montarRelatorio(data) {
       <div style="font-size:10px;color:#64748b;margin-top:6px;">
         ⓘ Percentis por pontos de corte normativos (Sedó, 2007). CI = Escolha − Leitura · FC = Alternância − Leitura.
         Classificação: <b>≥ 95 / &gt; 75</b> = Superior · <b>&gt; 50 / &gt; 25</b> = Média ·
-        <b>&gt; 5</b> = Dificuldade Discreta · <b>&lt; 5</b> = Dificuldade Acentuada.
+        <b>&gt; 5</b> = Média Inferior · <b>&lt; 5</b> = Dificuldade Acentuada.
       </div>
 
       <!-- 4. PERFIL PERCENTÍLICO -->
