@@ -135,8 +135,15 @@ function dbGetAuthUser() {
 
 async function dbGetUsers() {
   if (!_fbReady) return [];
-  const snap = await _dbUsuarios.collection(COL.USUARIOS).orderBy("label").get();
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  try {
+    const snap = await _dbUsuarios.collection(COL.USUARIOS).orderBy("label").get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  } catch(e) {
+    // Fallback without ordering if index not available
+    console.warn("dbGetUsers orderBy failed, fetching without order:", e.message);
+    const snap = await _dbUsuarios.collection(COL.USUARIOS).get();
+    return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  }
 }
 
 async function dbGetUserById(uid) {

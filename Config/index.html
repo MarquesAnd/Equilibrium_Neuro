@@ -170,7 +170,7 @@
           <div class="brand-sub">Neuropsicologia</div>
         </div>
       </div>
-      <nav class="sidebar-nav">
+      <nav class="sidebar-nav" id="sideNav">
         <a class="nav-item" href="/" data-page="dashboard">
           <span class="nav-icon">📊</span><span>Dashboard</span>
         </a>
@@ -422,19 +422,16 @@ document.addEventListener("DOMContentLoaded", async () => {
    ════════════════════════════════════════ */
 function buildSidebar() {
   const user  = getAuthUser();
-  const pages = getUserPages();
 
-  document.getElementById("sideAvatar").textContent = user ? user.label[0].toUpperCase() : "?";
-  document.getElementById("sideName").textContent   = user ? user.label : "—";
-  document.getElementById("sideRole").textContent   = user && user.role === "admin" ? "Administrador" : "Usuário";
+  const avatarEl = document.getElementById("sideAvatar");
+  const nameEl   = document.getElementById("sideName");
+  const roleEl   = document.getElementById("sideRole");
+  if (avatarEl) avatarEl.textContent = user ? user.label[0].toUpperCase() : "?";
+  if (nameEl)   nameEl.textContent   = user ? user.label : "—";
+  if (roleEl)   roleEl.textContent   = user && user.role === "admin" ? "Administrador" : "Usuário";
 
-  const nav = document.getElementById("sideNav");
-  nav.innerHTML = pages.map(p => `
-    <a class="nav-item ${p.id === 'config' ? 'active' : ''}"
-       href="${p.id === 'config' ? '/configuracoes.html' : p.id === 'correcao' ? '/Correcao_testes/' : p.id === 'aplicacao' ? '/Aplicacao_testes/' : p.id === 'anamnese' ? '/Anamnese/' : p.id === 'checklist' ? '/check_list/' : '/#' + p.id}">
-      <span class="nav-icon">${p.icon}</span>
-      <span>${p.label}</span>
-    </a>`).join("");
+  // Apply sidebar permissions (hide pages user can't access)
+  if (typeof applySidebarPermissions === 'function') applySidebarPermissions();
 }
 
 /* ════════════════════════════════════════
@@ -539,12 +536,17 @@ function showSenhaMsg(txt, color) {
 async function carregarUsuarios() {
   const list = document.getElementById("userList");
   list.innerHTML = '<div class="loading-row"><div class="spinner"></div> Carregando...</div>';
-  const users = await getUsers();
-  if (!users.length) {
-    list.innerHTML = '<div class="loading-row">Nenhum usuário encontrado.</div>';
-    return;
+  try {
+    const users = await getUsers();
+    if (!users || !users.length) {
+      list.innerHTML = '<div class="loading-row">Nenhum usuário encontrado.</div>';
+      return;
+    }
+    list.innerHTML = users.map(u => renderUserRow(u)).join("");
+  } catch(e) {
+    console.error("Erro ao carregar usuários:", e);
+    list.innerHTML = '<div class="loading-row" style="color:#dc2626;">Erro ao carregar usuários: ' + (e.message || e) + '</div>';
   }
-  list.innerHTML = users.map(u => renderUserRow(u)).join("");
 }
 
 function renderUserRow(u) {
