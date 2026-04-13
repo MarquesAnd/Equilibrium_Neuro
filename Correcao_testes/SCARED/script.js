@@ -275,13 +275,19 @@ function calcular(salvar) {
   const recomendacoes = document.getElementById("recomendacoes")?.value?.trim() || "";
 
   if (!nome) { alert("Informe o nome do avaliado."); return; }
+  if (!nasc) { alert("Informe a data de nascimento."); return; }
+  if (!apl)  { alert("Informe a data de aplicação."); return; }
+  if (!sexo || (sexo !== "Masculino" && sexo !== "Feminino")) {
+    alert("Informe o sexo (Masculino ou Feminino) para o cálculo das normas.");
+    return;
+  }
 
   // Salvar respostas da aba actual antes de calcular
   _salvarRespostasAtuais();
 
   const idade = calcularIdade(nasc, apl);
   const faixa = faixaEtaria(idade);
-  const sexoNorm = (sexo === "Masculino" || sexo === "Feminino") ? sexo : null;
+  const sexoNorm = sexo;
 
   // Reconstruir inputs de ambas as abas para leitura pelo cálculo
   // Criar inputs temporários para a aba que não está visível
