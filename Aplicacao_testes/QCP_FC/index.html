@@ -8,6 +8,7 @@
   <link rel="apple-touch-icon" href="/logo.png" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     /* ---- Layout principal ---- */
@@ -819,183 +820,28 @@
       '</div>';
     }
 
-    /* ---- Gerar PDF via jsPDF ---- */
-    function gerarPDF(nome, dataAvaliacao, resultados, chartImg) {
-      var jsPDF = window.jspdf.jsPDF;
-      var doc = new jsPDF("p", "mm", "a4");
-      var dataFmt = new Date(dataAvaliacao + "T00:00:00").toLocaleDateString("pt-BR");
-      var y;
+    /* ---- Gerar PDF via html2pdf ---- */
+    async function gerarPDF(nome, dataAvaliacao, respostas, resultados) {
+      var htmlRelatorio = gerarRelatorioHTML(nome, dataAvaliacao, respostas, resultados);
 
-      // ===== PAGE 1: header + data + table =====
-      doc.setFillColor(58, 124, 165);
-      doc.rect(0, 0, 210, 38, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(18);
-      doc.setFont(undefined, "bold");
-      doc.text("QCP-FC - Questionario de Crencas Pessoais", 105, 14, { align: "center" });
-      doc.setFontSize(10);
-      doc.text("Forma Clinica", 105, 21, { align: "center" });
-      doc.setFontSize(8);
-      doc.setFont(undefined, "normal");
-      doc.text("Equilibrium Med Center - Neuropsicologia", 105, 28, { align: "center" });
-      doc.text("Beck & Beck (1991) / Butler, Beck & Cohen (2007)", 105, 33, { align: "center" });
-      y = 46;
+      var container = document.createElement('div');
+      container.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#fff;';
+      container.innerHTML = htmlRelatorio;
+      document.body.appendChild(container);
 
-      // Patient data box
-      doc.setFillColor(248, 250, 252);
-      doc.roundedRect(15, y, 180, 18, 3, 3, "F");
-      doc.setDrawColor(58, 124, 165);
-      doc.setLineWidth(0.5);
-      doc.roundedRect(15, y, 180, 18, 3, 3, "S");
-      doc.setFontSize(9);
-      doc.setFont(undefined, "normal");
-      doc.setTextColor(80, 80, 80);
-      doc.text("Nome: ", 20, y + 8);
-      doc.text("Data: ", 115, y + 8);
-      doc.setFont(undefined, "bold");
-      doc.setTextColor(30, 30, 30);
-      doc.text(nome, 38, y + 8);
-      doc.text(dataFmt, 128, y + 8);
-      y += 24;
+      await new Promise(function(r) { setTimeout(r, 200); });
 
-      // Table header
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      doc.text("Tabela de Resultados - Escores por Escala de Transtorno de Personalidade", 20, y);
-      y += 6;
+      var opt = {
+        margin: [5, 5, 5, 5],
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
 
-      doc.setFillColor(58, 124, 165);
-      doc.rect(15, y, 180, 7, "F");
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(7.5);
-      doc.setFont(undefined, "bold");
-      doc.text("Escala", 20, y + 5);
-      doc.text("Itens", 68, y + 5, { align: "center" });
-      doc.text("Escore Bruto", 95, y + 5, { align: "center" });
-      doc.text("Max", 118, y + 5, { align: "center" });
-      doc.text("Escore Z", 138, y + 5, { align: "center" });
-      doc.text("Classificacao", 172, y + 5, { align: "center" });
-      y += 7;
+      var pdfUri = await html2pdf().set(opt).from(container).outputPdf('datauristring');
+      document.body.removeChild(container);
 
-      for (var k = 0; k < ESCALA_KEYS.length; k++) {
-        var key = ESCALA_KEYS[k];
-        var r = resultados[key];
-        var bg = k % 2 === 0 ? [255, 255, 255] : [248, 250, 252];
-        doc.setFillColor(bg[0], bg[1], bg[2]);
-        doc.rect(15, y, 180, 7, "F");
-        doc.setFontSize(8);
-        doc.setFont(undefined, "normal");
-        doc.setTextColor(30, 30, 30);
-        doc.text(r.nome || key, 20, y + 5);
-        doc.setFontSize(7);
-        doc.setTextColor(120, 120, 120);
-        doc.text(r.itens.join(", "), 68, y + 5, { align: "center" });
-        doc.setFontSize(8);
-        doc.setTextColor(30, 30, 30);
-        doc.text(String(r.soma), 95, y + 5, { align: "center" });
-        doc.text(String(r.maxPossivel), 118, y + 5, { align: "center" });
-        doc.text(r.z.toFixed(2), 138, y + 5, { align: "center" });
-        var cz = corDoZ(r.z);
-        var classif = classificarZ(r.z);
-        doc.setTextColor(cz[0], cz[1], cz[2]);
-        doc.setFont(undefined, "bold");
-        doc.setFontSize(7.5);
-        doc.text(classif, 172, y + 5, { align: "center" });
-        y += 7;
-      }
-
-      y += 5;
-      doc.setFontSize(7);
-      doc.setTextColor(100, 100, 100);
-      doc.setFont(undefined, "normal");
-      doc.text("Nota: Escore Z = (Escore Bruto - Media) / DP. Normativa baseada em amostra psiquiatrica mista (N=683).", 20, y);
-      y += 4;
-      doc.text("Classificacao: Muito Baixo (Z < -1) | Baixo (-1 a 0) | Medio (0 a 1) | Elevado (1 a 2) | Muito Elevado (Z > 2)", 20, y);
-      y += 4;
-      doc.text("Nao ha ponto de corte empiricamente estabelecido. Escores Z elevados sao clinicamente sugestivos.", 20, y);
-
-      addFooter(doc, 1);
-
-      // ===== PAGE 2: Chart + Interpretation =====
-      doc.addPage();
-      y = 10;
-      if (chartImg) {
-        try { doc.addImage(chartImg, "PNG", 8, y, 194, 87); } catch (e) {}
-      }
-      y += 95;
-
-      doc.setFontSize(12);
-      doc.setFont(undefined, "bold");
-      doc.setTextColor(58, 124, 165);
-      doc.text("Interpretacao por Escala", 105, y, { align: "center" });
-      y += 8;
-
-      for (var k = 0; k < ESCALA_KEYS.length; k++) {
-        var key = ESCALA_KEYS[k];
-        var esc = QCPFC.escalas[key];
-        var r = resultados[key];
-        if (y > 250) { doc.addPage(); y = 15; }
-
-        doc.setFillColor(esc.corRGB[0], esc.corRGB[1], esc.corRGB[2]);
-        doc.roundedRect(15, y, 180, 7, 2, 2, "F");
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(9);
-        doc.setFont(undefined, "bold");
-        doc.text(esc.nome + " (" + key + ")", 105, y + 5, { align: "center" });
-        y += 10;
-
-        doc.setFontSize(9);
-        doc.setFont(undefined, "normal");
-        doc.setTextColor(30, 30, 30);
-        doc.text("Escore Bruto: " + r.soma + "/" + r.maxPossivel + "  |  Z = " + r.z.toFixed(2) + "  |  " + classificarZ(r.z), 20, y);
-        y += 5;
-
-        doc.setFontSize(8);
-        doc.setFont(undefined, "bold");
-        doc.setTextColor(80, 80, 80);
-        doc.text("Crenca Central: ", 20, y);
-        doc.setFont(undefined, "italic");
-        var crencaLines = doc.splitTextToSize('"' + esc.crencaCentral + '"', 150);
-        doc.text(crencaLines, 52, y);
-        y += crencaLines.length * 3.5 + 2;
-
-        doc.setFontSize(8);
-        doc.setFont(undefined, "normal");
-        doc.setTextColor(40, 40, 40);
-        var descLines = doc.splitTextToSize(esc.descricao, 170);
-        doc.text(descLines, 20, y, { lineHeightFactor: 1.4 });
-        y += descLines.length * 3.5 + 6;
-      }
-
-      // Signature
-      if (y > 250) { doc.addPage(); y = 15; }
-      y += 15;
-      doc.setDrawColor(80, 80, 80);
-      doc.setLineWidth(0.4);
-      doc.line(110, y, 190, y);
-      doc.setFontSize(9);
-      doc.setFont(undefined, "bold");
-      doc.setTextColor(30, 30, 30);
-      doc.text("Profissional Responsavel", 150, y + 5, { align: "center" });
-      doc.setFontSize(8);
-      doc.setFont(undefined, "normal");
-      doc.text("Neuropsicologo(a)", 150, y + 10, { align: "center" });
-
-      // Page numbers
-      var tp = doc.internal.getNumberOfPages();
-      for (var i = 1; i <= tp; i++) {
-        doc.setPage(i);
-        addFooter(doc, i, tp);
-      }
-
-      return doc.output("datauristring").split(",")[1];
-    }
-
-    function addFooter(doc, pg, total) {
-      doc.setFontSize(6.5);
-      doc.setTextColor(140, 140, 140);
-      doc.text("QCP-FC - Questionario de Crencas Pessoais - Forma Clinica", 20, 288);
-      if (total) doc.text("Pagina " + pg + " de " + total, 195, 288, { align: "right" });
+      return pdfUri.split(',')[1];
     }
 
     /* ---- Enviar ao Google Drive ---- */
@@ -1078,7 +924,7 @@
         await delay(300);
 
         var relatorioHTML = gerarRelatorioHTML(nome, dataAvaliacao, respostas, resultados);
-        var pdfBase64 = gerarPDF(nome, dataAvaliacao, resultados, chartImg);
+        var pdfBase64 = await gerarPDF(nome, dataAvaliacao, respostas, resultados);
 
         if (modalTitle) modalTitle.textContent = "Enviando ao consultorio...";
         await delay(300);

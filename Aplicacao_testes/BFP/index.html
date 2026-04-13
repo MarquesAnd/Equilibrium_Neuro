@@ -6,6 +6,7 @@
     <link rel="icon" type="image/png" href="/logo.png"/>
     <link rel="apple-touch-icon" href="/logo.png" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <style>
@@ -161,7 +162,7 @@ document.getElementById('submitBtn').addEventListener('click',async function(e){
     document.getElementById('loadingStatus').textContent='Gerando gráfico de perfil...';await delay(300);
     const chartImg=await gerarGrafico(res);
     document.getElementById('loadingStatus').textContent='Montando relatório completo...';await delay(300);
-    const pdf=gerarPDF(fd,res,chartImg);
+    const pdf=await gerarPDF(fd,res);
     document.getElementById('loadingStatus').textContent='Salvando no Firebase...';await delay(300);
     await salvarFirebase(fd,res);
     document.getElementById('loadingStatus').textContent='Enviando ao consultório...';await delay(300);
@@ -187,136 +188,28 @@ async function gerarGrafico(res){
   await delay(400);const img=canvas.toDataURL('image/png');ch.destroy();return img
 }
 
-// ============ PDF COMPLETO ESTILO PEARSON ============
-function gerarPDF(fd,res,chartImg){
-  const{jsPDF}=window.jspdf;const doc=new jsPDF('p','mm','a4');
-  const nasc=new Date(fd.dataNascimento+'T00:00:00');const hoje=new Date();
-  let idade=hoje.getFullYear()-nasc.getFullYear();const m=hoje.getMonth()-nasc.getMonth();if(m<0||(m===0&&hoje.getDate()<nasc.getDate()))idade--;
-  const corFx=f=>({'Muito Baixo':[231,76,60],'Baixo':[230,126,34],'Médio':[39,174,96],'Alto':[41,128,185],'Muito Alto':[142,68,173]}[f]||[100,100,100]);
-  const corFat=k=>{const f=k.length===1?k:k[0];return{N:[231,76,60],E:[243,156,18],S:[39,174,96],R:[41,128,185],A:[142,68,173]}[f]};
-  const pTxt=r=>{const p=r?.percentil;if(!p)return'—';if(p>=95)return'> 95';if(p<=5)return'< 5';return String(p)};
-  let y;
+// ============ PDF VIA html2pdf ============
+async function gerarPDF(fd, res) {
+  const htmlRelatorio = gerarHTMLRelatorio(fd, res);
 
-  // ===== PG1: DADOS + TABELA =====
-  doc.setFillColor(58,124,165);doc.rect(0,0,210,38,'F');
-  doc.setTextColor(255,255,255);doc.setFontSize(20);doc.setFont(undefined,'bold');
-  doc.text('BFP - Bateria Fatorial de Personalidade',105,16,{align:'center'});
-  doc.setFontSize(9);doc.setFont(undefined,'normal');
-  doc.text('Equilibrium Med Center · Neuropsicologia',105,26,{align:'center'});
-  doc.text('Nunes, Hutz & Nunes (2010)',105,32,{align:'center'});
-  y=46;
+  const container = document.createElement('div');
+  container.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#fff;';
+  container.innerHTML = htmlRelatorio;
+  document.body.appendChild(container);
 
-  // Dados avaliando
-  doc.setFillColor(248,250,252);doc.roundedRect(15,y,180,32,3,3,'F');
-  doc.setDrawColor(58,124,165);doc.setLineWidth(.5);doc.roundedRect(15,y,180,32,3,3,'S');
-  doc.setFontSize(9);doc.setFont(undefined,'normal');doc.setTextColor(80,80,80);
-  doc.text('Nome: ',20,y+8);doc.text('Sexo: ',20,y+15);doc.text('Nível de Escolaridade: ',20,y+22);doc.text('Contexto Aplicação: ',20,y+29);
-  doc.text('Data de Nascimento: ',115,y+8);doc.text('Idade: ',115,y+15);doc.text('Aplicador: ',115,y+22);doc.text('Data: ',115,y+29);
-  doc.setFont(undefined,'bold');doc.setTextColor(30,30,30);
-  doc.text(fd.nome,38,y+8);doc.text(fd.sexo,35,y+15);doc.text(fd.escolaridade,62,y+22);doc.text('Neuropsicologia',62,y+29);
-  doc.text(nasc.toLocaleDateString('pt-BR'),152,y+8);doc.text(idade+' anos',128,y+15);doc.text('WESSILON MARQUES DE SOUSA',133,y+22);doc.text(hoje.toLocaleDateString('pt-BR'),125,y+29);
-  y+=38;
+  await new Promise(r => setTimeout(r, 200));
 
-  doc.setFontSize(8);doc.setTextColor(100,100,100);doc.text('Tabela de Apuração: Amostra Geral',20,y);y+=6;
+  const opt = {
+    margin: [5, 5, 5, 5],
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
 
-  // Tabela de resultados
-  doc.setFillColor(58,124,165);doc.rect(15,y,180,7,'F');
-  doc.setTextColor(255,255,255);doc.setFontSize(7.5);doc.setFont(undefined,'bold');
-  doc.text('Faceta / Fator',20,y+5);doc.text('Escore Bruto',82,y+5,{align:'center'});
-  doc.text('Escore Z',108,y+5,{align:'center'});doc.text('Percentil',138,y+5,{align:'center'});
-  doc.text('Faixa',175,y+5,{align:'center'});y+=7;
+  const pdfUri = await html2pdf().set(opt).from(container).outputPdf('datauristring');
+  document.body.removeChild(container);
 
-  ORDEM.forEach((k,i)=>{
-    const r=res[k]||{};const isF=k.length===1;
-    const bg=isF?[230,240,250]:(i%2===0?[255,255,255]:[248,250,252]);
-    doc.setFillColor(...bg);doc.rect(15,y,180,7,'F');
-    if(isF){doc.setDrawColor(58,124,165);doc.setLineWidth(.3);doc.line(15,y,195,y)}
-    doc.setFontSize(8);doc.setFont(undefined,isF?'bold':'normal');doc.setTextColor(30,30,30);
-    doc.text(NOMES_FULL[k]||k,20,y+5);
-    doc.text(r.eb?.toFixed(1)||'',82,y+5,{align:'center'});
-    doc.text(r.z?.toFixed(1)||'',108,y+5,{align:'center'});
-    doc.text(pTxt(r),138,y+5,{align:'center'});
-    // Faixa text (colored)
-    const cFx=corFx(r.faixa);doc.setTextColor(...cFx);doc.setFont(undefined,'bold');doc.setFontSize(7.5);
-    doc.text(r.faixa||'',175,y+5,{align:'center'});
-    y+=7});
-
-  addFooter(doc,1);
-
-  // ===== PG2: GRÁFICO =====
-  doc.addPage();y=10;
-  if(chartImg){try{doc.addImage(chartImg,'PNG',8,y,194,87)}catch(e){}}
-  y+=95;
-
-  // ===== INTERPRETAÇÕES DETALHADAS =====
-  doc.setFontSize(12);doc.setFont(undefined,'bold');doc.setTextColor(58,124,165);
-  doc.text('Interpretação',105,y,{align:'center'});y+=8;
-
-  const grupos=[
-    {titulo:'FACETAS DO FATOR NEUROTICISMO',cor:[231,76,60],ids:['N1','N2','N3','N4']},
-    {titulo:'FACETAS DO FATOR EXTROVERSÃO',cor:[243,156,18],ids:['E1','E2','E3','E4']},
-    {titulo:'FACETAS DO FATOR SOCIALIZAÇÃO',cor:[39,174,96],ids:['S1','S2','S3']},
-    {titulo:'FACETAS DO FATOR REALIZAÇÃO',cor:[41,128,185],ids:['R1','R2','R3']},
-    {titulo:'FACETAS DO FATOR ABERTURA',cor:[142,68,173],ids:['A1','A2','A3']}];
-
-  grupos.forEach(g=>{
-    if(y>255){doc.addPage();y=15}
-    // Fator header bar
-    doc.setFillColor(...g.cor);doc.roundedRect(15,y,180,7,2,2,'F');
-    doc.setTextColor(255,255,255);doc.setFontSize(9);doc.setFont(undefined,'bold');
-    doc.text(g.titulo,105,y+5,{align:'center'});y+=12;
-
-    g.ids.forEach(fId=>{
-      const info=BFP.facetas[fId];const r=res[fId]||{};if(!info)return;
-      const faixa=r.faixa||'Médio';const perc=pTxt(r);
-
-      // Check page space - interpretations are long
-      if(y>230){doc.addPage();y=15}
-
-      // Faceta title underlined
-      doc.setFontSize(10);doc.setFont(undefined,'bold');doc.setTextColor(30,30,30);
-      const tW=doc.getTextWidth(info.nome);
-      doc.text(info.nome,105,y,{align:'center'});
-      doc.setDrawColor(30,30,30);doc.setLineWidth(.3);
-      doc.line(105-tW/2,y+1.5,105+tW/2,y+1.5);y+=6;
-
-      // Percentil = Faixa
-      const cfx=corFx(faixa);
-      doc.setFontSize(9);doc.setFont(undefined,'normal');doc.setTextColor(30,30,30);
-      doc.text('Percentil '+perc+' = '+faixa,20,y);y+=5;
-
-      // Full interpretation paragraph
-      const interp=info.interpretacoes?.[faixa]||'';
-      if(interp){
-        doc.setFontSize(8);doc.setFont(undefined,'normal');doc.setTextColor(40,40,40);
-        const lines=doc.splitTextToSize(interp,170);
-        // Check if fits on page
-        const neededH=lines.length*3.8;
-        if(y+neededH>275){doc.addPage();y=15}
-        doc.text(lines,20,y,{lineHeightFactor:1.4});
-        y+=lines.length*3.8+4}
-      y+=3})
-  });
-
-  // ===== ASSINATURA =====
-  if(y>250){doc.addPage();y=15}
-  y+=15;doc.setDrawColor(80,80,80);doc.setLineWidth(.4);doc.line(110,y,190,y);
-  doc.setFontSize(9);doc.setFont(undefined,'bold');doc.setTextColor(30,30,30);
-  doc.text('WESSILON MARQUES DE SOUSA',150,y+5,{align:'center'});
-  doc.setFontSize(8);doc.setFont(undefined,'normal');
-  doc.text('CRP: 04/53832',150,y+10,{align:'center'});
-
-  // Page numbers
-  const tp=doc.internal.getNumberOfPages();
-  for(let i=1;i<=tp;i++){doc.setPage(i);addFooter(doc,i,tp)}
-
-  return doc.output('datauristring').split(',')[1]
-}
-
-function addFooter(doc,pg,total){
-  doc.setFontSize(6.5);doc.setTextColor(140,140,140);
-  doc.text('BFP - Bateria Fatorial de Personalidade',20,288);
-  if(total)doc.text('Página '+pg+' de '+total,195,288,{align:'right'});
+  return pdfUri.split(',')[1];
 }
 
 // ============ HTML REPORT ============
