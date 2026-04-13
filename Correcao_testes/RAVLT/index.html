@@ -509,7 +509,7 @@
     function x(i) { return padL + i * stepX; }
     function y(v) { return padT + chartH - (v / maxY * chartH); }
 
-    let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="width:100%;max-width:600px;height:auto;font-family:'DM Sans',sans-serif;">`;
+    let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;margin:0 auto;max-width:100%;font-family:'DM Sans',sans-serif;">`;
 
     // Background
     svg += `<rect x="0" y="0" width="${W}" height="${H}" fill="#f8fafc" rx="8"/>`;
@@ -920,7 +920,9 @@
     for (const svg of svgs) {
       const img = await svgToImg(svg);
       if (img) {
-        img.style.cssText = svg.getAttribute("style") || "width:100%;max-width:600px;height:auto;";
+        const w = svg.getAttribute("width") || 600;
+        const h = svg.getAttribute("height") || 320;
+        img.style.cssText = `display:block;margin:0 auto;width:${w}px;height:${h}px;max-width:100%;`;
         svgBackups.push({ parent: svg.parentNode, svg, img });
         svg.parentNode.replaceChild(img, svg);
       }
