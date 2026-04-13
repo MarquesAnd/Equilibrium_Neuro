@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Laudos AQ-Adolescente | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/Correcao_testes/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a class="nav-item" href="/Pacientes/" data-page="pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
+        <a class="nav-item" href="/Anamnese/" data-page="anamnese"><span class="nav-icon">📋</span><span>Anamnese</span></a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
+        <a class="nav-item" href="/check_list/" data-page="checklist"><span class="nav-icon">✅</span><span>Checklist</span></a>
+        <a class="nav-item" href="/Config/" data-page="config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">?</div>
+          <div>
+            <div class="user-name">Carregando...</div>
+            <div class="user-role">—</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <p class="page-subtitle"><a href="/Correcao_testes/" class="breadcrumb">Correção</a> → <a href="/Correcao_testes/AQ_Adolescente/" class="breadcrumb">AQ-Adolescente</a> → Laudos Salvos</p>
+          <h1 class="page-title">Laudos AQ-Adolescente</h1>
+        </div>
+        <a href="/Correcao_testes/AQ_Adolescente/novo-laudo.html" class="btn-primary" style="text-decoration:none;">➕ Novo Laudo</a>
+      </div>
+
+      <!-- Busca -->
+      <div class="form-card" style="margin-bottom:24px;">
+        <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+          <input type="text" id="buscaNome" placeholder="🔍 Buscar por nome ou CPF..." oninput="filtrarLaudos()"
+            style="flex:1; min-width:200px; padding:10px 14px; border:1.5px solid var(--border); border-radius:10px; font-size:14px; font-family:inherit; outline:none;" />
+          <button class="btn-secondary" onclick="document.getElementById('buscaNome').value=''; filtrarLaudos()">Limpar</button>
+        </div>
+      </div>
+
+      <!-- Lista de laudos -->
+      <div id="listaLaudos">
+        <div style="text-align:center; padding:60px; color:#94a3b8;">
+          <div style="font-size:48px; margin-bottom:16px;">📋</div>
+          <div style="font-size:16px; font-weight:600;">Carregando laudos...</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="/js/integration.js"></script>
+  <script src="/Correcao_testes/AQ_Adolescente/script.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.FIREBASE_CONFIGURED && window.DB) await DB.init();
+      if (!isAuthed()) { location.href = '/login.html'; }
+      else { applySidebarPermissions(); renderListaLaudos(); }
+    });
+
+    function renderListaLaudos() {
+      const laudos = getLaudos();
+      const container = document.getElementById("listaLaudos");
+
+      if (laudos.length === 0) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:60px; color:#94a3b8;">
+            <div style="font-size:48px; margin-bottom:16px;">📋</div>
+            <div style="font-size:16px; font-weight:600;">Nenhum laudo salvo</div>
+            <p style="margin-top:8px;">Clique em "Novo Laudo" para começar.</p>
+          </div>`;
+        return;
+      }
+
+      const sorted = [...laudos].sort((a, b) => (b.timestamp || "").localeCompare(a.timestamp || ""));
+      container.innerHTML = sorted.map((l, i) => {
+        const total = l.total || 0;
+        const classInfo = getClassificacao(total);
+        return `
+          <div class="form-card" style="margin-bottom:14px; cursor:pointer;" onclick="abrirLaudo(${laudos.indexOf(l)})">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+              <div>
+                <div style="font-weight:700; font-size:16px; color:#1e293b;">${escHtml(l.nome || "—")}</div>
+                <div style="font-size:13px; color:#64748b; margin-top:4px;">
+                  ${l.cpf ? escHtml(l.cpf) + " · " : ""}
+                  ${l.dataAplicacao ? formatarData(l.dataAplicacao) : "—"}
+                  ${l.respondente ? " · " + escHtml(l.respondente) : ""}
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:16px; flex-shrink:0;">
+                <div style="text-align:center;">
+                  <div style="font-size:28px; font-weight:800; color:${classInfo.cor};">${total}</div>
+                  <div style="font-size:11px; color:#94a3b8; font-weight:600;">/50 pts</div>
+                </div>
+                <div style="background:${classInfo.bg}; color:${classInfo.cor}; border-radius:10px; padding:6px 14px; font-size:13px; font-weight:700;">
+                  ${classInfo.label}
+                </div>
+                <button onclick="event.stopPropagation(); excluirLaudo(${laudos.indexOf(l)})"
+                  style="background:none; border:none; cursor:pointer; color:#e2e8f0; font-size:16px; padding:4px 8px; border-radius:8px; transition:color .2s;"
+                  onmouseover="this.style.color='#dc2626'" onmouseout="this.style.color='#e2e8f0'">🗑</button>
+              </div>
+            </div>
+          </div>`;
+      }).join("");
+    }
+
+    let searchTerm = "";
+    function filtrarLaudos() {
+      searchTerm = document.getElementById("buscaNome").value.toLowerCase();
+      const laudos = getLaudos();
+      const container = document.getElementById("listaLaudos");
+      const filtered = laudos.filter(l =>
+        (l.nome || "").toLowerCase().includes(searchTerm) ||
+        (l.cpf || "").includes(searchTerm)
+      );
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:#94a3b8;">Nenhum laudo encontrado para "${searchTerm}".</div>`;
+        return;
+      }
+      // Re-render with filtered
+      renderListaLaudosFiltrados(filtered, laudos);
+    }
+
+    function renderListaLaudosFiltrados(filtered, all) {
+      const container = document.getElementById("listaLaudos");
+      container.innerHTML = filtered.map(l => {
+        const idx = all.indexOf(l);
+        const total = l.total || 0;
+        const classInfo = getClassificacao(total);
+        return `
+          <div class="form-card" style="margin-bottom:14px; cursor:pointer;" onclick="abrirLaudo(${idx})">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+              <div>
+                <div style="font-weight:700; font-size:16px; color:#1e293b;">${escHtml(l.nome || "—")}</div>
+                <div style="font-size:13px; color:#64748b; margin-top:4px;">
+                  ${l.cpf ? escHtml(l.cpf) + " · " : ""}${l.dataAplicacao ? formatarData(l.dataAplicacao) : "—"}
+                </div>
+              </div>
+              <div style="display:flex; align-items:center; gap:16px; flex-shrink:0;">
+                <div style="text-align:center;">
+                  <div style="font-size:28px; font-weight:800; color:${classInfo.cor};">${total}</div>
+                  <div style="font-size:11px; color:#94a3b8;">/50 pts</div>
+                </div>
+                <div style="background:${classInfo.bg}; color:${classInfo.cor}; border-radius:10px; padding:6px 14px; font-size:13px; font-weight:700;">
+                  ${classInfo.label}
+                </div>
+              </div>
+            </div>
+          </div>`;
+      }).join("");
+    }
+
+    function abrirLaudo(idx) {
+      const laudos = getLaudos();
+      const l = laudos[idx];
+      if (!l) return;
+      // Preenche o formulário em novo-laudo e abre o relatório
+      sessionStorage.setItem("aq_laudo_abrir", JSON.stringify(l));
+      location.href = "/Correcao_testes/AQ_Adolescente/novo-laudo.html?abrir=" + idx;
+    }
+
+    function excluirLaudo(idx) {
+      if (!confirm("Excluir este laudo? Esta ação não pode ser desfeita.")) return;
+      const laudos = getLaudos();
+      laudos.splice(idx, 1);
+      setLaudos(laudos);
+      renderListaLaudos();
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+    function formatarData(iso) {
+      if (!iso) return "—";
+      const [y,m,d] = iso.split("-");
+      return `${d}/${m}/${y}`;
+    }
+  </script>
+</body>
+</html>
