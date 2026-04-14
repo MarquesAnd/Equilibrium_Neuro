@@ -749,13 +749,15 @@
             // Generate HTML report
             const htmlRelatorio = gerarHtmlRelatorio(formData, scores, classificacao, hoje);
 
-            // Create hidden container for html2pdf rendering
-            const container = document.createElement('div');
-            container.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#fff;';
-            container.innerHTML = htmlRelatorio;
-            document.body.appendChild(container);
+            // Use iframe for full HTML documents (with <!DOCTYPE>)
+            const iframe = document.createElement('iframe');
+            iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;height:2000px;border:none;';
+            document.body.appendChild(iframe);
+            iframe.contentDocument.open();
+            iframe.contentDocument.write(htmlRelatorio);
+            iframe.contentDocument.close();
 
-            await new Promise(r => setTimeout(r, 200));
+            await new Promise(r => setTimeout(r, 500));
 
             const opt = {
                 margin: [5, 5, 5, 5],
@@ -764,8 +766,8 @@
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            const pdfUri = await html2pdf().set(opt).from(container).outputPdf('datauristring');
-            document.body.removeChild(container);
+            const pdfUri = await html2pdf().set(opt).from(iframe.contentDocument.body).outputPdf('datauristring');
+            document.body.removeChild(iframe);
 
             return pdfUri.split(',')[1];
         }
