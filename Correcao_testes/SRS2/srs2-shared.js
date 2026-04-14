@@ -301,49 +301,50 @@ function countMissingByScale(form){
 
 // ─── SVG: Perfil ─────────────────────────────────────────────────────────────
 function svgProfileChart(rows){
-  const W=960, H=420;
-  const left=100, right=320, top=50, bottom=40;
-  const plotW=W-left-right, plotH=H-top-bottom;
+  const rowH = 40;
+  const left=80, right=230, top_=44, bottom=20;
+  const H = top_ + rows.length * rowH + bottom;
+  const W = 760;
+  const plotW=W-left-right, plotH=H-top_-bottom;
   const tMin=20, tMax=80;
 
-  // Usa CSS variables para respeitar o tema
   const accent = getComputedStyle(document.documentElement).getPropertyValue('--srs-accent').trim() || '#1a56db';
   const accentLight = getComputedStyle(document.documentElement).getPropertyValue('--srs-accent-light').trim() || '#dbeafe';
 
   function xOfT(t){ return left+((clamp(Number(t),tMin,tMax)-tMin)/(tMax-tMin))*plotW; }
   const yStep = plotH/Math.max(1,rows.length);
-  function yOfI(i){ return top+(i+0.5)*yStep; }
+  function yOfI(i){ return top_+(i+0.5)*yStep; }
 
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="display:block;margin:0 auto;max-width:100%;font-family:sans-serif;">
-    <rect x="0" y="0" width="${W}" height="${H}" fill="#fff" rx="12"/>`;
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="display:block;margin:0 auto;width:100%;font-family:'DM Sans',Arial,sans-serif;">
+    <rect x="0" y="0" width="${W}" height="${H}" fill="#fff" rx="8"/>`;
 
   // Fundo da área de plot
-  svg += `<rect x="${xOfT(20)}" y="${top}" width="${xOfT(80)-xOfT(20)}" height="${plotH}" fill="#f8fafc" rx="4"/>`;
+  svg += `<rect x="${xOfT(20)}" y="${top_}" width="${xOfT(80)-xOfT(20)}" height="${plotH}" fill="#f8fafc" rx="4"/>`;
 
   // Zona Normal (40-60) destacada
-  svg += `<rect x="${xOfT(40)}" y="${top}" width="${xOfT(60)-xOfT(40)}" height="${plotH}" fill="${accentLight}" opacity="0.5" rx="2"/>`;
-  
+  svg += `<rect x="${xOfT(40)}" y="${top_}" width="${xOfT(60)-xOfT(40)}" height="${plotH}" fill="${accentLight}" opacity="0.5" rx="2"/>`;
+
   // Zonas após 60 — sem cor (neutras)
-  svg += `<rect x="${xOfT(60)}" y="${top}" width="${xOfT(80)-xOfT(60)}" height="${plotH}" fill="#f1f5f9" opacity="0.5"/>`;
+  svg += `<rect x="${xOfT(60)}" y="${top_}" width="${xOfT(80)-xOfT(60)}" height="${plotH}" fill="#f1f5f9" opacity="0.5"/>`;
 
   // Linhas verticais de grade
   for(let t=20;t<=80;t+=5){
     const x=xOfT(t);
-    svg += `<line x1="${x}" y1="${top}" x2="${x}" y2="${top+plotH}" stroke="#e2e8f0" stroke-width="1.5"/>`;
+    svg += `<line x1="${x}" y1="${top_}" x2="${x}" y2="${top_+plotH}" stroke="#e2e8f0" stroke-width="1.5"/>`;
     let lbl = String(t);
     if(t===50) lbl = "50 (M)";
-    svg += `<text x="${x}" y="${top-12}" text-anchor="middle" font-size="11" fill="#64748b" font-weight="${t===50?'700':'400'}">${lbl}</text>`;
+    svg += `<text x="${x}" y="${top_-12}" text-anchor="middle" font-size="11" fill="#64748b" font-weight="${t===50?'700':'400'}">${lbl}</text>`;
   }
 
-  // Labels de zona (codificados para uso interno)
-  svg += `<text x="${xOfT(50)}" y="${top-28}" text-anchor="middle" font-size="10" fill="${accent}" font-weight="700">TÍPICO</text>`;
-  svg += `<text x="${xOfT(62)}" y="${top-28}" text-anchor="middle" font-size="10" fill="#64748b" font-weight="700">N1</text>`;
-  svg += `<text x="${xOfT(70)}" y="${top-28}" text-anchor="middle" font-size="10" fill="#64748b" font-weight="700">N2</text>`;
-  svg += `<text x="${xOfT(77)}" y="${top-28}" text-anchor="middle" font-size="10" fill="#64748b" font-weight="700">N3</text>`;
+  // Labels de zona
+  svg += `<text x="${xOfT(50)}" y="${top_-28}" text-anchor="middle" font-size="10" fill="${accent}" font-weight="700">TÍPICO</text>`;
+  svg += `<text x="${xOfT(62)}" y="${top_-28}" text-anchor="middle" font-size="10" fill="#64748b" font-weight="700">N1</text>`;
+  svg += `<text x="${xOfT(70)}" y="${top_-28}" text-anchor="middle" font-size="10" fill="#64748b" font-weight="700">N2</text>`;
+  svg += `<text x="${xOfT(77)}" y="${top_-28}" text-anchor="middle" font-size="10" fill="#64748b" font-weight="700">N3</text>`;
 
   // Headers laterais
-  svg += `<text x="10" y="${top-12}" font-size="10" fill="#64748b" font-weight="700">Bruto</text>`;
-  svg += `<text x="48" y="${top-12}" font-size="10" fill="#64748b" font-weight="700">T</text>`;
+  svg += `<text x="10" y="${top_-12}" font-size="10" fill="#64748b" font-weight="700">Bruto</text>`;
+  svg += `<text x="48" y="${top_-12}" font-size="10" fill="#64748b" font-weight="700">T</text>`;
 
   // Linhas horizontais de separação
   rows.forEach((_,i)=>{

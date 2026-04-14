@@ -145,18 +145,16 @@ function calcularFatores(respostas) {
   return result;
 }
 
-// ─── RELATÓRIO HTML (profissional, self-contained) ────────────────────────────
+// ─── RELATÓRIO HTML (profissional, padrão WAIS) ──────────────────────────────
 function gerarRelatorioHTML(paciente, data, fatores, total) {
   const cls = getClassification(total);
   const dataFmt = data ? new Date(data + "T12:00:00").toLocaleDateString("pt-BR") : "---";
 
-  // Collect extra patient fields
   const cpf = document.getElementById("cpf")?.value?.trim() || "";
   const dataNasc = document.getElementById("dataNascimento")?.value || "";
   const respondente = document.getElementById("respondente")?.value?.trim() || "";
   const dataNascFmt = dataNasc ? dataNasc.split("-").reverse().join("/") : "---";
 
-  // Calculate age
   let idadeStr = "---";
   if (dataNasc && data) {
     const dn = new Date(dataNasc + "T12:00:00");
@@ -166,7 +164,6 @@ function gerarRelatorioHTML(paciente, data, fatores, total) {
     idadeStr = age + " anos";
   }
 
-  // Total bar
   const totalPct = Math.round((total / EQ15_RULES.max_total) * 100);
   const cutPct = Math.round((EQ15_RULES.clinical_cutoff / EQ15_RULES.max_total) * 100);
 
@@ -180,10 +177,8 @@ function gerarRelatorioHTML(paciente, data, fatores, total) {
 
   const gridLines = [0, 5, 10, 15, 20].map(v => {
     const y = padTop + chartH - (v / maxVal) * chartH;
-    return `
-      <line x1="30" y1="${y}" x2="${svgW - 10}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>
-      <text x="26" y="${y + 4}" text-anchor="end" font-size="10" fill="#94a3b8">${v}</text>
-    `;
+    return '<line x1="30" y1="' + y + '" x2="' + (svgW - 10) + '" y2="' + y + '" stroke="#e2e8f0" stroke-width="1"/>' +
+      '<text x="26" y="' + (y + 4) + '" text-anchor="end" font-size="10" fill="#94a3b8">' + v + '</text>';
   }).join("");
 
   const svgBars = EQ15_RULES.factors.map((f, i) => {
@@ -192,18 +187,13 @@ function gerarRelatorioHTML(paciente, data, fatores, total) {
     const x = barGap + i * (barW + barGap) + 30;
     const y = padTop + chartH - bH;
     const color = factorColors[i % factorColors.length];
-
-    // Reference line
     const refH = (f.ref_mean / maxVal) * chartH;
     const refY = padTop + chartH - refH;
-
-    return `
-      <rect x="${x}" y="${y}" width="${barW}" height="${bH}" rx="6" fill="${color}" opacity="0.85"/>
-      <text x="${x + barW/2}" y="${y - 8}" text-anchor="middle" font-size="14" font-weight="800" fill="${color}">${val}</text>
-      <line x1="${x - 6}" y1="${refY}" x2="${x + barW + 6}" y2="${refY}" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,3"/>
-      <text x="${x + barW/2}" y="${padTop + chartH + 18}" text-anchor="middle" font-size="11" fill="#64748b" font-weight="600">${escapeHtml(f.label)}</text>
-      <text x="${x + barW/2}" y="${padTop + chartH + 32}" text-anchor="middle" font-size="9" fill="#94a3b8">(ref: ${f.ref_mean})</text>
-    `;
+    return '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + bH + '" rx="6" fill="' + color + '" opacity="0.85"/>' +
+      '<text x="' + (x + barW/2) + '" y="' + (y - 8) + '" text-anchor="middle" font-size="14" font-weight="800" fill="' + color + '">' + val + '</text>' +
+      '<line x1="' + (x - 6) + '" y1="' + refY + '" x2="' + (x + barW + 6) + '" y2="' + refY + '" stroke="#f59e0b" stroke-width="2" stroke-dasharray="5,3"/>' +
+      '<text x="' + (x + barW/2) + '" y="' + (padTop + chartH + 18) + '" text-anchor="middle" font-size="11" fill="#64748b" font-weight="600">' + escapeHtml(f.label) + '</text>' +
+      '<text x="' + (x + barW/2) + '" y="' + (padTop + chartH + 32) + '" text-anchor="middle" font-size="9" fill="#94a3b8">(ref: ' + f.ref_mean + ')</text>';
   }).join("");
 
   // Factor table rows
@@ -212,171 +202,101 @@ function gerarRelatorioHTML(paciente, data, fatores, total) {
     const pct = Math.round(((val - f.min) / (f.max - f.min)) * 100);
     const refPct = Math.round(((f.ref_mean - f.min) / (f.max - f.min)) * 100);
     const color = factorColors[i % factorColors.length];
-    return `
-      <tr style="border-bottom:1px solid #f1f5f9;">
-        <td style="padding:10px 14px;font-weight:600;color:#1e293b;">${escapeHtml(f.label)}</td>
-        <td style="padding:10px 14px;text-align:center;color:#64748b;font-size:12px;">${f.items.join(", ")}</td>
-        <td style="padding:10px 14px;text-align:center;font-weight:800;font-size:15px;color:${color};">${val}</td>
-        <td style="padding:10px 14px;text-align:center;color:#94a3b8;">${f.max}</td>
-        <td style="padding:10px 14px;text-align:center;color:#f59e0b;font-weight:700;">${f.ref_mean}</td>
-        <td style="padding:10px 14px;width:140px;">
-          <div style="height:8px;background:#e2e8f0;border-radius:4px;position:relative;overflow:visible;">
-            <div style="height:100%;width:${pct}%;background:${color};border-radius:4px;"></div>
-            <div style="position:absolute;top:-3px;bottom:-3px;left:${refPct}%;width:2px;background:#f59e0b;border-radius:2px;"></div>
-          </div>
-        </td>
-      </tr>
-    `;
+    return '<tr' + (i % 2 ? ' class="alt"' : '') + '>' +
+      '<td style="font-weight:600;">' + escapeHtml(f.label) + '</td>' +
+      '<td class="ctr" style="font-size:11px;color:#64748b;">' + f.items.join(", ") + '</td>' +
+      '<td class="ctr" style="font-weight:800;font-size:14px;color:' + color + ';">' + val + '</td>' +
+      '<td class="ctr">' + f.max + '</td>' +
+      '<td class="ctr" style="color:#f59e0b;font-weight:700;">' + f.ref_mean + '</td>' +
+      '<td style="width:140px;"><div style="height:8px;background:#e2e8f0;border-radius:4px;position:relative;overflow:visible;">' +
+      '<div style="height:100%;width:' + pct + '%;background:' + color + ';border-radius:4px;"></div>' +
+      '<div style="position:absolute;top:-3px;bottom:-3px;left:' + refPct + '%;width:2px;background:#f59e0b;border-radius:2px;"></div></div></td></tr>';
   }).join("");
 
   // Item detail rows
-  const itemRows = EQ15_RULES.items.map(item => {
-    const r = document.querySelector(`input[name="i${item.id}"]:checked`)?.value || "---";
+  const itemRows = EQ15_RULES.items.map((item, i) => {
+    const r = document.querySelector('input[name="i' + item.id + '"]:checked')?.value || "---";
     const pts = (r !== "---" && item.reverse) ? (5 - parseInt(r)) : r;
     const fator = EQ15_RULES.factors.find(f => f.items.includes(item.id));
-    return `
-      <tr style="border-bottom:1px solid #f1f5f9;">
-        <td style="padding:6px 10px;width:32px;font-weight:700;color:#7c3aed;text-align:center;">${item.id}</td>
-        <td style="padding:6px 10px;font-size:11.5px;color:#374151;line-height:1.4;">${escapeHtml(item.text.substring(0, 85))}${item.text.length > 85 ? "..." : ""}</td>
-        <td style="padding:6px 10px;width:55px;text-align:center;font-size:12px;color:#64748b;">${escapeHtml(String(r))}</td>
-        <td style="padding:6px 10px;width:55px;text-align:center;font-size:12px;font-weight:600;">${escapeHtml(String(pts))}${item.reverse ? " R" : ""}</td>
-        <td style="padding:6px 10px;width:120px;font-size:11px;color:#64748b;">${escapeHtml(fator?.label || "---")}</td>
-      </tr>
-    `;
+    return '<tr' + (i % 2 ? ' class="alt"' : '') + '>' +
+      '<td class="ctr" style="font-weight:700;color:#7c3aed;">' + item.id + '</td>' +
+      '<td style="font-size:11px;">' + escapeHtml(item.text.substring(0, 85)) + (item.text.length > 85 ? "..." : "") + '</td>' +
+      '<td class="ctr" style="font-size:11px;">' + escapeHtml(String(r)) + '</td>' +
+      '<td class="ctr" style="font-size:11px;font-weight:600;">' + escapeHtml(String(pts)) + (item.reverse ? " R" : "") + '</td>' +
+      '<td style="font-size:11px;color:#64748b;">' + escapeHtml(fator?.label || "---") + '</td></tr>';
   }).join("");
 
   const refTotal = EQ15_RULES.factors.reduce((s, f) => s + f.ref_mean, 0);
-
   const dataHoje = new Date().toLocaleDateString("pt-BR");
-  return `
-  <div style="font-family:'DM Sans',Arial,sans-serif;color:#1e293b;background:#fff;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 8px 40px rgba(0,0,0,.06);overflow:hidden;">
 
-    <!-- HEADER (padrão WAIS) -->
-    <div style="background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);color:#fff;padding:14px 24px 12px;position:relative;overflow:hidden;">
-      <div style="position:absolute;top:-50px;right:-50px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.03)"></div>
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;position:relative;">
-        <div style="display:flex;align-items:center;gap:16px;">
-          <img src="/logo2.png" alt="Logo" style="width:30px;height:30px;object-fit:contain;filter:brightness(10);" onerror="this.style.display='none'" />
-          <div>
-            <div style="font-size:8px;text-transform:uppercase;letter-spacing:3px;opacity:.45;">Relatório Neuropsicológico</div>
-            <div style="font-size:20px;font-weight:800;margin-top:3px;letter-spacing:-.5px;">EQ-15 — Quociente de Empatia</div>
-            <div style="font-size:10px;opacity:.55;margin-top:2px;">Versão Reduzida Brasileira — Gouveia et al. (2012)</div>
-          </div>
-        </div>
-        <div style="background:rgba(255,255,255,.08);border-radius:8px;padding:6px 10px;text-align:right;">
-          <div style="font-size:7px;text-transform:uppercase;letter-spacing:2px;opacity:.5;">Pontuação Total</div>
-          <div style="font-size:16px;font-weight:800;margin-top:1px;">${total}/${EQ15_RULES.max_total}</div>
-          <div style="font-size:8px;opacity:.5;margin-top:1px;">${escapeHtml(cls.label)}</div>
-        </div>
-      </div>
-    </div>
+  return '<div class="report">' +
+    '<div class="rpt-hdr"><div class="deco1"></div><div class="deco2"></div>' +
+    '<div class="rpt-hdr-inner"><div style="display:flex;align-items:center;gap:16px">' +
+    '<img class="hdr-logo" src="/logo2.png" alt="Logo" onerror="this.style.display=\'none\'"><div>' +
+    '<div class="kicker">Relatório Neuropsicológico</div>' +
+    '<div class="title">EQ-15 — Quociente de Empatia</div>' +
+    '<div class="subtitle">Versão Reduzida Brasileira — Gouveia et al. (2012)</div>' +
+    '</div></div>' +
+    '<div class="rpt-hdr-badge"><div class="lbl">Pontuação Total</div><div class="val">' + total + '/' + EQ15_RULES.max_total + '</div><div class="sub">' + escapeHtml(cls.label) + '</div></div>' +
+    '</div></div>' +
 
-    <div style="padding:0 24px 24px;">
+    '<div class="rpt-body">' +
 
-    <!-- 1. Identificação -->
-    <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">1</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Identificação</span></div>
-    <div style="background:#f8fafc;border-radius:10px;padding:12px 16px;border:1px solid #e2e8f0;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;font-size:12px;">
-        <div><span style="font-size:10px;color:#64748b;font-weight:600;">Nome:</span> <span style="font-weight:600;">${escapeHtml(paciente || "Não informado")}</span></div>
-        <div><span style="font-size:10px;color:#64748b;font-weight:600;">CPF:</span> <span>${escapeHtml(cpf || "—")}</span></div>
-        <div><span style="font-size:10px;color:#64748b;font-weight:600;">Nascimento:</span> <span>${escapeHtml(dataNascFmt)} (${escapeHtml(idadeStr)})</span></div>
-        <div><span style="font-size:10px;color:#64748b;font-weight:600;">Avaliação:</span> <span>${escapeHtml(dataFmt)}</span></div>
-        ${respondente ? `<div style="grid-column:1/-1;"><span style="font-size:10px;color:#64748b;font-weight:600;">Respondente:</span> <span>${escapeHtml(respondente)}</span></div>` : ""}
-      </div>
-    </div>
+    '<div class="rpt-sh"><span class="num">1</span><span class="sh-title">Identificação</span></div>' +
+    '<div class="rpt-box no-break"><div class="rpt-info">' +
+    '<div><span class="lbl">Nome:</span> <span class="val bold">' + escapeHtml(paciente || "Não informado") + '</span></div>' +
+    '<div><span class="lbl">CPF:</span> <span class="val">' + escapeHtml(cpf || "—") + '</span></div>' +
+    '<div><span class="lbl">Nascimento:</span> <span class="val">' + escapeHtml(dataNascFmt) + ' (' + escapeHtml(idadeStr) + ')</span></div>' +
+    '<div><span class="lbl">Avaliação:</span> <span class="val">' + escapeHtml(dataFmt) + '</span></div>' +
+    (respondente ? '<div style="grid-column:1/-1;"><span class="lbl">Respondente:</span> <span class="val">' + escapeHtml(respondente) + '</span></div>' : '') +
+    '</div></div>' +
 
-    <!-- 2. Resultado Total -->
-    <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">2</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Resultado Total</span></div>
-    <div style="background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);border-radius:12px;padding:20px 24px;margin-bottom:8px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:20px;">
-      <div>
-        <div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.7;">Pontuação Total</div>
-        <div style="font-size:44px;font-weight:800;line-height:1;">${total}</div>
-        <div style="font-size:12px;opacity:.6;margin-top:2px;">de ${EQ15_RULES.max_total} pontos</div>
-      </div>
-      <div style="text-align:right;">
-        <div style="background:${cls.color};border-radius:10px;padding:10px 20px;">
-          <div style="font-size:18px;font-weight:800;">${escapeHtml(cls.label)}</div>
-        </div>
-      </div>
-    </div>
-    <div style="margin-bottom:8px;">
-      <div style="height:20px;background:#e2e8f0;border-radius:10px;position:relative;overflow:visible;">
-        <div style="height:100%;width:${totalPct}%;background:${cls.color};border-radius:10px;"></div>
-        <div style="position:absolute;top:-4px;bottom:-4px;left:${cutPct}%;width:2.5px;background:#dc2626;border-radius:2px;" title="Corte clínico (${EQ15_RULES.clinical_cutoff})"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;margin-top:3px;">
-        <span>0</span>
-        <span style="color:#dc2626;font-weight:700;">| corte clínico (${EQ15_RULES.clinical_cutoff})</span>
-        <span>${EQ15_RULES.max_total}</span>
-      </div>
-    </div>
+    '<div class="rpt-sh"><span class="num">2</span><span class="sh-title">Resultado Total</span></div>' +
+    '<div class="rpt-box no-break" style="background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);border:none;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 24px;">' +
+    '<div><div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.7;">Pontuação Total</div>' +
+    '<div style="font-size:40px;font-weight:800;line-height:1;">' + total + '</div>' +
+    '<div style="font-size:12px;opacity:.6;margin-top:2px;">de ' + EQ15_RULES.max_total + ' pontos</div></div>' +
+    '<div style="text-align:right;"><div style="background:' + cls.color + ';border-radius:10px;padding:10px 20px;"><div style="font-size:18px;font-weight:800;">' + escapeHtml(cls.label) + '</div></div></div></div>' +
+    '<div style="margin-bottom:8px;"><div style="height:16px;background:#e2e8f0;border-radius:8px;position:relative;overflow:visible;">' +
+    '<div style="height:100%;width:' + totalPct + '%;background:' + cls.color + ';border-radius:8px;"></div>' +
+    '<div style="position:absolute;top:-3px;bottom:-3px;left:' + cutPct + '%;width:2.5px;background:#dc2626;border-radius:2px;"></div></div>' +
+    '<div style="display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;margin-top:3px;"><span>0</span><span style="color:#dc2626;font-weight:700;">| corte clínico (' + EQ15_RULES.clinical_cutoff + ')</span><span>' + EQ15_RULES.max_total + '</span></div></div>' +
 
-    <!-- 3. Perfil por Fator -->
-    <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">3</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Perfil por Fator</span></div>
-    <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;overflow-x:auto;">
-      <svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" style="display:block;margin:0 auto;">${gridLines}${svgBars}</svg>
-      <div style="text-align:center;font-size:9px;color:#94a3b8;margin-top:6px;">Linha tracejada amarela = média normativa (Gouveia et al., 2012)</div>
-    </div>
+    '<div class="rpt-sh"><span class="num">3</span><span class="sh-title">Perfil por Fator</span></div>' +
+    '<div class="rpt-box no-break" style="text-align:center;">' +
+    '<svg width="' + svgW + '" height="' + svgH + '" viewBox="0 0 ' + svgW + ' ' + svgH + '" style="display:block;margin:0 auto;">' + gridLines + svgBars + '</svg>' +
+    '<div style="text-align:center;font-size:9px;color:#94a3b8;margin-top:6px;">Linha tracejada amarela = média normativa (Gouveia et al., 2012)</div></div>' +
 
-    <!-- 4. Tabela de Resultados -->
-    <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">4</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Pontuação por Fator</span></div>
-    <table style="width:100%;border-collapse:collapse;font-size:12px;border-radius:10px;overflow:hidden;border:1px solid #e2e8f0;">
-      <thead><tr>
-        <th style="padding:6px 8px;text-align:left;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Fator</th>
-        <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Itens</th>
-        <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Pontos</th>
-        <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Máx.</th>
-        <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Ref.</th>
-        <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Gráfico</th>
-      </tr></thead>
-      <tbody>
-        ${factorTableRows}
-        <tr style="background:#dbeafe;">
-          <td style="padding:8px;font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#1e40af;">TOTAL</td>
-          <td style="padding:8px;text-align:center;color:#1e40af;">1-15</td>
-          <td style="padding:8px;text-align:center;font-weight:800;font-size:15px;color:#1e40af;">${total}</td>
-          <td style="padding:8px;text-align:center;color:#1e40af;">${EQ15_RULES.max_total}</td>
-          <td style="padding:8px;text-align:center;color:#f59e0b;font-weight:700;">${refTotal.toFixed(1)}</td>
-          <td style="padding:8px;"><div style="height:6px;background:rgba(26,86,219,.15);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${totalPct}%;background:#1a56db;border-radius:3px;"></div></div></td>
-        </tr>
-      </tbody>
-    </table>
+    '<div class="rpt-sh"><span class="num">4</span><span class="sh-title">Pontuação por Fator</span></div>' +
+    '<div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden" class="no-break">' +
+    '<table class="rpt-tbl"><thead><tr><th>Fator</th><th class="ctr">Itens</th><th class="ctr">Pontos</th><th class="ctr">Máx.</th><th class="ctr">Ref.</th><th class="ctr">Gráfico</th></tr></thead>' +
+    '<tbody>' + factorTableRows +
+    '<tr style="background:#dbeafe;"><td style="font-weight:800;font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:#1e40af;">TOTAL</td>' +
+    '<td class="ctr" style="color:#1e40af;">1-15</td><td class="ctr" style="font-weight:800;font-size:14px;color:#1e40af;">' + total + '</td>' +
+    '<td class="ctr" style="color:#1e40af;">' + EQ15_RULES.max_total + '</td><td class="ctr" style="color:#f59e0b;font-weight:700;">' + refTotal.toFixed(1) + '</td>' +
+    '<td><div style="height:6px;background:rgba(26,86,219,.15);border-radius:3px;overflow:hidden;"><div style="height:100%;width:' + totalPct + '%;background:#1a56db;border-radius:3px;"></div></div></td></tr>' +
+    '</tbody></table></div>' +
 
-    <!-- 5. Detalhamento por Item -->
-    <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">5</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Detalhamento por Item</span></div>
-    <table style="width:100%;border-collapse:collapse;font-size:12px;border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;">
-      <thead><tr>
-        <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">N</th>
-        <th style="padding:6px 8px;text-align:left;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Item</th>
-        <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Resp.</th>
-        <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Pts.</th>
-        <th style="padding:6px 8px;text-align:left;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Fator</th>
-      </tr></thead>
-      <tbody>${itemRows}</tbody>
-    </table>
+    '<div class="rpt-sh"><span class="num">5</span><span class="sh-title">Detalhamento por Item</span></div>' +
+    '<div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden" class="no-break">' +
+    '<table class="rpt-tbl"><thead><tr><th class="ctr">N</th><th>Item</th><th class="ctr">Resp.</th><th class="ctr">Pts.</th><th>Fator</th></tr></thead>' +
+    '<tbody>' + itemRows + '</tbody></table></div>' +
 
-    <!-- 6. Interpretação Clínica -->
-    <div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">6</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Interpretação Clínica</span></div>
-    <div style="font-size:12px;color:#334155;line-height:1.75;">
-      <p style="margin:0 0 10px;">O <strong>EQ-15 (Quociente de Empatia — Versão Reduzida)</strong> é um instrumento de autorrelato com 15 itens que avalia três dimensões da empatia: Empatia Cognitiva, Habilidades Sociais e Reatividade Emocional.</p>
-      <p style="margin:0 0 10px;">A pontuação total obtida foi de <strong>${total} pontos</strong> (de ${EQ15_RULES.max_total} possíveis), classificada como <strong style="color:${cls.color};">${cls.label}</strong>. ${total <= EQ15_RULES.clinical_cutoff ? 'Este resultado encontra-se abaixo ou no ponto de corte clínico (' + EQ15_RULES.clinical_cutoff + '), sugerindo níveis reduzidos de empatia que podem justificar uma avaliação mais aprofundada.' : total <= 39 ? 'Este resultado encontra-se na faixa média, indicando níveis típicos de empatia.' : 'Este resultado indica níveis adequados a elevados de empatia.'}</p>
-      <p style="margin:0;"><strong>Nota:</strong> O EQ-15 é um instrumento de rastreio e não substitui o diagnóstico clínico. Os resultados devem ser interpretados no contexto de uma avaliação neuropsicológica abrangente.</p>
-    </div>
+    '<div class="rpt-sh"><span class="num">6</span><span class="sh-title">Interpretação Clínica</span></div>' +
+    '<div class="rpt-interp">' +
+    '<p>O <strong>EQ-15 (Quociente de Empatia — Versão Reduzida)</strong> é um instrumento de autorrelato com 15 itens que avalia três dimensões da empatia: Empatia Cognitiva, Habilidades Sociais e Reatividade Emocional.</p>' +
+    '<p>A pontuação total obtida foi de <strong>' + total + ' pontos</strong> (de ' + EQ15_RULES.max_total + ' possíveis), classificada como <strong style="color:' + cls.color + ';">' + escapeHtml(cls.label) + '</strong>. ' +
+    (total <= EQ15_RULES.clinical_cutoff ? 'Este resultado encontra-se abaixo ou no ponto de corte clínico (' + EQ15_RULES.clinical_cutoff + '), sugerindo níveis reduzidos de empatia que podem justificar uma avaliação mais aprofundada.' : total <= 39 ? 'Este resultado encontra-se na faixa média, indicando níveis típicos de empatia.' : 'Este resultado indica níveis adequados a elevados de empatia.') + '</p>' +
+    '<p><strong>Nota:</strong> O EQ-15 é um instrumento de rastreio e não substitui o diagnóstico clínico. Os resultados devem ser interpretados no contexto de uma avaliação neuropsicológica abrangente.</p></div>' +
 
-    <!-- FOOTER (padrão WAIS) -->
-    <div style="border-top:2px solid #e2e8f0;padding-top:16px;margin-top:22px;display:flex;justify-content:space-between;">
-      <div>
-        <div style="color:#64748b;font-size:12px;">Equilibrium Neuropsicologia</div>
-        <div style="font-size:10px;color:#94a3b8;margin-top:4px;">Correção automatizada EQ-15</div>
-      </div>
-      <div style="text-align:right;font-size:11px;color:#64748b;">
-        <div>Documento gerado em ${dataHoje}</div>
-        <div style="font-size:9px;color:#cbd5e1;max-width:220px;margin-top:8px;">Este documento é confidencial e destinado exclusivamente ao profissional solicitante.</div>
-      </div>
-    </div>
+    '<div class="rpt-foot no-break"><div>' +
+    '<div style="color:#64748b;font-size:12px">Equilibrium Neuropsicologia</div>' +
+    '</div><div class="rpt-foot-right">' +
+    '<div>Documento gerado em ' + dataHoje + '</div>' +
+    '<div class="rpt-foot-disclaimer">Este documento é confidencial e destinado exclusivamente ao profissional solicitante.</div>' +
+    '</div></div>' +
 
-    </div>
-  </div>`;
+    '</div></div>';
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
@@ -456,15 +376,10 @@ async function finalizarEEnviar() {
     console.info("Integration nao disponivel - Firebase save ignorado.");
   }
 
-  // 4. Contentor de renderização (fora do viewport)
+  // 4. Render in DOM container for reliable PDF generation
   const captureWrap = document.createElement("div");
   captureWrap.id = "__eq15_capture__";
-  captureWrap.style.cssText = [
-    "position:absolute", "top:0", "left:-9999px",
-    "width:760px", "background:#fff",
-    "font-family:'DM Sans',Arial,sans-serif",
-    "z-index:0", "pointer-events:none"
-  ].join(";");
+  captureWrap.style.cssText = "position:absolute;left:-9999px;top:0;width:740px;background:#fff;pointer-events:none;";
   captureWrap.innerHTML = repHTML;
   document.body.appendChild(captureWrap);
 
@@ -502,6 +417,7 @@ async function finalizarEEnviar() {
   };
 
   try {
+    // Move to visible position for html2canvas capture
     captureWrap.style.left = "0";
     captureWrap.style.top = "0";
     await new Promise(r => setTimeout(r, 150));
@@ -510,13 +426,13 @@ async function finalizarEEnviar() {
 
     const opt = {
       margin: [12, 12, 12, 12],
-      filename: `EQ15_${paciente.replace(/\s+/g, "_")}.pdf`,
+      filename: "EQ15_" + paciente.replace(/\s+/g, "_") + ".pdf",
       image: { type: "jpeg", quality: 1.0 },
       html2canvas: {
         scale: 4, useCORS: true, allowTaint: true,
         scrollX: 0, scrollY: 0, x: 0, y: 0,
-        width: 760, height: captureHeight,
-        windowWidth: 760, windowHeight: captureHeight, logging: false
+        width: 740, height: captureHeight,
+        windowWidth: 740, windowHeight: captureHeight, logging: false
       },
       jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
     };

@@ -71,36 +71,7 @@
     .modal-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
     .modal-sub { font-size: 14px; color: #64748b; }
 
-    /* Report overlay */
-    .bfp-report-overlay { position: fixed; inset: 0; background: #f1f5f9; z-index: 8000; display: none; flex-direction: column; }
-    .bfp-report-overlay.ativo { display: flex; }
-    .bfp-report-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .bfp-report-topbar-left { display: flex; align-items: center; gap: 12px; }
-    .bfp-report-topbar h2 { font-size: 16px; font-weight: 800; color: var(--bfp-accent-dark); margin: 0; }
-    .bfp-report-actions { display: flex; gap: 8px; }
-    .btn-print-rep { background: var(--bfp-accent); color: #fff; border: none; padding: 9px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
-    .btn-print-rep:hover { background: var(--bfp-accent-dark); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(26,86,219,.2); }
-    .btn-close-rep { background: #f1f5f9; color: #374151; border: 1.5px solid #e2e8f0; padding: 9px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
-    .btn-close-rep:hover { background: #e2e8f0; transform: translateY(-2px); }
-    .btn-voltar-pac { background: #059669; color: #fff; border: none; padding: 9px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
-    .btn-voltar-pac:hover { background: #047857; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(5,150,105,.3); }
-    .bfp-report-scroll { flex: 1; overflow-y: auto; padding: 32px 24px; }
-    .bfp-report-frame { max-width: 860px; margin: 0 auto; }
-    .rep-wrapper { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
-
-    @media print {
-      @page { margin: 10mm 12mm; size: A4 portrait; }
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-      html, body { margin: 0 !important; padding: 0 !important; height: auto !important; background: #fff !important; overflow: visible !important; }
-      .sidebar, .bfp-report-topbar, .main-content, .app-shell, .modal-overlay, .action-buttons { display: none !important; }
-      .bfp-report-overlay.ativo {
-        display: block !important; position: static !important; background: #fff !important;
-        width: 100% !important; height: auto !important; overflow: visible !important; inset: auto !important;
-      }
-      .bfp-report-scroll { padding: 0 !important; overflow: visible !important; height: auto !important; }
-      .bfp-report-frame { max-width: 100% !important; margin: 0 !important; }
-      .rep-wrapper { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; }
-    }
+    /* Loading / Modal */
   </style>
 </head>
 <body>
@@ -227,31 +198,14 @@
           <div id="previewTable"></div>
         </div>
       </div>
+      <!-- RELATÓRIO (aparece após gerar) -->
+      <div id="relatorio" class="card report" style="display:none;"></div>
     </main>
   </div>
 
   <!-- Loading modal -->
   <div class="modal-overlay" id="modalLoading">
     <div class="modal-box"><div class="spinner"></div><div class="modal-title">Gerando Relatório...</div><div class="modal-sub">Por favor, aguarde</div></div>
-  </div>
-
-  <!-- Report overlay -->
-  <div class="bfp-report-overlay no-print" id="repOverlay">
-    <div class="bfp-report-topbar">
-      <div class="bfp-report-topbar-left">
-        <h2>Relatório BFP</h2>
-      </div>
-      <div class="bfp-report-actions">
-        <button class="btn-voltar-pac" id="btnVoltarPac" style="display:none">Voltar ao Paciente</button>
-        <button class="btn-print-rep" id="btnPrintRep">Imprimir / Baixar PDF</button>
-        <button class="btn-close-rep" id="btnCloseRep">Fechar</button>
-      </div>
-    </div>
-    <div class="bfp-report-scroll">
-      <div class="bfp-report-frame">
-        <div class="rep-wrapper" id="repWrapper"></div>
-      </div>
-    </div>
   </div>
 
   <!-- Firebase SDKs -->
@@ -262,6 +216,7 @@
   <script src="/js/db.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/patient-guard.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="/js/integration.js"></script>
 
   <script>
@@ -841,10 +796,12 @@
 
       try {
         var reportHTML = buildReportHTML(computedResults);
-        document.getElementById('repWrapper').innerHTML = reportHTML;
+        var rel = document.getElementById('relatorio');
+        rel.innerHTML = reportHTML;
+        rel.style.display = 'block';
 
         modalLoading.classList.remove('show');
-        document.getElementById('repOverlay').classList.add('ativo');
+        openReportModal();
 
         // Build summary for Firebase
         var fatores = ['N', 'E', 'S', 'R', 'A'];
@@ -867,14 +824,13 @@
         // Save to Firebase
         if (window.Integration && Integration.salvarTesteNoFirebase) {
           await new Promise(function(r) { setTimeout(r, 300); });
-          var repWrapper = document.getElementById('repWrapper');
           await Integration.salvarTesteNoFirebase('bfp', {
             dataAplicacao: document.getElementById('dataAplicacao').value || new Date().toISOString().split('T')[0],
             resumo: resumo,
             scores: scoresObj,
             classificacao: classGeral,
             observacoes: '',
-            htmlRelatorio: repWrapper ? repWrapper.outerHTML : ''
+            htmlRelatorio: rel.outerHTML
           });
         }
 
@@ -882,6 +838,109 @@
         console.error('Erro ao processar:', error);
         modalLoading.classList.remove('show');
         alert('Ocorreu um erro ao gerar o relatório. Por favor, tente novamente.');
+      }
+    }
+
+    /* ================================================================
+       Report Modal + PDF (padrão WAIS)
+       ================================================================ */
+    function openReportModal() {
+      var rel = document.getElementById('relatorio');
+      if (!rel) return;
+      closeReportModal();
+
+      var backdrop = document.createElement('div');
+      backdrop.id = 'reportModal';
+      backdrop.className = 'report-modal-backdrop';
+      var paciente = window.Integration ? Integration.getPacienteAtual() : null;
+      var btnVoltar = paciente ? '<button class="toolbar-btn toolbar-btn-voltar" onclick="voltarParaPaciente()">👤 Voltar ao Paciente</button>' : '';
+      backdrop.innerHTML =
+        '<div class="report-modal">' +
+          '<div class="report-modal-toolbar no-print">' +
+            '<div class="toolbar-title">📄 Relatório BFP</div>' +
+            '<div class="toolbar-actions">' +
+              btnVoltar +
+              '<button class="toolbar-btn toolbar-btn-primary" onclick="baixarPDF()">📥 Baixar PDF</button>' +
+              '<button class="toolbar-btn toolbar-btn-secondary" onclick="window.print()">🖨️ Imprimir</button>' +
+              '<button class="toolbar-btn toolbar-btn-secondary" onclick="closeReportModal()">✕ Fechar</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="report-modal-body" id="reportModalBody"></div>' +
+        '</div>';
+
+      document.body.appendChild(backdrop);
+      var body = document.getElementById('reportModalBody');
+      body.appendChild(rel);
+      rel.style.display = 'block';
+
+      backdrop.addEventListener('click', function(e) {
+        if (e.target === backdrop) closeReportModal();
+      });
+      document.addEventListener('keydown', _escHandler);
+    }
+
+    function _escHandler(e) {
+      if (e.key === 'Escape') closeReportModal();
+    }
+
+    function closeReportModal() {
+      var modal = document.getElementById('reportModal');
+      if (!modal) return;
+      var rel = document.getElementById('relatorio');
+      if (rel) {
+        var main = document.querySelector('.main-content');
+        if (main) main.appendChild(rel);
+        rel.style.display = 'none';
+      }
+      modal.remove();
+      document.removeEventListener('keydown', _escHandler);
+    }
+
+    async function baixarPDF() {
+      var rel = document.getElementById('relatorio');
+      if (!rel) return;
+
+      var nome = document.getElementById('pacienteNome')?.value?.trim() || 'Relatorio';
+      var nomeArquivo = 'BFP_' + nome.replace(/\s+/g, '_').substring(0, 30) + '.pdf';
+
+      // Show loading
+      var modalLoading = document.getElementById('modalLoading');
+      if (modalLoading) { modalLoading.querySelector('.modal-title').textContent = 'Gerando PDF...'; modalLoading.classList.add('show'); }
+
+      var decos = rel.querySelectorAll('.deco1, .deco2');
+      var badge = rel.querySelector('.rpt-hdr-badge');
+      var reportEl = rel.querySelector('.report');
+      decos.forEach(function(d) { d.style.display = 'none'; });
+      if (badge) badge.style.backdropFilter = 'none';
+      if (reportEl) reportEl.style.overflow = 'visible';
+
+      try {
+        await html2pdf().set({
+          margin: [5, 5, 5, 5],
+          filename: nomeArquivo,
+          image: { type: 'jpeg', quality: 1.00 },
+          html2canvas: { scale: 4, useCORS: true, logging: false, scrollY: 0 },
+          jsPDF: { unit: 'mm', format: [210, 900], orientation: 'portrait' },
+          pagebreak: { mode: ['avoid-all'] }
+        }).from(rel).save();
+      } catch(e) {
+        console.error('Erro ao gerar PDF:', e);
+        alert('Erro ao gerar PDF. Tente novamente.');
+      } finally {
+        decos.forEach(function(d) { d.style.display = ''; });
+        if (badge) badge.style.backdropFilter = '';
+        if (reportEl) reportEl.style.overflow = '';
+        if (modalLoading) modalLoading.classList.remove('show');
+      }
+    }
+
+    function voltarParaPaciente() {
+      var paciente = null;
+      try { var raw = sessionStorage.getItem('pacienteAtual'); if (raw) paciente = JSON.parse(raw); } catch(e) {}
+      if (!paciente && window.Integration) paciente = Integration.getPacienteAtual();
+      if (paciente && paciente.id) {
+        sessionStorage.setItem('abrirPacienteId', paciente.id);
+        window.location.href = '/Pacientes/';
       }
     }
 
@@ -941,23 +1000,11 @@
       document.getElementById('btnCalcular').addEventListener('click', handleCalcular);
       document.getElementById('btnRelatorio').addEventListener('click', handleGerarRelatorio);
       document.getElementById('btnLimpar').addEventListener('click', limparFormulario);
-      document.getElementById('btnCloseRep').addEventListener('click', function() { document.getElementById('repOverlay').classList.remove('ativo'); });
-      document.getElementById('btnPrintRep').addEventListener('click', function() { window.print(); });
-
-      // Show "Voltar ao Paciente" if patient is selected
+      // Pre-fill patient data if available
       var pacienteAtual = null;
       try { var raw = sessionStorage.getItem('pacienteAtual'); if (raw) pacienteAtual = JSON.parse(raw); } catch(e) {}
       if (!pacienteAtual && window.Integration) pacienteAtual = Integration.getPacienteAtual();
       if (pacienteAtual && pacienteAtual.id) {
-        var btnVoltar = document.getElementById('btnVoltarPac');
-        if (btnVoltar) {
-          btnVoltar.style.display = 'flex';
-          btnVoltar.addEventListener('click', function() {
-            sessionStorage.setItem('abrirPacienteId', pacienteAtual.id);
-            window.location.href = '/Pacientes/';
-          });
-        }
-        // Pre-fill patient name if available
         if (pacienteAtual.nome && !document.getElementById('pacienteNome').value) {
           document.getElementById('pacienteNome').value = pacienteAtual.nome;
         }

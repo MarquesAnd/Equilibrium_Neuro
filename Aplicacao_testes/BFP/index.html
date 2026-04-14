@@ -193,25 +193,37 @@ async function gerarGrafico(res){
 async function gerarPDF(fd, res) {
   const htmlRelatorio = gerarHTMLRelatorio(fd, res);
 
-  // Use iframe for full HTML documents (with <!DOCTYPE>)
-  const iframe = document.createElement('iframe');
-  iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;height:2000px;border:none;';
-  document.body.appendChild(iframe);
-  iframe.contentDocument.open();
-  iframe.contentDocument.write(htmlRelatorio);
-  iframe.contentDocument.close();
+  // Extract body content from full HTML document for DOM rendering
+  const bodyMatch = htmlRelatorio.match(/<body[^>]*>([\s\S]*)<\/body>/i);
+  const bodyContent = bodyMatch ? bodyMatch[1] : htmlRelatorio;
 
-  await new Promise(r => setTimeout(r, 500));
+  const captureWrap = document.createElement('div');
+  captureWrap.style.cssText = 'position:absolute;left:-9999px;top:0;width:740px;background:#fff;pointer-events:none;font-family:DM Sans,Arial,sans-serif;color:#1e293b;';
+  captureWrap.innerHTML = bodyContent;
+  document.body.appendChild(captureWrap);
+
+  await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
+  const captureHeight = captureWrap.scrollHeight;
+
+  // Move to visible position for html2canvas capture
+  captureWrap.style.left = '0';
+  captureWrap.style.top = '0';
+  await new Promise(r => setTimeout(r, 150));
 
   const opt = {
-    margin: [5, 5, 5, 5],
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, logging: false },
+    margin: [12, 12, 12, 12],
+    image: { type: 'jpeg', quality: 1.0 },
+    html2canvas: {
+      scale: 4, useCORS: true, allowTaint: true, logging: false,
+      scrollX: 0, scrollY: 0, x: 0, y: 0,
+      width: 740, height: captureHeight,
+      windowWidth: 740, windowHeight: captureHeight
+    },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
-  const pdfUri = await html2pdf().set(opt).from(iframe.contentDocument.body).outputPdf('datauristring');
-  document.body.removeChild(iframe);
+  const pdfUri = await html2pdf().set(opt).from(captureWrap).outputPdf('datauristring');
+  document.body.removeChild(captureWrap);
 
   return pdfUri.split(',')[1];
 }

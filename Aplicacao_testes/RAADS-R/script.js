@@ -490,28 +490,35 @@ async function gerarPDFDrive(n, d, p) {
   const resultado = calcularPontuacao(respostas);
   const relatorioHTML = await gerarRelatorio(n, d, respostas, resultado);
 
-  // Create an offscreen container for html2pdf rendering
+  // Create container for html2pdf rendering (hidden initially)
   const container = document.createElement('div');
-  container.style.cssText = 'position:fixed;left:-9999px;top:0;width:210mm;';
+  container.style.cssText = 'position:absolute;left:-9999px;top:0;width:740px;background:#fff;pointer-events:none;';
   container.innerHTML = relatorioHTML;
   document.body.appendChild(container);
 
+  await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
+  const captureHeight = container.scrollHeight;
+
+  // Move to visible position for html2canvas capture
+  container.style.left = '0';
+  container.style.top = '0';
+  await new Promise(r => setTimeout(r, 150));
+
   const opt = {
-    margin:     [5, 5, 5, 5],
-    image:      { type: 'jpeg', quality: 0.98 },
-    html2canvas:{ scale: 2, useCORS: true, logging: false },
+    margin:     [12, 12, 12, 12],
+    image:      { type: 'jpeg', quality: 1.0 },
+    html2canvas:{
+      scale: 4, useCORS: true, allowTaint: true, logging: false,
+      scrollX: 0, scrollY: 0, x: 0, y: 0,
+      width: 740, height: captureHeight,
+      windowWidth: 740, windowHeight: captureHeight
+    },
     jsPDF:      { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
   try {
-    const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
-    // Convert blob to base64 string
-    const base64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result.split(',')[1]);
-      reader.onerror = reject;
-      reader.readAsDataURL(pdfBlob);
-    });
+    const pdfUri = await html2pdf().set(opt).from(container).outputPdf('datauristring');
+    const base64 = pdfUri.split(',')[1];
     return base64;
   } finally {
     document.body.removeChild(container);

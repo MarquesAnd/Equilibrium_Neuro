@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="/logo.png" />
     <link rel="apple-touch-icon" href="/logo.png" />
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/Correcao_testes/style.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -700,37 +701,29 @@
         });
 
         async function gerarPDF(formData) {
-            // Calcular dados
             const hoje = new Date();
 
-            // Inversão de itens
             const itensInversos = [3, 12, 19, 22, 24];
             const respostasCorrigidas = formData.respostas.map((resposta, index) => {
                 const numeroItem = index + 1;
                 return itensInversos.includes(numeroItem) ? 8 - resposta : resposta;
             });
 
-            // Subescalas
             const compensacaoItens = [1, 4, 5, 8, 11, 14, 17, 20, 23];
             const mascaramentoItens = [2, 6, 7, 10, 15, 18, 21];
             const assimilacaoItens = [3, 9, 12, 13, 16, 19, 22, 24, 25];
 
-            // Pontuações
             const scoreCompensacao = compensacaoItens.reduce((sum, item) => sum + respostasCorrigidas[item - 1], 0);
             const scoreMascaramento = mascaramentoItens.reduce((sum, item) => sum + respostasCorrigidas[item - 1], 0);
             const scoreAssimilacao = assimilacaoItens.reduce((sum, item) => sum + respostasCorrigidas[item - 1], 0);
             const scoreTotal = scoreCompensacao + scoreMascaramento + scoreAssimilacao;
 
-            // Percentuais
             const percCompensacao = ((scoreCompensacao / 63) * 100).toFixed(1);
             const percMascaramento = ((scoreMascaramento / 49) * 100).toFixed(1);
             const percAssimilacao = ((scoreAssimilacao / 63) * 100).toFixed(1);
             const percTotal = ((scoreTotal / 175) * 100).toFixed(1);
 
-            // Classificação
-            const classificacao = scoreTotal > 100
-                ? 'Camuflagem Significativa'
-                : 'Faixa Tipica';
+            const classificacao = scoreTotal > 100 ? 'Camuflagem Significativa' : 'Faixa Tipica';
 
             function nivelPerc(perc) {
                 if (perc >= 70) return 'MUITO ELEVADO';
@@ -746,28 +739,37 @@
                 assimilacao: { pontuacao: scoreAssimilacao, maximo: 63, percentual: parseFloat(percAssimilacao), nivel: nivelPerc(parseFloat(percAssimilacao)) }
             };
 
-            // Generate HTML report
             const htmlRelatorio = gerarHtmlRelatorio(formData, scores, classificacao, hoje);
 
-            // Use iframe for full HTML documents (with <!DOCTYPE>)
-            const iframe = document.createElement('iframe');
-            iframe.style.cssText = 'position:fixed;left:-9999px;top:0;width:800px;height:2000px;border:none;';
-            document.body.appendChild(iframe);
-            iframe.contentDocument.open();
-            iframe.contentDocument.write(htmlRelatorio);
-            iframe.contentDocument.close();
+            // Render in DOM container for reliable PDF generation
+            const captureWrap = document.createElement('div');
+            captureWrap.id = '__catq_capture__';
+            captureWrap.style.cssText = 'position:absolute;left:-9999px;top:0;width:740px;background:#fff;pointer-events:none;';
+            captureWrap.innerHTML = htmlRelatorio;
+            document.body.appendChild(captureWrap);
 
-            await new Promise(r => setTimeout(r, 500));
+            await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
+            const captureHeight = captureWrap.scrollHeight;
+
+            // Move to visible position for html2canvas capture
+            captureWrap.style.left = '0';
+            captureWrap.style.top = '0';
+            await new Promise(r => setTimeout(r, 150));
 
             const opt = {
-                margin: [5, 5, 5, 5],
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, logging: false },
+                margin: [12, 12, 12, 12],
+                image: { type: 'jpeg', quality: 1.0 },
+                html2canvas: {
+                    scale: 4, useCORS: true, logging: false,
+                    scrollX: 0, scrollY: 0, x: 0, y: 0,
+                    width: 740, height: captureHeight,
+                    windowWidth: 740, windowHeight: captureHeight
+                },
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            const pdfUri = await html2pdf().set(opt).from(iframe.contentDocument.body).outputPdf('datauristring');
-            document.body.removeChild(iframe);
+            const pdfUri = await html2pdf().set(opt).from(captureWrap).outputPdf('datauristring');
+            document.body.removeChild(captureWrap);
 
             return pdfUri.split(',')[1];
         }
@@ -838,7 +840,6 @@
         function gerarHtmlRelatorio(formData, scores, classificacao, hoje) {
             const nome = formData.nome || '';
             const dataFormatada = hoje.toLocaleDateString('pt-BR');
-            const horaFormatada = hoje.toLocaleTimeString('pt-BR');
 
             const nascimento = new Date(formData.dataNascimento + 'T00:00:00');
             let idade = hoje.getFullYear() - nascimento.getFullYear();
@@ -847,17 +848,11 @@
 
             const isSignificativa = scores.total.pontuacao > 100;
 
-            function barColor(key) {
-                if (key === 'compensacao') return ['#667eea','#5a67d8'];
-                if (key === 'mascaramento') return ['#764ba2','#6b3fa0'];
-                return ['#38bdf8','#0ea5e9'];
-            }
-
             function badgeColor(nivel) {
-                if (nivel === 'MUITO ELEVADO') return 'background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;';
-                if (nivel === 'ELEVADO') return 'background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;';
-                if (nivel === 'MODERADO') return 'background:linear-gradient(135deg,#3b82f6,#2563eb);color:#fff;';
-                return 'background:linear-gradient(135deg,#10b981,#059669);color:#fff;';
+                if (nivel === 'MUITO ELEVADO') return 'background:#fee2e2;color:#dc2626;';
+                if (nivel === 'ELEVADO') return 'background:#fef3c7;color:#d97706;';
+                if (nivel === 'MODERADO') return 'background:#dbeafe;color:#2563eb;';
+                return 'background:#d1fae5;color:#059669;';
             }
 
             function badgeLabel(nivel) {
@@ -868,306 +863,122 @@
             }
 
             const subscales = [
-                { key: 'compensacao', label: 'Compensa\u00e7\u00e3o', items: '1, 4, 5, 8, 11, 14, 17, 20, 23', nItens: 9, desc: 'Estrat\u00e9gias aprendidas para compensar dificuldades sociais: copiar comportamentos observados, criar roteiros mentais para intera\u00e7\u00f5es, estudar regras sociais e preparar t\u00f3picos de conversa antecipadamente.' },
-                { key: 'mascaramento', label: 'Mascaramento', items: '2, 6, 7, 10, 15, 18, 21', nItens: 7, desc: 'Controle ativo e consciente de express\u00f5es faciais, linguagem corporal e tom de voz para parecer socialmente \u201ct\u00edpico\u201d, suprimindo comportamentos aut\u00eanticos.' },
-                { key: 'assimilacao', label: 'Assimila\u00e7\u00e3o', items: '3, 9, 12, 13, 16, 19, 22, 24, 25', nItens: 9, desc: 'Esfor\u00e7o para se encaixar socialmente, evitar se destacar, necessidade de se misturar ao grupo e sensa\u00e7\u00e3o de \u201cfingir ser normal\u201d em contextos sociais.' }
+                { key: 'compensacao', label: 'Compensação', items: '1, 4, 5, 8, 11, 14, 17, 20, 23', nItens: 9, desc: 'Estratégias aprendidas para compensar dificuldades sociais: copiar comportamentos observados, criar roteiros mentais para interações, estudar regras sociais e preparar tópicos de conversa antecipadamente.' },
+                { key: 'mascaramento', label: 'Mascaramento', items: '2, 6, 7, 10, 15, 18, 21', nItens: 7, desc: 'Controle ativo e consciente de expressões faciais, linguagem corporal e tom de voz para parecer socialmente "típico", suprimindo comportamentos autênticos.' },
+                { key: 'assimilacao', label: 'Assimilação', items: '3, 9, 12, 13, 16, 19, 22, 24, 25', nItens: 9, desc: 'Esforço para se encaixar socialmente, evitar se destacar, necessidade de se misturar ao grupo e sensação de "fingir ser normal" em contextos sociais.' }
             ];
 
-            // SVG horizontal bar chart with gradients
-            const chartW = 580;
-            const barH = 34;
-            const gap = 24;
-            const labelW = 120;
-            const maxBarW = chartW - labelW - 100;
-            const startY = 10;
+            const subColors = { compensacao: '#1a56db', mascaramento: '#7c3aed', assimilacao: '#059669' };
 
-            let svgDefs = '<defs>';
-            subscales.forEach(sc => {
-                const [c1, c2] = barColor(sc.key);
-                svgDefs += `<linearGradient id="grad-${sc.key}" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient>`;
-            });
-            svgDefs += '</defs>';
+            // Table rows
+            const tableRows = subscales.map((sc, i) => {
+                const s = scores[sc.key];
+                return '<tr' + (i % 2 ? ' class="alt"' : '') + '>' +
+                    '<td style="font-weight:700;color:' + subColors[sc.key] + ';">' + sc.label + '</td>' +
+                    '<td class="ctr">' + s.pontuacao + '</td>' +
+                    '<td class="ctr">' + s.maximo + '</td>' +
+                    '<td class="ctr">' + s.percentual + '%</td>' +
+                    '<td class="ctr"><span class="cl-badge" style="' + badgeColor(s.nivel) + '">' + badgeLabel(s.nivel) + '</span></td></tr>';
+            }).join('');
 
+            // Bar chart SVG
+            const chartW = 580, barH = 28, gap = 18, labelW = 120, maxBarW = chartW - labelW - 80, startY = 6;
             let svgBars = '';
             subscales.forEach((sc, i) => {
                 const s = scores[sc.key];
                 const pct = s.percentual / 100;
                 const bw = Math.max(6, pct * maxBarW);
                 const y = startY + i * (barH + gap);
-                svgBars += `
-                    <text x="0" y="${y + barH / 2 + 5}" font-size="13" font-weight="700" fill="#334155" font-family="'Segoe UI',system-ui,sans-serif">${sc.label}</text>
-                    <rect x="${labelW}" y="${y}" width="${maxBarW}" height="${barH}" rx="8" fill="#e9edf5"/>
-                    <rect x="${labelW}" y="${y}" width="${bw}" height="${barH}" rx="8" fill="url(#grad-${sc.key})"/>
-                    <text x="${labelW + bw + 10}" y="${y + barH / 2 + 5}" font-size="12.5" font-weight="800" fill="#1e293b" font-family="'Segoe UI',system-ui,sans-serif">${s.pontuacao}/${s.maximo}</text>
-                    <text x="${labelW + bw + 10}" y="${y + barH / 2 + 19}" font-size="10.5" font-weight="500" fill="#64748b" font-family="'Segoe UI',system-ui,sans-serif">${s.percentual}%</text>
-                `;
+                const col = subColors[sc.key];
+                svgBars += '<text x="0" y="' + (y + barH / 2 + 5) + '" font-size="12" font-weight="700" fill="#334155" font-family="DM Sans,system-ui,sans-serif">' + sc.label + '</text>' +
+                    '<rect x="' + labelW + '" y="' + y + '" width="' + maxBarW + '" height="' + barH + '" rx="6" fill="#e2e8f0"/>' +
+                    '<rect x="' + labelW + '" y="' + y + '" width="' + bw + '" height="' + barH + '" rx="6" fill="' + col + '"/>' +
+                    '<text x="' + (labelW + bw + 8) + '" y="' + (y + barH / 2 + 5) + '" font-size="12" font-weight="800" fill="#0f172a">' + s.pontuacao + '/' + s.maximo + ' (' + s.percentual + '%)</text>';
             });
+            const svgTotalH = startY + 3 * (barH + gap) + 4;
+            const svgChart = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + chartW + ' ' + svgTotalH + '" style="width:100%;max-width:620px;display:block;margin:0 auto;">' + svgBars + '</svg>';
 
-            const svgTotalH = startY + 3 * (barH + gap) + 10;
-            const svgChart = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${chartW} ${svgTotalH}" style="width:100%;max-width:620px;display:block;margin:0 auto;">${svgDefs}${svgBars}</svg>`;
-
-            // Summary table rows
-            const tableRows = subscales.map(sc => {
-                const s = scores[sc.key];
-                const [c1] = barColor(sc.key);
-                return `<tr>
-                    <td style="font-weight:700;color:${c1};">${sc.label}</td>
-                    <td style="text-align:center;">${s.pontuacao}</td>
-                    <td style="text-align:center;">${s.maximo}</td>
-                    <td style="text-align:center;">${s.percentual}%</td>
-                    <td style="text-align:center;"><span class="cls-badge" style="${badgeColor(s.nivel)}padding:3px 14px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;">${badgeLabel(s.nivel)}</span></td>
-                </tr>`;
-            }).join('');
-
-            // Subscale detail cards
+            // Subscale interpretation cards
             const subscaleCards = subscales.map(sc => {
                 const s = scores[sc.key];
-                const [c1] = barColor(sc.key);
-                return `
-                <div class="rpt-detail">
-                    <div class="rpt-detail-accent" style="background:linear-gradient(90deg,${c1},${barColor(sc.key)[1]});"></div>
-                    <div class="rpt-detail-body">
-                        <div class="rpt-detail-head">
-                            <div>
-                                <div class="rpt-detail-label">${sc.label}</div>
-                                <div class="rpt-detail-items">${sc.nItens} itens (${sc.items})</div>
-                            </div>
-                            <span style="${badgeColor(s.nivel)}padding:4px 14px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;">${badgeLabel(s.nivel)}</span>
-                        </div>
-                        <div class="rpt-detail-score" style="color:${c1};">${s.pontuacao} <span class="rpt-detail-max">/ ${s.maximo}</span> <span class="rpt-detail-pct">(${s.percentual}%)</span></div>
-                        <div class="rpt-detail-bar">
-                            <div class="rpt-detail-fill" style="width:${s.percentual}%;background:linear-gradient(90deg,${c1},${barColor(sc.key)[1]});"></div>
-                        </div>
-                        <div class="rpt-detail-desc">${sc.desc}</div>
-                    </div>
-                </div>`;
+                const col = subColors[sc.key];
+                return '<div style="border-left:4px solid ' + col + ';padding:12px 16px;margin:10px 0;background:#f8fafc;border-radius:0 10px 10px 0;">' +
+                    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:8px;">' +
+                    '<span style="font-weight:800;font-size:14px;color:' + col + ';">' + sc.label + ' <span style="font-weight:500;font-size:12px;color:#94a3b8;">(' + sc.nItens + ' itens: ' + sc.items + ')</span></span>' +
+                    '<span class="cl-badge" style="' + badgeColor(s.nivel) + '">' + badgeLabel(s.nivel) + '</span></div>' +
+                    '<div style="font-size:18px;font-weight:900;color:' + col + ';margin-bottom:6px;">' + s.pontuacao + ' <span style="font-size:12px;font-weight:500;color:#94a3b8;">/ ' + s.maximo + ' (' + s.percentual + '%)</span></div>' +
+                    '<div style="background:#e2e8f0;border-radius:4px;height:8px;overflow:hidden;margin-bottom:8px;"><div style="height:100%;width:' + s.percentual + '%;background:' + col + ';border-radius:4px;"></div></div>' +
+                    '<div style="font-size:11px;color:#64748b;line-height:1.65;">' + sc.desc + '</div></div>';
             }).join('');
 
-            return `<!DOCTYPE html>
-<html lang="pt-BR">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>CAT-Q - Relat\u00f3rio</title>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'DM Sans',Arial,sans-serif;background:#f0f4f8;color:#1e293b;line-height:1.6;-webkit-font-smoothing:antialiased;}
-.rpt-outer{max-width:820px;margin:24px auto;padding:0 16px;}
-.rpt-wrap{background:#fff;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 8px 40px rgba(0,0,0,.06);overflow:hidden;}
+            return '<div class="report">' +
+              '<div class="rpt-hdr"><div class="deco1"></div><div class="deco2"></div>' +
+              '<div class="rpt-hdr-inner"><div style="display:flex;align-items:center;gap:16px">' +
+              '<img class="hdr-logo" src="/logo2.png" alt="Logo" onerror="this.style.display=\'none\'"><div>' +
+              '<div class="kicker">Relatório Neuropsicológico</div>' +
+              '<div class="title">CAT-Q</div>' +
+              '<div class="subtitle">Camouflaging Autistic Traits Questionnaire</div>' +
+              '<div class="sub2">Hull et al. (2019) — 25 itens, 3 subescalas</div>' +
+              '</div></div>' +
+              '<div class="rpt-hdr-badge"><div class="lbl">Pontuação Total</div><div class="val">' + scores.total.pontuacao + '/' + scores.total.maximo + '</div><div class="sub">' + classificacao + '</div></div>' +
+              '</div></div>' +
 
-/* Header - dark blue gradient */
-.rpt-header{background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);color:#fff;padding:28px 28px 22px;position:relative;overflow:hidden;}
-.rpt-header-circle{position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.04);}
-.rpt-header-top{display:flex;align-items:center;gap:12px;margin-bottom:10px;position:relative;z-index:1;}
-.rpt-header-logo{height:36px;border-radius:8px;background:#fff;padding:4px;}
-.rpt-header-kicker{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;opacity:.7;margin-bottom:2px;}
-.rpt-header-title{font-size:20px;font-weight:900;letter-spacing:.02em;position:relative;z-index:1;}
-.rpt-header-subtitle{font-size:12px;font-weight:500;opacity:.75;margin-top:2px;position:relative;z-index:1;}
-.rpt-header-badge{position:absolute;right:28px;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.12);border-radius:12px;padding:14px 20px;text-align:center;z-index:1;backdrop-filter:blur(4px);}
-.rpt-header-badge-score{font-size:32px;font-weight:900;line-height:1;}
-.rpt-header-badge-label{font-size:10px;font-weight:600;opacity:.8;margin-top:2px;}
+              '<div class="rpt-body">' +
 
-/* Info box */
-.rpt-info{background:#f8fafc;border-radius:10px;padding:12px 16px;border:1px solid #e2e8f0;margin-bottom:14px;}
-.rpt-info-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
-.rpt-info-label{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#64748b;}
-.rpt-info-value{font-size:13px;font-weight:700;color:#0f172a;margin-top:1px;}
+              '<div class="rpt-sh"><span class="num">1</span><span class="sh-title">Identificação</span></div>' +
+              '<div class="rpt-box no-break"><div class="rpt-info">' +
+              '<div><span class="lbl">Nome:</span> <span class="val bold">' + nome + '</span></div>' +
+              '<div><span class="lbl">Idade:</span> <span class="val">' + idade + ' anos</span></div>' +
+              '<div><span class="lbl">Nascimento:</span> <span class="val">' + nascimento.toLocaleDateString('pt-BR') + '</span></div>' +
+              '<div><span class="lbl">Avaliação:</span> <span class="val">' + dataFormatada + '</span></div>' +
+              '</div></div>' +
 
-/* Body */
-.rpt-body{padding:0 24px 24px;}
+              '<div class="rpt-sh"><span class="num">2</span><span class="sh-title">Pontuação Total</span></div>' +
+              '<div class="rpt-box no-break" style="background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);border:none;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:20px 24px;">' +
+              '<div><div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;opacity:.7;">Pontuação Total</div>' +
+              '<div style="font-size:40px;font-weight:900;line-height:1;">' + scores.total.pontuacao + '<span style="font-size:16px;font-weight:500;opacity:.7;"> / ' + scores.total.maximo + '</span></div>' +
+              '<div style="font-size:12px;opacity:.7;margin-top:4px;">' + scores.total.percentual + '% da pontuação máxima</div></div>' +
+              '<div style="text-align:right;"><div style="display:inline-block;padding:8px 20px;border-radius:12px;font-size:14px;font-weight:800;background:rgba(255,255,255,.18);">' + classificacao + '</div>' +
+              '<div style="font-size:10px;opacity:.6;margin-top:4px;">Ponto de corte clínico: &gt; 100</div></div></div>' +
 
-/* Section headers - numbered blue badges */
-.rpt-section-head{display:flex;align-items:center;gap:8px;margin:14px 0 10px;}
-.rpt-section-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;}
-.rpt-section-label{font-weight:700;font-size:13px;color:#0f172a;}
+              '<div class="rpt-sh"><span class="num">3</span><span class="sh-title">Tabela de Resultados</span></div>' +
+              '<div style="border-radius:10px;border:1px solid #e2e8f0;overflow:hidden" class="no-break">' +
+              '<table class="rpt-tbl"><thead><tr><th>Subescala</th><th class="ctr">Bruto</th><th class="ctr">Máximo</th><th class="ctr">Percentual</th><th class="ctr">Classificação</th></tr></thead>' +
+              '<tbody>' + tableRows +
+              '<tr style="background:#dbeafe;"><td style="font-weight:800;color:#1e40af;font-size:11px;text-transform:uppercase;letter-spacing:.5px;">Total</td><td class="ctr" style="font-weight:800;color:#1e40af;">' + scores.total.pontuacao + '</td><td class="ctr" style="color:#1e40af;">' + scores.total.maximo + '</td><td class="ctr" style="font-weight:800;color:#1e40af;">' + scores.total.percentual + '%</td>' +
+              '<td class="ctr"><span class="cl-badge" style="' + (isSignificativa ? 'background:#fee2e2;color:#dc2626;' : 'background:#d1fae5;color:#059669;') + '">' + classificacao + '</span></td></tr>' +
+              '</tbody></table></div>' +
 
-/* Total highlight box */
-.rpt-total{background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);border-radius:12px;padding:20px 24px;margin-bottom:14px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:20px;position:relative;overflow:hidden;}
-.rpt-total-circle{position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.05);}
-.rpt-total-left{position:relative;z-index:1;}
-.rpt-total-score{font-size:40px;font-weight:900;line-height:1;}
-.rpt-total-sub{font-size:12px;opacity:.8;margin-top:4px;font-weight:500;}
-.rpt-total-right{position:relative;z-index:1;text-align:right;}
-.rpt-total-badge{display:inline-block;padding:5px 18px;border-radius:20px;font-size:12px;font-weight:700;background:rgba(255,255,255,.18);backdrop-filter:blur(4px);}
-.rpt-total-cutoff{font-size:10px;opacity:.6;margin-top:4px;}
+              '<div class="rpt-sh"><span class="num">4</span><span class="sh-title">Perfil por Subescalas</span></div>' +
+              '<div class="rpt-box no-break" style="text-align:center;">' + svgChart + '</div>' +
 
-/* Tables - blue header */
-.rpt-table{width:100%;border-collapse:separate;border-spacing:0;margin-bottom:8px;font-size:12px;}
-.rpt-table thead th{background:#dbeafe;color:#1e40af;padding:8px 12px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;text-align:left;}
-.rpt-table thead th:first-child{border-radius:8px 0 0 0;}
-.rpt-table thead th:last-child{border-radius:0 8px 0 0;}
-.rpt-table tbody td{padding:10px 12px;border-bottom:1px solid #f1f5f9;font-size:12px;}
-.rpt-table tbody tr:last-child td{border-bottom:none;}
+              '<div class="rpt-sh"><span class="num">5</span><span class="sh-title">Detalhamento por Subescala</span></div>' +
+              subscaleCards +
 
-/* Detail cards */
-.rpt-detail{border-radius:10px;overflow:hidden;margin-bottom:12px;border:1px solid #e2e8f0;background:#fff;}
-.rpt-detail-accent{height:4px;}
-.rpt-detail-body{padding:14px 18px;}
-.rpt-detail-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;}
-.rpt-detail-label{font-weight:800;font-size:14px;color:#0f172a;}
-.rpt-detail-items{font-size:10px;color:#94a3b8;font-weight:500;margin-top:1px;}
-.rpt-detail-score{font-size:22px;font-weight:900;margin-bottom:6px;line-height:1.2;}
-.rpt-detail-max{font-size:13px;font-weight:500;color:#94a3b8;}
-.rpt-detail-pct{font-size:12px;font-weight:600;color:#64748b;}
-.rpt-detail-bar{background:#e2e8f0;border-radius:4px;height:8px;overflow:hidden;margin-bottom:8px;}
-.rpt-detail-fill{height:100%;border-radius:4px;}
-.rpt-detail-desc{font-size:11px;color:#64748b;line-height:1.65;}
+              '<div class="rpt-sh"><span class="num">6</span><span class="sh-title">Interpretação Clínica</span></div>' +
+              '<div class="rpt-interp">' +
+              (isSignificativa
+                ? '<p>A pontuação total acima do ponto de corte clínico (&gt;100) sugere presença <strong>significativa</strong> de comportamentos de camuflagem social (masking). Isso indica que o avaliado investe considerável energia cognitiva e emocional em estratégias de adaptação social. A combinação das três dimensões avaliadas aponta para um estilo de funcionamento social caracterizado por esforço consciente, monitoramento constante e possível discrepância entre a experiência interna e a apresentação externa. Este padrão pode estar associado a fadiga social, necessidade de períodos de recuperação após interações e potencial risco de burnout autístico.</p>'
+                : '<p>A pontuação total dentro da faixa típica (≤100) sugere que o avaliado tende a experienciar interações sociais de forma relativamente mais natural, com menor necessidade de estratégias compensatórias intensivas. No entanto, a análise qualitativa das subescalas individuais oferece informações importantes sobre aspectos específicos do funcionamento social que podem beneficiar de suporte ou intervenção direcionada.</p>') +
+              '</div>' +
 
-/* Interpretation */
-.rpt-interp{font-size:12px;color:#334155;line-height:1.75;}
+              '<div class="rpt-sh"><span class="num">7</span><span class="sh-title">Considerações Importantes</span></div>' +
+              '<div class="rpt-box-obs no-break"><ul style="padding-left:16px;margin:0;">' +
+              '<li>O CAT-Q <strong>não</strong> é um instrumento diagnóstico de TEA; mede especificamente estratégias de camuflagem/masking.</li>' +
+              '<li>Pontuações elevadas podem ocorrer em outras condições (ansiedade social, TDAH, alta sensibilidade).</li>' +
+              '<li>Camuflagem intensa pode mascarar características autistas, levando a diagnósticos tardios ou incorretos.</li>' +
+              '<li>Masking prolongado está associado a maior risco de ansiedade, depressão, esgotamento e crises autísticas.</li>' +
+              '<li>Intervenções devem focar em bem-estar e qualidade de vida, não em "normalização".</li>' +
+              '<li>Deve ser interpretado no contexto clínico amplo, nunca isoladamente.</li></ul></div>' +
 
-/* Considerations */
-.rpt-consider{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;margin-bottom:14px;}
-.rpt-consider h4{color:#1e40af;margin-bottom:8px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;}
-.rpt-consider li{font-size:11px;color:#334155;line-height:1.75;margin-bottom:2px;}
-.rpt-consider ul{padding-left:16px;margin-top:4px;}
+              '<div class="rpt-foot no-break"><div>' +
+              '<div style="color:#64748b;font-size:12px">Equilibrium Neuropsicologia</div>' +
+              '</div><div class="rpt-foot-right">' +
+              '<div>Documento gerado em ' + dataFormatada + '</div>' +
+              '<div class="rpt-foot-disclaimer">Este documento é confidencial e destinado exclusivamente ao profissional solicitante.</div>' +
+              '</div></div>' +
 
-/* Footer */
-.rpt-footer{border-top:2px solid #e2e8f0;padding:16px 24px 14px;margin-top:22px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
-.rpt-footer-left{font-size:11px;font-weight:700;color:#1a56db;}
-.rpt-footer-right{text-align:right;}
-.rpt-footer-date{font-size:10px;color:#64748b;}
-.rpt-footer-conf{font-size:9px;color:#94a3b8;margin-top:4px;max-width:360px;line-height:1.5;}
-
-/* Print */
-@media print{
-  body{background:#fff !important;}
-  .rpt-outer{margin:0;padding:0;}
-  .rpt-wrap{box-shadow:none;border-radius:0;border:none;}
-  .rpt-detail{break-inside:avoid;}
-}
-</style>
-</head>
-<body>
-<div class="rpt-outer">
-<div class="rpt-wrap">
-
-    <!-- Header -->
-    <div class="rpt-header">
-        <div class="rpt-header-circle"></div>
-        <div class="rpt-header-top">
-            <img class="rpt-header-logo" src="/logo.png" alt="Equilibrium" onerror="this.style.display='none'">
-            <div>
-                <div class="rpt-header-kicker">Relat\u00f3rio Neuropsicol\u00f3gico</div>
-                <div class="rpt-header-title">CAT-Q</div>
-                <div class="rpt-header-subtitle">Camouflaging Autistic Traits Questionnaire</div>
-            </div>
-        </div>
-        <div class="rpt-header-badge">
-            <div class="rpt-header-badge-score">${scores.total.pontuacao}</div>
-            <div class="rpt-header-badge-label">de ${scores.total.maximo} pontos</div>
-        </div>
-    </div>
-
-    <div class="rpt-body">
-
-        <!-- Patient info box -->
-        <div style="padding-top:16px;"></div>
-        <div class="rpt-info">
-            <div class="rpt-info-grid">
-                <div><div class="rpt-info-label">Paciente</div><div class="rpt-info-value">${nome}</div></div>
-                <div><div class="rpt-info-label">Idade</div><div class="rpt-info-value">${idade} anos</div></div>
-                <div><div class="rpt-info-label">Data de Nascimento</div><div class="rpt-info-value">${nascimento.toLocaleDateString('pt-BR')}</div></div>
-                <div><div class="rpt-info-label">Data da Avalia\u00e7\u00e3o</div><div class="rpt-info-value">${dataFormatada}</div></div>
-            </div>
-        </div>
-
-        <!-- 1. Score Total -->
-        <div class="rpt-section-head">
-            <span class="rpt-section-num">1</span>
-            <span class="rpt-section-label">Pontua\u00e7\u00e3o Total</span>
-        </div>
-        <div class="rpt-total">
-            <div class="rpt-total-circle"></div>
-            <div class="rpt-total-left">
-                <div class="rpt-total-score">${scores.total.pontuacao}<span style="font-size:16px;font-weight:500;opacity:.7;"> / ${scores.total.maximo}</span></div>
-                <div class="rpt-total-sub">${scores.total.percentual}% da pontua\u00e7\u00e3o m\u00e1xima</div>
-            </div>
-            <div class="rpt-total-right">
-                <div class="rpt-total-badge">${classificacao}</div>
-                <div class="rpt-total-cutoff">Ponto de corte cl\u00ednico: &gt; 100</div>
-            </div>
-        </div>
-
-        <!-- 2. Tabela de Resultados -->
-        <div class="rpt-section-head">
-            <span class="rpt-section-num">2</span>
-            <span class="rpt-section-label">Tabela de Resultados</span>
-        </div>
-        <table class="rpt-table">
-            <thead>
-                <tr>
-                    <th>Subescala</th>
-                    <th style="text-align:center;">Bruto</th>
-                    <th style="text-align:center;">M\u00e1ximo</th>
-                    <th style="text-align:center;">Percentual</th>
-                    <th style="text-align:center;">Classifica\u00e7\u00e3o</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${tableRows}
-                <tr style="background:#f8fafc;font-weight:700;">
-                    <td style="font-weight:800;color:#0f172a;">Total</td>
-                    <td style="text-align:center;font-weight:800;">${scores.total.pontuacao}</td>
-                    <td style="text-align:center;">${scores.total.maximo}</td>
-                    <td style="text-align:center;font-weight:800;">${scores.total.percentual}%</td>
-                    <td style="text-align:center;"><span style="${isSignificativa ? 'background:linear-gradient(135deg,#dc2626,#b91c1c);color:#fff;' : 'background:linear-gradient(135deg,#059669,#065f46);color:#fff;'}padding:3px 14px;border-radius:20px;font-size:11px;font-weight:700;display:inline-block;">${classificacao}</span></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <!-- 3. Perfil por Subescalas -->
-        <div class="rpt-section-head">
-            <span class="rpt-section-num">3</span>
-            <span class="rpt-section-label">Perfil por Subescalas</span>
-        </div>
-        ${svgChart}
-
-        <!-- 4. Detalhamento por Subescala -->
-        <div class="rpt-section-head">
-            <span class="rpt-section-num">4</span>
-            <span class="rpt-section-label">Detalhamento por Subescala</span>
-        </div>
-        ${subscaleCards}
-
-        <!-- 5. Interpreta\u00e7\u00e3o Cl\u00ednica -->
-        <div class="rpt-section-head">
-            <span class="rpt-section-num">5</span>
-            <span class="rpt-section-label">Interpreta\u00e7\u00e3o Cl\u00ednica</span>
-        </div>
-        ${isSignificativa
-            ? '<p class="rpt-interp">A pontua\u00e7\u00e3o total acima do ponto de corte cl\u00ednico (>100) sugere presen\u00e7a <strong>significativa</strong> de comportamentos de camuflagem social (masking). Isso indica que o avaliado investe consider\u00e1vel energia cognitiva e emocional em estrat\u00e9gias de adapta\u00e7\u00e3o social. A combina\u00e7\u00e3o das tr\u00eas dimens\u00f5es avaliadas aponta para um estilo de funcionamento social caracterizado por esfor\u00e7o consciente, monitoramento constante e poss\u00edvel discrep\u00e2ncia entre a experi\u00eancia interna e a apresenta\u00e7\u00e3o externa. Este padr\u00e3o pode estar associado a fadiga social, necessidade de per\u00edodos de recupera\u00e7\u00e3o ap\u00f3s intera\u00e7\u00f5es e potencial risco de burnout aut\u00edstico.</p>'
-            : '<p class="rpt-interp">A pontua\u00e7\u00e3o total dentro da faixa t\u00edpica (\u2264100) sugere que o avaliado tende a experienciar intera\u00e7\u00f5es sociais de forma relativamente mais natural, com menor necessidade de estrat\u00e9gias compensat\u00f3rias intensivas. No entanto, a an\u00e1lise qualitativa das subescalas individuais oferece informa\u00e7\u00f5es importantes sobre aspectos espec\u00edficos do funcionamento social que podem beneficiar de suporte ou interven\u00e7\u00e3o direcionada.</p>'
-        }
-
-        <!-- 6. Considera\u00e7\u00f5es Importantes -->
-        <div class="rpt-section-head">
-            <span class="rpt-section-num">6</span>
-            <span class="rpt-section-label">Considera\u00e7\u00f5es Importantes</span>
-        </div>
-        <div class="rpt-consider">
-            <ul>
-                <li>O CAT-Q <strong>n\u00e3o</strong> \u00e9 um instrumento diagn\u00f3stico de TEA; mede especificamente estrat\u00e9gias de camuflagem/masking.</li>
-                <li>Pontua\u00e7\u00f5es elevadas podem ocorrer em outras condi\u00e7\u00f5es (ansiedade social, TDAH, alta sensibilidade).</li>
-                <li>Camuflagem intensa pode mascarar caracter\u00edsticas autistas, levando a diagn\u00f3sticos tardios ou incorretos.</li>
-                <li>Masking prolongado est\u00e1 associado a maior risco de ansiedade, depress\u00e3o, esgotamento e crises aut\u00edsticas.</li>
-                <li>Interven\u00e7\u00f5es devem focar em bem-estar e qualidade de vida, n\u00e3o em \u201cnormaliza\u00e7\u00e3o\u201d.</li>
-                <li>Deve ser interpretado no contexto cl\u00ednico amplo, nunca isoladamente.</li>
-            </ul>
-        </div>
-
-        <!-- Footer -->
-        <div class="rpt-footer">
-            <div class="rpt-footer-left">Equilibrium Neuropsicologia</div>
-            <div class="rpt-footer-right">
-                <div class="rpt-footer-date">Gerado em ${dataFormatada} \u00e0s ${horaFormatada}</div>
-                <div class="rpt-footer-conf">Este relat\u00f3rio \u00e9 de car\u00e1ter confidencial e deve ser interpretado por profissional qualificado em conjunto com avalia\u00e7\u00e3o cl\u00ednica completa. N\u00e3o constitui diagn\u00f3stico.</div>
-            </div>
-        </div>
-
-    </div>
-
-</div>
-</div>
-</body>
-</html>`;
+              '</div></div>';
         }
 
         async function enviarParaDrive(formData, pdfBase64) {

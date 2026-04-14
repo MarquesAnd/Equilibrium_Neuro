@@ -55,81 +55,7 @@
     .modal-title { font-size: 20px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
     .modal-sub { font-size: 14px; color: #64748b; }
 
-    /* Report overlay */
-    .qcpfc-report-overlay { position: fixed; inset: 0; background: #f1f5f9; z-index: 8000; display: none; flex-direction: column; }
-    .qcpfc-report-overlay.ativo { display: flex; }
-    .qcpfc-report-topbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
-    .qcpfc-report-topbar-left { display: flex; align-items: center; gap: 12px; }
-    .qcpfc-report-topbar h2 { font-size: 16px; font-weight: 800; color: var(--qcpfc-accent-dark); margin: 0; }
-    .qcpfc-report-actions { display: flex; gap: 8px; }
-    .btn-print-rep { background: var(--qcpfc-accent); color: #fff; border: none; padding: 9px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
-    .btn-print-rep:hover { background: var(--qcpfc-accent-dark); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(124,58,237,.2); }
-    .btn-close-rep { background: #f1f5f9; color: #374151; border: 1.5px solid #e2e8f0; padding: 9px 16px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.15s; }
-    .btn-close-rep:hover { background: #e2e8f0; transform: translateY(-2px); }
-    .btn-voltar-pac { background: #059669; color: #fff; border: none; padding: 9px 18px; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
-    .btn-voltar-pac:hover { background: #047857; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(5,150,105,.3); }
-    .qcpfc-report-scroll { flex: 1; overflow-y: auto; padding: 32px 24px; }
-    .qcpfc-report-frame { max-width: 860px; margin: 0 auto; }
-
-    /* Report styles */
-    .rep-wrapper { background: #fff; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08); }
-    .rep-header { background: linear-gradient(135deg, var(--qcpfc-accent-dark) 0%, var(--qcpfc-accent) 100%); padding: 32px 36px; color: #fff; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap; }
-    .rep-header-brand { display: flex; align-items: center; gap: 14px; }
-    .rep-logo { height: 48px; border-radius: 8px; }
-    .rep-brand-name { font-size: 18px; font-weight: 800; }
-    .rep-brand-sub { font-size: 12px; opacity: 0.9; }
-    .rep-header-info { text-align: right; }
-    .rep-title { font-size: 22px; font-weight: 800; margin-bottom: 4px; }
-    .rep-subtitle { font-size: 13px; opacity: 0.9; }
-    .rep-body { padding: 36px; }
-    .rep-section { margin-bottom: 32px; }
-    .rep-section-title { font-size: 18px; font-weight: 800; color: #1e293b; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #f1f5f9; }
-    .rep-text { font-size: 14px; color: #475569; line-height: 1.7; margin-bottom: 12px; }
-    .rep-text strong { color: #1e293b; font-weight: 700; }
-    .rep-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; background: #f8fafc; padding: 20px; border-radius: 12px; }
-    .rep-meta-item { display: flex; flex-direction: column; gap: 6px; }
-    .rep-meta-label { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-    .rep-meta-value { font-size: 16px; font-weight: 700; color: #1e293b; }
-    .rep-chart-container { margin: 24px 0; padding: 20px; background: #fafcff; border-radius: 12px; border: 1.5px solid #e2e8f0; }
-    .rep-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
-    .rep-table th { background: #f1f5f9; padding: 10px 14px; text-align: left; font-weight: 700; color: #475569; border-bottom: 2px solid #e2e8f0; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
-    .rep-table td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; color: #1e293b; }
-    .rep-table tr:hover td { background: #fafcff; }
-    .rep-class-badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
-    .rep-scale-card { border-radius: 14px; padding: 20px 22px; margin-bottom: 16px; border: 1.5px solid #e2e8f0; }
-    .rep-scale-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px; }
-    .rep-scale-card-name { font-size: 16px; font-weight: 800; }
-    .rep-scale-card-zscore { font-size: 14px; font-weight: 700; padding: 4px 12px; border-radius: 20px; }
-    .rep-scale-card-belief { font-size: 13px; font-weight: 600; color: #475569; font-style: italic; margin-bottom: 8px; line-height: 1.5; }
-    .rep-scale-card-desc { font-size: 12px; color: #64748b; line-height: 1.6; }
-    .rep-interpretation-box { background: #f5f3ff; border-left: 4px solid var(--qcpfc-accent); border-radius: 8px; padding: 20px; }
-    .rep-interpretation-box p { color: #1e293b; line-height: 1.8; margin: 0 0 10px 0; }
-    .rep-interpretation-box p:last-child { margin-bottom: 0; }
-    .rep-footer { margin-top: 40px; padding-top: 24px; border-top: 2px solid #f1f5f9; text-align: center; }
-    .rep-footer p { font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
-    .rep-footer-confidencial { font-size: 11px !important; color: #cbd5e1 !important; }
-
-    @media print {
-      @page { margin: 10mm 12mm; size: A4 portrait; }
-      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
-      html, body { margin: 0 !important; padding: 0 !important; height: auto !important; background: #fff !important; overflow: visible !important; }
-      .sidebar, .qcpfc-report-topbar, .main-content, .app-shell, .modal-overlay, .action-buttons { display: none !important; }
-      .qcpfc-report-overlay.ativo {
-        display: block !important; position: static !important; background: #fff !important;
-        width: 100% !important; height: auto !important; overflow: visible !important; inset: auto !important;
-      }
-      .qcpfc-report-scroll { padding: 0 !important; overflow: visible !important; height: auto !important; }
-      .qcpfc-report-frame { max-width: 100% !important; margin: 0 !important; }
-      .rep-wrapper { box-shadow: none !important; border-radius: 0 !important; margin: 0 !important; page-break-before: avoid !important; }
-      .rep-header { break-inside: avoid !important; page-break-inside: avoid !important; }
-      .rep-section { break-inside: avoid !important; page-break-inside: avoid !important; }
-      .rep-section-title { break-after: avoid !important; page-break-after: avoid !important; }
-      .rep-chart-container { break-inside: avoid !important; page-break-inside: avoid !important; }
-      .rep-table { break-inside: avoid !important; page-break-inside: avoid !important; }
-      .rep-scale-card { break-inside: avoid !important; page-break-inside: avoid !important; }
-      .rep-interpretation-box { break-inside: avoid !important; page-break-inside: avoid !important; }
-      .rep-footer { break-inside: avoid !important; page-break-inside: avoid !important; }
-    }
+    /* Loading / Modal */
   </style>
 </head>
 <body>
@@ -222,33 +148,15 @@
           <div id="previewTable"></div>
         </div>
       </div>
+
+      <!-- RELATÓRIO (aparece após gerar) -->
+      <div id="relatorio" class="card report" style="display:none;"></div>
     </main>
   </div>
 
   <!-- Loading modal -->
   <div class="modal-overlay" id="modalLoading">
     <div class="modal-box"><div class="spinner"></div><div class="modal-title">Gerando Relatório...</div><div class="modal-sub">Por favor, aguarde</div></div>
-  </div>
-
-  <!-- Report overlay -->
-  <div class="qcpfc-report-overlay no-print" id="repOverlay">
-    <div class="qcpfc-report-topbar">
-      <div class="qcpfc-report-topbar-left">
-        <h2>📄 Relatório QCP-FC</h2>
-      </div>
-      <div class="qcpfc-report-actions">
-        <button class="btn-voltar-pac" id="btnVoltarPac" style="display:none">👤 Voltar ao Paciente</button>
-        <button class="btn-print-rep" id="btnPrintRep">🖨️ Imprimir / Baixar PDF</button>
-        <button class="btn-close-rep" id="btnCloseRep">✕ Fechar</button>
-      </div>
-    </div>
-    <div class="qcpfc-report-scroll">
-      <div class="qcpfc-report-frame">
-        <div class="rep-wrapper" id="repWrapper">
-          <!-- Report content will be injected here -->
-        </div>
-      </div>
-    </div>
   </div>
 
   <!-- Firebase SDKs -->
@@ -259,6 +167,7 @@
   <script src="/js/db.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/patient-guard.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script src="/js/integration.js"></script>
 
   <script>
@@ -653,10 +562,12 @@
         const dataFormatada = dataObj.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
 
         const reportHTML = buildReportHTML(computedResults, nome, dataFormatada);
-        document.getElementById("repWrapper").innerHTML = reportHTML;
+        const rel = document.getElementById("relatorio");
+        rel.innerHTML = reportHTML;
+        rel.style.display = "block";
 
         modalLoading.classList.remove("show");
-        document.getElementById("repOverlay").classList.add("ativo");
+        openReportModal();
 
         // Build summary for Firebase
         const elevated = SCALE_ORDER.filter(k => computedResults[k].z > 1);
@@ -684,14 +595,13 @@
         // Save to Firebase
         if (window.Integration) {
           await new Promise(r => setTimeout(r, 300));
-          const repWrapper = document.getElementById("repWrapper");
           await Integration.salvarTesteNoFirebase("qcp-fc", {
             dataAplicacao: data,
             resumo: resumo,
             scores: scoresObj,
             classificacao: overallClass,
             observacoes: "",
-            htmlRelatorio: repWrapper ? repWrapper.outerHTML : "",
+            htmlRelatorio: rel.outerHTML,
           });
         }
 
@@ -699,6 +609,108 @@
         console.error("Erro ao processar:", error);
         modalLoading.classList.remove("show");
         alert("Ocorreu um erro ao gerar o relatório. Por favor, tente novamente.");
+      }
+    }
+
+    /* ================================================================
+       Report Modal + PDF (padrão WAIS)
+       ================================================================ */
+    function openReportModal() {
+      const rel = document.getElementById("relatorio");
+      if (!rel) return;
+      closeReportModal();
+
+      const backdrop = document.createElement("div");
+      backdrop.id = "reportModal";
+      backdrop.className = "report-modal-backdrop";
+      const paciente = window.Integration ? Integration.getPacienteAtual() : null;
+      const btnVoltar = paciente ? '<button class="toolbar-btn toolbar-btn-voltar" onclick="voltarParaPaciente()">👤 Voltar ao Paciente</button>' : "";
+      backdrop.innerHTML =
+        '<div class="report-modal">' +
+          '<div class="report-modal-toolbar no-print">' +
+            '<div class="toolbar-title">📄 Relatório QCP-FC</div>' +
+            '<div class="toolbar-actions">' +
+              btnVoltar +
+              '<button class="toolbar-btn toolbar-btn-primary" onclick="baixarPDF()">📥 Baixar PDF</button>' +
+              '<button class="toolbar-btn toolbar-btn-secondary" onclick="window.print()">🖨️ Imprimir</button>' +
+              '<button class="toolbar-btn toolbar-btn-secondary" onclick="closeReportModal()">✕ Fechar</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="report-modal-body" id="reportModalBody"></div>' +
+        '</div>';
+
+      document.body.appendChild(backdrop);
+      const body = document.getElementById("reportModalBody");
+      body.appendChild(rel);
+      rel.style.display = "block";
+
+      backdrop.addEventListener("click", function(e) {
+        if (e.target === backdrop) closeReportModal();
+      });
+      document.addEventListener("keydown", _escHandler);
+    }
+
+    function _escHandler(e) {
+      if (e.key === "Escape") closeReportModal();
+    }
+
+    function closeReportModal() {
+      const modal = document.getElementById("reportModal");
+      if (!modal) return;
+      const rel = document.getElementById("relatorio");
+      if (rel) {
+        const main = document.querySelector(".main-content");
+        if (main) main.appendChild(rel);
+        rel.style.display = "none";
+      }
+      modal.remove();
+      document.removeEventListener("keydown", _escHandler);
+    }
+
+    async function baixarPDF() {
+      const rel = document.getElementById("relatorio");
+      if (!rel) return;
+
+      const nome = document.getElementById("pacienteNome")?.value?.trim() || "Relatorio";
+      const nomeArquivo = "QCP-FC_" + nome.replace(/\s+/g, "_").substring(0, 30) + ".pdf";
+
+      const modalLoading = document.getElementById("modalLoading");
+      if (modalLoading) { modalLoading.querySelector(".modal-title").textContent = "Gerando PDF..."; modalLoading.classList.add("show"); }
+
+      const decos = rel.querySelectorAll(".deco1, .deco2");
+      const badge = rel.querySelector(".rpt-hdr-badge");
+      const reportEl = rel.querySelector(".report");
+      decos.forEach(d => d.style.display = "none");
+      if (badge) badge.style.backdropFilter = "none";
+      if (reportEl) reportEl.style.overflow = "visible";
+
+      try {
+        await html2pdf().set({
+          margin: [5, 5, 5, 5],
+          filename: nomeArquivo,
+          image: { type: "jpeg", quality: 1.00 },
+          html2canvas: { scale: 4, useCORS: true, logging: false, scrollY: 0 },
+          jsPDF: { unit: "mm", format: [210, 900], orientation: "portrait" },
+          pagebreak: { mode: ["avoid-all"] }
+        }).from(rel).save();
+      } catch(e) {
+        console.error("Erro ao gerar PDF:", e);
+        alert("Erro ao gerar PDF. Tente novamente.");
+      } finally {
+        decos.forEach(d => d.style.display = "");
+        if (badge) badge.style.backdropFilter = "";
+        if (reportEl) reportEl.style.overflow = "";
+        if (modalLoading) modalLoading.classList.remove("show");
+      }
+    }
+
+    function voltarParaPaciente() {
+      let paciente = null;
+      try { const raw = sessionStorage.getItem("pacienteAtual"); if (raw) paciente = JSON.parse(raw); } catch(e) {}
+      if (!paciente && window.Integration) paciente = Integration.getPacienteAtual();
+      if (paciente && paciente.id) {
+        sessionStorage.setItem("abrirPacienteId", paciente.id);
+        window.location.href = "/Pacientes/";
       }
     }
 
@@ -729,21 +741,13 @@
       document.getElementById("btnCalcular").addEventListener("click", handleCalcular);
       document.getElementById("btnRelatorio").addEventListener("click", handleGerarRelatorio);
       document.getElementById("btnLimpar").addEventListener("click", limparFormulario);
-      document.getElementById("btnCloseRep").addEventListener("click", () => document.getElementById("repOverlay").classList.remove("ativo"));
-      document.getElementById("btnPrintRep").addEventListener("click", () => window.print());
-
-      // Show "Voltar ao Paciente" button if patient is selected
+      // Pre-fill patient data if available
       let pacienteAtual = null;
       try { const raw = sessionStorage.getItem("pacienteAtual"); if (raw) pacienteAtual = JSON.parse(raw); } catch(e) {}
       if (!pacienteAtual && window.Integration) pacienteAtual = Integration.getPacienteAtual();
       if (pacienteAtual && pacienteAtual.id) {
-        const btnVoltar = document.getElementById("btnVoltarPac");
-        if (btnVoltar) {
-          btnVoltar.style.display = "flex";
-          btnVoltar.addEventListener("click", () => {
-            sessionStorage.setItem("abrirPacienteId", pacienteAtual.id);
-            window.location.href = "/Pacientes/";
-          });
+        if (pacienteAtual.nome && !document.getElementById("pacienteNome").value) {
+          document.getElementById("pacienteNome").value = pacienteAtual.nome;
         }
       }
     });
