@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ETDAH-AD | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a class="nav-item" href="/Pacientes/" data-page="pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
+        <a class="nav-item" href="/Anamnese/" data-page="anamnese"><span class="nav-icon">📋</span><span>Anamnese</span></a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
+        <a class="nav-item" href="/check_list/" data-page="checklist"><span class="nav-icon">✅</span><span>Checklist</span></a>
+        <a class="nav-item" href="/Config/" data-page="config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">?</div>
+          <div>
+            <div class="user-name">Carregando...</div>
+            <div class="user-role">—</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <p class="page-subtitle"><a href="/Correcao_testes/" class="breadcrumb">Correção de Testes</a> → ETDAH-AD</p>
+          <h1 class="page-title">ETDAH-AD</h1>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-primary" onclick="location.href='/Correcao_testes/ETDAH_AD/novo-laudo.html'">+ Novo Laudo</button>
+        <button class="btn-secondary" onclick="location.href='/Correcao_testes/ETDAH_AD/laudos.html'">Laudos Salvos</button>
+        <button class="btn-secondary" onclick="history.back()">← Voltar</button>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px;">Sobre o instrumento</h3>
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;">
+          A Escala de Transtorno do Déficit de Atenção e Hiperatividade para Adultos (ETDAH-AD) é um instrumento de autoavaliação
+          validado para o Brasil, aplicável a indivíduos de 12 a 87 anos. Composta por 50 itens distribuídos em cinco fatores:
+          <strong>Desatenção</strong>, <strong>Hiperatividade</strong>, <strong>Impulsividade</strong>,
+          <strong>Aspectos Emocionais</strong> e <strong>AAMA</strong> (Auto-Avaliação e Monitoramento do Autocontrole).
+          A correção utiliza normas estratificadas por escolaridade (Ensino Fundamental, Médio e Superior),
+          com percentis e classificação qualitativa por fator.
+        </p>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:12px;">Aplicação ao paciente</h3>
+        <p style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.7;">
+          Compartilhe o link abaixo com o paciente. Ele(a) responderá o questionário diretamente — sem visualizar resultados.
+          As respostas serão enviadas para o Google Drive e poderão ser importadas na correção.
+        </p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="btn-secondary" onclick="copiarLink()">🔗 Copiar link do paciente</button>
+        </div>
+        <p id="linkCopiado" style="font-size:12px;color:#16a34a;margin-top:8px;display:none;">✓ Link copiado!</p>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.FIREBASE_CONFIGURED && window.DB) await DB.init();
+      if (!isAuthed()) {
+        location.href = '/login.html';
+      } else {
+        applySidebarPermissions();
+      }
+    });
+
+    function copiarLink() {
+      const url = window.location.origin + "/Aplicacao_testes/ETDAH_AD/";
+      navigator.clipboard.writeText(url).then(() => {
+        const msg = document.getElementById("linkCopiado");
+        msg.style.display = "block";
+        setTimeout(() => msg.style.display = "none", 2500);
+      });
+    }
+  </script>
+</body>
+</html>
