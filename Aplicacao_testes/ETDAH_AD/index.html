@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ETDAH-AD · Autoavaliação de TDAH | Equilibrium</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; }
+
+    :root {
+      --accent:       #2563eb;
+      --accent-light: #dbeafe;
+      --accent-dark:  #1d4ed8;
+      --accent-rgb:   37,99,235;
+    }
+
+    body {
+      font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+      background: #f0f4f8;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(37,99,235,.06) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(29,78,216,.06) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(37,99,235,.03) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='22' fill='none' stroke='%232563eb' stroke-opacity='0.06' stroke-width='1'/%3E%3C/svg%3E");
+      background-size: 100% 100%, 100% 100%, 100% 100%, 60px 60px;
+      color: #1e293b;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    .p-shell {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 16px 100px;
+    }
+
+    /* ── Cabeçalho ── */
+    .p-header {
+      background: linear-gradient(135deg, #fff 0%, #eff6ff 100%);
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(37,99,235,.08), 0 1px 4px rgba(0,0,0,.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border: 1px solid rgba(37,99,235,.10);
+    }
+    .p-brand { display: flex; align-items: center; gap: 12px; }
+    .p-logo  { height: 36px; }
+    .p-brand-name { font-weight: 800; font-size: 15px; color: #1e293b; }
+    .p-brand-sub  { font-size: 11px; color: #64748b; }
+    .p-test { text-align: right; }
+    .p-test-name    { font-weight: 700; font-size: 16px; color: var(--accent); }
+    .p-test-version { font-size: 11px; color: #94a3b8; margin-top: 2px; }
+
+    /* ── Barra de progresso ── */
+    .p-progress-bar {
+      height: 5px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .p-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-dark));
+      width: 0%;
+      transition: width .35s ease;
+      border-radius: 4px;
+    }
+
+    /* ── Card principal ── */
+    .p-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 28px 32px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.07);
+    }
+
+    /* ── Campos do paciente ── */
+    .p-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 540px) { .p-fields { grid-template-columns: 1fr; } }
+    .p-field label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 6px;
+    }
+    .p-field input, .p-field select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #1e293b;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      background: #fafcff;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    .p-field input:focus, .p-field select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+      background: #fff;
+    }
+
+    .p-divider {
+      border: none;
+      border-top: 1.5px solid #f1f5f9;
+      margin: 24px 0;
+    }
+    .p-items-heading {
+      font-size: 11px;
+      font-weight: 800;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 4px;
+    }
+    .p-items-sub {
+      font-size: 12.5px;
+      color: #94a3b8;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    /* ── Escala legenda ── */
+    .scale-legend {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+    }
+    .scale-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      color: #475569;
+    }
+    .scale-dot {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .scale-dot.d0 { background: #f1f5f9; color: #475569; }
+    .scale-dot.d1 { background: #e0f2fe; color: #0369a1; }
+    .scale-dot.d2 { background: #fef9c3; color: #854d0e; }
+    .scale-dot.d3 { background: #fed7aa; color: #9a3412; }
+    .scale-dot.d4 { background: #fee2e2; color: #b91c1c; }
+
+    /* ── Itens ── */
+    .item {
+      padding: 18px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .item:last-child { border-bottom: none; }
+    .item-top {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .item-num {
+      font-weight: 800;
+      font-size: 13px;
+      color: var(--accent);
+      min-width: 28px;
+      padding-top: 2px;
+    }
+    .item-txt {
+      font-size: 15px;
+      color: #1e293b;
+      line-height: 1.55;
+    }
+    .item-opts {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-left: 38px;
+    }
+    @media (max-width: 600px) { .item-opts { grid-template-columns: repeat(2, 1fr); gap: 6px; } }
+
+    .opt {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 10px 6px 8px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .18s;
+      font-size: 11px;
+      color: #475569;
+      user-select: none;
+      text-align: center;
+      min-height: 62px;
+    }
+    .opt:hover { border-color: var(--accent); background: #eff6ff; }
+    .opt.selecionada {
+      border-color: var(--accent);
+      background: var(--accent-light);
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+    .opt input[type="radio"] { display: none; }
+    .opt-val {
+      font-size: 15px;
+      font-weight: 800;
+      color: #94a3b8;
+      line-height: 1;
+    }
+    .opt.selecionada .opt-val { color: var(--accent); }
+
+    /* ── Botão enviar ── */
+    .btn-enviar {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      margin-top: 28px;
+      box-shadow: 0 4px 16px rgba(37,99,235,.35);
+      transition: all .2s;
+    }
+    .btn-enviar:hover   { opacity: .88; transform: translateY(-1px); }
+    .btn-enviar:active  { transform: translateY(0); opacity: 1; }
+    .btn-enviar:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ── Contador de progresso (texto) ── */
+    .progress-count {
+      font-size: 12.5px;
+      color: #94a3b8;
+      text-align: right;
+      margin-bottom: 12px;
+    }
+    .progress-count span { font-weight: 700; color: var(--accent); }
+
+    /* ── Modal enviando ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.55);
+      backdrop-filter: blur(4px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 36px 40px;
+      text-align: center;
+      max-width: 340px;
+      width: 90%;
+      box-shadow: 0 24px 60px rgba(0,0,0,.18);
+    }
+    .modal-spinner {
+      width: 44px; height: 44px;
+      border: 4px solid #dbeafe;
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      margin: 0 auto 20px;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .modal-title { font-size: 18px; font-weight: 700; color: #1e293b; margin-bottom: 8px; }
+    .modal-sub   { font-size: 14px; color: #64748b; }
+
+    /* ── Tela de sucesso ── */
+    .success-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+    }
+    .success-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 40px;
+      text-align: center;
+      max-width: 460px;
+      width: 100%;
+      box-shadow: 0 8px 40px rgba(0,0,0,.10);
+    }
+    .success-icon { font-size: 52px; margin-bottom: 20px; }
+    .success-card h1 { font-size: 24px; font-weight: 800; color: #1e293b; margin-bottom: 12px; }
+    .success-card p  { font-size: 15px; color: #475569; margin-bottom: 8px; line-height: 1.6; }
+    .success-note { font-size: 13px; color: #94a3b8; margin-top: 20px; }
+
+    /* ── Footer ── */
+    .p-footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 11.5px;
+      color: #94a3b8;
+      line-height: 1.7;
+    }
+
+    /* ── item não respondido (highlight) ── */
+    .item.nao-respondido .item-txt { color: #dc2626; }
+    .item.nao-respondido .item-num { color: #dc2626; }
+  </style>
+</head>
+<body>
+
+  <!-- Modal: enviando -->
+  <div class="modal-overlay" id="modalEnviando" style="display:none;">
+    <div class="modal-box">
+      <div class="modal-spinner"></div>
+      <div class="modal-title">Enviando respostas…</div>
+      <div class="modal-sub">Por favor, não feche esta página.</div>
+    </div>
+  </div>
+
+  <div id="appShell">
+    <div class="p-shell">
+
+      <!-- Cabeçalho -->
+      <header class="p-header">
+        <div class="p-brand">
+          <img src="/logo2.png" alt="Equilibrium" class="p-logo" onerror="this.style.display='none'"/>
+          <div>
+            <div class="p-brand-name">Equilibrium</div>
+            <div class="p-brand-sub">Neuropsicologia</div>
+          </div>
+        </div>
+        <div class="p-test">
+          <div class="p-test-name">ETDAH-AD</div>
+          <div class="p-test-version">Autoavaliação para Adultos (12–87 anos)</div>
+        </div>
+      </header>
+
+      <!-- Barra de progresso -->
+      <div class="p-progress-bar">
+        <div class="p-progress-fill" id="progressFill"></div>
+      </div>
+
+      <!-- Card principal -->
+      <div class="p-card">
+
+        <!-- Dados de identificação -->
+        <div class="p-fields">
+          <div class="p-field">
+            <label for="nomePaciente">Seu nome completo</label>
+            <input type="text" id="nomePaciente" placeholder="Nome completo" autocomplete="name" />
+          </div>
+          <div class="p-field">
+            <label for="dataAvaliacao">Data de hoje</label>
+            <input type="date" id="dataAvaliacao" />
+          </div>
+          <div class="p-field">
+            <label for="dataNascimento">Data de nascimento</label>
+            <input type="date" id="dataNascimento" />
+          </div>
+          <div class="p-field">
+            <label for="escolaridade">Escolaridade</label>
+            <select id="escolaridade">
+              <option value="">Selecione…</option>
+              <option value="Ensino Fundamental">Ensino Fundamental</option>
+              <option value="Ensino Médio">Ensino Médio</option>
+              <option value="Ensino Superior">Ensino Superior / Pós-graduação</option>
+            </select>
+          </div>
+        </div>
+
+        <hr class="p-divider" />
+
+        <div class="p-items-heading">Instruções</div>
+        <p class="p-items-sub">
+          A seguir você encontrará uma série de afirmações sobre comportamentos do dia a dia.<br>
+          Indique com que frequência cada afirmação descreve o seu comportamento <strong>nos últimos 6 meses</strong>.
+          Não há respostas certas ou erradas — responda com sinceridade.
+        </p>
+
+        <!-- Legenda da escala -->
+        <div class="scale-legend">
+          <div class="scale-legend-item"><div class="scale-dot d0">0</div> Nunca</div>
+          <div class="scale-legend-item"><div class="scale-dot d1">1</div> Raramente</div>
+          <div class="scale-legend-item"><div class="scale-dot d2">2</div> Às vezes</div>
+          <div class="scale-legend-item"><div class="scale-dot d3">3</div> Com frequência</div>
+          <div class="scale-legend-item"><div class="scale-dot d4">4</div> Sempre</div>
+        </div>
+
+        <div class="progress-count" id="progressCount">Respondidas: <span>0</span> / 69</div>
+
+        <!-- Itens renderizados por JS -->
+        <div id="itensContainer"></div>
+
+        <button class="btn-enviar" id="btnEnviar" type="button">
+          Enviar respostas →
+        </button>
+
+      </div><!-- /p-card -->
+    </div><!-- /p-shell -->
+
+    <div class="p-footer">
+      Equilibrium Med Center · Neuropsicologia<br>
+      Suas respostas são confidenciais e serão analisadas exclusivamente pelo profissional responsável.
+    </div>
+  </div><!-- /appShell -->
+
+  <script>
+    // ⚠️ Substitua pela URL do seu Google Apps Script após publicar
+    const URL_DO_GOOGLE_SCRIPT = "https://script.google.com/macros/s/SEU_SCRIPT_AQUI/exec";
+
+    // ─── ITENS ETDAH-AD ──────────────────────────────────────────────────────
+    const ITENS = [
+      { n: 1,  txt: "É atento quando conversa com alguém.",                                              fator: "AAMA" },
+      { n: 2,  txt: "É afobado no trabalho.",                                                            fator: "Hiperatividade" },
+      { n: 3,  txt: "Necessita fazer listas de tudo o que tem para fazer para não se esquecer de nada.", fator: "Hiperatividade" },
+      { n: 4,  txt: "Sente-se chateado e infeliz.",                                                      fator: "Aspectos Emocionais" },
+      { n: 5,  txt: "Quando tem de seguir instruções, segue passo a passo e em sequência.",               fator: "AAMA" },
+      { n: 6,  txt: "É desorganizado financeiramente.",                                                   fator: "Desatenção" },
+      { n: 7,  txt: "É solitário.",                                                                      fator: "Aspectos Emocionais" },
+      { n: 8,  txt: "Termina tudo o que começa.",                                                        fator: "AAMA" },
+      { n: 9,  txt: "Explode com facilidade (é do tipo pavio curto).",                                   fator: "Impulsividade" },
+      { n: 10, txt: "É detalhista e minucioso.",                                                         fator: "AAMA" },
+      { n: 11, txt: "Arruma encrenca e confusão facilmente.",                                            fator: "Impulsividade" },
+      { n: 12, txt: "Mostra-se insensível à dor e ao perigo.",                                          fator: "Impulsividade" },
+      { n: 13, txt: "Tem sono agitado, mexe-se na cama.",                                                fator: "Hiperatividade" },
+      { n: 14, txt: "É bem-aceito por todos.",                                                           fator: "AAMA" },
+      { n: 15, txt: "Costuma se dar mal por falar as coisas sem pensar.",                                fator: "Impulsividade" },
+      { n: 16, txt: "É persistente e insistente diante de uma ideia.",                                   fator: "AAMA" },
+      { n: 17, txt: "Acidenta-se com facilidade (cai, tropeça, esbarra em móveis).",                    fator: "Hiperatividade" },
+      { n: 18, txt: "Tende a discordar das regras e normas.",                                            fator: "Impulsividade" },
+      { n: 19, txt: "Dá impressão de que não sabe o que quer.",                                          fator: "Desatenção" },
+      { n: 20, txt: "Evita trabalhos longos, detalhados e complicados.",                                 fator: "Desatenção" },
+      { n: 21, txt: "Tem dificuldade para se adaptar às mudanças.",                                      fator: "Aspectos Emocionais" },
+      { n: 22, txt: "A qualidade do trabalho é comprometida porque não presta atenção suficiente.",      fator: "Desatenção" },
+      { n: 23, txt: "Inicia uma atividade com entusiasmo e dificilmente chega ao fim.",                  fator: "Desatenção" },
+      { n: 24, txt: "Evita atividades que exijam esforço mental prolongado.",                            fator: "Desatenção" },
+      { n: 25, txt: "Perde a paciência com os familiares.",                                              fator: "Impulsividade" },
+      { n: 26, txt: "É rebelde com as pessoas e as situações.",                                          fator: "Impulsividade" },
+      { n: 27, txt: "Persiste quando quer alguma coisa.",                                                fator: "AAMA" },
+      { n: 28, txt: "Tem tendência a sonhar acordado.",                                                  fator: "Desatenção" },
+      { n: 29, txt: "Faz planos cuidadosamente, considera todos os passos.",                             fator: "AAMA" },
+      { n: 30, txt: "Parece sonhar acordado.",                                                           fator: "Desatenção" },
+      { n: 31, txt: "Faz seu trabalho rápido demais.",                                                   fator: "Hiperatividade" },
+      { n: 32, txt: "É distraído com tudo.",                                                             fator: "Desatenção" },
+      { n: 33, txt: "Dificilmente chega ao final de um projeto.",                                        fator: "Desatenção" },
+      { n: 34, txt: "Seu hábito de trabalho é confuso e desorganizado.",                                 fator: "Desatenção" },
+      { n: 35, txt: "Necessita estar em constante movimentação.",                                        fator: "Hiperatividade" },
+      { n: 36, txt: "Atrasa pagamentos porque se esquece das datas de vencimento.",                      fator: "Desatenção" },
+      { n: 37, txt: "Mostra-se apático e indiferente diante das situações.",                             fator: "Desatenção" },
+      { n: 38, txt: "Tem fortes reações emocionais (explosões de raiva, choro).",                        fator: "Impulsividade" },
+      { n: 39, txt: "É agressivo.",                                                                      fator: "Impulsividade" },
+      { n: 40, txt: "Tem problemas com a lei e/ou com a justiça.",                                       fator: "Impulsividade" },
+      { n: 41, txt: "É imprudente, arrisca sempre.",                                                     fator: "Impulsividade" },
+      { n: 42, txt: "É tolerante diante das situações.",                                                 fator: "AAMA" },
+      { n: 43, txt: "Tem dificuldade para permanecer sentado.",                                          fator: "Hiperatividade" },
+      { n: 44, txt: "É conhecido pelos outros como desligado.",                                          fator: "Desatenção" },
+      { n: 45, txt: "Seu jeito de ser é motivo de discussão em casa.",                                   fator: "Impulsividade" },
+      { n: 46, txt: "Tira conclusões mesmo antes de conhecer os fatos.",                                 fator: "Impulsividade" },
+      { n: 47, txt: "Necessita estar em situações mais perigosas e arriscadas.",                         fator: "Impulsividade" },
+      { n: 48, txt: "Tem dificuldade em aceitar a opinião dos outros.",                                  fator: "Impulsividade" },
+      { n: 49, txt: "Faz as coisas devagar, ritmo de trabalho lento.",                                   fator: "Desatenção" },
+      { n: 50, txt: "Distrai-se enquanto trabalha e outras pessoas conversam.",                          fator: "Desatenção" },
+      { n: 51, txt: "A mente voa longe enquanto lê.",                                                    fator: "Desatenção" },
+      { n: 52, txt: "Faz tudo o que dá em sua cabeça.",                                                  fator: "Impulsividade" },
+      { n: 53, txt: "Costuma vingar-se das pessoas, não engole sapo.",                                   fator: "Impulsividade" },
+      { n: 54, txt: "Precisa ser lembrado dos compromissos diários.",                                    fator: "Desatenção" },
+      { n: 55, txt: "Vive isolado, evita atividades de grupo.",                                          fator: "Aspectos Emocionais" },
+      { n: 56, txt: "É mais desorganizado do que a maioria das pessoas.",                                fator: "Desatenção" },
+      { n: 57, txt: "Não observa detalhes e minúcias.",                                                  fator: "Desatenção" },
+      { n: 58, txt: "Persiste até o fim com os seus objetivos.",                                         fator: "AAMA" },
+      { n: 59, txt: "Sabe aguardar a vez.",                                                              fator: "AAMA" },
+      { n: 60, txt: "Responde antes de ouvir a pergunta inteira.",                                       fator: "Impulsividade" },
+      { n: 61, txt: "É criticado por seu jeito de ser.",                                                 fator: "Impulsividade" },
+      { n: 62, txt: "Intromete-se em assuntos que não lhe dizem respeito.",                              fator: "Impulsividade" },
+      { n: 63, txt: "Costuma criticar os outros.",                                                       fator: "Impulsividade" },
+      { n: 64, txt: "Tem memória ruim para guardar instruções ou ordens.",                               fator: "Desatenção" },
+      { n: 65, txt: "Planeja suas ações, respeitando cada etapa.",                                       fator: "AAMA" },
+      { n: 66, txt: "É impulsivo; age antes de pensar.",                                                 fator: "Impulsividade" },
+      { n: 67, txt: "Costuma se esquecer de compromissos se não os anota.",                              fator: "Desatenção" },
+      { n: 68, txt: "Necessita de novidades e de variedades em sua vida.",                               fator: "Impulsividade" },
+      { n: 69, txt: "Tem dificuldade para processar informações recebidas.",                             fator: "Desatenção" }
+    ];
+
+    const LABELS = ["Nunca", "Raramente", "Às vezes", "Com frequência", "Sempre", "Sempre (intensamente)"];
+    const respostas = {};
+
+    // ─── RENDER ─────────────────────────────────────────────────────────────
+    function renderItens() {
+      const container = document.getElementById("itensContainer");
+      container.innerHTML = ITENS.map(item => `
+        <div class="item" id="item_${item.n}" data-n="${item.n}">
+          <div class="item-top">
+            <span class="item-num">${item.n}.</span>
+            <span class="item-txt">${escapeHtml(item.txt)}</span>
+          </div>
+          <div class="item-opts">
+            ${[0,1,2,3,4,5].map(v => `
+              <label class="opt" id="opt_${item.n}_${v}" onclick="selecionar(${item.n}, ${v})">
+                <input type="radio" name="q${item.n}" value="${v}" />
+                <span class="opt-val">${v}</span>
+                <span>${LABELS[v]}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selecionar(n, v) {
+      respostas[n] = v;
+      // Limpar seleção anterior
+      for (let i = 0; i <= 4; i++) {
+        const el = document.getElementById(`opt_${n}_${i}`);
+        if (el) el.classList.toggle("selecionada", i === v);
+      }
+      // Remover highlight de não-respondido
+      const itemEl = document.getElementById(`item_${n}`);
+      if (itemEl) itemEl.classList.remove("nao-respondido");
+      atualizarProgresso();
+    }
+
+    function atualizarProgresso() {
+      const total = ITENS.length;
+      const resp  = Object.keys(respostas).length;
+      const pct   = (resp / total) * 100;
+      document.getElementById("progressFill").style.width = pct + "%";
+      const countEl = document.querySelector("#progressCount span");
+      if (countEl) countEl.textContent = resp;
+    }
+
+    function escapeHtml(t) {
+      return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    }
+
+    // ─── ENVIAR ──────────────────────────────────────────────────────────────
+    document.getElementById("btnEnviar").addEventListener("click", async () => {
+      const nome         = document.getElementById("nomePaciente").value.trim();
+      const dataNasc     = document.getElementById("dataNascimento").value;
+      const dataAval     = document.getElementById("dataAvaliacao").value;
+      const escolaridade = document.getElementById("escolaridade").value;
+
+      // Validação básica
+      if (!nome) { alert("Por favor, informe seu nome completo."); return; }
+      if (!dataNasc) { alert("Por favor, informe sua data de nascimento."); return; }
+      if (!escolaridade) { alert("Por favor, selecione sua escolaridade."); return; }
+
+      const missing = ITENS.length - Object.keys(respostas).length;
+      if (missing > 0) {
+        // Highlight itens não respondidos
+        ITENS.forEach(item => {
+          if (respostas[item.n] === undefined) {
+            const el = document.getElementById(`item_${item.n}`);
+            if (el) { el.classList.add("nao-respondido"); el.scrollIntoView({ behavior: "smooth", block: "center" }); }
+          }
+        });
+        const ok = confirm(`Ainda há ${missing} item(ns) sem resposta. Deseja enviar mesmo assim?`);
+        if (!ok) return;
+      }
+
+      // Montar payload
+      const payload = {
+        instrumento: "ETDAH-AD",
+        nome,
+        dataNascimento: dataNasc,
+        dataAvaliacao: dataAval,
+        escolaridade,
+        respostas: ITENS.reduce((acc, item) => {
+          acc[item.n] = respostas[item.n] ?? null;
+          return acc;
+        }, {})
+      };
+
+      document.getElementById("modalEnviando").style.display = "flex";
+      document.getElementById("btnEnviar").disabled = true;
+
+      try {
+        const resp = await fetch(URL_DO_GOOGLE_SCRIPT, {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        const json = await resp.json().catch(() => ({}));
+        document.getElementById("modalEnviando").style.display = "none";
+        mostrarSucesso(nome);
+      } catch (err) {
+        document.getElementById("modalEnviando").style.display = "none";
+        document.getElementById("btnEnviar").disabled = false;
+        alert("Erro ao enviar respostas. Por favor, tente novamente.\n\nDetalhe: " + err.message);
+      }
+    });
+
+    // ─── TELA DE SUCESSO ─────────────────────────────────────────────────────
+    function mostrarSucesso(nome) {
+      document.getElementById("appShell").style.display = "none";
+      document.querySelector(".p-footer").style.display = "none";
+      document.getElementById("progressFill").parentElement.style.display = "none";
+
+      const screen = document.createElement("div");
+      screen.className = "success-screen";
+      screen.innerHTML = `
+        <div class="success-card">
+          <div class="success-icon">✅</div>
+          <h1>Respostas enviadas!</h1>
+          <p>Obrigado pela participação, <strong>${escapeHtml(nome)}</strong>.</p>
+          <p>Suas respostas foram registradas com sucesso e serão analisadas pelo profissional responsável.</p>
+          <p class="success-note">Esta janela pode ser fechada.</p>
+        </div>
+      `;
+      document.body.appendChild(screen);
+      window.scrollTo(0, 0);
+    }
+
+    // ─── INICIALIZAR ─────────────────────────────────────────────────────────
+    document.addEventListener("DOMContentLoaded", () => {
+      const hoje = new Date().toISOString().split("T")[0];
+      document.getElementById("dataAvaliacao").value = hoje;
+      renderItens();
+      atualizarProgresso();
+    });
+  </script>
+</body>
+</html>
