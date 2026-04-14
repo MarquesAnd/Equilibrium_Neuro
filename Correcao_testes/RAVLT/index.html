@@ -312,32 +312,33 @@
     return ravltRules.normas.find(n => n.faixa === faixa) || null;
   }
 
-  function zScore(raw, m, dp) {
-    if (dp === 0) return 0;
-    return (raw - m) / dp;
+  // Percentil empírico por interpolação linear entre pontos de corte Pc5/25/50/75/95
+  function calcularPercentil(raw, n) {
+    if (!n) return null;
+    const pontos = [
+      { pc: 5,  val: n.pc5  },
+      { pc: 25, val: n.pc25 },
+      { pc: 50, val: n.pc50 },
+      { pc: 75, val: n.pc75 },
+      { pc: 95, val: n.pc95 },
+    ];
+    if (raw >= n.pc95) return 97;
+    if (raw <= n.pc5)  return 3;
+    for (let i = 0; i < pontos.length - 1; i++) {
+      const lo = pontos[i], hi = pontos[i + 1];
+      if (raw >= lo.val && raw <= hi.val) {
+        if (hi.val === lo.val) return Math.round((lo.pc + hi.pc) / 2);
+        const frac = (raw - lo.val) / (hi.val - lo.val);
+        return Math.round(lo.pc + frac * (hi.pc - lo.pc));
+      }
+    }
+    return null;
   }
 
-  // Normal CDF approximation (Abramowitz & Stegun)
-  function normalCDF(z) {
-    if (z < -6) return 0;
-    if (z > 6) return 1;
-    const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
-    const sign = z < 0 ? -1 : 1;
-    const x = Math.abs(z) / Math.SQRT2;
-    const t = 1.0 / (1.0 + p * x);
-    const y = 1.0 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-x * x);
-    return 0.5 * (1.0 + sign * y);
-  }
-
-  function zToPercentile(z) {
-    return Math.round(normalCDF(z) * 100);
-  }
-
-  function classificar(z) {
-    if (!ravltRules) return { label: "—", cor: "#94a3b8" };
-    const pct = zToPercentile(z);
+  function classificar(pct) {
+    if (!ravltRules || pct == null) return { label: "—", cor: "#94a3b8" };
     for (const c of ravltRules.classificacao) {
-      if (pct >= c.min && pct <= c.max) return { label: c.label, cor: c.cor };
+      if (pct >= c.pcMin && pct <= c.pcMax) return { label: c.label, cor: c.cor };
     }
     return { label: "—", cor: "#94a3b8" };
   }
@@ -418,14 +419,13 @@
     // Build results array
     const measures = [];
 
-    // Helper
+    // Helper — modelo percentil empírico
     function addMeasure(key, label, grupo, rawVal) {
       const n = norma[key];
-      if (!n) { measures.push({ key, label, grupo, raw: rawVal, z: null, pct: null, cls: { label: "—", cor: "#94a3b8" } }); return; }
-      const z = zScore(rawVal, n.m, n.dp);
-      const pct = zToPercentile(z);
-      const cls = classificar(z);
-      measures.push({ key, label, grupo, raw: rawVal, z, pct, cls, normM: n.m, normDP: n.dp });
+      if (!n) { measures.push({ key, label, grupo, raw: rawVal, pct: null, cls: { label: "—", cor: "#94a3b8" } }); return; }
+      const pct = calcularPercentil(rawVal, n);
+      const cls = classificar(pct);
+      measures.push({ key, label, grupo, raw: rawVal, pct, cls, normPc50: n.pc50 });
     }
 
     // Trial measures
@@ -466,7 +466,7 @@
     area.style.display = "block";
 
     let html = `<div class="preview-card"><h3 style="font-size:15px;font-weight:700;margin:0 0 12px;">Resultados — Faixa ${res.faixa}</h3>`;
-    html += `<table><thead><tr><th>Medida</th><th class="ctr">Bruto</th><th class="ctr">Z</th><th class="ctr">Percentil</th><th class="ctr">Classificação</th></tr></thead><tbody>`;
+    html += `<table><thead><tr><th>Medida</th><th class="ctr">Bruto</th><th class="ctr">Pc50 (Ref.)</th><th class="ctr">Percentil</th><th class="ctr">Classificação</th></tr></thead><tbody>`;
 
     let lastGrupo = "";
     for (const m of res.measures) {
@@ -475,12 +475,12 @@
         lastGrupo = m.grupo;
       }
       const rawDisplay = typeof m.raw === "number" ? (Number.isInteger(m.raw) ? m.raw : m.raw.toFixed(2)) : m.raw;
-      const zDisplay = m.z != null ? m.z.toFixed(2) : "—";
+      const pc50Display = m.normPc50 != null ? m.normPc50 : "—";
       const pctDisplay = m.pct != null ? m.pct : "—";
       html += `<tr>
         <td>${m.label}</td>
         <td class="ctr">${rawDisplay}</td>
-        <td class="ctr">${zDisplay}</td>
+        <td class="ctr">${pc50Display}</td>
         <td class="ctr">${pctDisplay}</td>
         <td class="ctr">${badgeHTML(m.cls)}</td>
       </tr>`;
@@ -501,7 +501,7 @@
 
     const labels = ["A1","A2","A3","A4","A5","B1","A6","A7"];
     const scores = labels.map(l => res.raw[l] != null ? res.raw[l] : 0);
-    const normMeans = labels.map(l => res.norma[l] ? res.norma[l].m : 0);
+    const normMeans = labels.map(l => res.norma[l] ? res.norma[l].pc50 : 0);
 
     const maxY = 15;
     const stepX = chartW / (labels.length - 1);
@@ -559,7 +559,7 @@
     svg += `<line x1="${padL}" y1="${H - 2}" x2="${padL + 20}" y2="${H - 2}" stroke="#1a56db" stroke-width="2.5"/>`;
     svg += `<text x="${padL + 24}" y="${H + 2}" fill="#1a56db" font-size="9" font-weight="600">Paciente</text>`;
     svg += `<line x1="${padL + 90}" y1="${H - 2}" x2="${padL + 110}" y2="${H - 2}" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>`;
-    svg += `<text x="${padL + 114}" y="${H + 2}" fill="#94a3b8" font-size="9" font-weight="600">Média normativa (${res.faixa})</text>`;
+    svg += `<text x="${padL + 114}" y="${H + 2}" fill="#94a3b8" font-size="9" font-weight="600">Pc50 normativo (${res.faixa})</text>`;
 
     svg += `</svg>`;
     return svg;
@@ -581,40 +581,49 @@
 
     parts.push(`O desempenho de <b>${res.nome}</b> no RAVLT foi analisado com base nas normas para a faixa etária ${res.faixa} anos.`);
 
+    // Helper: baixo = pct <= 25, alto = pct >= 75, médio = entre
+    function descNivel(pct, baixo, medio, alto) {
+      if (pct == null) return medio;
+      return pct <= 25 ? baixo : pct >= 75 ? alto : medio;
+    }
+
     // Span de atenção (A1)
     if (m.A1) {
-      const spanDesc = m.A1.z < -0.67 ? "abaixo do esperado" : m.A1.z > 0.67 ? "acima do esperado" : "dentro da média esperada";
+      const spanDesc = descNivel(m.A1.pct, "abaixo do esperado", "dentro da média esperada", "acima do esperado");
       parts.push(`O span atencional inicial (A1 = ${m.A1.raw}) encontra-se ${spanDesc} para a faixa etária, indicando capacidade de atenção e registro imediato classificada como <b>${a1cls}</b>.`);
     }
 
     // Curva de aprendizagem
     if (m.Total && m.ALT) {
-      const learningDesc = m.ALT.z < -0.67 ? "um ganho limitado" : m.ALT.z > 0.67 ? "um ganho expressivo" : "um ganho adequado";
+      const learningDesc = descNivel(m.ALT.pct, "um ganho limitado", "um ganho adequado", "um ganho expressivo");
       parts.push(`A curva de aprendizagem ao longo das 5 tentativas (Escore Total = ${res.escoreTotal}; classificação: <b>${totalCls}</b>) revela ${learningDesc} ao longo das repetições (ALT = ${res.alt}; classificação: <b>${m.ALT.cls.label}</b>).`);
     }
 
     // Interferência
     if (m.Proat) {
-      const proatDesc = m.Proat.z < -0.67 ? "sugere susceptibilidade à interferência proativa" : "indica adequada resistência à interferência proativa";
+      const proatDesc = descNivel(m.Proat.pct, "sugere susceptibilidade à interferência proativa", "indica adequada resistência à interferência proativa", "indica boa resistência à interferência proativa");
       parts.push(`O índice de interferência proativa (B1/A1 = ${res.proativa.toFixed(2)}; classificação: <b>${m.Proat.cls.label}</b>) ${proatDesc}.`);
     }
     if (m.Retro) {
-      const retroDesc = m.Retro.z < -0.67 ? "sugere vulnerabilidade à interferência retroativa" : "indica adequada resistência à interferência retroativa";
+      const retroDesc = descNivel(m.Retro.pct, "sugere vulnerabilidade à interferência retroativa", "indica adequada resistência à interferência retroativa", "indica boa resistência à interferência retroativa");
       parts.push(`O índice de interferência retroativa (A6/A5 = ${res.retroativa.toFixed(2)}; classificação: <b>${m.Retro.cls.label}</b>) ${retroDesc}.`);
     }
 
     // Evocação tardia
     if (m.A7 && m.Esquec) {
-      const retDesc = m.A7.z < -0.67 ? "abaixo do esperado, sugerindo dificuldade na consolidação da memória a longo prazo" :
-                      m.A7.z > 0.67 ? "acima do esperado, indicando boa consolidação mnêmica" :
-                      "dentro da faixa esperada, indicando adequada consolidação da memória";
+      const retDesc = descNivel(m.A7.pct,
+        "abaixo do esperado, sugerindo dificuldade na consolidação da memória a longo prazo",
+        "dentro da faixa esperada, indicando adequada consolidação da memória",
+        "acima do esperado, indicando boa consolidação mnêmica");
       parts.push(`A evocação tardia (A7 = ${m.A7.raw}; classificação: <b>${m.A7.cls.label}</b>) encontra-se ${retDesc}. A velocidade de esquecimento (A7/A6 = ${res.esquecimento.toFixed(2)}) foi classificada como <b>${m.Esquec.cls.label}</b>.`);
     }
 
     // Reconhecimento
     if (m.Recon) {
-      const reconDesc = m.Recon.z < -0.67 ? "abaixo do esperado, sugerindo possível déficit no armazenamento ou na discriminação das informações" :
-                        "dentro do esperado, indicando que a informação foi adequadamente armazenada";
+      const reconDesc = descNivel(m.Recon.pct,
+        "abaixo do esperado, sugerindo possível déficit no armazenamento ou na discriminação das informações",
+        "dentro do esperado, indicando que a informação foi adequadamente armazenada",
+        "acima do esperado, indicando boa capacidade de reconhecimento");
       parts.push(`O reconhecimento (escore ajustado = ${res.reconAjustado}; classificação: <b>${m.Recon.cls.label}</b>) encontra-se ${reconDesc}.`);
     }
 
@@ -640,13 +649,13 @@
       }
       const alt = rowIdx % 2 === 1 ? ' class="alt"' : '';
       const rawDisplay = typeof m.raw === "number" ? (Number.isInteger(m.raw) ? m.raw : m.raw.toFixed(2)) : m.raw;
-      const zDisplay = m.z != null ? m.z.toFixed(2) : "—";
+      const pc50Display = m.normPc50 != null ? m.normPc50 : "—";
       const pctDisplay = m.pct != null ? m.pct + "%" : "—";
       const badgeStyle = `display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;background:${m.cls.cor}15;color:${m.cls.cor};border:1px solid ${m.cls.cor}30;`;
       tblRows += `<tr${alt}>
         <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;">${m.label}</td>
         <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;text-align:center;font-weight:600;">${rawDisplay}</td>
-        <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;text-align:center;">${zDisplay}</td>
+        <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;text-align:center;">${pc50Display}</td>
         <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;text-align:center;">${pctDisplay}</td>
         <td style="padding:5px 8px;font-size:11px;border-bottom:1px solid #f1f5f9;text-align:center;"><span style="${badgeStyle}">${m.cls.label}</span></td>
       </tr>`;
@@ -724,7 +733,7 @@
         </div>
         <div class="rpt-box no-break" style="background:#f8fafc;border-radius:10px;padding:16px;border:1px solid #e2e8f0;text-align:center;">
           ${svgChart}
-          <p style="font-size:10px;color:#64748b;margin-top:8px;">Linha azul: desempenho do paciente. Linha tracejada: média normativa para a faixa ${res.faixa} anos.</p>
+          <p style="font-size:10px;color:#64748b;margin-top:8px;">Linha azul: desempenho do paciente. Linha tracejada: Pc50 normativo para a faixa ${res.faixa} anos.</p>
         </div>
 
         <!-- 3. Resultados Detalhados -->
@@ -737,7 +746,7 @@
             <tr>
               <th style="padding:6px 8px;text-align:left;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Medida</th>
               <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Bruto</th>
-              <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Z-Score</th>
+              <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Pc50 (Ref.)</th>
               <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Percentil</th>
               <th style="padding:6px 8px;text-align:center;font-weight:700;font-size:9px;text-transform:uppercase;letter-spacing:.4px;border-bottom:2px solid #e2e8f0;background:#dbeafe;color:#1e40af;">Classificação</th>
             </tr>
@@ -998,7 +1007,7 @@
           },
           measures: res.measures.map(m => ({
             key: m.key, label: m.label, raw: m.raw,
-            z: m.z, pct: m.pct, classificacao: m.cls.label
+            pct: m.pct, classificacao: m.cls.label
           })),
           classificacao: totalCls,
           observacoes: res.observacoes,
