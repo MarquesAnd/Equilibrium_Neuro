@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ASSQ — Questionário de Rastreamento do Espectro Autista | Equilibrium</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --assq-accent:       #7c3aed;
+      --assq-accent-light: #ede9fe;
+      --assq-accent-dark:  #5b21b6;
+    }
+
+    body {
+      font-family: 'DM Sans', Arial, sans-serif;
+      background: #f0f4f8;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(124,58,237,.07) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(91,33,182,.07) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(124,58,237,.03) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='20' fill='none' stroke='%237c3aed' stroke-opacity='0.07' stroke-width='1'/%3E%3C/svg%3E");
+      background-size: 100% 100%, 100% 100%, 100% 100%, 60px 60px;
+      min-height: 100vh;
+    }
+
+    .p-shell {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 16px 110px;
+    }
+
+    /* ── Cabeçalho ── */
+    .p-header {
+      background: #fff;
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .p-brand { display: flex; align-items: center; gap: 12px; }
+    .p-logo  { height: 36px; }
+    .p-brand-name { font-weight: 800; font-size: 15px; color: #1e293b; }
+    .p-brand-sub  { font-size: 11px; color: #64748b; }
+    .p-test { text-align: right; }
+    .p-test-name  { font-weight: 700; font-size: 16px; color: var(--assq-accent); }
+    .p-test-count { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    /* ── Barra de progresso ── */
+    .p-progress-bar {
+      height: 5px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .p-progress-fill {
+      height: 100%;
+      background: var(--assq-accent);
+      width: 0%;
+      transition: width .35s ease;
+      border-radius: 4px;
+    }
+
+    /* ── Card de formulário ── */
+    .p-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 28px 32px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.07);
+    }
+
+    /* ── Aviso para respondente ── */
+    .p-notice {
+      background: var(--assq-accent-light);
+      border-left: 4px solid var(--assq-accent);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      font-size: 13px;
+      color: #3b1d8a;
+      line-height: 1.6;
+    }
+    .p-notice strong { color: var(--assq-accent-dark); }
+
+    /* ── Campos do paciente ── */
+    .p-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 540px) { .p-fields { grid-template-columns: 1fr; } }
+    .p-field label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 6px;
+    }
+    .p-field input, .p-field select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #1e293b;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      background: #fafcff;
+    }
+    .p-field input:focus, .p-field select:focus {
+      border-color: var(--assq-accent);
+      box-shadow: 0 0 0 3px rgba(124,58,237,.12);
+      background: #fff;
+    }
+
+    .p-divider {
+      border: none;
+      border-top: 1.5px solid #f1f5f9;
+      margin: 24px 0;
+    }
+    .p-items-heading {
+      font-size: 11px;
+      font-weight: 800;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 20px;
+    }
+
+    /* ── Itens ── */
+    .item {
+      padding: 16px 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .item:last-child { border-bottom: none; }
+    .item .top {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .item .qid {
+      min-width: 28px;
+      height: 28px;
+      background: var(--assq-accent-light);
+      color: var(--assq-accent-dark);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+    .item .txt {
+      font-size: 15px;
+      color: #1e293b;
+      line-height: 1.55;
+    }
+
+    /* ── Opções de resposta ── */
+    .opts {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .opt {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #f8fafc;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .18s;
+      user-select: none;
+      flex: 1;
+      min-width: 90px;
+      justify-content: center;
+    }
+    .opt input[type="radio"] { display: none; }
+    .opt:hover { border-color: var(--assq-accent); background: var(--assq-accent-light); }
+    .opt.selecionada {
+      background: var(--assq-accent);
+      border-color: var(--assq-accent-dark);
+      color: #fff;
+    }
+    .item.respondido .qid {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    /* ── Rodapé fixo ── */
+    .p-footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #fff;
+      border-top: 1.5px solid #e8edf2;
+      padding: 13px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 200;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+    }
+    .p-footer-info { font-size: 13px; color: #64748b; }
+    .p-footer-info strong { color: #1e293b; font-weight: 700; }
+
+    .btn-enviar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--assq-accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 14px rgba(124,58,237,.35);
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+    .btn-enviar:hover   { opacity: .88; transform: translateY(-1px); }
+    .btn-enviar:active  { transform: translateY(0); opacity: 1; }
+    .btn-enviar:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ── Relatório oculto (gerado internamente) ── */
+    #repOverlay {
+      position: absolute;
+      top: 0;
+      left: -9999px;
+      width: 740px;
+      background: #fff;
+      font-family: 'DM Sans', Arial, sans-serif;
+      z-index: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="p-shell" id="appShell">
+
+    <!-- Cabeçalho -->
+    <div class="p-header">
+      <div class="p-brand">
+        <img src="/logo.png" alt="Equilibrium" class="p-logo" onerror="this.style.display='none'">
+        <div>
+          <div class="p-brand-name">Equilibrium</div>
+          <div class="p-brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <div class="p-test">
+        <div class="p-test-name">ASSQ</div>
+        <div class="p-test-count">Respondidos: <strong id="footerAnswered">0</strong>/<strong id="footerTotal">27</strong></div>
+      </div>
+    </div>
+
+    <!-- Barra de progresso -->
+    <div class="p-progress-bar">
+      <div class="p-progress-fill" id="patientProgressFill"></div>
+    </div>
+
+    <!-- Card principal -->
+    <div class="p-card">
+
+      <!-- Aviso -->
+      <div class="p-notice">
+        <strong>Instruções:</strong> Este questionário deve ser respondido pelos <strong>pais ou responsáveis</strong> da criança/adolescente. Para cada afirmação, escolha a opção que melhor descreve o comportamento da criança nas últimas semanas. Responda com base no que você observa habitualmente.
+      </div>
+
+      <!-- Dados do respondente -->
+      <div class="p-fields">
+        <div class="p-field">
+          <label>Nome completo da criança/adolescente</label>
+          <input id="paciente" type="text" placeholder="Nome completo" autocomplete="name" />
+        </div>
+        <div class="p-field">
+          <label>CPF da criança</label>
+          <input id="cpf" type="text" placeholder="000.000.000-00" autocomplete="off" />
+        </div>
+        <div class="p-field">
+          <label>Data de Nascimento</label>
+          <input id="dataNascimento" type="date" />
+        </div>
+        <div class="p-field">
+          <label>Data do preenchimento</label>
+          <input id="data" type="date" />
+        </div>
+        <div class="p-field">
+          <label>Sexo</label>
+          <select id="sexo">
+            <option value="">Selecione</option>
+            <option>Masculino</option>
+            <option>Feminino</option>
+            <option>Outro</option>
+          </select>
+        </div>
+        <div class="p-field">
+          <label>Escolaridade</label>
+          <input id="escolaridade" type="text" placeholder="Ex: 5º ano do Ensino Fundamental" />
+        </div>
+        <div class="p-field" style="grid-column: 1 / -1;">
+          <label>Respondente / Relação com a criança</label>
+          <input id="respondente" type="text" placeholder='Ex: "Mãe", "Pai", "Responsável"' autocomplete="off" />
+        </div>
+      </div>
+
+      <hr class="p-divider" />
+      <div class="p-items-heading">Para cada afirmação, selecione a opção que melhor descreve a criança</div>
+
+      <!-- Itens injetados pelo JS -->
+      <div id="itens"></div>
+
+    </div>
+  </div>
+
+  <!-- ── RODAPÉ FIXO ── -->
+  <div class="p-footer">
+    <div class="p-footer-info">
+      Respondidos: <strong id="footerAnsweredBottom">0</strong> de <strong>27</strong>
+    </div>
+    <button class="btn-enviar" id="btnEnviar" type="button" onclick="finalizarEEnviar()">
+      📤 Enviar Respostas
+    </button>
+  </div>
+
+  <!-- ── RELATÓRIO OCULTO ── -->
+  <div id="repOverlay"></div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard-silent.js"></script>
+
+  <script>
+    // ── URL do Google Apps Script (substituir após deploy) ──
+    const URL_DO_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbwObHQvJxkSnqj2rs6k5y8jGacNjG4HYv8Cpq_6gqJXlCCwWtj3xsnxwgCMoHp1yeKe/exec";
+
+    // ── 27 itens do ASSQ ──
+    const ASSQ_ITEMS = [
+      { id: 1,  text: "Parece antiquado ou precoce ('adulto em miniatura')." },
+      { id: 2,  text: "É considerado por outras crianças como um 'professor excêntrico' (sabe muito de um tema)." },
+      { id: 3,  text: "Vive 'no seu próprio mundo', com interesses intelectuais restritos e idiossincráticos." },
+      { id: 4,  text: "Acumula fatos sobre certos assuntos (boa memória mecânica), mas não compreende realmente o seu significado." },
+      { id: 5,  text: "Tem uma compreensão literal de palavras e metáforas (entende tudo 'ao pé da letra')." },
+      { id: 6,  text: "Tem um estilo de comunicação formal, pedante, antiquado ou 'robotizado'." },
+      { id: 7,  text: "Interessa-se por assuntos que não são comuns para a sua idade." },
+      { id: 8,  text: "Tem dificuldade em perceber normas sociais implícitas (regras de convívio que não são faladas)." },
+      { id: 9,  text: "Tem dificuldade em brincar ou interagir com outras crianças de forma recíproca." },
+      { id: 10, text: "Tem dificuldade em fazer ou manter amigos." },
+      { id: 11, text: "Tem falta de 'senso comum' (pode ser bom nos livros, mas ingênuo na vida prática)." },
+      { id: 12, text: "É ruim em jogos: não tem ideia de cooperação em equipe, marca gols contra, confunde as regras." },
+      { id: 13, text: "Tem movimentos ou gestos desajeitados, mal coordenados." },
+      { id: 14, text: "Tem movimentos faciais ou expressões involuntárias (tiques, caretas, trejeitos)." },
+      { id: 15, text: "Tem uma voz ou fala diferente (ex: monótona, volume estranho, canta a fala)." },
+      { id: 16, text: "Evita olhar nos olhos (contato visual pobre ou atípico)." },
+      { id: 17, text: "Tem apego excessivo a certos objetos." },
+      { id: 18, text: "Sofre bullying ou é provocado por outras crianças." },
+      { id: 19, text: "Tem rotinas insistentes ou rituais que precisam ser seguidos." },
+      { id: 20, text: "Tem dificuldade em mudar de uma atividade para outra (resistência à mudança)." },
+      { id: 21, text: "Tem sensibilidade excessiva a sons, luzes, texturas ou cheiros." },
+      { id: 22, text: "Teve um desenvolvimento da linguagem atípico (ex: falou tarde, ou começou falando 'difícil' muito cedo)." },
+      { id: 23, text: "Tem falta de empatia intuitiva (parece não perceber se está magoando ou incomodando o outro)." },
+      { id: 24, text: "Faz comentários ingênuos ou embaraçosos em público (sinceridade excessiva)." },
+      { id: 25, text: "Tem um olhar fixo ou 'vidrado' quando está concentrado ou conversando." },
+      { id: 26, text: "Pode ser muito determinado em conseguir o que quer, ignorando a vontade dos outros." },
+      { id: 27, text: "Tem uma memória excelente para detalhes, mas ruim para eventos gerais do dia a dia." },
+    ];
+
+    const LABELS = [
+      { value: 0, text: "Não" },
+      { value: 1, text: "Um pouco" },
+      { value: 2, text: "Sim" },
+    ];
+
+    // ── Renderizar itens ──
+    function renderItens() {
+      const container = document.getElementById("itens");
+      container.innerHTML = "";
+      for (const item of ASSQ_ITEMS) {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.dataset.id = item.id;
+        div.innerHTML = `
+          <div class="top">
+            <div class="qid">${item.id}</div>
+            <div class="txt">${item.text}</div>
+          </div>
+          <div class="opts">
+            ${LABELS.map(l => `
+              <label class="opt">
+                <input type="radio" name="i${item.id}" value="${l.value}" />
+                ${l.text}
+              </label>
+            `).join("")}
+          </div>
+        `;
+        // Marcar selecionada + progresso
+        div.addEventListener("change", (e) => {
+          div.classList.add("respondido");
+          div.querySelectorAll(".opt").forEach(o => o.classList.remove("selecionada"));
+          e.target.closest(".opt")?.classList.add("selecionada");
+          atualizarProgresso();
+        });
+        container.appendChild(div);
+      }
+    }
+
+    function atualizarProgresso() {
+      let answered = 0;
+      for (const item of ASSQ_ITEMS) {
+        if (document.querySelector(`input[name="i${item.id}"]:checked`)) answered++;
+      }
+      const pct = Math.round((answered / 27) * 100);
+      document.getElementById("patientProgressFill").style.width = pct + "%";
+      document.getElementById("footerAnswered").textContent = answered;
+      document.getElementById("footerAnsweredBottom").textContent = answered;
+      document.getElementById("footerTotal").textContent = "27";
+    }
+
+    // ── Coletar respostas ──
+    function coletarRespostas() {
+      const respostas = {};
+      let total = 0;
+      for (const item of ASSQ_ITEMS) {
+        const checked = document.querySelector(`input[name="i${item.id}"]:checked`);
+        const val = checked ? parseInt(checked.value) : null;
+        respostas[item.id] = val;
+        if (val !== null) total += val;
+      }
+      return { respostas, total };
+    }
+
+    // ── Gerar HTML do relatório (oculto, para PDF) ──
+    function gerarRelatorioHTML(dados) {
+      const { paciente, cpf, dataNascimento, dataAvaliacao, sexo, escolaridade, respondente, respostas, total } = dados;
+
+      const corte = 19;
+      const positivo = total >= corte;
+      const cor    = positivo ? "#dc2626" : "#16a34a";
+      const bg     = positivo ? "#fef2f2" : "#f0fdf4";
+      const label  = positivo ? "Rastreio POSITIVO" : "Dentro do Esperado";
+      const pct    = Math.round((total / 54) * 100);
+
+      // Calcular resposta por grupo de domínio
+      const grupos = {
+        "Comunicação e Linguagem": [5, 6, 15, 22],
+        "Interação Social": [8, 9, 10, 11, 12, 18, 23, 24],
+        "Interesses Restritos": [1, 2, 3, 4, 7, 17, 27],
+        "Comportamento Repetitivo / Rigidez": [19, 20, 25, 26],
+        "Sensorial / Motor": [13, 14, 16, 21],
+      };
+
+      const grupoCores = {
+        "Comunicação e Linguagem": "#7c3aed",
+        "Interação Social": "#3b82f6",
+        "Interesses Restritos": "#f59e0b",
+        "Comportamento Repetitivo / Rigidez": "#dc2626",
+        "Sensorial / Motor": "#0d9488",
+      };
+
+      const grupoData = Object.entries(grupos).map(([nome, ids]) => {
+        const score = ids.reduce((s, id) => s + (respostas[id] ?? 0), 0);
+        const max   = ids.length * 2;
+        const pct   = Math.round((score / max) * 100);
+        return { nome, score, max, pct, cor: grupoCores[nome] };
+      });
+
+      // Barras de porcentagem em HTML (sem Chart.js — compatível com html2pdf)
+      const barrasHTML = grupoData.map(g => `
+        <tr>
+          <td style="padding:10px 14px; font-size:13px; font-weight:600; color:#1e293b; vertical-align:middle; width:230px;">
+            <span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${g.cor};margin-right:7px;vertical-align:middle;"></span>
+            ${g.nome}
+          </td>
+          <td style="padding:10px 14px; text-align:center; font-size:18px; font-weight:800; color:${g.pct >= 60 ? '#dc2626' : g.pct >= 35 ? '#d97706' : '#16a34a'}; vertical-align:middle; width:60px;">
+            ${g.score}
+          </td>
+          <td style="padding:10px 14px; vertical-align:middle; font-size:11px; color:#94a3b8; width:50px; text-align:center;">
+            /${g.max}
+          </td>
+          <td style="padding:10px 22px 10px 4px; vertical-align:middle;">
+            <div style="background:#f1f5f9;border-radius:6px;height:10px;overflow:hidden;">
+              <div style="height:100%;width:${g.pct}%;background:${g.cor};border-radius:6px;"></div>
+            </div>
+          </td>
+          <td style="padding:10px 14px; vertical-align:middle; width:90px; text-align:center;">
+            <span style="background:${g.pct>=60?'#fef2f2':g.pct>=35?'#fffbeb':'#f0fdf4'};color:${g.pct>=60?'#dc2626':g.pct>=35?'#d97706':'#16a34a'};border-radius:8px;padding:3px 10px;font-size:11px;font-weight:700;">
+              ${g.pct >= 60 ? 'Elevado' : g.pct >= 35 ? 'Moderado' : 'Típico'}
+            </span>
+          </td>
+        </tr>
+      `).join("");
+
+      // Tabela de itens individuais
+      const itensHTML = ASSQ_ITEMS.map(item => {
+        const val = respostas[item.id] ?? 0;
+        const labelR = LABELS.find(l => l.value === val)?.text || "—";
+        const corR = val === 2 ? "#dc2626" : val === 1 ? "#d97706" : "#16a34a";
+        return `
+          <tr style="border-bottom:1px solid #f1f5f9;">
+            <td style="padding:8px 12px; font-size:12px; font-weight:700; color:#94a3b8; text-align:center; width:36px;">${item.id}</td>
+            <td style="padding:8px 12px; font-size:13px; color:#374151; line-height:1.5;">${item.text}</td>
+            <td style="padding:8px 12px; text-align:center; width:80px;">
+              <span style="background:${val===2?'#fef2f2':val===1?'#fffbeb':'#f0fdf4'};color:${corR};border-radius:8px;padding:3px 10px;font-size:12px;font-weight:700;">${labelR}</span>
+            </td>
+            <td style="padding:8px 12px; text-align:center; font-size:15px; font-weight:800; color:${corR}; width:40px;">${val}</td>
+          </tr>`;
+      }).join("");
+
+      const dataFmt = (d) => {
+        if (!d) return "—";
+        const [y,m,dd] = d.split("-"); return `${dd}/${m}/${y}`;
+      };
+
+      // Interpretação textual do total
+      let interpretacao = "";
+      if (total >= corte) {
+        interpretacao = `A pontuação de ${paciente.split(" ")[0]} (${total} pontos) está <strong>acima do ponto de corte estabelecido de ${corte} pontos</strong> para rastreio positivo quando respondido por pais/responsáveis. De acordo com o estudo de validação brasileiro (Restrepo, 2018/UFRGS), pontuações acima deste limiar indicam a necessidade de avaliação diagnóstica formal, diferenciando crianças com TEA daquelas com desenvolvimento típico.`;
+      } else {
+        interpretacao = `A pontuação total de ${total} pontos está abaixo do ponto de corte de ${corte} pontos, o que não sugere, com base neste instrumento de rastreio, presença de traços do espectro autista em nível clinicamente significativo. A pontuação é consistente com o perfil esperado para a faixa etária.`;
+      }
+
+      return `
+      <div style="font-family:'DM Sans',Arial,sans-serif;color:#1e293b;max-width:800px;margin:0 auto;padding:0;">
+
+        <!-- CABEÇALHO -->
+        <div style="background:linear-gradient(135deg,#7c3aed 0%,#5b21b6 100%);color:#fff;border-radius:16px 16px 0 0;padding:36px 40px 28px;">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;">
+            <div>
+              <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;opacity:.75;margin-bottom:4px;">Equilibrium Neuropsicologia</div>
+              <div style="font-size:24px;font-weight:800;letter-spacing:-.02em;">ASSQ — Questionário de Rastreamento do Espectro Autista</div>
+              <div style="font-size:13px;opacity:.8;margin-top:4px;">Autism Spectrum Screening Questionnaire · Ehlers, Gillberg & Wing (1999) · Validação BR: Restrepo (2018/UFRGS)</div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;">
+            <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px 16px;">
+              <div style="font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Avaliado(a)</div>
+              <div style="font-size:15px;font-weight:700;">${paciente || "—"}</div>
+            </div>
+            <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px 16px;">
+              <div style="font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Respondente</div>
+              <div style="font-size:15px;font-weight:700;">${respondente || "—"}</div>
+            </div>
+            <div style="background:rgba(255,255,255,.12);border-radius:10px;padding:12px 16px;">
+              <div style="font-size:10px;opacity:.7;text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Data</div>
+              <div style="font-size:15px;font-weight:700;">${dataFmt(dataAvaliacao)}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- RESULTADO GERAL -->
+        <div style="background:#fff;padding:28px 40px;border-bottom:2px solid #f1f5f9;">
+          <div style="display:flex;align-items:center;gap:28px;flex-wrap:wrap;">
+            <div style="text-align:center;min-width:120px;">
+              <div style="font-size:52px;font-weight:800;color:${cor};line-height:1;">${total}</div>
+              <div style="font-size:13px;color:#64748b;margin-top:4px;">de 54 pontos</div>
+              <div style="font-size:11px;color:#94a3b8;margin-top:2px;">Ponto de corte: ≥ ${corte}</div>
+            </div>
+            <div style="flex:1;min-width:200px;">
+              <div style="background:${bg};border:2px solid ${cor}33;border-radius:14px;padding:18px 22px;">
+                <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:${cor};opacity:.8;margin-bottom:6px;">Resultado do Rastreio</div>
+                <div style="font-size:22px;font-weight:800;color:${cor};margin-bottom:6px;">${label}</div>
+                <div style="font-size:13px;color:#374151;line-height:1.55;">${interpretacao}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Barra visual total -->
+          <div style="margin-top:24px;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:#94a3b8;margin-bottom:6px;">
+              <span>0</span>
+              <span>Corte: ${corte}</span>
+              <span>54 (máx)</span>
+            </div>
+            <div style="background:#f1f5f9;border-radius:8px;height:14px;overflow:visible;position:relative;">
+              <div style="height:100%;width:${pct}%;background:${cor};border-radius:8px;transition:width .6s;"></div>
+              <!-- Marcador de corte -->
+              <div style="position:absolute;top:-4px;left:${Math.round((corte/54)*100)}%;width:2px;height:22px;background:#1e293b;opacity:.35;border-radius:2px;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PERFIL POR DOMÍNIO -->
+        <div style="background:#fff;padding:28px 40px;border-bottom:2px solid #f1f5f9;">
+          <div style="font-size:14px;font-weight:800;color:#1e293b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:18px;">📊 Perfil por Domínio Clínico</div>
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr style="background:#f8fafc;">
+                <th style="padding:10px 14px;text-align:left;font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;font-weight:700;">Domínio</th>
+                <th style="padding:10px 14px;text-align:center;font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;font-weight:700;">Pontos</th>
+                <th style="padding:10px 14px;text-align:center;font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;font-weight:700;">Máx</th>
+                <th style="padding:10px 14px;font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;font-weight:700;">Distribuição</th>
+                <th style="padding:10px 14px;text-align:center;font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;font-weight:700;">Nível</th>
+              </tr>
+            </thead>
+            <tbody>${barrasHTML}</tbody>
+          </table>
+        </div>
+
+        <!-- TABELA DE RESPOSTAS INDIVIDUAIS -->
+        <div style="background:#fff;padding:28px 40px;border-bottom:2px solid #f1f5f9;">
+          <div style="font-size:14px;font-weight:800;color:#1e293b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:18px;">📋 Respostas por Item</div>
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr style="background:#f8fafc;">
+                <th style="padding:8px 12px;text-align:center;font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;font-weight:700;width:36px;">#</th>
+                <th style="padding:8px 12px;text-align:left;font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;font-weight:700;">Afirmação</th>
+                <th style="padding:8px 12px;text-align:center;font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;font-weight:700;width:80px;">Resposta</th>
+                <th style="padding:8px 12px;text-align:center;font-size:11px;color:#94a3b8;text-transform:uppercase;letter-spacing:.07em;font-weight:700;width:40px;">Pts</th>
+              </tr>
+            </thead>
+            <tbody>${itensHTML}</tbody>
+          </table>
+        </div>
+
+        <!-- RODAPÉ -->
+        <div style="background:#f8fafc;border-radius:0 0 16px 16px;padding:20px 40px;display:flex;justify-content:space-between;align-items:center;border-top:2px solid #f1f5f9;">
+          <div style="font-size:12px;color:#94a3b8;line-height:1.5;">
+            <strong style="color:#475569;">ASSQ</strong> — Autism Spectrum Screening Questionnaire<br>
+            Pais/Responsáveis · Pontuação Total: <strong style="color:${cor};">${total}/54</strong> · Corte ≥ ${corte}
+          </div>
+          <div style="font-size:11px;color:#cbd5e1;text-align:right;">
+            Gerado por Equilibrium Neuropsicologia<br>
+            ${dataFmt(dataAvaliacao)}
+          </div>
+        </div>
+
+      </div>`;
+    }
+
+    // ── Enviar ao Drive ──
+    async function finalizarEEnviar() {
+      const paciente    = document.getElementById("paciente")?.value?.trim() || "";
+      const cpf         = document.getElementById("cpf")?.value?.trim() || "";
+      const dataNasc    = document.getElementById("dataNascimento")?.value || "";
+      const dataAval    = document.getElementById("data")?.value || "";
+      const sexo        = document.getElementById("sexo")?.value || "";
+      const escolaridade = document.getElementById("escolaridade")?.value?.trim() || "";
+      const respondente = document.getElementById("respondente")?.value?.trim() || "";
+
+      if (!paciente) { alert("Por favor, informe o nome completo da criança."); return; }
+      if (!cpf)      { alert("Por favor, informe o CPF da criança."); return; }
+
+      // Verificar se todos os 27 itens foram respondidos
+      let unanswered = [];
+      for (const item of ASSQ_ITEMS) {
+        if (!document.querySelector(`input[name="i${item.id}"]:checked`)) unanswered.push(item.id);
+      }
+      if (unanswered.length > 0) {
+        alert(`Por favor, responda todos os itens antes de enviar.\n\nItens não respondidos: ${unanswered.join(", ")}`);
+        return;
+      }
+
+      const { respostas, total } = coletarRespostas();
+
+      const dados = { paciente, cpf, dataNascimento: dataNasc, dataAvaliacao: dataAval, sexo, escolaridade, respondente, respostas, total };
+
+      // Gerar HTML do relatório
+      const htmlRelatorio = gerarRelatorioHTML(dados);
+      const repDiv = document.getElementById("repOverlay");
+      repDiv.innerHTML = htmlRelatorio;
+      document.body.appendChild(repDiv);
+
+      // Aguardar layout
+      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
+      const captureHeight = repDiv.scrollHeight;
+
+      const btn = document.getElementById("btnEnviar");
+      btn.disabled = true;
+      btn.textContent = "A processar…";
+
+      // Cortina
+      const cortina = document.createElement("div");
+      cortina.style.cssText = "position:fixed;inset:0;background:#1e3a5f;z-index:999999;display:flex;align-items:center;justify-content:center;";
+      cortina.innerHTML = `
+        <div style="background:#fff;border-radius:20px;padding:40px 48px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35);max-width:340px;width:90%;">
+          <div style="width:52px;height:52px;border:5px solid #ede9fe;border-top-color:#7c3aed;border-radius:50%;animation:sp 0.8s linear infinite;margin:0 auto 20px;"></div>
+          <div id="__msg__" style="font-size:16px;font-weight:800;color:#7c3aed;margin-bottom:6px;">A processar as suas respostas…</div>
+          <div style="font-size:13px;color:#64748b;">Por favor, não feche esta página.</div>
+        </div>
+        <style>@keyframes sp{to{transform:rotate(360deg)}}</style>`;
+      document.body.appendChild(cortina);
+
+      const setMsg = t => { const el = document.getElementById("__msg__"); if(el) el.textContent = t; };
+
+      try {
+        repDiv.style.left = "0";
+        repDiv.style.top  = "0";
+        await new Promise(r => setTimeout(r, 150));
+
+        setMsg("A formatar o relatório em PDF…");
+
+        const opt = {
+          margin: [12, 12, 12, 12],
+          filename: "resultado_assq.pdf",
+          image: { type: "jpeg", quality: 1.0 },
+          html2canvas: {
+            scale: 3, useCORS: true, allowTaint: true,
+            scrollX: 0, scrollY: 0, x: 0, y: 0,
+            width: 740, height: captureHeight,
+            windowWidth: 740, windowHeight: captureHeight, logging: false
+          },
+          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+        };
+
+        const pdfUri = await html2pdf().set(opt).from(repDiv).outputPdf("datauristring");
+        const base64 = pdfUri.split(",")[1];
+
+        // Salvar no Firestore
+        if (window.firebase && firebase.firestore) {
+          try {
+            const db = firebase.firestore();
+            const grupos = {
+              "Comunicação e Linguagem": [5,6,15,22],
+              "Interação Social": [8,9,10,11,12,18,23,24],
+              "Interesses Restritos": [1,2,3,4,7,17,27],
+              "Comportamento Repetitivo / Rigidez": [19,20,25,26],
+              "Sensorial / Motor": [13,14,16,21],
+            };
+            const dominios = {};
+            Object.entries(grupos).forEach(([nome, ids]) => {
+              dominios[nome] = ids.reduce((s, id) => s + (respostas[id] ?? 0), 0);
+            });
+            await db.collection("assq_respostas").add({
+              paciente, cpf, dataNascimento: dataNasc,
+              dataAvaliacao: dataAval, sexo, escolaridade, respondente,
+              respostas: JSON.stringify(respostas),
+              dominios: JSON.stringify(dominios),
+              total, timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          } catch(e) { console.warn("Firestore:", e); }
+        }
+
+        setMsg("A enviar com segurança…");
+
+        const res  = await fetch(URL_DO_GOOGLE_SCRIPT, {
+          method: "POST",
+          body: JSON.stringify({ pdf: base64, nome: paciente, form: "assq" })
+        });
+        const data = await res.json();
+
+        if (data.status === "sucesso") {
+          document.body.innerHTML = `
+            <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#1e3a5f;padding:24px;">
+              <div style="background:#fff;border-radius:20px;padding:56px 44px;text-align:center;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+                <div style="width:72px;height:72px;background:#ede9fe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:32px;">✅</div>
+                <h1 style="font-size:22px;font-weight:800;color:#7c3aed;margin:0 0 12px;">Questionário Enviado!</h1>
+                <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 8px;">As suas respostas foram processadas e enviadas com segurança.</p>
+                <p style="font-size:13px;color:#94a3b8;margin:24px 0 0;">Já pode fechar esta janela.</p>
+              </div>
+            </div>`;
+        } else {
+          throw new Error(data.mensagem || "Resposta inesperada do servidor.");
+        }
+
+      } catch(err) {
+        cortina.remove();
+        repDiv.style.left = "-9999px";
+        btn.disabled = false;
+        btn.textContent = "📤 Enviar Respostas";
+        alert("Não foi possível enviar as respostas.\n\nVerifique a sua ligação à internet e tente novamente.\n\nDetalhe: " + err.message);
+      }
+    }
+
+    // ── Inicialização ──
+    document.addEventListener("DOMContentLoaded", () => {
+      renderItens();
+      // Preencher data de hoje como padrão
+      const hoje = new Date().toISOString().split("T")[0];
+      document.getElementById("data").value = hoje;
+    });
+  </script>
+</body>
+</html>
