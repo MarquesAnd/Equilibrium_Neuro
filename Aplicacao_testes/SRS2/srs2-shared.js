@@ -436,7 +436,7 @@ function svgBell(t){
   const xt = xOfT(tv);
   const color = tv<=59 ? '#16a34a' : '#64748b';
 
-  return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg" style="display:block">
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="auto" xmlns="http://www.w3.org/2000/svg">
     <rect width="${W}" height="${H}" fill="#fff" rx="8"/>
     <path d="${d}" fill="${accentLight}" opacity="0.6"/>
     <line x1="${xt}" y1="${baseY-90}" x2="${xt}" y2="${baseY}" stroke="${color}" stroke-width="2.5"/>

@@ -853,7 +853,7 @@ body {
 /* SVG gráfico no relatório */
 .rep-chart-wrap {
   border-radius: 14px;
-  /* overflow:hidden removido — causava corte do SVG no html2canvas */
+  overflow: hidden;
   border: 1px solid var(--border);
   background: #fff;
 }
@@ -862,6 +862,7 @@ body {
 .rep-scale-card {
   border: 1.5px solid var(--border);
   border-radius: 14px;
+  overflow: hidden;
   margin-bottom: 16px;
   page-break-inside: avoid;
   break-inside: avoid;
@@ -883,10 +884,10 @@ body {
 }
 
 .rep-scale-card-body {
-  padding: 14px 20px;
+  padding: 16px 20px;
   display: grid;
-  grid-template-columns: 1fr 300px;  /* bell chart sempre 300px */
-  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
   align-items: center;
 }
 

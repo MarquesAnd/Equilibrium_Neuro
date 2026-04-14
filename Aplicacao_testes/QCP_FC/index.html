@@ -829,13 +829,19 @@
     }
 
     /* ---- Gerar PDF via html2pdf ---- */
-    async function gerarPDF(nome, dataAvaliacao, respostas, resultados) {
+    async function gerarPDF(nome, dataAvaliacao, respostas, resultados, chartImg) {
       var htmlRelatorio = gerarRelatorioHTML(nome, dataAvaliacao, respostas, resultados);
 
       var container = document.createElement('div');
       container.style.cssText = 'position:absolute;left:-9999px;top:0;width:800px;background:#fff;';
       container.innerHTML = htmlRelatorio;
       document.body.appendChild(container);
+
+      // Inject chart image into the placeholder
+      var grafContainer = container.querySelector('#grafico-container');
+      if (grafContainer && chartImg) {
+        grafContainer.innerHTML = '<img src="' + chartImg + '" style="width:100%;height:auto;display:block;border-radius:8px;" />';
+      }
 
       await new Promise(function(r) { setTimeout(r, 200); });
 
@@ -932,7 +938,7 @@
         await delay(300);
 
         var relatorioHTML = gerarRelatorioHTML(nome, dataAvaliacao, respostas, resultados);
-        var pdfBase64 = await gerarPDF(nome, dataAvaliacao, respostas, resultados);
+        var pdfBase64 = await gerarPDF(nome, dataAvaliacao, respostas, resultados, chartImg);
 
         if (modalTitle) modalTitle.textContent = "Enviando ao consultorio...";
         await delay(300);

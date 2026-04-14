@@ -440,7 +440,7 @@ document.getElementById('btnSend').addEventListener('click',async()=>{
     // ── SVG Gráfico de Perfil ──
     const svgW=660,svgH=280,pL=55,pR=25,pT=30,pB=55,cW=svgW-pL-pR,cH=svgH-pT-pB;
     const yP=(v)=>pT+cH-((v-20)/(140-20))*cH;
-    let svg=`<svg width="${svgW}" height="${svgH}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" style="font-family:'DM Sans',Arial,sans-serif;">`;
+    let svg=`<svg width="100%" height="auto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${svgW} ${svgH}" style="font-family:'DM Sans',Arial,sans-serif;">`;
     // Faixas
     [{min:130,max:140,f:'#ecfdf5'},{min:115,max:129,f:'#f0fdf4'},{min:86,max:114,f:'#eff6ff'},{min:71,max:85,f:'#fffbeb'},{min:20,max:70,f:'#fef2f2'}].forEach(z=>{
       svg+=`<rect x="${pL}" y="${yP(Math.min(z.max,140)).toFixed(1)}" width="${cW}" height="${(yP(Math.max(z.min,20))-yP(Math.min(z.max,140))).toFixed(1)}" fill="${z.f}"/>`;
