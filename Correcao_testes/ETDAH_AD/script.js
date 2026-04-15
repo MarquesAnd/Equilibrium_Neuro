@@ -299,54 +299,89 @@ window.calcular = async function(salvar) {
   if (!nome) { alert("Informe o nome do avaliado."); return; }
   if (!escolaridade) { alert("Selecione a escolaridade."); return; }
 
-  const dados = calcularEscores();
-  if (!dados) return;
+  // ► LOADING
+  showLoading(salvar ? "Salvando e gerando relatório..." : "Calculando resultados...");
 
-  const idade = calcularIdade(dataNascimento, dataAplicacao);
-  const idadeTxt = idade ? `${idade.anos} anos e ${idade.meses} meses` : "—";
+  try {
+    const dados = calcularEscores();
+    if (!dados) { hideLoading(); return; }
 
-  // ── Montar objeto laudo ──────────────────────────────────────────
-  const laudoObj = {
-    id: Date.now().toString(),
-    instrumento: "ETDAH-AD",
-    profNome, profCRP, profEspecialidade, profContato,
-    nome, cpf, dataNascimento, dataAplicacao, sexo, escolaridade, motivo,
-    obs, recomendacoes, idadeTxt,
-    respostas: dados.respostas,
-    resultados: dados.resultados,
-  };
+    const idade = calcularIdade(dataNascimento, dataAplicacao);
+    const idadeTxt = idade ? `${idade.anos} anos e ${idade.meses} meses` : "—";
 
-  // Salvar no localStorage
-  if (salvar) {
-    const lista = getLaudos();
-    lista.unshift(laudoObj);
-    if (lista.length > 200) lista.length = 200;
-    setLaudos(lista);
+    // ── Montar objeto laudo ──────────────────────────────────────────
+    const laudoObj = {
+      id: Date.now().toString(),
+      instrumento: "ETDAH-AD",
+      profNome, profCRP, profEspecialidade, profContato,
+      nome, cpf, dataNascimento, dataAplicacao, sexo, escolaridade, motivo,
+      obs, recomendacoes, idadeTxt,
+      respostas: dados.respostas,
+      resultados: dados.resultados,
+    };
 
-  }
+    // ── Renderizar relatório ─────────────────────────────────────────
+    renderRelatorio(laudoObj);
 
-  // ── Renderizar relatório ─────────────────────────────────────────
-  renderRelatorio(laudoObj);
+    // Aguardar o gráfico Chart.js renderizar (setTimeout de 100ms no renderRelatorio)
+    await new Promise(r => setTimeout(r, 400));
 
-  // ── Salvar no Firebase via Integration ───────────────────────────
-  if (salvar && window.Integration && Integration.getPacienteAtual()) {
-    try {
-      const rel = document.getElementById("relatorio");
-      const resumoFatores = FATORES.map(f => `${f}: ${dados.resultados[f]?.percentil ?? "—"}%`).join(" | ");
-      await Integration.salvarTesteNoFirebase("etdah_ad", {
-        dataAplicacao,
-        resumo: resumoFatores,
-        scores: dados.resultados,
-        classificacao: dados.resultados["Desatenção"]?.classificacao || "—",
-        observacoes: obs,
-        htmlRelatorio: rel ? rel.innerHTML : "",
-      });
-    } catch(e) { console.warn("Erro ao salvar no Firebase:", e); }
-  }
+    // ── Converter canvas do gráfico para imagem estática ─────────────
+    const rel = document.getElementById("relatorio");
+    if (rel) {
+      const canvas = rel.querySelector("canvas");
+      if (canvas && _chartInstance) {
+        try {
+          const imgDataUrl = canvas.toDataURL("image/png");
+          const imgEl = document.createElement("img");
+          imgEl.src = imgDataUrl;
+          imgEl.style.cssText = "width:100%;height:auto;display:block;border-radius:8px;";
+          canvas.parentNode.replaceChild(imgEl, canvas);
+          // Destruir a instância Chart.js (já não precisa do canvas)
+          try { _chartInstance.destroy(); } catch(e) {}
+          _chartInstance = null;
+        } catch(e) { console.warn("Erro ao converter gráfico:", e); }
+      }
+    }
 
-  // ── PDF se solicitado ────────────────────────────────────────────
-  if (salvar) {
-    setTimeout(() => gerarPDF(nome, dataAplicacao), 800);
+    // ── Salvar no localStorage ───────────────────────────────────────
+    if (salvar) {
+      const lista = getLaudos();
+      lista.unshift(laudoObj);
+      if (lista.length > 200) lista.length = 200;
+      setLaudos(lista);
+    }
+
+    // ── Salvar no Firebase via Integration ────────────────────────────
+    if (salvar && window.Integration && Integration.getPacienteAtual()) {
+      try {
+        const resumoFatores = FATORES.map(f => `${f}: ${dados.resultados[f]?.percentil ?? "—"}%`).join(" | ");
+        await Integration.salvarTesteNoFirebase("etdah_ad", {
+          dataAplicacao,
+          resumo: resumoFatores,
+          scores: dados.resultados,
+          classificacao: dados.resultados["Desatenção"]?.classificacao || "—",
+          observacoes: obs,
+          htmlRelatorio: rel ? rel.outerHTML : "",
+        });
+      } catch(e) { console.warn("Erro ao salvar no Firebase:", e); }
+    }
+
+    // ► HIDE LOADING + OPEN MODAL (padrão WAIS)
+    hideLoading();
+    openReportModal();
+
+    if (salvar) {
+      setTimeout(() => {
+        const toolbar = document.querySelector(".toolbar-title");
+        if (toolbar) toolbar.textContent = "📄 Relatório ETDAH-AD — Laudo salvo com sucesso!";
+      }, 100);
+    }
+
+  } catch (e) {
+    hideLoading();
+    console.error("Erro ao processar:", e);
+    alert("Ocorreu um erro ao processar. Verifique o console.\n\n" + e.message);
   }
 };
 
@@ -661,33 +696,180 @@ function gerarInterpretacaoFator(fator, r, nome) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// GERAR PDF
+// LOADING OVERLAY (padrão WAIS)
 // ═══════════════════════════════════════════════════════════════════
+function showLoading(msg) {
+  const overlay = document.createElement("div");
+  overlay.id = "loadingOverlay";
+  overlay.className = "loading-overlay";
+  overlay.innerHTML = `<div class="loading-card">
+    <div class="loading-spinner"></div>
+    <div class="loading-title">${msg || "Gerando relatório..."}</div>
+    <div class="loading-sub">Processando dados do ETDAH-AD</div>
+  </div>`;
+  document.body.appendChild(overlay);
+}
+
+function hideLoading() {
+  const el = document.getElementById("loadingOverlay");
+  if (el) el.remove();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// REPORT MODAL (padrão WAIS)
+// ═══════════════════════════════════════════════════════════════════
+function _escHandler(e) {
+  if (e.key === "Escape") closeReportModal();
+}
+
+function openReportModal() {
+  const rel = document.getElementById("relatorio");
+  if (!rel) return;
+
+  closeReportModal();
+
+  const backdrop = document.createElement("div");
+  backdrop.id = "reportModal";
+  backdrop.className = "report-modal-backdrop";
+  const paciente = window.Integration ? Integration.getPacienteAtual() : null;
+  const btnVoltar = paciente ? `<button class="toolbar-btn toolbar-btn-voltar" onclick="voltarParaPaciente()">👤 Voltar ao Paciente</button>` : "";
+  backdrop.innerHTML = `
+    <div class="report-modal">
+      <div class="report-modal-toolbar no-print">
+        <div class="toolbar-title">📄 Relatório ETDAH-AD</div>
+        <div class="toolbar-actions">
+          ${btnVoltar}
+          <button class="toolbar-btn toolbar-btn-primary" onclick="baixarPDF()">📥 Baixar PDF</button>
+          <button class="toolbar-btn toolbar-btn-secondary" onclick="window.print()">🖨️ Imprimir</button>
+          <button class="toolbar-btn toolbar-btn-secondary" onclick="closeReportModal()">✕ Fechar</button>
+        </div>
+      </div>
+      <div class="report-modal-body" id="reportModalBody"></div>
+    </div>`;
+
+  document.body.appendChild(backdrop);
+
+  const body = document.getElementById("reportModalBody");
+  body.appendChild(rel);
+  rel.style.display = "block";
+
+  backdrop.addEventListener("click", function(e) {
+    if (e.target === backdrop) closeReportModal();
+  });
+  document.addEventListener("keydown", _escHandler);
+}
+
+function closeReportModal() {
+  const modal = document.getElementById("reportModal");
+  if (!modal) return;
+
+  const rel = document.getElementById("relatorio");
+  if (rel) {
+    const main = document.querySelector(".main-content");
+    if (main) { main.appendChild(rel); }
+    rel.style.display = "none";
+  }
+
+  modal.remove();
+  document.removeEventListener("keydown", _escHandler);
+
+  let paciente = null;
+  try { const raw = sessionStorage.getItem("pacienteAtual"); if (raw) paciente = JSON.parse(raw); } catch(e) {}
+  if (paciente && paciente.id) {
+    if (confirm(`Deseja voltar à ficha do paciente "${paciente.nome}"?`)) {
+      voltarParaPaciente();
+    }
+  }
+}
+
+function voltarParaPaciente() {
+  let paciente = null;
+  try {
+    const raw = sessionStorage.getItem("pacienteAtual");
+    if (raw) paciente = JSON.parse(raw);
+  } catch(e) {}
+  if (!paciente && window.Integration) paciente = Integration.getPacienteAtual();
+
+  if (paciente && paciente.id) {
+    sessionStorage.setItem("abrirPacienteId", paciente.id);
+  }
+  window.location.href = "/Pacientes/";
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// GERAR PDF (padrão WAIS — a partir do relatório renderizado)
+// ═══════════════════════════════════════════════════════════════════
+async function esperarImagensCarregarem(container) {
+  const imgs = Array.from(container.querySelectorAll("img"));
+  await Promise.all(imgs.map(img => {
+    if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+    return new Promise(r => { img.onload = () => r(); img.onerror = () => r(); });
+  }));
+}
+
 async function gerarPDF(nome, dataAplicacao) {
+  // Chamada standalone — compatibilidade com laudos salvos
   if (typeof html2pdf === "undefined") { alert("Biblioteca PDF não carregada."); return; }
   const el = document.getElementById("relatorio");
   if (!el) return;
 
+  await esperarImagensCarregarem(el);
+
   const nomeArq = `ETDAH-AD_${(nome || "avaliado").replace(/\s+/g, "_")}_${(dataAplicacao || "").replace(/-/g,"")}.pdf`;
 
-  const opt = {
-    margin:      [14, 14, 14, 14],
-    filename:    nomeArq,
-    image:       { type: "jpeg", quality: 0.96 },
-    html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-    jsPDF:       { unit: "mm", format: "a4", orientation: "portrait" },
-    pagebreak:   { mode: ["avoid-all", "css", "legacy"] },
-  };
+  showLoading("Gerando PDF...");
 
   try {
-    await html2pdf().set(opt).from(el).save();
+    await html2pdf().set({
+      margin: [5, 5, 5, 5],
+      filename: nomeArq,
+      image: { type: "jpeg", quality: 1.00 },
+      html2canvas: { scale: 4, useCORS: true, logging: false, scrollY: 0 },
+      jsPDF: { unit: "mm", format: [210, 900], orientation: "portrait" },
+      pagebreak: { mode: ["avoid-all"] },
+    }).from(el).save();
   } catch(e) {
     console.error("Erro ao gerar PDF:", e);
-    alert("Erro ao gerar PDF. Verifique o console.");
+    alert("Erro ao gerar PDF. Tente novamente.");
+  } finally {
+    hideLoading();
+  }
+}
+
+async function baixarPDF() {
+  const rel = document.getElementById("relatorio");
+  if (!rel) return;
+
+  await esperarImagensCarregarem(rel);
+
+  const nomeEl = rel.querySelector("strong");
+  const nome = nomeEl ? nomeEl.textContent.trim() : "avaliado";
+  const nomeArquivo = "ETDAH-AD_" + nome.replace(/\s+/g, "_").substring(0, 30) + ".pdf";
+
+  showLoading("Gerando PDF...");
+
+  try {
+    await html2pdf().set({
+      margin: [5, 5, 5, 5],
+      filename: nomeArquivo,
+      image: { type: "jpeg", quality: 1.00 },
+      html2canvas: { scale: 4, useCORS: true, logging: false, scrollY: 0 },
+      jsPDF: { unit: "mm", format: [210, 900], orientation: "portrait" },
+      pagebreak: { mode: ["avoid-all"] },
+    }).from(rel).save();
+  } catch(e) {
+    console.error("Erro ao gerar PDF:", e);
+    alert("Erro ao gerar PDF. Tente novamente.");
+  } finally {
+    hideLoading();
   }
 }
 
 window.gerarPDF = gerarPDF;
+window.baixarPDF = baixarPDF;
+window.openReportModal = openReportModal;
+window.closeReportModal = closeReportModal;
+window.voltarParaPaciente = voltarParaPaciente;
 
 // ═══════════════════════════════════════════════════════════════════
 // INICIALIZAÇÃO
