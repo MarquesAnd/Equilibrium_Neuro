@@ -99,11 +99,35 @@ function encontrarFaixaNorma(normaKey, meses) {
   return faixas.sort((a, b) => Math.abs(a.centro - meses) - Math.abs(b.centro - meses))[0].key;
 }
 
-function sanitizarZ(z)    { if (z == null) return null; const n = Number(z); return (isNaN(n)||Math.abs(n)>5) ? null : parseFloat(n.toFixed(2)); }
-function sanitizarPad(v)  { if (v == null) return null; const n = Number(v); return (isNaN(n)||n<40||n>160) ? null : n; }
-function sanitizarDesenv(v){ if (v == null) return null; const n = Number(v); return (isNaN(n)||n<=0||n>200) ? null : parseFloat(n.toFixed(1)); }
+/* ─── Reparos OCR ─────────────────────────────────────────────────────────
+   O JSON foi gerado por OCR e contém 3 padrões sistemáticos de erro:
+   1. Z sem decimal: 51.0 → 0.51 | 113.0 → 1.13 | 22.0 → 0.22  (|z|>5 e <500 → /100)
+   2. IC ×10 errado: 1358.0 → 135.8 | 1452.0 → 145.2 (1000<v<20000 → /10)
+   3. Pad +100 OCR:  211 → 111 | 188 → 88               (200<v≤250 → -100)
+   ──────────────────────────────────────────────────────────────────────── */
+function _repararZ(n)   { return (Math.abs(n) > 5 && Math.abs(n) < 500) ? n / 100 : n; }
+function _repararIC(n)  { return (n > 1000 && n < 20000) ? n / 10 : n; }
+function _repararPad(n) { return (n > 200 && n <= 250) ? n - 100 : n; }
+
+function sanitizarZ(z) {
+  if (z == null) return null;
+  const n = _repararZ(Number(z));
+  return (isNaN(n) || Math.abs(n) > 5) ? null : parseFloat(n.toFixed(2));
+}
+function sanitizarPad(v) {
+  if (v == null) return null;
+  const n = _repararPad(Number(v));
+  return (isNaN(n) || n < 40 || n > 160) ? null : n;
+}
+function sanitizarDesenv(v) {
+  if (v == null) return null;
+  const n = Number(v);
+  return (isNaN(n) || n <= 0 || n > 200) ? null : parseFloat(n.toFixed(1));
+}
 function sanitizarIC(inf, sup) {
-  const i = Number(inf), s = Number(sup);
+  if (inf == null || sup == null) return null;
+  const i = _repararIC(Number(inf));
+  const s = _repararIC(Number(sup));
   if (isNaN(i)||isNaN(s)||i<=0||s<=0||i>=200||s>=200||i>=s) return null;
   return { inf: parseFloat(i.toFixed(1)), sup: parseFloat(s.toFixed(1)) };
 }
