@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Novo Laudo IDADI | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/Correcao_testes/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a class="nav-item" href="/Pacientes/" data-page="pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
+        <a class="nav-item" href="/Anamnese/" data-page="anamnese"><span class="nav-icon">📋</span><span>Anamnese</span></a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
+        <a class="nav-item" href="/check_list/" data-page="checklist"><span class="nav-icon">✅</span><span>Checklist</span></a>
+        <a class="nav-item" href="/Config/" data-page="config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">?</div>
+          <div>
+            <div class="user-name">Carregando...</div>
+            <div class="user-role">—</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <p class="page-subtitle">
+            <a href="/Correcao_testes/" class="breadcrumb">Correção</a> →
+            <a href="/Correcao_testes/IDADI/" class="breadcrumb">IDADI</a> → Novo Laudo
+          </p>
+          <h1 class="page-title">Novo Laudo — IDADI</h1>
+        </div>
+        <button class="btn-secondary" onclick="history.back()">← Voltar</button>
+      </div>
+
+      <!-- CARD 1: Dados do Profissional -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">1</span>
+          <div>
+            <div class="form-card-title">Dados do Profissional</div>
+            <div class="form-card-desc">Informações do aplicador — obrigatório para o laudo</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="profNome">Nome do Profissional</label>
+            <input type="text" id="profNome" placeholder="Nome completo" />
+          </div>
+          <div class="field">
+            <label for="profCRP">CRP</label>
+            <input type="text" id="profCRP" placeholder="CRP XX/XXXXX" />
+          </div>
+          <div class="field">
+            <label for="profEspecialidade">Especialidade</label>
+            <input type="text" id="profEspecialidade" placeholder="Ex: Neuropsicóloga" />
+          </div>
+          <div class="field">
+            <label for="profContato">Contato</label>
+            <input type="text" id="profContato" placeholder="E-mail ou telefone" />
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: Dados da Criança -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">2</span>
+          <div>
+            <div class="form-card-title">Dados da Criança e do Informante</div>
+            <div class="form-card-desc">Informações pessoais do avaliado e do cuidador respondente</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="nomeCrianca">Nome da Criança</label>
+            <input type="text" id="nomeCrianca" placeholder="Nome completo" />
+          </div>
+          <div class="field">
+            <label for="dataNascimento">Data de Nascimento</label>
+            <input type="date" id="dataNascimento" onchange="atualizarPreviewIdade()" />
+          </div>
+          <div class="field">
+            <label for="dataAplicacao">Data de Aplicação</label>
+            <input type="date" id="dataAplicacao" onchange="atualizarPreviewIdade()" />
+          </div>
+          <div class="field">
+            <label for="sexo">Sexo</label>
+            <select id="sexo">
+              <option value="">Selecione</option>
+              <option>Masculino</option>
+              <option>Feminino</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="nomeInformante">Nome do Informante</label>
+            <input type="text" id="nomeInformante" placeholder="Ex: Mãe, pai, cuidador(a)" />
+          </div>
+          <div class="field">
+            <label for="parentesco">Parentesco / Relação</label>
+            <select id="parentesco">
+              <option value="">Selecione</option>
+              <option>Mãe</option>
+              <option>Pai</option>
+              <option>Avó / Avô</option>
+              <option>Cuidador(a) principal</option>
+              <option>Outro familiar</option>
+            </select>
+          </div>
+        </div>
+        <div class="field" style="margin-top:14px;">
+          <label for="motivo">Motivo do Encaminhamento / Queixa Principal</label>
+          <textarea id="motivo" rows="2" placeholder="Ex: Triagem de desenvolvimento; suspeita de atraso na linguagem; acompanhamento do neurodesenvolvimento..." style="width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border);font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+        </div>
+        <div id="idadePreview" style="margin-top:10px;display:none;">
+          <div class="idadi-age-badge" id="ageBadge">
+            <div id="ageText" style="font-size:13px;font-weight:700;color:#0f172a;"></div>
+            <div id="faixaText" style="font-size:12px;color:#64748b;margin-top:2px;"></div>
+            <div id="volumeText" style="font-size:11px;color:#1a56db;font-weight:600;margin-top:2px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: Questionário -->
+      <div class="form-card" id="cardQuestionario" style="display:none;">
+        <div class="form-card-header">
+          <span class="form-card-num">3</span>
+          <div>
+            <div class="form-card-title">Questionário IDADI</div>
+            <div class="form-card-desc" id="questSubtitle">Itens correspondentes à faixa etária detectada</div>
+          </div>
+        </div>
+
+        <!-- Instruções -->
+        <div class="idadi-instrucao">
+          <b>Atenção:</b> Responda considerando o comportamento atual da criança.
+          <b>Sim</b> = já faz sem dificuldade (ou já fez).
+          <b>Às vezes</b> = faz às vezes, mas ainda com dificuldades.
+          <b>Ainda não</b> = ainda não faz.
+        </div>
+
+        <!-- Abas de domínio -->
+        <div class="idadi-tabs" id="domainTabs"></div>
+
+        <!-- Conteúdo do domínio ativo -->
+        <div id="domainContent"></div>
+
+        <!-- Navegação entre domínios -->
+        <div class="idadi-nav" id="domainNav">
+          <button class="btn-secondary" id="btnPrevDomain" onclick="prevDomain()">← Anterior</button>
+          <div id="domainCounter" style="font-size:12px;color:#64748b;font-weight:600;"></div>
+          <button class="btn-primary" id="btnNextDomain" onclick="nextDomain()">Próximo →</button>
+        </div>
+      </div>
+
+      <!-- Placeholder quando idade não selecionada -->
+      <div class="form-card" id="cardPlaceholder">
+        <div style="text-align:center;padding:28px 0;color:#94a3b8;">
+          <div style="font-size:32px;margin-bottom:8px;">📅</div>
+          <div style="font-size:14px;font-weight:600;">Preencha a data de nascimento e data de aplicação</div>
+          <div style="font-size:12px;margin-top:4px;">O questionário será gerado automaticamente com os itens da faixa etária</div>
+        </div>
+      </div>
+
+      <!-- CARD 4: Observações Comportamentais -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">4</span>
+          <div>
+            <div class="form-card-title">Observações Comportamentais</div>
+            <div class="form-card-desc">Registros qualitativos durante a aplicação / contexto de coleta</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+          <button type="button" class="chip-btn" onclick="insertObs('Cuidador colaborativo e forneceu informações detalhadas')">Informante colaborativo</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Relatou dificuldades em observar alguns comportamentos')">Dificuldade de observação</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Criança frequenta escola regular / creche')">Frequenta escola/creche</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Histórico de prematuridade relatado')">Prematuridade</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Em acompanhamento terapêutico (fonoaudiologia, TO, fisioterapia)')">Em terapia</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Ambiente familiar estimulador descrito pelo informante')">Ambiente estimulador</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Itens não observados foram anotados na planilha')">Itens não observados</button>
+          <button type="button" class="chip-btn" onclick="insertObs('Bilinguismo relatado pelo cuidador')">Bilinguismo</button>
+        </div>
+        <textarea id="obsComportamentais" rows="4" placeholder="Descreva o contexto da coleta, comportamentos relevantes, observações do informante..." style="width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border);font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+      </div>
+
+      <!-- CARD 5: Conclusão -->
+      <div class="form-card">
+        <div class="form-card-header">
+          <span class="form-card-num">5</span>
+          <div>
+            <div class="form-card-title">Conclusão e Recomendações</div>
+            <div class="form-card-desc">Síntese clínica e encaminhamentos sugeridos</div>
+          </div>
+        </div>
+        <textarea id="recomendacoes" rows="4" placeholder="Recomendações para a família, escola e equipe multidisciplinar. Ex: estimulação nos domínios com desempenho abaixo do esperado, encaminhamentos para fonoaudiologia, etc..." style="width:100%;padding:11px 12px;border-radius:12px;border:1px solid var(--border);font-size:14px;font-family:inherit;outline:none;resize:vertical;"></textarea>
+      </div>
+
+      <!-- CARD 6: Ações -->
+      <div class="form-card">
+        <div class="action-row">
+          <button class="btn-primary" onclick="calcular(true)">💾 Salvar e Gerar Relatório</button>
+          <button class="btn-secondary" onclick="calcular(false)">📊 Somente Calcular</button>
+        </div>
+      </div>
+
+      <!-- RELATÓRIO (aparece após calcular) -->
+      <div id="relatorio" class="card report" style="display:none;"></div>
+    </main>
+  </div>
+
+  <!-- ═══ ESTILOS ESPECÍFICOS IDADI ═══ -->
+  <style>
+    /* Age badge */
+    .idadi-age-badge{
+      display:inline-flex;flex-direction:column;background:#eff6ff;border:1px solid #bfdbfe;
+      border-radius:12px;padding:10px 16px;
+    }
+
+    /* Instrução */
+    .idadi-instrucao{
+      background:#fffbeb;border:1px solid rgba(245,158,11,.25);border-radius:10px;
+      padding:10px 14px;font-size:12px;color:#78350f;line-height:1.6;margin-bottom:16px;
+    }
+
+    /* Tabs */
+    .idadi-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+    .idadi-tab{
+      padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;border:none;cursor:pointer;
+      font-family:inherit;transition:all .15s;background:#f1f5f9;color:#64748b;
+    }
+    .idadi-tab.active{color:#fff;}
+    .idadi-tab:hover:not(.active){filter:brightness(.95);}
+    .idadi-tab .tab-count{
+      display:inline-flex;align-items:center;justify-content:center;
+      width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,.35);
+      font-size:9px;font-weight:800;margin-left:6px;
+    }
+
+    /* Bloco de domínio */
+    .idadi-domain-block{animation:fadeSlide .2s ease}
+    @keyframes fadeSlide{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+    .idadi-domain-header{
+      display:flex;align-items:center;gap:10px;margin-bottom:14px;
+      padding:10px 14px;border-radius:10px;
+    }
+    .idadi-domain-icon{font-size:20px;}
+    .idadi-domain-title{font-size:15px;font-weight:800;color:#fff;}
+    .idadi-domain-range{font-size:11px;color:rgba(255,255,255,.75);margin-top:1px;}
+
+    /* Tabela de itens */
+    .idadi-item-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .idadi-item-table thead th{
+      padding:8px 10px;text-align:left;font-weight:700;font-size:10px;
+      text-transform:uppercase;letter-spacing:.5px;background:#f1f5f9;color:#475569;
+      border-bottom:2px solid #e2e8f0;
+    }
+    .idadi-item-table thead th.ctr{text-align:center;}
+    .idadi-item-table tbody tr{border-bottom:1px solid #f1f5f9;transition:background .1s;}
+    .idadi-item-table tbody tr:hover{background:#f8fafc;}
+    .idadi-item-table tbody tr:nth-child(even){background:#fafbfc;}
+    .idadi-item-table tbody tr:nth-child(even):hover{background:#f0f7ff;}
+    .idadi-item-table td{padding:8px 10px;vertical-align:middle;}
+    .idadi-item-num{
+      width:32px;font-size:10px;font-weight:800;color:#94a3b8;text-align:center;
+    }
+    .idadi-item-texto{font-size:12.5px;color:#0f172a;line-height:1.5;}
+    .idadi-item-resp{text-align:center;white-space:nowrap;}
+
+    /* Radio group */
+    .idadi-radio-group{display:flex;gap:4px;justify-content:center;}
+    .idadi-radio-label{
+      display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;
+      padding:5px 8px;border-radius:8px;transition:background .1s;min-width:52px;
+    }
+    .idadi-radio-label:hover{background:#f1f5f9;}
+    .idadi-radio-label input[type="radio"]{display:none;}
+    .idadi-radio-pill{
+      padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;
+      border:1.5px solid #e2e8f0;background:#fff;color:#64748b;transition:all .15s;
+      white-space:nowrap;
+    }
+    .idadi-radio-label input[type="radio"]:checked + .idadi-radio-pill.sim{
+      background:#d1fae5;border-color:#059669;color:#065f46;
+    }
+    .idadi-radio-label input[type="radio"]:checked + .idadi-radio-pill.av{
+      background:#fef3c7;border-color:#d97706;color:#92400e;
+    }
+    .idadi-radio-label input[type="radio"]:checked + .idadi-radio-pill.nao{
+      background:#fee2e2;border-color:#dc2626;color:#991b1b;
+    }
+
+    /* Nav */
+    .idadi-nav{
+      display:flex;align-items:center;justify-content:space-between;
+      margin-top:18px;padding-top:14px;border-top:1px solid var(--border);
+    }
+
+    /* Chips */
+    .chip-btn{
+      background:#ede9fe;color:#7c3aed;border:none;border-radius:20px;
+      padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;
+      font-family:inherit;transition:all .15s;
+    }
+    .chip-btn:hover{background:#ddd6fe;}
+
+    /* ═══ RELATÓRIO ═══ */
+    /* Perfil de domínios */
+    .idadi-profile-bar{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+    .idadi-pb-label{width:140px;font-size:11px;font-weight:700;color:#334155;flex-shrink:0;}
+    .idadi-pb-track{flex:1;height:20px;background:#e2e8f0;border-radius:6px;position:relative;overflow:hidden;}
+    .idadi-pb-fill{height:100%;border-radius:6px;transition:width .5s ease;}
+    .idadi-pb-pct{width:36px;font-size:11px;font-weight:800;color:#0f172a;text-align:right;flex-shrink:0;}
+    .idadi-pb-raw{width:54px;font-size:10px;color:#64748b;text-align:right;flex-shrink:0;}
+
+    /* Item status na tabela do relatório */
+    .idadi-r-sim{background:#d1fae5;color:#065f46;font-weight:700;padding:2px 8px;border-radius:12px;font-size:10px;white-space:nowrap;}
+    .idadi-r-av{background:#fef3c7;color:#92400e;font-weight:700;padding:2px 8px;border-radius:12px;font-size:10px;white-space:nowrap;}
+    .idadi-r-nao{background:#fee2e2;color:#991b1b;font-weight:700;padding:2px 8px;border-radius:12px;font-size:10px;white-space:nowrap;}
+    .idadi-r-no{background:#f1f5f9;color:#94a3b8;font-weight:600;padding:2px 8px;border-radius:12px;font-size:10px;white-space:nowrap;}
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="/js/integration.js"></script>
+  <script src="/Correcao_testes/IDADI/script.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.FIREBASE_CONFIGURED && window.DB) await DB.init();
+      if (!isAuthed()) { location.href = '/login.html'; }
+      else {
+        applySidebarPermissions();
+        await initIDadi();
+      }
+    });
+    function insertObs(text) {
+      const ta = document.getElementById("obsComportamentais");
+      if (!ta) return;
+      ta.value += (ta.value ? ". " : "") + text;
+      ta.focus();
+    }
+  </script>
+</body>
+</html>

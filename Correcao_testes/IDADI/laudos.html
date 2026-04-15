@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Laudos IDADI | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/Correcao_testes/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a class="nav-item" href="/Pacientes/" data-page="pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
+        <a class="nav-item" href="/Anamnese/" data-page="anamnese"><span class="nav-icon">📋</span><span>Anamnese</span></a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
+        <a class="nav-item" href="/check_list/" data-page="checklist"><span class="nav-icon">✅</span><span>Checklist</span></a>
+        <a class="nav-item" href="/Config/" data-page="config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">?</div>
+          <div>
+            <div class="user-name">Carregando...</div>
+            <div class="user-role">—</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <p class="page-subtitle">
+            <a href="/Correcao_testes/" class="breadcrumb">Correção</a> →
+            <a href="/Correcao_testes/IDADI/" class="breadcrumb">IDADI</a> → Laudos
+          </p>
+          <h1 class="page-title">Laudos Salvos — IDADI</h1>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-primary" onclick="location.href='/Correcao_testes/IDADI/novo-laudo.html'">+ Novo Laudo</button>
+          <button class="btn-secondary" onclick="history.back()">← Voltar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div id="listaLaudos">
+          <div class="empty-state">
+            <div class="empty-icon">📄</div>
+            <div class="empty-title">Carregando laudos...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de visualização -->
+      <div id="reportModal" style="display:none;" class="report-modal-backdrop">
+        <div class="report-modal">
+          <div class="report-modal-toolbar no-print">
+            <div class="toolbar-title">📄 Relatório IDADI</div>
+            <div class="toolbar-actions">
+              <button class="toolbar-btn toolbar-btn-primary" onclick="baixarPDF()">📥 Baixar PDF</button>
+              <button class="toolbar-btn toolbar-btn-secondary" onclick="window.print()">🖨️ Imprimir</button>
+              <button class="toolbar-btn toolbar-btn-secondary" onclick="fecharModal()">✕ Fechar</button>
+            </div>
+          </div>
+          <div class="report-modal-body" id="reportModalBody"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <script>
+    const LAUDOS_KEY = "empresa_laudos_idadi";
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.FIREBASE_CONFIGURED && window.DB) await DB.init();
+      if (!isAuthed()) { location.href = '/login.html'; return; }
+      applySidebarPermissions();
+      renderLaudos();
+    });
+
+    function getLaudos() {
+      try { return JSON.parse(localStorage.getItem(LAUDOS_KEY) || "[]"); } catch(e) { return []; }
+    }
+
+    function formatarData(iso) {
+      if (!iso) return "—";
+      const [y,m,d] = iso.split("-");
+      return `${d}/${m}/${y}`;
+    }
+
+    function renderLaudos() {
+      const lista = document.getElementById("listaLaudos");
+      const laudos = getLaudos();
+      if (laudos.length === 0) {
+        lista.innerHTML = `<div class="empty-state"><div class="empty-icon">📄</div><div class="empty-title">Nenhum laudo salvo</div><div class="empty-sub">Os laudos gerados aparecerão aqui</div></div>`;
+        return;
+      }
+
+      let html = `<div style="display:flex;flex-direction:column;gap:10px;">`;
+      laudos.forEach((l, i) => {
+        html += `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#f8fafc;border-radius:12px;border:1px solid #e2e8f0;">
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#0f172a;">${l.nomeCrianca || "—"}</div>
+              <div style="font-size:12px;color:#64748b;margin-top:2px;">
+                ${l.idadeMeses != null ? `${l.idadeMeses} meses` : ''}
+                ${l.faixa ? ` · Faixa ${l.faixa}` : ''}
+                · Aplicação: ${formatarData(l.dataAplicacao)}
+                · Salvo: ${l.createdAt ? new Date(l.createdAt).toLocaleDateString('pt-BR') : '—'}
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn-secondary" style="font-size:12px;padding:6px 14px;" onclick="verLaudo(${i})">Ver</button>
+              <button class="btn-secondary" style="font-size:12px;padding:6px 14px;color:#dc2626;" onclick="excluirLaudo(${i})">Excluir</button>
+            </div>
+          </div>`;
+      });
+      html += `</div>`;
+      lista.innerHTML = html;
+    }
+
+    function verLaudo(i) {
+      const laudos = getLaudos();
+      const l = laudos[i];
+      if (!l || !l.htmlRelatorio) return;
+      document.getElementById("reportModalBody").innerHTML = l.htmlRelatorio;
+      document.getElementById("reportModal").style.display = "flex";
+    }
+
+    function fecharModal() {
+      document.getElementById("reportModal").style.display = "none";
+      document.getElementById("reportModalBody").innerHTML = "";
+    }
+
+    function excluirLaudo(i) {
+      if (!confirm("Deseja excluir este laudo permanentemente?")) return;
+      const laudos = getLaudos();
+      laudos.splice(i, 1);
+      localStorage.setItem(LAUDOS_KEY, JSON.stringify(laudos));
+      renderLaudos();
+    }
+
+    async function baixarPDF() {
+      const el = document.getElementById("reportModalBody");
+      if (!el) return;
+      const opt = { margin:[10,12], filename:'IDADI_Laudo.pdf', image:{type:'jpeg',quality:.92},
+        html2canvas:{scale:2,useCORS:true,logging:false}, jsPDF:{unit:'mm',format:'a4',orientation:'portrait'} };
+      await html2pdf().set(opt).from(el).save();
+    }
+
+    document.addEventListener("keydown", e => { if (e.key === "Escape") fecharModal(); });
+  </script>
+</body>
+</html>

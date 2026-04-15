@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IDADI | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a class="nav-item" href="/Pacientes/" data-page="pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
+        <a class="nav-item" href="/Anamnese/" data-page="anamnese"><span class="nav-icon">📋</span><span>Anamnese</span></a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
+        <a class="nav-item" href="/check_list/" data-page="checklist"><span class="nav-icon">✅</span><span>Checklist</span></a>
+        <a class="nav-item" href="/Config/" data-page="config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">?</div>
+          <div>
+            <div class="user-name">Carregando...</div>
+            <div class="user-role">—</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header">
+        <div>
+          <p class="page-subtitle"><a href="/Correcao_testes/" class="breadcrumb">Correção de Testes</a> → IDADI</p>
+          <h1 class="page-title">IDADI</h1>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="btn-primary" onclick="location.href='/Correcao_testes/IDADI/novo-laudo.html'">+ Novo Laudo</button>
+        <button class="btn-secondary" onclick="location.href='/Correcao_testes/IDADI/laudos.html'">Laudos Salvos</button>
+        <button class="btn-secondary" onclick="history.back()">← Voltar</button>
+      </div>
+
+      <div class="card">
+        <h3 style="font-size:15px;font-weight:700;margin-bottom:8px;">Sobre o instrumento</h3>
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;">
+          O <b>Inventário Dimensional de Avaliação do Desenvolvimento Infantil (IDADI)</b> avalia crianças de 4 a 72 meses
+          por meio do relato dos pais ou de cuidadores com quem elas tenham contato frequente. Inclui <b>sete domínios</b>:
+          Cognitivo, Socioemocional, Comunicação e Linguagem Receptiva, Comunicação e Linguagem Expressiva,
+          Motricidade Ampla, Motricidade Fina e Comportamento Adaptativo. A avaliação é feita de acordo com a
+          idade da criança, em uma das 17 faixas etárias abrangidas pelo instrumento.
+        </p>
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin-top:8px;">
+          <b>Autores:</b> Mônia Aparecida da Silva, Euclides José de Mendonça Filho &amp; Denise Ruschel Bandeira.
+          <b>Editora:</b> Vetor, 2020.
+        </p>
+      </div>
+
+      <!-- Domínios Card -->
+      <div class="card" style="margin-top:12px;">
+        <h3 style="font-size:14px;font-weight:700;margin-bottom:14px;">Domínios avaliados</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">
+          <div class="idadi-dom-card" style="border-left:4px solid #1a56db">
+            <div class="idadi-dom-icon">🧠</div>
+            <div class="idadi-dom-name">Cognitivo</div>
+            <div class="idadi-dom-desc">Conceitos, simbolização, memória e percepção</div>
+          </div>
+          <div class="idadi-dom-card" style="border-left:4px solid #7c3aed">
+            <div class="idadi-dom-icon">💛</div>
+            <div class="idadi-dom-name">Socioemocional</div>
+            <div class="idadi-dom-desc">Emoções, empatia e relações sociais</div>
+          </div>
+          <div class="idadi-dom-card" style="border-left:4px solid #0891b2">
+            <div class="idadi-dom-icon">👂</div>
+            <div class="idadi-dom-name">Ling. Receptiva</div>
+            <div class="idadi-dom-desc">Compreensão da linguagem falada</div>
+          </div>
+          <div class="idadi-dom-card" style="border-left:4px solid #059669">
+            <div class="idadi-dom-icon">🗣️</div>
+            <div class="idadi-dom-name">Ling. Expressiva</div>
+            <div class="idadi-dom-desc">Uso da língua falada para se expressar</div>
+          </div>
+          <div class="idadi-dom-card" style="border-left:4px solid #dc2626">
+            <div class="idadi-dom-icon">🏃</div>
+            <div class="idadi-dom-name">Motricidade Ampla</div>
+            <div class="idadi-dom-desc">Coordenação com grandes músculos</div>
+          </div>
+          <div class="idadi-dom-card" style="border-left:4px solid #d97706">
+            <div class="idadi-dom-icon">✋</div>
+            <div class="idadi-dom-name">Motricidade Fina</div>
+            <div class="idadi-dom-desc">Manipulação e coordenação de mãos</div>
+          </div>
+          <div class="idadi-dom-card" style="border-left:4px solid #be185d">
+            <div class="idadi-dom-icon">🎯</div>
+            <div class="idadi-dom-name">Comp. Adaptativo</div>
+            <div class="idadi-dom-desc">Tarefas cotidianas e autonomia</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <style>
+    .idadi-dom-card{background:#f8fafc;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;transition:box-shadow .2s}
+    .idadi-dom-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.08)}
+    .idadi-dom-icon{font-size:18px}
+    .idadi-dom-name{font-size:13px;font-weight:700;color:#0f172a}
+    .idadi-dom-desc{font-size:11px;color:#64748b;line-height:1.5}
+  </style>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.FIREBASE_CONFIGURED && window.DB) await DB.init();
+      if (!isAuthed()) { location.href = '/login.html'; }
+      else { applySidebarPermissions(); }
+    });
+  </script>
+</body>
+</html>
