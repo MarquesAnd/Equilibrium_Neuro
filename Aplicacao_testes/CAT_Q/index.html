@@ -982,33 +982,18 @@
         }
 
         async function enviarParaDrive(formData, pdfBase64) {
-            const dataAtual = new Date().toLocaleDateString('pt-BR');
-            
-            // Calcular pontuação total
-            const itensInversos = [3, 12, 19, 22, 24];
-            const respostasCorrigidas = formData.respostas.map((resposta, index) => {
-                const numeroItem = index + 1;
-                return itensInversos.includes(numeroItem) ? 8 - resposta : resposta;
-            });
-            const scoreTotal = respostasCorrigidas.reduce((sum, val) => sum + val, 0);
-
-            const payload = {
-                paciente: formData.nome,
-                data: dataAtual,
-                pontuacao: scoreTotal,
-                pdfBase64: pdfBase64
-            };
-
-            const response = await fetch(URL_DO_GOOGLE_SCRIPT, {
+            const res = await fetch(URL_DO_GOOGLE_SCRIPT, {
                 method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    pdf: pdfBase64,
+                    nome: formData.nome,
+                    form: 'cat_q'
+                })
             });
-
-            // Com no-cors não conseguimos ler a resposta, mas se não der erro, está OK
+            const data = await res.json();
+            if (data.status !== 'sucesso') {
+                throw new Error(data.mensagem || 'Resposta inesperada do servidor.');
+            }
             return true;
         }
     </script>

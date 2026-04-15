@@ -809,14 +809,55 @@ async function finalizarEEnviar() {
   let tempDiv;
   try {
 
-    // ── 5. Mover conteúdo para div renderizável COM dimensões exactas ─────
+    // ── 5. Converter SVGs inline para <img> base64 ──────────────────────
+    //    html2canvas não renderiza SVGs inline correctamente.
+    //    Convertemos cada <svg> para uma imagem PNG via canvas.
+    setMsg("A preparar gráficos…");
+    const svgs = captureWrap.querySelectorAll("svg");
+    for (const svg of svgs) {
+      try {
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(svgBlob);
+        const img = new Image();
+        img.style.cssText = svg.getAttribute("style") || "";
+        img.style.width = svg.getAttribute("width") || svg.style.width || "100%";
+        img.style.height = svg.getAttribute("height") || svg.style.height || "auto";
+        img.style.display = "block";
+        await new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+          img.src = url;
+        });
+        // Desenhar no canvas para obter PNG base64
+        const canvas = document.createElement("canvas");
+        const rect = { w: img.naturalWidth || 740, h: img.naturalHeight || 200 };
+        canvas.width  = rect.w * 2;
+        canvas.height = rect.h * 2;
+        const ctx = canvas.getContext("2d");
+        ctx.scale(2, 2);
+        ctx.drawImage(img, 0, 0, rect.w, rect.h);
+        URL.revokeObjectURL(url);
+        const pngImg = document.createElement("img");
+        pngImg.src = canvas.toDataURL("image/png");
+        pngImg.style.cssText = img.style.cssText;
+        pngImg.style.maxWidth = "100%";
+        svg.parentNode.replaceChild(pngImg, svg);
+      } catch (_) { /* manter SVG original se falhar */ }
+    }
+
+    // ── 6. Mover conteúdo para div renderizável COM dimensões exactas ─────
     //    Agora que a cortina está visível, podemos tornar o div visível
     //    (left:0) para o html2canvas capturar correctamente.
     captureWrap.style.left = "0";
     captureWrap.style.top  = "0";
 
+    // Remover overflow:hidden que pode cortar conteúdo no html2canvas
+    const reportEl = captureWrap.querySelector(".report");
+    if (reportEl) reportEl.style.overflow = "visible";
+
     // Pausa extra para repintura
-    await new Promise(r => setTimeout(r, 150));
+    await new Promise(r => setTimeout(r, 200));
 
     setMsg("A formatar o relatório em PDF…");
 
@@ -846,7 +887,7 @@ async function finalizarEEnviar() {
     // Remove div de captura
     document.body.removeChild(captureWrap);
 
-    // ── 6. Enviar ao Drive ─────────────────────────────────────────────────
+    // ── 7. Enviar ao Drive ─────────────────────────────────────────────────
     setMsg("A enviar com segurança…");
 
     const base64 = pdfUri.split(",")[1];

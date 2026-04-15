@@ -404,12 +404,12 @@ async function enviarFormulario(){
       const modalTitle = $("#__raadsr_modal_title__");
       if(modalTitle) modalTitle.textContent = "Enviando ao Drive...";
       const pdfBase64 = await gerarPDFDrive(paciente, data, resultado.total);
-      await fetch(URL_DO_GOOGLE_SCRIPT, {
+      const res = await fetch(URL_DO_GOOGLE_SCRIPT, {
         method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ paciente, data, pontuacao: resultado.total, pdfBase64 })
+        body: JSON.stringify({ pdf: pdfBase64, nome: paciente, form: 'raads_r' })
       });
+      const resData = await res.json();
+      if(resData.status !== 'sucesso') throw new Error(resData.mensagem || 'Erro ao enviar ao Drive.');
     }
 
     // Esconder modal
