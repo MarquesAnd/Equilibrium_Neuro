@@ -1,563 +1,1023 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QCP - Aplicação</title>
-    <link rel="stylesheet" href="../../style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <style>
-        :root {
-            --cor-primaria: #5E35B1;
-            --cor-secundaria: #7E57C2;
-            --cor-fundo: #F3E5F5;
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, var(--cor-primaria), var(--cor-secundaria));
-            color: white;
-            padding: 30px;
-            border-radius: 10px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .header h1 {
-            margin: 0 0 10px 0;
-            font-size: 28px;
-        }
-        
-        .header p {
-            margin: 5px 0;
-            opacity: 0.95;
-        }
-        
-        .section {
-            background: white;
-            padding: 25px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .section h2 {
-            color: var(--cor-primaria);
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 20px;
-            border-bottom: 2px solid var(--cor-fundo);
-            padding-bottom: 10px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: border-color 0.3s;
-        }
-        
-        .form-group input:focus {
-            outline: none;
-            border-color: var(--cor-primaria);
-        }
-        
-        .question-card {
-            background: white;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 15px;
-            transition: all 0.3s;
-        }
-        
-        .question-card:hover {
-            border-color: var(--cor-primaria);
-            box-shadow: 0 3px 10px rgba(94, 53, 177, 0.1);
-        }
-        
-        .question-number {
-            display: inline-block;
-            background: var(--cor-primaria);
-            color: white;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            text-align: center;
-            line-height: 30px;
-            margin-right: 10px;
-            font-weight: bold;
-            font-size: 14px;
-        }
-        
-        .question-text {
-            display: inline-block;
-            vertical-align: middle;
-            width: calc(100% - 50px);
-            color: #333;
-            font-size: 16px;
-            line-height: 1.5;
-        }
-        
-        .options {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .option-button {
-            flex: 1;
-            min-width: 120px;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            background: white;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 15px;
-            font-weight: 500;
-            text-align: center;
-        }
-        
-        .option-button:hover {
-            border-color: var(--cor-primaria);
-            background: var(--cor-fundo);
-        }
-        
-        .option-button.selected {
-            background: var(--cor-primaria);
-            color: white;
-            border-color: var(--cor-primaria);
-        }
-        
-        .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        .btn-primary {
-            background: var(--cor-primaria);
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background: var(--cor-secundaria);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-        }
-        
-        .btn-secondary {
-            background: #757575;
-            color: white;
-            margin-right: 10px;
-        }
-        
-        .btn-secondary:hover {
-            background: #616161;
-        }
-        
-        .progress-bar {
-            background: #e0e0e0;
-            height: 8px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            background: linear-gradient(90deg, var(--cor-primaria), var(--cor-secundaria));
-            height: 100%;
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        .progress-text {
-            text-align: center;
-            color: #666;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        @media (max-width: 600px) {
-            .options {
-                flex-direction: column;
-            }
-            
-            .option-button {
-                min-width: 100%;
-            }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>QCP-FC | Equilibrium</title>
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* ---- Layout principal ---- */
+    body {
+      background: #f0f4f8;
+      background-image:
+        radial-gradient(circle at 20% 50%, rgba(26,86,219,.07) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(59,130,246,.07) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(30,64,175,.05) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L55 17.5 L55 42.5 L30 55 L5 42.5 L5 17.5 Z' fill='none' stroke='%231a56db' stroke-opacity='0.08' stroke-width='1'/%3E%3C/svg%3E");
+      background-size: 100% 100%, 100% 100%, 100% 100%, 60px 60px;
+      min-height: 100vh;
+    }
+
+    .main-content { padding-bottom: 110px; }
+
+    .p-shell {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 24px 16px 110px;
+    }
+
+    /* ---- Cabecalho ---- */
+    .p-header {
+      background: #fff;
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.07);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .p-brand { display: flex; align-items: center; gap: 12px; }
+    .p-logo  { height: 36px; }
+    .p-brand-name { font-weight: 800; font-size: 15px; color: #1e293b; }
+    .p-brand-sub  { font-size: 11px; color: #64748b; }
+    .p-test { text-align: right; }
+    .p-test-name  { font-weight: 700; font-size: 16px; color: #1a56db; }
+    .p-test-count { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+
+    /* ---- Barra de progresso ---- */
+    .p-progress-bar {
+      height: 5px;
+      background: #e2e8f0;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .p-progress-fill {
+      height: 100%;
+      background: #1a56db;
+      width: 0%;
+      transition: width .35s ease;
+      border-radius: 4px;
+    }
+
+    /* ---- Card de formulario ---- */
+    .p-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px 28px 32px;
+      box-shadow: 0 1px 8px rgba(0,0,0,.07);
+    }
+
+    /* ---- Campos do paciente ---- */
+    .p-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 540px) { .p-fields { grid-template-columns: 1fr; } }
+    .p-field label {
+      display: block;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-bottom: 6px;
+    }
+    .p-field input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #1e293b;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      background: #fafcff;
+      box-sizing: border-box;
+    }
+    .p-field input:focus {
+      border-color: #1a56db;
+      box-shadow: 0 0 0 3px rgba(26,86,219,.12);
+      background: #fff;
+    }
+
+    .p-divider {
+      border: none;
+      border-top: 1.5px solid #f1f5f9;
+      margin: 24px 0;
+    }
+    .p-items-heading {
+      font-size: 11px;
+      font-weight: 800;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: 20px;
+    }
+
+    /* ---- Itens do questionario ---- */
+    .itens {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .item {
+      background: #fafcff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 20px 22px;
+      transition: all .25s ease;
+      box-shadow: 0 1px 4px rgba(0,0,0,.03);
+    }
+    .item:hover {
+      border-color: #cbd5e1;
+      background: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(26,86,219,.06);
+    }
+    .item.answered {
+      background: #fff;
+      border-color: #1a56db;
+      box-shadow: 0 0 0 3px rgba(26,86,219,.08);
+    }
+    .item-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+    .item-num {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #1a56db 0%, #1e3a8a 100%);
+      color: #fff;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: -.02em;
+      box-shadow: 0 2px 8px rgba(26,86,219,.25);
+    }
+    .item-text {
+      flex: 1;
+      font-size: 15.5px;
+      font-weight: 500;
+      color: #1e293b;
+      line-height: 1.55;
+      padding-top: 4px;
+    }
+
+    /* ---- Opcoes de resposta (horizontal 0-4) ---- */
+    .item-options {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .item-option {
+      flex: 1;
+      min-width: 0;
+      position: relative;
+    }
+    .item-option input[type="radio"] {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .item-option label {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 12px 6px;
+      background: #fff;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all .2s ease;
+      font-size: 13px;
+      color: #475569;
+      line-height: 1.3;
+      text-align: center;
+    }
+    .item-option label:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+    .item-option input[type="radio"]:checked + label {
+      background: rgba(26,86,219,.05);
+      border-color: #1a56db;
+      color: #1e3a8a;
+      font-weight: 600;
+      box-shadow: 0 2px 10px rgba(26,86,219,.15);
+    }
+    .item-option .opt-value {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1a56db;
+    }
+    .item-option input[type="radio"]:checked + label .opt-value {
+      color: #fff;
+      background: #1a56db;
+      border-radius: 8px;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .item-option .opt-label {
+      font-size: 10px;
+      color: #94a3b8;
+      line-height: 1.2;
+    }
+    .item-option input[type="radio"]:checked + label .opt-label {
+      color: #1e3a8a;
+    }
+
+    @media (max-width: 640px) {
+      .item-header { flex-direction: column; gap: 10px; }
+      .item-num { width: 28px; height: 28px; font-size: 12px; }
+      .item-text { font-size: 14.5px; padding-top: 0; }
+      .item-option label { padding: 10px 4px; font-size: 11px; }
+      .item-option .opt-label { font-size: 9px; }
+    }
+
+    /* ---- Rodape fixo ---- */
+    .p-footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #fff;
+      border-top: 1.5px solid #e8edf2;
+      padding: 13px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      z-index: 200;
+      box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+    }
+    .p-footer-info { font-size: 13px; color: #64748b; }
+    .p-footer-info strong { color: #1e293b; font-weight: 700; }
+
+    .btn-enviar {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #1a56db;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 28px;
+      font-size: 15px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: opacity .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 14px rgba(26,86,219,.35);
+      letter-spacing: .01em;
+      white-space: nowrap;
+    }
+    .btn-enviar:hover   { opacity: .88; transform: translateY(-1px); }
+    .btn-enviar:active  { transform: translateY(0); opacity: 1; }
+    .btn-enviar:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ---- Modal de processamento ---- */
+    .qcpfc-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.6);
+      backdrop-filter: blur(8px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    .qcpfc-modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .qcpfc-modal-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 40px;
+      text-align: center;
+      max-width: 440px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    }
+    .qcpfc-modal-spinner {
+      width: 52px;
+      height: 52px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #1a56db;
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .qcpfc-modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    .qcpfc-modal-sub {
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    /* ---- Tela de sucesso ---- */
+    .success-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(145deg, #f0f4ff 0%, #dbeafe 100%);
+    }
+    .success-card {
+      background: #fff;
+      border-radius: 22px;
+      padding: 60px 44px;
+      text-align: center;
+      max-width: 560px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(26,86,219,.14);
+    }
+    .success-icon { font-size: 64px; margin-bottom: 22px; }
+    .success-card h1 { font-size: 26px; color: #1e40af; margin: 0 0 14px; }
+    .success-card p  { font-size: 16px; color: #555; line-height: 1.65; margin: 0 0 8px; }
+    .success-note    { font-size: 13px; color: #a0aec0; margin-top: 28px !important; }
+
+    /* ---- Print ---- */
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+      .no-print { display: none !important; }
+      .p-footer { display: none !important; }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📋 Questionário de Comportamentos Repetitivos - QCP</h1>
-            <p><strong>Instrumento:</strong> Repetitive Behavior Scale - Revised (RBS-R) - Versão Brasileira</p>
-            <p><strong>Aplicação:</strong> Autoaplicação ou heteroaplicação</p>
-            <p><strong>Tempo médio:</strong> 10-15 minutos</p>
+    <main>
+
+      <!-- Modal processando -->
+      <div class="qcpfc-modal-overlay" id="modalGerando">
+        <div class="qcpfc-modal-box">
+          <div class="qcpfc-modal-spinner"></div>
+          <div class="qcpfc-modal-title" id="modalTitle">A processar...</div>
+          <div class="qcpfc-modal-sub" id="modalSub">Por favor, nao feche esta pagina.</div>
+        </div>
+      </div>
+
+      <!-- Canvas oculto para grafico -->
+      <canvas id="hiddenChart" width="1100" height="500" style="position:absolute;left:-9999px"></canvas>
+
+      <div class="p-shell" id="appShell">
+
+        <!-- Cabecalho -->
+        <div class="p-header">
+          <div class="p-brand">
+            <img src="/logo.png" alt="Equilibrium" class="p-logo" onerror="this.style.display='none'">
+            <div>
+              <div class="p-brand-name">Equilibrium</div>
+              <div class="p-brand-sub">Neuropsicologia</div>
+            </div>
+          </div>
+          <div class="p-test">
+            <div class="p-test-name">QCP-FC</div>
+            <div class="p-test-count">
+              Respondidos: <strong id="pillAnswered">0/65</strong>
+            </div>
+          </div>
         </div>
 
-        <!-- SEÇÃO 1: Dados do Paciente -->
-        <div id="secaoDados" class="section">
-            <h2>Dados do Paciente</h2>
-            <div class="form-group">
-                <label for="nomePaciente">Nome Completo:</label>
-                <input type="text" id="nomePaciente" placeholder="Digite o nome completo" required>
-            </div>
-            <div class="form-group">
-                <label for="dataNascimento">Data de Nascimento:</label>
-                <input type="date" id="dataNascimento" required>
-            </div>
-            <div class="form-group">
-                <label for="tipoAplicacao">Tipo de Aplicação:</label>
-                <select id="tipoAplicacao" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
-                    <option value="autorelato">Autorelato</option>
-                    <option value="heterorelato">Heterorelato (pai/mãe/cuidador)</option>
-                </select>
-            </div>
-            <button class="btn btn-primary" onclick="iniciarTeste()">Iniciar Teste</button>
+        <!-- Barra de progresso -->
+        <div class="p-progress-bar">
+          <div class="p-progress-fill" id="patientProgressFill"></div>
         </div>
 
-        <!-- SEÇÃO 2: Aplicação do Teste -->
-        <div id="secaoTeste" class="section hidden">
-            <div class="progress-text">
-                <span id="progressoTexto">Questão 1 de 33</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressoBar"></div>
-            </div>
-            
-            <div id="questoesContainer"></div>
-            
-            <div class="button-group">
-                <button class="btn btn-secondary" id="btnAnterior" onclick="questaoAnterior()">← Anterior</button>
-                <button class="btn btn-primary" id="btnProximo" onclick="proximaQuestao()">Próxima →</button>
-                <button class="btn btn-primary hidden" id="btnFinalizar" onclick="finalizarTeste()">Finalizar Teste</button>
-            </div>
-        </div>
+        <!-- Card principal -->
+        <div class="p-card">
 
-        <!-- SEÇÃO 3: Finalização -->
-        <div id="secaoFinal" class="section hidden">
-            <h2>✅ Teste Finalizado</h2>
-            <p>O questionário foi concluído com sucesso!</p>
-            <div class="button-group">
-                <button class="btn btn-primary" onclick="gerarPDF()">📄 Gerar PDF</button>
-                <button class="btn btn-primary" onclick="enviarDrive()">☁️ Enviar para Drive</button>
-                <button class="btn btn-secondary" onclick="novoTeste()">🔄 Novo Teste</button>
+          <!-- Dados do paciente -->
+          <div class="p-fields">
+            <div class="p-field">
+              <label>Nome completo</label>
+              <input id="nome" type="text" placeholder="Nome completo" autocomplete="name" />
             </div>
-        </div>
-    </div>
+            <div class="p-field">
+              <label>CPF</label>
+              <input id="cpf" type="text" placeholder="000.000.000-00" autocomplete="off" />
+            </div>
+            <div class="p-field">
+              <label>Data de Nascimento</label>
+              <input id="dataNascimento" type="date" />
+            </div>
+            <div class="p-field">
+              <label>Data da avaliação</label>
+              <input id="data" type="date" />
+            </div>
+            <div class="p-field">
+              <label>Sexo</label>
+              <input id="sexo" type="text" placeholder="Masculino / Feminino" />
+            </div>
+            <div class="p-field">
+              <label>Escolaridade</label>
+              <input id="escolaridade" type="text" placeholder="Ex: Ensino Médio Completo" />
+            </div>
+            <div class="p-field" style="grid-column: 1 / -1;">
+              <label>Respondente / Relação com o paciente</label>
+              <input id="respondente" type="text" placeholder='Ex: "O próprio paciente", "Mãe", "Pai"' autocomplete="off" />
+            </div>
+          </div>
 
-    <script>
-        // Configuração Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyBOJix3wPkeFCvWWpkiT3NRAz_KoSjUiEU",
-            authDomain: "equilibriumneuro.firebaseapp.com",
-            projectId: "equilibriumneuro",
-            storageBucket: "equilibriumneuro.appspot.com",
-            messagingSenderId: "884675389516",
-            appId: "1:884675389516:web:9f9c5e0b8b8b8b8b8b8b8b"
+          <hr class="p-divider" />
+          <div class="p-items-heading">Por favor, responda todos os itens abaixo</div>
+
+          <!-- Itens injetados pelo JS -->
+          <div id="itens" class="itens"></div>
+
+        </div>
+      </div><!-- /p-shell -->
+
+      <!-- Rodape fixo -->
+      <div class="p-footer">
+        <div class="p-footer-info">
+          Respondidos: <strong id="footerAnswered">0</strong>
+          de <strong id="footerTotal">65</strong>
+        </div>
+        <button class="btn-enviar" id="btnEnviar" type="button" disabled>
+          Enviar Respostas
+        </button>
+      </div>
+
+    </main>
+
+  <!-- Campo avaliador oculto (compatibilidade) -->
+  <input id="avaliador" type="hidden" value="Paciente" />
+
+  <!-- SDKs do Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+  <!-- Configuracoes do Sistema -->
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard-silent.js"></script>
+  <script src="/js/integration.js"></script>
+
+  <script>
+    /* ========================================================================
+       QCP-FC — Questionario de Crencas Pessoais - Forma Clinica
+       ======================================================================== */
+
+    const URL_DO_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbwLSiqykl8KZ2v999aoVu32NQc43qQ4iPPH0fVibugx2tNsL3B6aBzyuSF2xZKcdh2M/exec";
+
+    let QCPFC = null;
+
+    const ESCALA_KEYS = ["EVT","DEP","PAG","OBC","ANT","NAR","HIS","ESQ","PAR","BOR"];
+
+    const LIKERT_LABELS = {
+      0: "Nao acredito nisso",
+      1: "Acredito um pouco",
+      2: "Acredito moderadamente",
+      3: "Acredito bastante",
+      4: "Acredito totalmente"
+    };
+
+    const $ = (sel) => document.querySelector(sel);
+
+    /* ---- helpers ---- */
+    function escapeHtml(str) {
+      return String(str).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+
+    function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    function normalCDF(z) {
+      const a1 = 0.254829592, a2 = -0.284496736, a3 = 1.421413741, a4 = -1.453152027, a5 = 1.061405429, p = 0.3275911;
+      const sign = z < 0 ? -1 : 1;
+      z = Math.abs(z) / Math.sqrt(2);
+      const t = 1 / (1 + p * z);
+      const y = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * Math.exp(-z * z);
+      return 0.5 * (1 + sign * y);
+    }
+
+    function classificarZ(z) {
+      if (z >= 2) return "Muito Elevado";
+      if (z >= 1) return "Elevado";
+      if (z >= 0) return "Medio";
+      if (z >= -1) return "Baixo";
+      return "Muito Baixo";
+    }
+
+    function corDoZ(z) {
+      if (z >= 2) return [220, 38, 38];
+      if (z >= 1) return [245, 158, 11];
+      if (z >= 0) return [39, 174, 96];
+      if (z >= -1) return [41, 128, 185];
+      return [100, 116, 139];
+    }
+
+    /* ---- Carregar JSON ---- */
+    async function carregarRegras() {
+      const res = await fetch("/Aplicacao_testes/QCP_FC/data/qcpfc_rules.json", { cache: "no-store" });
+      if (!res.ok) throw new Error("Erro ao carregar qcpfc_rules.json (" + res.status + ")");
+      QCPFC = await res.json();
+      if (!QCPFC || !Array.isArray(QCPFC.itens)) {
+        throw new Error("Formato inesperado: campo 'itens' nao encontrado.");
+      }
+    }
+
+    /* ---- Renderizar itens ---- */
+    function renderItens() {
+      const container = $("#itens");
+      container.innerHTML = "";
+      const total = QCPFC.itens.length;
+
+      for (const item of QCPFC.itens) {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.dataset.itemId = item.num;
+
+        let optionsHtml = "";
+        for (let v = 0; v <= 4; v++) {
+          const inputId = "q" + item.num + "_" + v;
+          optionsHtml += '<div class="item-option">' +
+            '<input type="radio" name="q' + item.num + '" id="' + inputId + '" value="' + v + '">' +
+            '<label for="' + inputId + '">' +
+              '<span class="opt-value">' + v + '</span>' +
+              '<span class="opt-label">' + escapeHtml(LIKERT_LABELS[v]) + '</span>' +
+            '</label>' +
+          '</div>';
+        }
+
+        div.innerHTML =
+          '<div class="item-header">' +
+            '<div class="item-num">' + item.num + '</div>' +
+            '<div class="item-text">' + escapeHtml(item.texto) + '</div>' +
+          '</div>' +
+          '<div class="item-options">' + optionsHtml + '</div>';
+
+        container.appendChild(div);
+      }
+
+      // Listeners
+      container.querySelectorAll('input[type="radio"]').forEach(function(radio) {
+        radio.addEventListener("change", function() {
+          var itemDiv = this.closest(".item");
+          if (itemDiv) itemDiv.classList.add("answered");
+          atualizarContadores();
+        });
+      });
+
+      atualizarContadores();
+    }
+
+    /* ---- Contadores de progresso ---- */
+    function atualizarContadores() {
+      var total = QCPFC.itens.length;
+      var answered = 0;
+      for (var i = 0; i < QCPFC.itens.length; i++) {
+        if (document.querySelector('input[name="q' + QCPFC.itens[i].num + '"]:checked')) {
+          answered++;
+        }
+      }
+
+      var pillEl = $("#pillAnswered");
+      if (pillEl) pillEl.textContent = answered + "/" + total;
+
+      var footA = $("#footerAnswered");
+      if (footA) footA.textContent = answered;
+
+      var footT = $("#footerTotal");
+      if (footT) footT.textContent = total;
+
+      var progressFill = $("#patientProgressFill");
+      if (progressFill) {
+        progressFill.style.width = (total > 0 ? (answered / total) * 100 : 0) + "%";
+      }
+
+      var btnEnviar = $("#btnEnviar");
+      if (btnEnviar) {
+        btnEnviar.disabled = (answered < total);
+      }
+    }
+
+    /* ---- Coletar respostas ---- */
+    function coletarRespostas() {
+      var respostas = {};
+      for (var i = 0; i < QCPFC.itens.length; i++) {
+        var item = QCPFC.itens[i];
+        var checked = document.querySelector('input[name="q' + item.num + '"]:checked');
+        if (checked) {
+          respostas[item.num] = parseInt(checked.value);
+        }
+      }
+      return respostas;
+    }
+
+    /* ---- Calcular escores por escala ---- */
+    function calcularEscores(respostas) {
+      var resultados = {};
+      for (var k = 0; k < ESCALA_KEYS.length; k++) {
+        var key = ESCALA_KEYS[k];
+        var esc = QCPFC.escalas[key];
+        var itensEscala = esc.itens;
+        var soma = 0;
+        for (var j = 0; j < itensEscala.length; j++) {
+          soma += (respostas[itensEscala[j]] || 0);
+        }
+        var z = esc.norma.dp > 0 ? Math.round(((soma - esc.norma.media) / esc.norma.dp) * 100) / 100 : 0;
+        var percentil = Math.round(normalCDF(z) * 100);
+        resultados[key] = {
+          nome: esc.nome,
+          soma: soma,
+          z: z,
+          percentil: Math.max(1, Math.min(99, percentil)),
+          maxPossivel: itensEscala.length * 4,
+          itens: itensEscala,
+          cor: esc.cor,
+          corRGB: esc.corRGB,
+          crencaCentral: esc.crencaCentral,
+          descricao: esc.descricao
         };
+      }
+      return resultados;
+    }
 
-        firebase.initializeApp(firebaseConfig);
+    /* ---- Gerar grafico (off-screen) ---- */
+    async function gerarGrafico(res) {
+      var labels = ESCALA_KEYS.map(function(k) {
+        var nome = QCPFC.escalas[k].nome;
+        // Quebra nomes longos em duas linhas
+        var palavras = nome.split(" ");
+        if (palavras.length <= 2) return nome;
+        var metade = Math.ceil(palavras.length / 2);
+        return [palavras.slice(0, metade).join(" "), palavras.slice(metade).join(" ")];
+      });
 
-        let questoes = [];
-        let respostas = [];
-        let questaoAtual = 0;
-        let pacienteData = {};
+      var data = ESCALA_KEYS.map(function(k) { return res[k] ? res[k].soma : 0; });
+      var cores = ESCALA_KEYS.map(function(k) { return QCPFC.escalas[k].cor; });
 
-        // Carregar questões do JSON
-        fetch('data/qcp_items.json')
-            .then(response => response.json())
-            .then(data => {
-                questoes = data.items;
-            })
-            .catch(error => console.error('Erro ao carregar questões:', error));
+      var canvas = document.getElementById("hiddenChart");
+      canvas.width = 1100;
+      canvas.height = 560;   // <- aumentado para dar espaço ao eixo X
+      var ctx = canvas.getContext("2d");
 
-        function iniciarTeste() {
-            const nome = document.getElementById('nomePaciente').value.trim();
-            const dataNasc = document.getElementById('dataNascimento').value;
-            const tipoAplicacao = document.getElementById('tipoAplicacao').value;
-
-            if (!nome || !dataNasc) {
-                alert('Por favor, preencha todos os campos obrigatórios.');
-                return;
+      var ch = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Escore Bruto",
+            data: data,
+            backgroundColor: cores.map(function(c) { return c + "cc"; }),
+            borderColor: cores,
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: false,
+          animation: false,
+          layout: { padding: { top: 20, bottom: 20, left: 10, right: 10 } },
+          scales: {
+            y: {
+              min: 0, max: 28,
+              ticks: { stepSize: 4, font: { size: 11 }, padding: 6 },
+              grid: { color: "rgba(0,0,0,0.08)" },
+              title: { display: true, text: "Escore Bruto", font: { size: 12 } }
+            },
+            x: {
+              ticks: {
+                font: { size: 10 },
+                maxRotation: 0,    // <- sem rotação; nomes quebrados em 2 linhas
+                minRotation: 0,
+                padding: 6,
+                autoSkip: false
+              },
+              grid: { display: false }
             }
+          },
+          plugins: {
+            legend: { display: false },
+            title: {
+              display: true,
+              text: "QCP-FC - Perfil de Crencas de Personalidade",
+              font: { size: 15, weight: "bold" },
+              color: "#2c3e50",
+              padding: { bottom: 12 }
+            }
+          }
+        }
+      });
 
-            pacienteData = {
-                nome: nome,
-                dataNascimento: dataNasc,
-                tipoAplicacao: tipoAplicacao,
-                dataAplicacao: new Date().toISOString()
+      await delay(400);
+      var img = canvas.toDataURL("image/png");
+      ch.destroy();
+      return img;
+    }
+
+    /* ---- Gerar relatorio HTML (interno, nao visivel ao paciente) ---- */
+    function gerarRelatorioHTML(nome, dataAvaliacao, respostas, resultados) {
+      var dataFmt = new Date(dataAvaliacao + "T00:00:00").toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+
+      var tabelaRows = "";
+      for (var k = 0; k < ESCALA_KEYS.length; k++) {
+        var key = ESCALA_KEYS[k];
+        var r = resultados[key];
+        var classif = classificarZ(r.z);
+        tabelaRows += '<tr>' +
+          '<td style="padding:8px 12px;font-weight:600;color:#1e293b;border-bottom:1px solid #e2e8f0;">' + r.nome + ' (' + key + ')</td>' +
+          '<td style="padding:8px 12px;text-align:center;border-bottom:1px solid #e2e8f0;">' + r.soma + '/' + r.maxPossivel + '</td>' +
+          '<td style="padding:8px 12px;text-align:center;border-bottom:1px solid #e2e8f0;">' + r.z.toFixed(2) + '</td>' +
+          '<td style="padding:8px 12px;text-align:center;border-bottom:1px solid #e2e8f0;">' + r.percentil + '</td>' +
+          '<td style="padding:8px 12px;text-align:center;border-bottom:1px solid #e2e8f0;font-weight:700;">' + classif + '</td>' +
+        '</tr>';
+      }
+
+      var escalasDetail = "";
+      for (var k = 0; k < ESCALA_KEYS.length; k++) {
+        var key = ESCALA_KEYS[k];
+        var r = resultados[key];
+        var esc = QCPFC.escalas[key];
+        escalasDetail +=
+          '<div style="margin-bottom:10px;padding:12px 16px;background:' + (esc.corLight || "#f8fafc") + ';border-radius:10px;border-left:4px solid ' + esc.cor + ';border:1px solid #e2e8f0;border-left:4px solid ' + esc.cor + ';">' +
+            '<div style="font-weight:700;font-size:13px;color:#0f172a;margin-bottom:4px;">' + r.nome + ' (' + key + ')</div>' +
+            '<div style="font-size:11px;color:#475569;margin-bottom:6px;">Escore: ' + r.soma + '/' + r.maxPossivel + ' | Z = ' + r.z.toFixed(2) + ' | ' + classificarZ(r.z) + '</div>' +
+            '<div style="font-size:10px;color:#64748b;margin-bottom:4px;"><strong>Crenca central:</strong> <em>"' + escapeHtml(esc.crencaCentral) + '"</em></div>' +
+            '<div style="font-size:10px;color:#64748b;">' + escapeHtml(esc.descricao) + '</div>' +
+          '</div>';
+      }
+
+      return '<div style="font-family:\'DM Sans\',Arial,sans-serif;color:#1e293b;background:#fff;border-radius:16px;border:1px solid #e2e8f0;box-shadow:0 8px 40px rgba(0,0,0,.06);overflow:hidden;">' +
+        '<div style="background:linear-gradient(135deg,#0c1f3f 0%,#1a3a6a 50%,#1e40af 100%);color:#fff;padding:28px 36px;position:relative;overflow:hidden;">' +
+          '<div style="position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.04);"></div>' +
+          '<div style="position:relative;display:flex;justify-content:space-between;align-items:flex-start;">' +
+            '<div>' +
+              '<div style="font-size:8px;text-transform:uppercase;letter-spacing:3px;opacity:.45;">Relatorio Neuropsicologico</div>' +
+              '<h1 style="color:#fff;font-size:20px;font-weight:800;margin:4px 0 0;">QCP-FC</h1>' +
+              '<p style="color:rgba(255,255,255,.55);font-size:10px;margin:4px 0 0;">Questionario de Crencas Pessoais - Forma Clinica</p>' +
+              '<p style="color:rgba(255,255,255,.4);font-size:9px;margin:2px 0 0;">Beck &amp; Beck (1991) / Butler, Beck &amp; Cohen (2007)</p>' +
+            '</div>' +
+            '<div style="background:rgba(255,255,255,.12);border-radius:10px;padding:8px 14px;text-align:center;backdrop-filter:blur(4px);">' +
+              '<div style="font-size:18px;font-weight:800;line-height:1;">QCP</div>' +
+              '<div style="font-size:7px;text-transform:uppercase;letter-spacing:1px;opacity:.7;margin-top:2px;">Forma Clinica</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="padding:0 24px 24px;">' +
+          '<div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">1</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Dados do Paciente</span></div>' +
+          '<div style="background:#f8fafc;border-radius:10px;padding:12px 16px;margin-bottom:14px;border:1px solid #e2e8f0;">' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 20px;font-size:12px;">' +
+              '<div><div style="font-size:9px;text-transform:uppercase;color:#64748b;font-weight:600;">Paciente</div><div style="font-size:13px;color:#0f172a;font-weight:600;">' + escapeHtml(nome) + '</div></div>' +
+              '<div><div style="font-size:9px;text-transform:uppercase;color:#64748b;font-weight:600;">Data da Avaliacao</div><div style="font-size:13px;color:#0f172a;font-weight:600;">' + dataFmt + '</div></div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">2</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Resultados por Escala</span></div>' +
+          '<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;">' +
+            '<thead><tr style="background:#dbeafe;">' +
+              '<th style="padding:8px 12px;text-align:left;font-size:9px;text-transform:uppercase;color:#1e40af;font-weight:700;">Escala</th>' +
+              '<th style="padding:8px 12px;text-align:center;font-size:9px;text-transform:uppercase;color:#1e40af;font-weight:700;">Bruto/Max</th>' +
+              '<th style="padding:8px 12px;text-align:center;font-size:9px;text-transform:uppercase;color:#1e40af;font-weight:700;">Z-Score</th>' +
+              '<th style="padding:8px 12px;text-align:center;font-size:9px;text-transform:uppercase;color:#1e40af;font-weight:700;">Percentil</th>' +
+              '<th style="padding:8px 12px;text-align:center;font-size:9px;text-transform:uppercase;color:#1e40af;font-weight:700;">Classificacao</th>' +
+            '</tr></thead>' +
+            '<tbody>' + tabelaRows + '</tbody>' +
+          '</table>' +
+          '<div id="grafico-container" style="margin:14px 0;text-align:center;padding:12px 16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">' +
+            '<p style="color:#94a3b8;font-size:12px;">Grafico gerado no PDF</p>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;margin:14px 0 10px;"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#1a56db;color:#fff;font-size:10px;font-weight:800;">3</span><span style="font-weight:700;font-size:13px;color:#0f172a;">Interpretacao por Escala</span></div>' +
+          escalasDetail +
+          '<div style="margin-top:14px;padding:12px 16px;background:#f8fafc;border-radius:10px;border:1px solid #e2e8f0;">' +
+            '<p style="color:#334155;font-size:11px;line-height:1.7;margin:0;">' +
+              '<strong>Nota:</strong> Escore Z = (Escore Bruto - Media) / DP. Normativa baseada em amostra psiquiatrica mista (N=683). ' +
+              'Nao ha ponto de corte empiricamente estabelecido. Escores Z elevados sao clinicamente sugestivos.' +
+            '</p>' +
+          '</div>' +
+          '<div style="border-top:2px solid #e2e8f0;padding-top:16px;margin-top:22px;display:flex;justify-content:space-between;align-items:flex-end;">' +
+            '<div>' +
+              '<div style="width:180px;border-bottom:1px solid #94a3b8;margin-bottom:4px;height:1px;"></div>' +
+              '<div style="font-size:10px;font-weight:700;color:#334155;">Profissional Responsavel</div>' +
+              '<div style="font-size:9px;color:#94a3b8;">Neuropsicologo(a)</div>' +
+            '</div>' +
+            '<div style="text-align:right;">' +
+              '<p style="color:#94a3b8;font-size:9px;margin:0;">Relatorio gerado por Equilibrium Neuropsicologia</p>' +
+              '<p style="color:#cbd5e1;font-size:8px;margin:4px 0 0;max-width:220px;">Este documento e confidencial e destina-se exclusivamente ao paciente e profissionais autorizados</p>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    /* ---- Gerar PDF via html2pdf ---- */
+    async function gerarPDF(nome, dataAvaliacao, respostas, resultados, chartImg) {
+      var htmlRelatorio = gerarRelatorioHTML(nome, dataAvaliacao, respostas, resultados);
+
+      var container = document.createElement('div');
+      container.style.cssText = 'position:fixed;left:0;top:0;width:800px;background:#fff;z-index:-1;opacity:0;pointer-events:none;';
+      container.innerHTML = htmlRelatorio;
+      document.body.appendChild(container);
+
+      // Inject chart image into the placeholder
+      var grafContainer = container.querySelector('#grafico-container');
+      if (grafContainer && chartImg) {
+        grafContainer.innerHTML = '<img src="' + chartImg + '" style="width:100%;height:auto;display:block;border-radius:8px;" />';
+      }
+
+      // Aguardar renderização completa (fontes + imagens)
+      await new Promise(function(r) { setTimeout(r, 600); });
+
+      var opt = {
+        margin: [5, 5, 5, 5],
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, logging: false, scrollY: 0, scrollX: 0, windowWidth: 800 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      var pdfUri = await html2pdf().set(opt).from(container).outputPdf('datauristring');
+      document.body.removeChild(container);
+
+      return pdfUri.split(',')[1];
+    }
+
+    /* ---- Enviar ao Google Drive ---- */
+    async function enviarDrive(nome, pdfBase64) {
+      try {
+        await fetch(URL_DO_GOOGLE_SCRIPT, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            paciente: nome,
+            data: new Date().toLocaleDateString("pt-BR"),
+            teste: "QCP-FC",
+            pdfBase64: pdfBase64
+          })
+        });
+      } catch (e) {
+        console.warn("Drive upload:", e);
+      }
+    }
+
+    /* ---- Mostrar tela de sucesso ---- */
+    function mostrarSucesso() {
+      var footer = $(".p-footer");
+      if (footer) footer.style.display = "none";
+      var main = document.querySelector("main");
+      if (main) {
+        main.innerHTML =
+          '<div class="success-screen">' +
+            '<div class="success-card">' +
+              '<div class="success-icon">&#9989;</div>' +
+              '<h1>Respostas Enviadas com Sucesso!</h1>' +
+              '<p>Obrigado por completar o Questionario de Crencas Pessoais (QCP-FC).</p>' +
+              '<p>Suas respostas foram registradas e o relatorio sera analisado pelo profissional responsavel.</p>' +
+              '<p class="success-note">Voce pode fechar esta janela agora.</p>' +
+            '</div>' +
+          '</div>';
+      }
+    }
+
+    /* ---- Enviar formulario ---- */
+    async function enviarFormulario() {
+      var nome = ($("#nome") ? $("#nome").value : "").trim();
+      var dataAvaliacao = $("#data") ? $("#data").value : "";
+
+      if (!nome) {
+        alert("Por favor, preencha o nome completo.");
+        return;
+      }
+      if (!dataAvaliacao) {
+        alert("Por favor, preencha a data da avaliacao.");
+        return;
+      }
+
+      var respostas = coletarRespostas();
+      if (Object.keys(respostas).length < QCPFC.itens.length) {
+        alert("Por favor, responda todos os itens antes de enviar.");
+        return;
+      }
+
+      // Show processing modal
+      var modal = $("#modalGerando");
+      if (modal) modal.classList.add("active");
+      var modalTitle = $("#modalTitle");
+      var modalSub = $("#modalSub");
+
+      try {
+        if (modalTitle) modalTitle.textContent = "Calculando escores...";
+        if (modalSub) modalSub.textContent = "Por favor, aguarde.";
+        await delay(400);
+
+        var resultados = calcularEscores(respostas);
+
+        if (modalTitle) modalTitle.textContent = "Gerando grafico de perfil...";
+        await delay(300);
+
+        var chartImg = await gerarGrafico(resultados);
+
+        if (modalTitle) modalTitle.textContent = "Montando relatorio...";
+        await delay(300);
+
+        var relatorioHTML = gerarRelatorioHTML(nome, dataAvaliacao, respostas, resultados);
+        var pdfBase64 = await gerarPDF(nome, dataAvaliacao, respostas, resultados, chartImg);
+
+        if (modalTitle) modalTitle.textContent = "Enviando ao consultorio...";
+        await delay(300);
+
+        await enviarDrive(nome, pdfBase64);
+
+        // Save to Firebase via Integration
+        if (window.Integration && typeof Integration.salvarTesteNoFirebase === "function") {
+          var scoresObj = {};
+          for (var k = 0; k < ESCALA_KEYS.length; k++) {
+            var key = ESCALA_KEYS[k];
+            var r = resultados[key];
+            scoresObj[key] = {
+              nome: r.nome,
+              bruto: r.soma,
+              max: r.maxPossivel,
+              z: r.z,
+              percentil: r.percentil,
+              classificacao: classificarZ(r.z)
             };
+          }
 
-            localStorage.setItem('qcp_paciente', JSON.stringify(pacienteData));
-
-            // Inicializar array de respostas
-            respostas = new Array(questoes.length).fill(null);
-
-            document.getElementById('secaoDados').classList.add('hidden');
-            document.getElementById('secaoTeste').classList.remove('hidden');
-
-            mostrarQuestao(0);
+          await Integration.salvarTesteNoFirebase("qcp-fc", {
+            dataAplicacao: dataAvaliacao,
+            resumo: "QCP-FC - " + ESCALA_KEYS.map(function(k) { return k + ": " + resultados[k].soma; }).join(", "),
+            scores: scoresObj,
+            classificacao: "Perfil de Crencas de Personalidade",
+            htmlRelatorio: relatorioHTML,
+            observacoes: ""
+          });
         }
 
-        function mostrarQuestao(index) {
-            questaoAtual = index;
-            const container = document.getElementById('questoesContainer');
-            
-            container.innerHTML = `
-                <div class="question-card">
-                    <span class="question-number">${index + 1}</span>
-                    <span class="question-text">${questoes[index]}</span>
-                    <div class="options">
-                        <div class="option-button ${respostas[index] === 0 ? 'selected' : ''}" onclick="selecionarResposta(0)">
-                            0<br><small>Nunca</small>
-                        </div>
-                        <div class="option-button ${respostas[index] === 1 ? 'selected' : ''}" onclick="selecionarResposta(1)">
-                            1<br><small>Raramente</small>
-                        </div>
-                        <div class="option-button ${respostas[index] === 2 ? 'selected' : ''}" onclick="selecionarResposta(2)">
-                            2<br><small>Às vezes</small>
-                        </div>
-                        <div class="option-button ${respostas[index] === 3 ? 'selected' : ''}" onclick="selecionarResposta(3)">
-                            3<br><small>Frequentemente</small>
-                        </div>
-                    </div>
-                </div>
-            `;
+        if (modalTitle) modalTitle.textContent = "Concluido!";
+        await delay(600);
 
-            atualizarProgresso();
-            atualizarBotoes();
+        if (modal) modal.classList.remove("active");
+
+        // Show success screen (do NOT show report to patient)
+        mostrarSucesso();
+
+      } catch (err) {
+        console.error("Erro ao processar:", err);
+        if (modal) modal.classList.remove("active");
+        alert("Ocorreu um erro ao processar as respostas. Por favor, tente novamente.\n\n" + err.message);
+      }
+    }
+
+    /* ---- Inicializacao ---- */
+    window.addEventListener("DOMContentLoaded", async function() {
+      try {
+        await carregarRegras();
+        renderItens();
+
+        // Set default date to today
+        var dataInput = $("#data");
+        if (dataInput && !dataInput.value) {
+          dataInput.value = new Date().toISOString().split("T")[0];
         }
 
-        function selecionarResposta(valor) {
-            respostas[questaoAtual] = valor;
-            mostrarQuestao(questaoAtual);
+        // Bind submit button
+        var btnEnviar = $("#btnEnviar");
+        if (btnEnviar) {
+          btnEnviar.addEventListener("click", enviarFormulario);
         }
 
-        function proximaQuestao() {
-            if (respostas[questaoAtual] === null) {
-                alert('Por favor, selecione uma resposta antes de continuar.');
-                return;
-            }
-
-            if (questaoAtual < questoes.length - 1) {
-                mostrarQuestao(questaoAtual + 1);
-            }
+      } catch (err) {
+        console.error("Erro na inicializacao:", err);
+        var itensEl = $("#itens");
+        if (itensEl) {
+          itensEl.innerHTML =
+            '<div style="padding:32px;text-align:center;color:#dc2626;">' +
+              '<div style="font-size:48px;margin-bottom:16px;">&#9888;&#65039;</div>' +
+              '<div style="font-weight:700;font-size:18px;margin-bottom:8px;">Erro ao Carregar o Formulario</div>' +
+              '<div style="font-size:14px;color:#64748b;">' + escapeHtml(err.message) + '</div>' +
+            '</div>';
         }
-
-        function questaoAnterior() {
-            if (questaoAtual > 0) {
-                mostrarQuestao(questaoAtual - 1);
-            }
-        }
-
-        function atualizarProgresso() {
-            const progresso = ((questaoAtual + 1) / questoes.length) * 100;
-            document.getElementById('progressoBar').style.width = progresso + '%';
-            document.getElementById('progressoTexto').textContent = `Questão ${questaoAtual + 1} de ${questoes.length}`;
-        }
-
-        function atualizarBotoes() {
-            document.getElementById('btnAnterior').disabled = questaoAtual === 0;
-            
-            if (questaoAtual === questoes.length - 1) {
-                document.getElementById('btnProximo').classList.add('hidden');
-                document.getElementById('btnFinalizar').classList.remove('hidden');
-            } else {
-                document.getElementById('btnProximo').classList.remove('hidden');
-                document.getElementById('btnFinalizar').classList.add('hidden');
-            }
-        }
-
-        function finalizarTeste() {
-            if (respostas.includes(null)) {
-                alert('Por favor, responda todas as questões antes de finalizar.');
-                return;
-            }
-
-            // Salvar respostas
-            const dadosCompletos = respostas.map((resposta, index) => ({
-                item: questoes[index],
-                resposta: resposta
-            }));
-
-            localStorage.setItem('qcp_respostas', JSON.stringify(dadosCompletos));
-
-            document.getElementById('secaoTeste').classList.add('hidden');
-            document.getElementById('secaoFinal').classList.remove('hidden');
-        }
-
-        function gerarPDF() {
-            const respostasData = JSON.parse(localStorage.getItem('qcp_respostas'));
-            const paciente = JSON.parse(localStorage.getItem('qcp_paciente'));
-            
-            if (!respostasData || !paciente) {
-                alert('Não há dados para gerar o PDF.');
-                return;
-            }
-
-            // Calcular escore total
-            let totalScore = 0;
-            respostasData.forEach(r => {
-                totalScore += r.resposta;
-            });
-
-            // Criar conteúdo do PDF
-            const pdfContent = document.createElement('div');
-            pdfContent.style.padding = '20px';
-            pdfContent.style.fontFamily = 'Arial, sans-serif';
-            
-            pdfContent.innerHTML = `
-                <div style="text-align: center; margin-bottom: 30px;">
-                    <h1 style="color: #5E35B1; margin-bottom: 10px;">Questionário de Comportamentos Repetitivos</h1>
-                    <h2 style="color: #666; font-size: 18px;">QCP - Relatório de Aplicação</h2>
-                </div>
-                
-                <div style="margin-bottom: 25px; padding: 15px; background-color: #f5f5f5; border-radius: 5px;">
-                    <h3 style="color: #5E35B1; margin-bottom: 10px;">Dados do Paciente</h3>
-                    <p><strong>Nome:</strong> ${paciente.nome}</p>
-                    <p><strong>Data de Nascimento:</strong> ${new Date(paciente.dataNascimento).toLocaleDateString('pt-BR')}</p>
-                    <p><strong>Tipo de Aplicação:</strong> ${paciente.tipoAplicacao === 'autorelato' ? 'Autorelato' : 'Heterorelato'}</p>
-                    <p><strong>Data da Aplicação:</strong> ${new Date(paciente.dataAplicacao).toLocaleDateString('pt-BR')}</p>
-                </div>
-
-                <div style="margin-bottom: 25px;">
-                    <h3 style="color: #5E35B1; margin-bottom: 15px;">Respostas</h3>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
-                        <thead>
-                            <tr style="background-color: #5E35B1; color: white;">
-                                <th style="padding: 8px; text-align: left; border: 1px solid #ddd;">Item</th>
-                                <th style="padding: 8px; text-align: center; border: 1px solid #ddd; width: 80px;">Resposta</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${respostasData.map((r, index) => `
-                                <tr style="background-color: ${index % 2 === 0 ? '#f9f9f9' : 'white'};">
-                                    <td style="padding: 8px; border: 1px solid #ddd; font-size: 9px;">${r.item}</td>
-                                    <td style="padding: 8px; text-align: center; border: 1px solid #ddd;">${r.resposta}</td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-
-                <div style="margin-top: 25px; padding: 15px; background-color: #E8EAF6; border-left: 4px solid #5E35B1;">
-                    <h3 style="color: #5E35B1; margin-bottom: 10px;">Escore Total</h3>
-                    <p style="font-size: 24px; font-weight: bold; color: #5E35B1; margin: 10px 0;">${totalScore} pontos</p>
-                    <p style="font-size: 11px; color: #666; margin-top: 15px;">
-                        <strong>Interpretação:</strong> Pontuações mais altas indicam maior presença de comportamentos repetitivos.
-                        Este questionário deve ser interpretado por profissional qualificado em conjunto com outros instrumentos de avaliação.
-                    </p>
-                </div>
-            `;
-            
-            const opt = {
-                margin: [10, 10, 10, 10],
-                filename: `QCP_${paciente.nome.replace(/\s+/g, '_')}_${new Date().toLocaleDateString('pt-BR').replace(/\//g, '-')}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true, letterRendering: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            html2pdf().from(pdfContent).set(opt).toPdf().get('pdf').then(function (pdf) {
-                const totalPages = pdf.internal.getNumberOfPages();
-                for (let i = 1; i <= totalPages; i++) {
-                    pdf.setPage(i);
-                    pdf.setFontSize(10);
-                    pdf.setTextColor(150);
-                    pdf.text('Página ' + i + ' de ' + totalPages, pdf.internal.pageSize.getWidth() / 2, pdf.internal.pageSize.getHeight() - 5, { align: 'center' });
-                }
-            }).save().then(() => {
-                alert('PDF gerado com sucesso!');
-            });
-        }
-
-        function enviarDrive() {
-            const respostasData = JSON.parse(localStorage.getItem('qcp_respostas'));
-            const paciente = JSON.parse(localStorage.getItem('qcp_paciente'));
-            
-            if (!respostasData || !paciente) {
-                alert('Não há dados para enviar.');
-                return;
-            }
-
-            // Calcular escore
-            let totalScore = 0;
-            respostasData.forEach(r => totalScore += r.resposta);
-
-            const dadosParaDrive = {
-                teste: 'QCP',
-                paciente: paciente,
-                respostas: respostasData,
-                escoreTotal: totalScore,
-                dataEnvio: new Date().toISOString()
-            };
-
-            // Chamar Apps Script
-            const url = 'https://script.google.com/macros/s/AKfycbwvWyTEqhtmD_yq_OVw-N3OwV0KkuFLR22tJqjdh1FDUQZaTlgKR_eFdzkabBcSxdYZ/exec';
-            
-            fetch(url, {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(dadosParaDrive)
-            })
-            .then(() => {
-                alert('Dados enviados para o Google Drive com sucesso!');
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao enviar para o Drive. Tente novamente.');
-            });
-        }
-
-        function novoTeste() {
-            localStorage.removeItem('qcp_respostas');
-            localStorage.removeItem('qcp_paciente');
-            location.reload();
-        }
-    </script>
+      }
+    });
+  </script>
 </body>
 </html>
