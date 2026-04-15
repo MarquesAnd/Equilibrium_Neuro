@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Relatório | Equilibrium</title>
+  <link rel="stylesheet" href="/style.css" />
+  <link rel="stylesheet" href="/Correcao_testes/style.css" />
+  <link rel="icon" type="image/png" href="/logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar no-print">
+      <div class="sidebar-brand">
+        <img src="/logo2.png" alt="Logo" class="sidebar-logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="brand-name">Equilibrium</div>
+          <div class="brand-sub">Neuropsicologia</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a class="nav-item" href="/" data-page="dashboard"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+        <a class="nav-item" href="/Pacientes/" data-page="pacientes"><span class="nav-icon">👤</span><span>Pacientes</span></a>
+        <a class="nav-item" href="/Correcao_testes/" data-page="correcao"><span class="nav-icon">✏️</span><span>Correção de Testes</span></a>
+        <a class="nav-item" href="/Aplicacao_testes/" data-page="aplicacao"><span class="nav-icon">🧠</span><span>Aplicação de Testes</span></a>
+        <a class="nav-item" href="/Anamnese/" data-page="anamnese"><span class="nav-icon">📋</span><span>Anamnese</span></a>
+        <a class="nav-item" href="/#relatorios" data-page="relatorios"><span class="nav-icon">📄</span><span>Relatórios</span></a>
+        <a class="nav-item" href="/check_list/" data-page="checklist"><span class="nav-icon">✅</span><span>Checklist</span></a>
+        <a class="nav-item" href="/Config/" data-page="config"><span class="nav-icon">⚙️</span><span>Configurações</span></a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar">?</div>
+          <div>
+            <div class="user-name">Carregando...</div>
+            <div class="user-role">—</div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="doLogout()">Sair</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="page-header no-print">
+        <div>
+          <p class="page-subtitle">
+            <a href="/#relatorios" class="breadcrumb">Relatórios</a> → Visualização
+          </p>
+          <h1 class="page-title" id="pageTitle">Carregando relatório...</h1>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-primary" id="btnPDF" onclick="baixarPDF()" style="display:none;">Baixar PDF</button>
+          <button class="btn-secondary" id="btnPrint" onclick="imprimirRel()" style="display:none;">Imprimir</button>
+          <button class="btn-secondary" onclick="voltarRelatorios()">← Voltar</button>
+        </div>
+      </div>
+
+      <div id="relatorioContainer">
+        <div class="card" style="text-align:center;padding:40px;">
+          <div style="font-size:32px;margin-bottom:12px;">⏳</div>
+          <div style="font-weight:600;color:var(--text-secondary);">Carregando relatório...</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="/js/firebase-config.js"></script>
+  <script src="/js/db.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/patient-guard.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <script>
+    const NOMES_TESTES = {
+      'wais-iii':'WAIS-III','wisc-iv':'WISC-IV','srs2-pre':'SRS-2 Pré-Escolar',
+      'srs2-esc-masc':'SRS-2 Escolar Masc','srs2-esc-fem':'SRS-2 Escolar Fem',
+      'srs2-adulto':'SRS-2 Adulto','raads-r':'RAADS-R','cat-q':'CAT-Q','bfp':'BFP',
+      'vineland-pre':'Vineland-3','vineland-adulto':'Vineland-3','vineland-3':'Vineland-3',
+      'qcp-fc':'QCP-FC','ravlt':'RAVLT','idadi':'IDADI',
+      'qa':'QA — Quociente do Autismo','eq15':'EQ-15 — Quociente de Empatia',
+      'etdah-ad':'ETDAH-AD','etdah_ad':'ETDAH-AD','fdt':'FDT','scared':'SCARED',
+    };
+
+    let _relAtual = null;
+    let _nomeP = "";
+
+    function getCSSForTipo(tipo) {
+      const css = ['/Correcao_testes/style.css'];
+      if (tipo && tipo.startsWith('srs2')) css.push('/Correcao_testes/SRS2/srs2-shared.css');
+      if (tipo === 'raads-r') css.push('/Correcao_testes/RAADS-R/styles.css');
+      return css;
+    }
+
+    async function carregarRelatorio() {
+      const params = new URLSearchParams(window.location.search);
+      const pacienteId = params.get("paciente");
+      const testeId = params.get("teste");
+
+      if (!pacienteId || !testeId) {
+        document.getElementById("relatorioContainer").innerHTML = `
+          <div class="card" style="text-align:center;padding:40px;">
+            <div style="font-size:32px;margin-bottom:12px;">⚠️</div>
+            <div style="font-weight:600;color:var(--red);">Parâmetros inválidos</div>
+            <p style="color:var(--text-secondary);margin-top:8px;">Nenhum relatório especificado.</p>
+            <button class="btn-secondary" onclick="voltarRelatorios()" style="margin-top:16px;">← Voltar aos Relatórios</button>
+          </div>`;
+        return;
+      }
+
+      try {
+        // Buscar paciente
+        const paciente = await DB.getPaciente(pacienteId);
+        _nomeP = paciente ? paciente.nome : "Paciente";
+
+        // Buscar teste
+        const teste = await DB.getTestePaciente(pacienteId, testeId);
+
+        if (!teste || !teste.htmlRelatorio) {
+          document.getElementById("relatorioContainer").innerHTML = `
+            <div class="card" style="text-align:center;padding:40px;">
+              <div style="font-size:32px;margin-bottom:12px;">📄</div>
+              <div style="font-weight:600;color:var(--text-secondary);">Relatório não disponível</div>
+              <p style="color:var(--text-secondary);margin-top:8px;">Este teste não possui relatório HTML. Corrija o teste novamente para gerar.</p>
+              <button class="btn-secondary" onclick="voltarRelatorios()" style="margin-top:16px;">← Voltar</button>
+            </div>`;
+          return;
+        }
+
+        _relAtual = teste;
+
+        const nomeTeste = NOMES_TESTES[teste.tipo] || teste.tipo || "Teste";
+        document.getElementById("pageTitle").textContent = `${nomeTeste} — ${_nomeP}`;
+
+        // Carregar CSS do tipo
+        const cssLinks = getCSSForTipo(teste.tipo);
+        cssLinks.forEach(href => {
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = href;
+          document.head.appendChild(link);
+        });
+
+        // Renderizar relatório
+        const container = document.getElementById("relatorioContainer");
+        container.innerHTML = `
+          <div class="card report" style="padding:24px;">
+            ${teste.htmlRelatorio}
+          </div>`;
+
+        // Mostrar botões
+        document.getElementById("btnPDF").style.display = "";
+        document.getElementById("btnPrint").style.display = "";
+
+      } catch(e) {
+        console.error("Erro ao carregar relatório:", e);
+        document.getElementById("relatorioContainer").innerHTML = `
+          <div class="card" style="text-align:center;padding:40px;">
+            <div style="font-size:32px;margin-bottom:12px;">⚠️</div>
+            <div style="font-weight:600;color:var(--red);">Erro ao carregar relatório</div>
+            <p style="color:var(--text-secondary);margin-top:8px;">${e.message}</p>
+            <button class="btn-secondary" onclick="voltarRelatorios()" style="margin-top:16px;">← Voltar</button>
+          </div>`;
+      }
+    }
+
+    function voltarRelatorios() {
+      window.location.href = "/#relatorios";
+    }
+
+    function imprimirRel() {
+      const container = document.getElementById("relatorioContainer");
+      if (!container) return;
+
+      const tipo = _relAtual?.tipo || "";
+      const cssLinks = getCSSForTipo(tipo).map(href => `<link rel="stylesheet" href="${href}" />`).join("\n");
+
+      const win = window.open("", "_blank");
+      win.document.write(`<!DOCTYPE html><html><head><title>Relatório</title>
+        <link rel="stylesheet" href="/style.css" />
+        ${cssLinks}
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+        <style>body{margin:0;padding:20px;font-family:'DM Sans',sans-serif;} *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}</style>
+      </head><body>${container.querySelector(".report")?.innerHTML || container.innerHTML}</body></html>`);
+      win.document.close();
+      setTimeout(() => { win.print(); }, 500);
+    }
+
+    async function baixarPDF() {
+      if (!_relAtual || !_relAtual.htmlRelatorio) {
+        alert("Relatório não disponível.");
+        return;
+      }
+
+      const container = document.createElement("div");
+      container.style.cssText = "position:absolute;left:-9999px;top:0;width:210mm;";
+
+      ["https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap",
+       "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+      ].concat(getCSSForTipo(_relAtual.tipo)).forEach(href => {
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = href;
+        container.appendChild(link);
+      });
+
+      const content = document.createElement("div");
+      content.innerHTML = _relAtual.htmlRelatorio;
+      container.appendChild(content);
+      document.body.appendChild(container);
+
+      await new Promise(r => setTimeout(r, 400));
+
+      const nomeTeste = NOMES_TESTES[_relAtual.tipo] || _relAtual.tipo;
+      const fileName = `${nomeTeste} - ${_nomeP}.pdf`;
+
+      try {
+        await html2pdf().set({
+          margin: [5, 5, 5, 5],
+          filename: fileName,
+          image: { type: "jpeg", quality: 1.0 },
+          html2canvas: { scale: 4, useCORS: true, logging: false, scrollY: 0 },
+          jsPDF: { unit: "mm", format: [210, 900], orientation: "portrait" },
+          pagebreak: { mode: ["avoid-all"] },
+        }).from(content).save();
+      } catch(e) {
+        console.error("Erro ao gerar PDF:", e);
+        alert("Erro ao gerar PDF. Tente usar a opção Imprimir.");
+      } finally {
+        container.remove();
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      if (window.FIREBASE_CONFIGURED && window.DB) await DB.init();
+      if (!isAuthed()) {
+        location.href = "/login.html";
+        return;
+      }
+      applySidebarPermissions();
+      carregarRelatorio();
+    });
+  </script>
+</body>
+</html>

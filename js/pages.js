@@ -275,6 +275,8 @@ const _NOMES_TESTES = {
   'ravlt':'RAVLT',
   'qa':'QA — Quociente do Autismo',
   'eq15':'EQ-15 — Quociente de Empatia',
+  'idadi':'IDADI',
+  'etdah_ad':'ETDAH-AD','etdah-ad':'ETDAH-AD',
 };
 
 let _todosRelatorios = [];
@@ -450,6 +452,9 @@ function _irCorrigirTeste(pacienteId, tipo, testeId) {
     'qcp-fc':'/Correcao_testes/QCP_FC/',
     'ravlt':'/Correcao_testes/RAVLT/',
     'bfp':'/Correcao_testes/BFP/',
+    'idadi':'/Correcao_testes/IDADI/novo-laudo.html',
+    'etdah_ad':'/Correcao_testes/ETDAH_AD/novo-laudo.html',
+    'etdah-ad':'/Correcao_testes/ETDAH_AD/novo-laudo.html',
   };
   window.location.href = ROTAS[tipo] || '/Correcao_testes/';
 }
@@ -462,44 +467,14 @@ function _getCSSForTipo(tipo) {
   return css;
 }
 
-/* ── Visualizar relatório em modal ── */
-async function _verRelPDF(pacienteId, testeId) {
+/* ── Visualizar relatório em página dedicada ── */
+function _verRelPDF(pacienteId, testeId) {
   const rel = _todosRelatorios.find(r => r.pacienteId === pacienteId && r.id === testeId);
   if (!rel || !rel.htmlRelatorio) {
     alert('Relatório não disponível. Corrija o teste novamente para gerar.');
     return;
   }
-
-  const prev = document.getElementById('relViewModal');
-  if (prev) prev.remove();
-
-  const cssLinks = _getCSSForTipo(rel.tipo).map(href => `<link rel="stylesheet" href="${href}" />`).join('\n');
-
-  const modal = document.createElement('div');
-  modal.id = 'relViewModal';
-  modal.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(15,23,42,.55);backdrop-filter:blur(4px);display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;animation:fadeIn .25s ease;';
-  modal.innerHTML = `
-    <div style="background:#f1f5f9;border-radius:16px;width:100%;max-width:960px;box-shadow:0 24px 80px rgba(0,0,0,.25);overflow:hidden;animation:slideUp .3s ease;">
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:10;">
-        <div style="font-size:14px;font-weight:700;color:#0f172a;">📄 ${_NOMES_TESTES[rel.tipo] || rel.tipo} — ${rel.pacienteNome}</div>
-        <div style="display:flex;gap:8px;">
-          <button onclick="_baixarRelPDF('${pacienteId}','${testeId}','${rel.pacienteNome.replace(/'/g,"")}')" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:#059669;color:#fff;transition:all .15s;">📥 Baixar PDF</button>
-          <button onclick="_imprimirRel('${rel.tipo}')" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:none;background:#1a56db;color:#fff;transition:all .15s;">🖨️ Imprimir</button>
-          <button onclick="document.getElementById('relViewModal').remove()" style="padding:8px 16px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;border:1px solid #e2e8f0;background:#f1f5f9;color:#334155;transition:all .15s;">✕ Fechar</button>
-        </div>
-      </div>
-      <div id="relViewBody" style="padding:12px;overflow:hidden;">
-        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-        ${cssLinks}
-        <div id="relViewContent">${rel.htmlRelatorio}</div>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-
-  modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-  const escHandler = (e) => { if (e.key === 'Escape') { modal.remove(); document.removeEventListener('keydown', escHandler); } };
-  document.addEventListener('keydown', escHandler);
+  window.location.href = `/Correcao_testes/relatorio.html?paciente=${encodeURIComponent(pacienteId)}&teste=${encodeURIComponent(testeId)}`;
 }
 
 function _imprimirRel(tipo) {

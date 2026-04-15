@@ -323,14 +323,26 @@ window.calcular = async function(salvar) {
     if (lista.length > 200) lista.length = 200;
     setLaudos(lista);
 
-    // Tentar enviar ao Firebase / integration.js
-    if (window.salvarLaudoFirebase) {
-      try { await salvarLaudoFirebase("etdah_ad", laudoObj); } catch(e) { console.warn("Firebase:", e); }
-    }
   }
 
   // ── Renderizar relatório ─────────────────────────────────────────
   renderRelatorio(laudoObj);
+
+  // ── Salvar no Firebase via Integration ───────────────────────────
+  if (salvar && window.Integration && Integration.getPacienteAtual()) {
+    try {
+      const rel = document.getElementById("relatorio");
+      const resumoFatores = FATORES.map(f => `${f}: ${dados.resultados[f]?.percentil ?? "—"}%`).join(" | ");
+      await Integration.salvarTesteNoFirebase("etdah_ad", {
+        dataAplicacao,
+        resumo: resumoFatores,
+        scores: dados.resultados,
+        classificacao: dados.resultados["Desatenção"]?.classificacao || "—",
+        observacoes: obs,
+        htmlRelatorio: rel ? rel.innerHTML : "",
+      });
+    } catch(e) { console.warn("Erro ao salvar no Firebase:", e); }
+  }
 
   // ── PDF se solicitado ────────────────────────────────────────────
   if (salvar) {
