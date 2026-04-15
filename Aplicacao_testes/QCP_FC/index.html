@@ -888,12 +888,19 @@
         body: JSON.stringify({
           pdf: pdfBase64,
           nome: nome,
-          form: "qcp_fc"
+          form: "qcp_fc",
+          paciente: nome,
+          data: new Date().toLocaleDateString("pt-BR"),
+          teste: "QCP-FC",
+          pdfBase64: pdfBase64
         })
       });
-      var data = await res.json();
-      if (data.status !== "sucesso") {
-        throw new Error(data.mensagem || "Resposta inesperada do servidor.");
+      if (!res.ok) throw new Error("Erro HTTP " + res.status);
+      try {
+        var data = await res.json();
+        if (data.error) throw new Error(data.error);
+      } catch (e) {
+        if (!res.ok) throw e;
       }
     }
 

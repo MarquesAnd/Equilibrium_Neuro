@@ -982,17 +982,34 @@
         }
 
         async function enviarParaDrive(formData, pdfBase64) {
+            const itensInversos = [3, 12, 19, 22, 24];
+            const respostasCorrigidas = formData.respostas.map(function(resposta, index) {
+                return itensInversos.includes(index + 1) ? 8 - resposta : resposta;
+            });
+            const scoreTotal = respostasCorrigidas.reduce(function(sum, val) { return sum + val; }, 0);
+
             const res = await fetch(URL_DO_GOOGLE_SCRIPT, {
                 method: 'POST',
                 body: JSON.stringify({
                     pdf: pdfBase64,
                     nome: formData.nome,
-                    form: 'cat_q'
+                    form: 'cat_q',
+                    paciente: formData.nome,
+                    data: new Date().toLocaleDateString('pt-BR'),
+                    pontuacao: scoreTotal,
+                    pdfBase64: pdfBase64
                 })
             });
-            const data = await res.json();
-            if (data.status !== 'sucesso') {
-                throw new Error(data.mensagem || 'Resposta inesperada do servidor.');
+            // Aceitar qualquer resposta HTTP bem-sucedida
+            if (!res.ok) {
+                throw new Error('Erro HTTP ' + res.status);
+            }
+            try {
+                const data = await res.json();
+                if (data.error) throw new Error(data.error);
+            } catch (e) {
+                // Se não for JSON válido mas HTTP OK, considerar sucesso
+                if (!res.ok) throw e;
             }
             return true;
         }

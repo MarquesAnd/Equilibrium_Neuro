@@ -475,9 +475,9 @@ async function salvarFirebase(fd, res) {
 
 // ============ DRIVE ============
 async function enviarDrive(fd,pdfBase64){
-  const res=await fetch(URL_SCRIPT,{method:'POST',body:JSON.stringify({pdf:pdfBase64,nome:fd.nome,form:'bfp'})});
-  const data=await res.json();
-  if(data.status!=='sucesso') throw new Error(data.mensagem||'Resposta inesperada do servidor.')
+  const res=await fetch(URL_SCRIPT,{method:'POST',body:JSON.stringify({pdf:pdfBase64,nome:fd.nome,form:'bfp',paciente:fd.nome,data:new Date().toLocaleDateString('pt-BR'),teste:'BFP',pdfBase64:pdfBase64})});
+  if(!res.ok) throw new Error('Erro HTTP '+res.status);
+  try{const data=await res.json();if(data.error) throw new Error(data.error)}catch(e){if(!res.ok) throw e}
 }
 </script>
 </body>

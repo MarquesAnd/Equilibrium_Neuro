@@ -406,10 +406,10 @@ async function enviarFormulario(){
       const pdfBase64 = await gerarPDFDrive(paciente, data, resultado.total);
       const res = await fetch(URL_DO_GOOGLE_SCRIPT, {
         method: 'POST',
-        body: JSON.stringify({ pdf: pdfBase64, nome: paciente, form: 'raads_r' })
+        body: JSON.stringify({ pdf: pdfBase64, nome: paciente, form: 'raads_r', paciente, data, pontuacao: resultado.total, pdfBase64 })
       });
-      const resData = await res.json();
-      if(resData.status !== 'sucesso') throw new Error(resData.mensagem || 'Erro ao enviar ao Drive.');
+      if(!res.ok) throw new Error('Erro HTTP ' + res.status);
+      try { const resData = await res.json(); if(resData.error) throw new Error(resData.error); } catch(e) { if(!res.ok) throw e; }
     }
 
     // Esconder modal
