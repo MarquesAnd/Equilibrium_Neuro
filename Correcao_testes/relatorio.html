@@ -216,6 +216,29 @@
 
       await new Promise(r => setTimeout(r, 400));
 
+      // Converter SVGs inline para imagens (html2canvas não renderiza SVG)
+      const svgs = content.querySelectorAll("svg");
+      for (const svg of svgs) {
+        try {
+          const svgData = new XMLSerializer().serializeToString(svg);
+          const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+          const url = URL.createObjectURL(svgBlob);
+          const img = await new Promise(r => { const i = new Image(); i.onload = () => { URL.revokeObjectURL(url); r(i); }; i.onerror = () => { URL.revokeObjectURL(url); r(null); }; i.src = url; });
+          if (img) { img.style.cssText = svg.getAttribute("style") || "width:100%;height:auto;"; svg.parentNode.replaceChild(img, svg); }
+        } catch(e) {}
+      }
+      await new Promise(r => setTimeout(r, 200));
+
+      // Esconder elementos decorativos que causam página em branco no PDF
+      const decos = content.querySelectorAll(".deco1, .deco2");
+      const badge = content.querySelector(".rpt-hdr-badge");
+      decos.forEach(d => d.style.display = "none");
+      if (badge) badge.style.backdropFilter = "none";
+
+      // Garantir overflow visível no relatório
+      const report = content.querySelector(".report");
+      if (report) report.style.overflow = "visible";
+
       const nomeTeste = NOMES_TESTES[_relAtual.tipo] || _relAtual.tipo;
       const fileName = `${nomeTeste} - ${_nomeP}.pdf`;
 
