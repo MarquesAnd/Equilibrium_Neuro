@@ -147,10 +147,26 @@
 
         // Renderizar relatório
         const container = document.getElementById("relatorioContainer");
+        // Esconder enquanto carrega (evita flash de conteúdo não estilizado)
+        container.style.opacity = "0";
         container.innerHTML = `
           <div class="card report" style="padding:24px;">
             ${teste.htmlRelatorio}
           </div>`;
+
+        // Aguardar fontes e imagens antes de exibir
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
+        await new Promise(r => setTimeout(r, 300));
+        // Aguardar imagens dentro do relatório
+        const imgs = container.querySelectorAll("img");
+        await Promise.all([...imgs].map(img => new Promise(r => {
+          if (img.complete) r();
+          else { img.onload = r; img.onerror = r; }
+        })));
+
+        // Mostrar com fade in suave
+        container.style.transition = "opacity 0.3s";
+        container.style.opacity = "1";
 
         // Mostrar botões
         document.getElementById("btnPDF").style.display = "";

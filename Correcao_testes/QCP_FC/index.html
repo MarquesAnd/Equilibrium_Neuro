@@ -594,7 +594,9 @@
 
         // Save to Firebase
         if (window.Integration) {
-          await new Promise(r => setTimeout(r, 300));
+          await new Promise(r => setTimeout(r, 500));
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      await new Promise(r => setTimeout(r, 100));
           await Integration.salvarTesteNoFirebase("qcp-fc", {
             dataAplicacao: data,
             resumo: resumo,

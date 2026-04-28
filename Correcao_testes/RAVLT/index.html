@@ -494,8 +494,9 @@
      SVG LINE CHART
      ═══════════════════════════════════ */
   function buildLearningCurveSVG(res) {
-    const W = 600, H = 320;
-    const padL = 50, padR = 30, padT = 30, padB = 50;
+    // Altura reduzida, legenda integrada dentro do viewBox
+    const W = 580, H = 260;
+    const padL = 46, padR = 20, padT = 28, padB = 52; // padB inclui eixo X + legenda
     const chartW = W - padL - padR;
     const chartH = H - padT - padB;
 
@@ -518,12 +519,12 @@
     for (let v = 0; v <= 15; v += 3) {
       const yp = y(v);
       svg += `<line x1="${padL}" y1="${yp}" x2="${W - padR}" y2="${yp}" stroke="#e2e8f0" stroke-width="1"/>`;
-      svg += `<text x="${padL - 8}" y="${yp + 4}" text-anchor="end" fill="#94a3b8" font-size="10">${v}</text>`;
+      svg += `<text x="${padL - 6}" y="${yp + 4}" text-anchor="end" fill="#94a3b8" font-size="10">${v}</text>`;
     }
 
     // Vertical separator between A5 and B1
     const sepX = (x(4) + x(5)) / 2;
-    svg += `<line x1="${sepX}" y1="${padT}" x2="${sepX}" y2="${padT + chartH}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="4,4"/>`;
+    svg += `<line x1="${sepX}" y1="${padT}" x2="${sepX}" y2="${padT + chartH}" stroke="#cbd5e1" stroke-width="1" stroke-dasharray="4,4"/>`;
 
     // Normative mean line (dashed, gray)
     let normPath = "";
@@ -542,7 +543,7 @@
     // Dots and values for patient
     for (let i = 0; i < labels.length; i++) {
       svg += `<circle cx="${x(i)}" cy="${y(scores[i])}" r="5" fill="#1a56db" stroke="#fff" stroke-width="2"/>`;
-      svg += `<text x="${x(i)}" y="${y(scores[i]) - 10}" text-anchor="middle" fill="#1a56db" font-size="11" font-weight="700">${scores[i]}</text>`;
+      svg += `<text x="${x(i)}" y="${y(scores[i]) - 9}" text-anchor="middle" fill="#1a56db" font-size="10" font-weight="700">${scores[i]}</text>`;
     }
 
     // Dots for normative (smaller, gray)
@@ -550,16 +551,22 @@
       svg += `<circle cx="${x(i)}" cy="${y(normMeans[i])}" r="3" fill="#94a3b8"/>`;
     }
 
-    // X-axis labels
+    // X-axis labels (dentro do padB, acima da legenda)
+    const xAxisY = padT + chartH + 18;
     for (let i = 0; i < labels.length; i++) {
-      svg += `<text x="${x(i)}" y="${H - 10}" text-anchor="middle" fill="#334155" font-size="11" font-weight="600">${labels[i]}</text>`;
+      svg += `<text x="${x(i)}" y="${xAxisY}" text-anchor="middle" fill="#334155" font-size="11" font-weight="600">${labels[i]}</text>`;
     }
 
-    // Legend
-    svg += `<line x1="${padL}" y1="${H - 2}" x2="${padL + 20}" y2="${H - 2}" stroke="#1a56db" stroke-width="2.5"/>`;
-    svg += `<text x="${padL + 24}" y="${H + 2}" fill="#1a56db" font-size="9" font-weight="600">Paciente</text>`;
-    svg += `<line x1="${padL + 90}" y1="${H - 2}" x2="${padL + 110}" y2="${H - 2}" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>`;
-    svg += `<text x="${padL + 114}" y="${H + 2}" fill="#94a3b8" font-size="9" font-weight="600">Pc50 normativo (${res.faixa})</text>`;
+    // Legenda — completamente dentro do viewBox, na linha final
+    const legY = H - 10;
+    const legLineY = H - 14;
+    svg += `<line x1="${padL}" y1="${legLineY}" x2="${padL + 18}" y2="${legLineY}" stroke="#1a56db" stroke-width="2.5"/>`;
+    svg += `<circle cx="${padL + 9}" cy="${legLineY}" r="3" fill="#1a56db" stroke="#fff" stroke-width="1.5"/>`;
+    svg += `<text x="${padL + 22}" y="${legY}" fill="#334155" font-size="10" font-weight="600">Paciente</text>`;
+
+    svg += `<line x1="${padL + 88}" y1="${legLineY}" x2="${padL + 106}" y2="${legLineY}" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4,3"/>`;
+    svg += `<circle cx="${padL + 97}" cy="${legLineY}" r="2.5" fill="#94a3b8"/>`;
+    svg += `<text x="${padL + 110}" y="${legY}" fill="#64748b" font-size="10" font-weight="600">Pc50 normativo (${res.faixa})</text>`;
 
     svg += `</svg>`;
     return svg;
@@ -966,6 +973,30 @@
   }
 
   /* ═══════════════════════════════════
+     CAPTURA HTML COM SVGs EMBUTIDOS
+     ═══════════════════════════════════ */
+  async function capturarHTMLComSVGs(relEl) {
+    // Clonar o elemento para não modificar o DOM visível
+    const clone = relEl.cloneNode(true);
+    const svgs = clone.querySelectorAll("svg");
+    for (const svg of svgs) {
+      try {
+        if (!svg.getAttribute("xmlns")) svg.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const base64 = btoa(unescape(encodeURIComponent(svgData)));
+        const img = document.createElement("img");
+        const w = svg.getAttribute("width") || svg.viewBox?.baseVal?.width || 580;
+        const h = svg.getAttribute("height") || svg.viewBox?.baseVal?.height || 260;
+        img.src = "data:image/svg+xml;base64," + base64;
+        img.style.cssText = `display:block;margin:0 auto;width:${w}px;height:${h}px;max-width:100%;`;
+        img.alt = "Gráfico RAVLT";
+        svg.parentNode.replaceChild(img, svg);
+      } catch(e) { console.warn("SVG embed error:", e); }
+    }
+    return clone.outerHTML;
+  }
+
+  /* ═══════════════════════════════════
      GERAR / SALVAR
      ═══════════════════════════════════ */
   function gerarRelatorio() {
@@ -984,7 +1015,11 @@
 
       const rel = document.getElementById("relatorio");
       await esperarImagensCarregarem(rel);
-      await new Promise(r => setTimeout(r, 150));
+      // Aguardar fontes e renderização — celulares lentos precisam de mais tempo
+      await new Promise(r => setTimeout(r, 500));
+      // Aguardar document.fonts se disponível (evita texto em branco por fonte não carregada)
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
+      await new Promise(r => setTimeout(r, 100));
 
       // Save to Firebase
       if (window.Integration) {
@@ -1011,7 +1046,7 @@
           })),
           classificacao: totalCls,
           observacoes: res.observacoes,
-          htmlRelatorio: rel.outerHTML,
+          htmlRelatorio: await capturarHTMLComSVGs(rel),
         });
       }
 
