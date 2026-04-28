@@ -186,7 +186,7 @@ async function gerarGrafico(res){
       scales:{y:{min:0,max:100,ticks:{stepSize:10,font:{size:11},callback:v=>v},grid:{color:'rgba(0,0,0,0.12)',lineWidth:1},title:{display:false}},
         x:{ticks:{font:{size:8},maxRotation:80,minRotation:60},grid:{color:'rgba(0,0,0,0.06)'}}},
       plugins:{legend:{display:false},title:{display:true,text:'Posição Percentil do Respondente',font:{size:15,weight:'bold'},color:'#2c3e50',padding:{bottom:12}}}}});
-  await delay(400);const img=canvas.toDataURL('image/png');ch.destroy();return img
+  await delay(400);await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));await delay(400);const img=canvas.toDataURL('image/png');ch.destroy();return img
 }
 
 // ============ PDF VIA html2pdf ============

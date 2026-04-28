@@ -837,6 +837,8 @@ async function finalizarEEnviar() {
         const ctx = canvas.getContext("2d");
         ctx.scale(2, 2);
         ctx.drawImage(img, 0, 0, rect.w, rect.h);
+        // Aguardar RAF para garantir render completo antes de toDataURL
+        await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
         URL.revokeObjectURL(url);
         const pngImg = document.createElement("img");
         pngImg.src = canvas.toDataURL("image/png");

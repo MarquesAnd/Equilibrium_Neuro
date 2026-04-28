@@ -730,6 +730,8 @@
       });
 
       await delay(400);
+      await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+      await delay(400);
       var img = canvas.toDataURL("image/png");
       ch.destroy();
       return img;

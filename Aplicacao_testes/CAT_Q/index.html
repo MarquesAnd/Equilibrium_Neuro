@@ -748,7 +748,8 @@
             captureWrap.innerHTML = htmlRelatorio;
             document.body.appendChild(captureWrap);
 
-            await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
+            await new Promise(r => requestAnimationFrame(() => setTimeout(r, 400)));
+            if (document.fonts && document.fonts.ready) await document.fonts.ready;
             const captureHeight = captureWrap.scrollHeight;
 
             // Move to visible position for html2canvas capture

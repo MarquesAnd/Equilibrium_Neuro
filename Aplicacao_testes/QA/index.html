@@ -804,6 +804,8 @@
     document.getElementById("repFrame").innerHTML = repHtml;
     document.getElementById("repOverlay").style.display = "block";
     document.getElementById("repOverlay").style.left = "-9999px";
+    // Aguardar fontes antes de salvar
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 200)));
 
     // ── Salvar no Firebase via Integration ──
     if (window.Integration && typeof Integration.salvarTesteNoFirebase === "function") {

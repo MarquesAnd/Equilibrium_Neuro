@@ -688,8 +688,9 @@
       repDiv.innerHTML = htmlRelatorio;
       document.body.appendChild(repDiv);
 
-      // Aguardar layout
-      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
+      // Aguardar layout e fontes
+      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 400)));
+      if (document.fonts && document.fonts.ready) await document.fonts.ready;
       const captureHeight = repDiv.scrollHeight;
 
       const btn = document.getElementById("btnEnviar");
