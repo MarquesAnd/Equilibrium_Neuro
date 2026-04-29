@@ -767,10 +767,18 @@ async function finalizarEEnviar() {
 
   document.body.appendChild(captureWrap);
 
-  // Pausa para o browser calcular layout (scrollHeight) do captureWrap
-  await new Promise(r => requestAnimationFrame(() => setTimeout(r, 100)));
+  // Pausa para o browser calcular layout — aumentada para celulares lentos
+  await new Promise(r => requestAnimationFrame(() => setTimeout(r, 400)));
+  if (document.fonts && document.fonts.ready) await document.fonts.ready;
+  await new Promise(r => requestAnimationFrame(() => setTimeout(r, 200)));
 
-  const captureHeight = captureWrap.scrollHeight;
+  // Validar altura — se for 0, aguardar mais
+  let captureHeight = captureWrap.scrollHeight;
+  if (captureHeight < 200) {
+    await new Promise(r => setTimeout(r, 600));
+    captureHeight = captureWrap.scrollHeight;
+  }
+  if (captureHeight < 200) captureHeight = 1400; // fallback seguro
 
   // ── 4. Mostrar cortina (só agora — o layout já está calculado) ────────────
   const btnEnviar = document.getElementById("btnEnviar");
@@ -858,7 +866,9 @@ async function finalizarEEnviar() {
     const reportEl = captureWrap.querySelector(".report");
     if (reportEl) reportEl.style.overflow = "visible";
 
-    // Pausa extra para repintura
+    // Pausa extra para repintura completa — crítico em celulares lentos
+    await new Promise(r => setTimeout(r, 500));
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
     await new Promise(r => setTimeout(r, 200));
 
     setMsg("A formatar o relatório em PDF…");
@@ -885,6 +895,17 @@ async function finalizarEEnviar() {
     };
 
     const pdfUri = await html2pdf().set(opt).from(captureWrap).outputPdf("datauristring");
+
+    // Validar PDF — se base64 for menor que 10KB provavelmente está em branco
+    const base64Check = pdfUri.split(',')[1] || '';
+    if (base64Check.length < 10000) {
+      console.warn('PDF suspeito (muito pequeno:', base64Check.length, 'chars) — pode estar em branco');
+      // Tentar novamente com mais delay
+      captureWrap.style.left = '-9999px';
+      await new Promise(r => setTimeout(r, 800));
+      captureWrap.style.left = '0';
+      await new Promise(r => setTimeout(r, 600));
+    }
 
     // Remove div de captura
     document.body.removeChild(captureWrap);
