@@ -405,11 +405,13 @@
   <script src="/js/db.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/patient-guard-silent.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
   <script>
     // ─── CONFIGURAÇÃO ─────────────────────────────────────────────────────────
     // ⚠️  Substitua pela URL do seu Google Apps Script após publicar
-    const URL_DO_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbxMsam8icotp7GvBXb3G43oST7MjmlZE6cpRhLrXjq-gWmQECR3EHMvNBI5K2S04CA1DQ/exec";
+    const URL_DO_GOOGLE_SCRIPT = "https://script.google.com/macros/s/AKfycbwObHQvJxkSnqj2rs6k5y8jGacNjG4HYv8Cpq_6gqJXlCCwWtj3xsnxwgCMoHp1yeKe/exec";
 
     // ─── ITENS DO AQ-ADOLESCENTE ─────────────────────────────────────────────
     // Cada item: { n: número, txt: texto, direto: array de respostas que PONTUAM }
@@ -539,7 +541,135 @@
     }
 
     // ─── CALCULAR PONTUAÇÃO ──────────────────────────────────────────────────
-    function calcularPontuacao(respostas) {
+    // ─── GERAR HTML DO RELATÓRIO ─────────────────────────────────────────────
+    function gerarHTMLRelatorio(payload, facetas, total) {
+      const cutoff = 26; // AQ-50 adolescente: ≥26 indica perfil autista
+      const indicativo = total >= cutoff;
+      const classificacao = indicativo
+        ? "Indicativo de perfil autista (≥ 26)"
+        : "Abaixo do ponto de corte (< 26)";
+      const corClass = indicativo ? "#c0392b" : "#27ae60";
+
+      const facetaRows = Object.entries(facetas).map(([nome, f]) =>
+        `<tr>
+          <td style="padding:8px 12px;border-bottom:1px solid #e8ecf0;">${nome}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #e8ecf0;text-align:center;font-weight:700;">${f.score}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #e8ecf0;text-align:center;">10</td>
+        </tr>`
+      ).join('');
+
+      const hoje = new Date().toLocaleDateString('pt-BR');
+
+      return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #fff; color: #1a2332; font-size: 13px; }
+  .page { width: 794px; padding: 48px 56px; background: #fff; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 2px solid #1a56db; }
+  .header-logo { font-size: 20px; font-weight: 800; color: #1a56db; }
+  .header-meta { text-align: right; font-size: 11px; color: #64748b; }
+  .title { font-size: 18px; font-weight: 800; color: #1a2332; margin-bottom: 6px; }
+  .subtitle { font-size: 12px; color: #64748b; margin-bottom: 28px; }
+  .section { margin-bottom: 24px; }
+  .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #1a56db; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; }
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
+  .info-item { display: flex; flex-direction: column; }
+  .info-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 2px; }
+  .info-value { font-size: 13px; font-weight: 600; color: #1a2332; }
+  table { width: 100%; border-collapse: collapse; }
+  th { padding: 10px 12px; background: #f1f5f9; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }
+  .resultado-box { background: #f8fafc; border: 2px solid ${corClass}; border-radius: 10px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .resultado-total { font-size: 40px; font-weight: 800; color: ${corClass}; }
+  .resultado-label { font-size: 13px; font-weight: 600; color: ${corClass}; margin-top: 4px; }
+  .resultado-info { text-align: right; }
+  .resultado-cutoff { font-size: 11px; color: #64748b; margin-top: 4px; }
+  .nota { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 12px 16px; font-size: 11px; color: #78350f; line-height: 1.6; margin-top: 20px; }
+  .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #94a3b8; text-align: center; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div>
+      <div class="header-logo">Equilibrium Neuropsicologia</div>
+      <div style="font-size:11px;color:#64748b;margin-top:2px;">CRP-04 53832 · Wessilon Marques de Sousa</div>
+    </div>
+    <div class="header-meta">
+      <div>Data de geração: ${hoje}</div>
+      <div style="margin-top:2px;">AQ-50 Adolescente</div>
+    </div>
+  </div>
+
+  <div class="title">AQ-50 — Quociente do Espectro Autista</div>
+  <div class="subtitle">Versão Adolescente · Pontos de Corte: Baron-Cohen et al. (2001)</div>
+
+  <div class="section">
+    <div class="section-title">Identificação</div>
+    <div class="info-grid">
+      <div class="info-item"><span class="info-label">Paciente</span><span class="info-value">${payload.paciente}</span></div>
+      <div class="info-item"><span class="info-label">Data de Nascimento</span><span class="info-value">${payload.dataNascimento ? new Date(payload.dataNascimento + 'T00:00:00').toLocaleDateString('pt-BR') : '—'}</span></div>
+      <div class="info-item"><span class="info-label">Sexo</span><span class="info-value">${payload.sexo || '—'}</span></div>
+      <div class="info-item"><span class="info-label">Escolaridade</span><span class="info-value">${payload.escolaridade || '—'}</span></div>
+      <div class="info-item"><span class="info-label">Data da Avaliação</span><span class="info-value">${payload.dataAvaliacao ? new Date(payload.dataAvaliacao + 'T00:00:00').toLocaleDateString('pt-BR') : '—'}</span></div>
+      <div class="info-item"><span class="info-label">Respondente</span><span class="info-value">${payload.respondente || '—'}</span></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Resultado</div>
+    <div class="resultado-box">
+      <div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:4px;">PONTUAÇÃO TOTAL</div>
+        <div class="resultado-total">${total}</div>
+        <div class="resultado-label">${classificacao}</div>
+      </div>
+      <div class="resultado-info">
+        <div style="font-size:12px;color:#64748b;">Ponto de corte</div>
+        <div style="font-size:24px;font-weight:800;color:#1a2332;">≥ 26</div>
+        <div class="resultado-cutoff">Máximo possível: 50 pontos</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Pontuação por Domínio</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Domínio</th>
+          <th style="text-align:center;">Pontuação</th>
+          <th style="text-align:center;">Máximo</th>
+        </tr>
+      </thead>
+      <tbody>${facetaRows}</tbody>
+      <tfoot>
+        <tr style="background:#f1f5f9;">
+          <td style="padding:10px 12px;font-weight:800;">TOTAL</td>
+          <td style="padding:10px 12px;text-align:center;font-weight:800;font-size:16px;color:${corClass};">${total}</td>
+          <td style="padding:10px 12px;text-align:center;font-weight:700;">50</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="nota">
+    <strong>⚠ Nota técnica:</strong> O AQ-50 é uma medida de rastreio, não um instrumento diagnóstico. Pontuações acima do ponto de corte indicam a necessidade de avaliação clínica aprofundada por profissional habilitado. O diagnóstico de TEA requer avaliação multidisciplinar e uso de instrumentos padronizados adicionais.
+  </div>
+
+  <div class="footer">
+    Equilibrium Med Center Ltda · CNPJ 34.032.586/0001-98 · Uberlândia, MG<br>
+    Documento gerado em ${hoje} · Uso exclusivamente clínico
+  </div>
+</div>
+</body>
+</html>`;
+    }
+
+        function calcularPontuacao(respostas) {
       // item.direto=true  → pontua se resposta é 0 (CP) ou 1 (C)
       // item.direto=false → pontua se resposta é 2 (D) ou 3 (DT)
       const facetas = {
@@ -609,17 +739,57 @@
       document.getElementById("btnEnviar").disabled = true;
 
       try {
+        // Gerar HTML do relatório
+        const htmlRelatorio = gerarHTMLRelatorio(payload, facetas, total);
+
+        // Renderizar fora da tela para captura
+        const repDiv = document.createElement("div");
+        repDiv.style.cssText = "position:fixed;left:-9999px;top:0;width:794px;background:#fff;z-index:-1;";
+        repDiv.innerHTML = htmlRelatorio;
+        document.body.appendChild(repDiv);
+
+        await new Promise(r => requestAnimationFrame(() => setTimeout(r, 500)));
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
+        await new Promise(r => requestAnimationFrame(() => setTimeout(r, 200)));
+
+        const captureHeight = repDiv.scrollHeight;
+        repDiv.style.left = "0";
+        repDiv.style.top = "0";
+        repDiv.style.zIndex = "9999";
+
+        const canvas = await html2canvas(repDiv, {
+          scale: 2,
+          useCORS: true,
+          logging: false,
+          scrollY: 0,
+          width: 794,
+          height: captureHeight,
+          windowWidth: 794,
+          windowHeight: captureHeight,
+        });
+
+        repDiv.style.left = "-9999px";
+        repDiv.style.zIndex = "-1";
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF({ unit: "px", format: [794, captureHeight], orientation: "portrait" });
+        pdf.addImage(canvas.toDataURL("image/jpeg", 0.92), "JPEG", 0, 0, 794, captureHeight);
+        const base64 = pdf.output("datauristring").split(",")[1];
+
+        document.body.removeChild(repDiv);
+
+        // Enviar PDF para o Drive
         const resp = await fetch(URL_DO_GOOGLE_SCRIPT, {
           method: "POST",
-          body: JSON.stringify(payload),
+          body: JSON.stringify({ pdf: base64, nome: paciente, form: "aq-adolescente" }),
         });
         const json = await resp.json().catch(() => ({}));
         document.getElementById("modalEnviando").style.display = "none";
 
-        if (json.status === "ok" || resp.ok) {
+        if (json.status === "sucesso" || json.status === "ok" || resp.ok) {
           mostrarSucesso(paciente);
         } else {
-          throw new Error(json.message || "Erro desconhecido");
+          throw new Error(json.mensagem || json.message || "Erro desconhecido");
         }
       } catch (err) {
         document.getElementById("modalEnviando").style.display = "none";
