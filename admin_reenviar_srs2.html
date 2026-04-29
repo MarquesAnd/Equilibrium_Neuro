@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Reenviar SRS2 ao Drive</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #f1f5f9; color: #1e293b; padding: 24px; }
+  h1 { font-size: 20px; font-weight: 800; color: #1a56db; margin-bottom: 6px; }
+  .sub { font-size: 13px; color: #64748b; margin-bottom: 24px; }
+  .card { background: #fff; border-radius: 12px; border: 1px solid #e2e8f0; padding: 20px; margin-bottom: 16px; }
+  .card h2 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .card .meta { font-size: 12px; color: #64748b; margin-bottom: 12px; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .badge.srs2 { background: #dbeafe; color: #1d4ed8; }
+  .badge.ok { background: #dcfce7; color: #15803d; }
+  .badge.vazio { background: #fee2e2; color: #dc2626; }
+  button { padding: 8px 16px; border-radius: 8px; border: none; font-weight: 700; font-size: 13px; cursor: pointer; }
+  .btn-primary { background: #1a56db; color: #fff; }
+  .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
+  .btn-danger { background: #ef4444; color: #fff; }
+  .status { font-size: 12px; margin-top: 8px; padding: 8px 12px; border-radius: 6px; }
+  .status.ok { background: #dcfce7; color: #15803d; }
+  .status.erro { background: #fee2e2; color: #dc2626; }
+  .status.info { background: #dbeafe; color: #1d4ed8; }
+  #loading { text-align: center; padding: 40px; color: #64748b; }
+  .html-preview { max-height: 120px; overflow: hidden; font-size: 11px; color: #94a3b8; background: #f8fafc; padding: 8px; border-radius: 6px; margin-top: 8px; white-space: pre-wrap; word-break: break-all; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  select { padding: 8px 12px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 13px; background: #fff; }
+</style>
+</head>
+<body>
+
+<h1>🔄 Reenviar SRS2 ao Drive</h1>
+<div class="sub">Extrai relatórios SRS2 com htmlRelatorio salvo no Firestore e reenvia ao Google Drive.</div>
+
+<div class="card" id="configCard">
+  <h2>Configuração</h2>
+  <div class="meta">URL do Google Script (Drive)</div>
+  <div class="row" style="margin-bottom:12px;">
+    <input type="text" id="scriptUrl" style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid #e2e8f0;font-size:13px;"
+      value="https://script.google.com/macros/s/AKfycbwObHQvJxkSnqj2rs6k5y8jGacNjG4HYv8Cpq_6gqJXlCCwWtj3xsnxwgCMoHp1yeKe/exec"
+      placeholder="URL do Apps Script..." />
+  </div>
+  <button class="btn-primary" onclick="carregarTestes()">🔍 Buscar testes SRS2</button>
+</div>
+
+<div id="loading" style="display:none;">⏳ A carregar dados do Firestore...</div>
+<div id="resultados"></div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-config.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+let dbPacientes = null;
+
+// Inicializar Firestore (usar mesmo app de pacientes do sistema)
+window.addEventListener('load', async () => {
+  // Aguardar firebase-config.js inicializar
+  await new Promise(r => setTimeout(r, 1500));
+  try {
+    // Tentar pegar o app de pacientes já inicializado
+    dbPacientes = firebase.app('pacientes').firestore();
+    document.querySelector('.sub').textContent += ' ✅ Firebase conectado.';
+  } catch(e) {
+    try {
+      dbPacientes = firebase.firestore();
+      document.querySelector('.sub').textContent += ' ✅ Firebase conectado.';
+    } catch(e2) {
+      document.querySelector('.sub').textContent += ' ❌ Firebase não disponível: ' + e2.message;
+    }
+  }
+});
+
+async function carregarTestes() {
+  if (!dbPacientes) { alert('Firebase não disponível. Verifique se está logado no sistema.'); return; }
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('resultados').innerHTML = '';
+
+  try {
+    // Buscar todos os pacientes
+    const pacSnap = await dbPacientes.collection('pacientes').get();
+    const testesSRS2 = [];
+
+    for (const pacDoc of pacSnap.docs) {
+      const pac = pacDoc.data();
+      // Buscar testes de cada paciente
+      const testesSnap = await dbPacientes
+        .collection('pacientes').doc(pacDoc.id)
+        .collection('testes')
+        .where('tipo', 'in', ['srs2', 'SRS2', 'srs-2', 'SRS-2'])
+        .get();
+
+      for (const testeDoc of testesSnap.docs) {
+        const t = testeDoc.data();
+        testesSRS2.push({
+          pacId: pacDoc.id,
+          pacNome: pac.nome || pac.label || 'Paciente desconhecido',
+          testeId: testeDoc.id,
+          tipo: t.tipo,
+          dataCorrecao: t.dataCorrecao,
+          htmlRelatorio: t.htmlRelatorio || '',
+          status: t.status,
+          scores: t.resultados?.scores || {},
+        });
+      }
+    }
+
+    document.getElementById('loading').style.display = 'none';
+
+    if (testesSRS2.length === 0) {
+      document.getElementById('resultados').innerHTML =
+        '<div class="card"><p style="color:#64748b;">Nenhum teste SRS2 encontrado no Firestore.</p></div>';
+      return;
+    }
+
+    // Ordenar por data (mais recente primeiro)
+    testesSRS2.sort((a, b) => new Date(b.dataCorrecao) - new Date(a.dataCorrecao));
+
+    let html = `<div class="card" style="background:#dbeafe;border-color:#93c5fd;">
+      <strong>${testesSRS2.length} teste(s) SRS2 encontrado(s)</strong> — 
+      ${testesSRS2.filter(t => t.htmlRelatorio.length > 100).length} com relatório salvo, 
+      ${testesSRS2.filter(t => t.htmlRelatorio.length <= 100).length} sem relatório.
+    </div>`;
+
+    for (const t of testesSRS2) {
+      const temHtml = t.htmlRelatorio.length > 100;
+      const data = t.dataCorrecao ? new Date(t.dataCorrecao).toLocaleString('pt-BR') : '—';
+
+      html += `<div class="card" id="card-${t.testeId}">
+        <div class="row">
+          <span class="badge srs2">SRS-2</span>
+          <span class="badge ${temHtml ? 'ok' : 'vazio'}">${temHtml ? '✅ Com relatório' : '❌ Relatório vazio'}</span>
+          <h2 style="flex:1;">${t.pacNome}</h2>
+        </div>
+        <div class="meta" style="margin-top:6px;">
+          Data: ${data} · ID: ${t.testeId.slice(0,12)}...
+          · HTML: ${t.htmlRelatorio.length} chars
+        </div>
+        ${temHtml
+          ? `<div class="row">
+              <button class="btn-primary" onclick="reenviarDrive('${t.testeId}', '${escHtml(t.pacNome)}', this)">
+                📤 Reenviar ao Drive
+              </button>
+              <button class="btn-secondary" onclick="previewHtml('${t.testeId}')">
+                👁 Preview
+              </button>
+            </div>
+            <div id="preview-${t.testeId}" style="display:none;margin-top:10px;">
+              <div class="html-preview">${escHtml(t.htmlRelatorio.slice(0, 500))}...</div>
+            </div>`
+          : `<div class="status erro">Este teste não tem htmlRelatorio salvo — não é possível reenviar automaticamente.</div>`
+        }
+        <div id="status-${t.testeId}"></div>
+      </div>`;
+    }
+
+    document.getElementById('resultados').innerHTML = html;
+
+    // Guardar dados em memória para uso nas funções
+    window._testes = {};
+    testesSRS2.forEach(t => { window._testes[t.testeId] = t; });
+
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('resultados').innerHTML =
+      `<div class="card"><div class="status erro">Erro: ${e.message}</div></div>`;
+  }
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function previewHtml(testeId) {
+  const el = document.getElementById('preview-' + testeId);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+async function reenviarDrive(testeId, pacNome, btn) {
+  const t = window._testes[testeId];
+  if (!t || !t.htmlRelatorio) { alert('Sem dados para reenviar.'); return; }
+
+  const url = document.getElementById('scriptUrl').value.trim();
+  if (!url) { alert('Informe a URL do Google Script.'); return; }
+
+  const statusEl = document.getElementById('status-' + testeId);
+  btn.disabled = true;
+  btn.textContent = 'A processar...';
+  statusEl.innerHTML = '<div class="status info">⏳ A gerar PDF...</div>';
+
+  try {
+    // Criar container e gerar PDF (padrão QCP)
+    var container = document.createElement('div');
+    container.style.cssText = 'position:absolute;left:-9999px;top:0;width:740px;background:#fff;font-family:Arial,sans-serif;z-index:0;';
+    container.innerHTML = t.htmlRelatorio;
+    document.body.appendChild(container);
+
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 400)));
+    var captureHeight = container.scrollHeight;
+    container.style.left = '0';
+    container.style.top = '0';
+    await new Promise(r => setTimeout(r, 300));
+
+    var opt = {
+      margin: [10, 10, 10, 10],
+      image: { type: 'jpeg', quality: 1.0 },
+      html2canvas: {
+        scale: 3, useCORS: true, allowTaint: true,
+        scrollX: 0, scrollY: 0, x: 0, y: 0,
+        width: 740, height: captureHeight,
+        windowWidth: 740, windowHeight: captureHeight,
+        logging: false, backgroundColor: '#ffffff'
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    var pdfUri = await html2pdf().set(opt).from(container).outputPdf('datauristring');
+    document.body.removeChild(container);
+    var base64 = pdfUri.split(',')[1];
+
+    statusEl.innerHTML = '<div class="status info">⏳ A enviar ao Drive...</div>';
+
+    var res = await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ pdf: base64, nome: pacNome, form: 'srs2-reenvio', teste: 'SRS-2' })
+    });
+    var data = await res.json().catch(() => ({}));
+
+    if (data.status === 'sucesso' || data.status === 'ok' || res.ok) {
+      statusEl.innerHTML = '<div class="status ok">✅ Enviado ao Drive com sucesso! Arquivo: ' + (data.arquivo || 'gerado') + '</div>';
+      btn.textContent = '✅ Enviado';
+    } else {
+      throw new Error(data.mensagem || data.message || 'Resposta inesperada');
+    }
+
+  } catch(e) {
+    document.body.querySelectorAll('div[style*="-9999px"]').forEach(el => {
+      try { document.body.removeChild(el); } catch(_) {}
+    });
+    statusEl.innerHTML = '<div class="status erro">❌ Erro: ' + e.message + '</div>';
+    btn.disabled = false;
+    btn.textContent = '📤 Reenviar ao Drive';
+  }
+}
+</script>
+</body>
+</html>
