@@ -738,15 +738,16 @@
       btn.disabled = true;
       btn.textContent = "A processar…";
 
-      // Gerar HTML e renderizar no repOverlay (fora da tela)
+      // Gerar HTML e renderizar em div criado dinamicamente
       const htmlRelatorio = gerarHTMLRelatorio(payload, facetas, total);
-      const repDiv = document.getElementById("repOverlay");
+      const repDiv = document.createElement("div");
+      repDiv.style.cssText = "position:fixed;left:-9999px;top:0;width:750px;min-height:100px;background:#fff;z-index:1;pointer-events:none;";
       repDiv.innerHTML = htmlRelatorio;
+      document.body.appendChild(repDiv);
 
       // Aguardar layout e fontes
-      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 400)));
-      if (document.fonts && document.fonts.ready) await document.fonts.ready;
-      const captureHeight = repDiv.scrollHeight;
+      await new Promise(r => setTimeout(r, 600));
+      const captureHeight = Math.max(repDiv.scrollHeight, 1000);
 
       // Cortina — cobre a tela enquanto processa (repDiv fica por baixo)
       const cortina = document.createElement("div");
@@ -791,8 +792,7 @@
         const pdfUri = await Promise.race([pdfPromise, timeoutPromise]);
         const base64 = pdfUri.split(",")[1];
 
-        repDiv.style.left = "-9999px";
-        repDiv.style.zIndex = "1";
+        document.body.removeChild(repDiv);
 
         setMsg("A enviar com segurança…");
 
@@ -818,7 +818,7 @@
 
       } catch(err) {
         cortina.remove();
-        repDiv.style.left = "-9999px";
+        try { document.body.removeChild(repDiv); } catch(_) {}
         btn.disabled = false;
         btn.textContent = "📤 Enviar Respostas";
         alert("Não foi possível enviar as respostas.\n\nVerifique a sua ligação à internet e tente novamente.\n\nDetalhe: " + err.message);
