@@ -564,27 +564,27 @@
 <head>
 <meta charset="UTF-8">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+  /* fonte carregada pelo HTML pai */
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'DM Sans', sans-serif; background: #fff; color: #1a2332; font-size: 13px; }
   .page { width: 794px; padding: 48px 56px; background: #fff; }
-  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; padding-bottom: 20px; border-bottom: 2px solid #1a56db; }
-  .header-logo { font-size: 20px; font-weight: 800; color: #1a56db; }
-  .header-meta { text-align: right; font-size: 11px; color: #64748b; }
+  .header { margin-bottom: 32px; padding-bottom: 20px; border-bottom: 2px solid #1a56db; overflow: hidden; }
+  .header-logo { font-size: 20px; font-weight: 800; color: #1a56db; float: left; }
+  .header-meta { text-align: right; font-size: 11px; color: #64748b; float: right; }
   .title { font-size: 18px; font-weight: 800; color: #1a2332; margin-bottom: 6px; }
   .subtitle { font-size: 12px; color: #64748b; margin-bottom: 28px; }
   .section { margin-bottom: 24px; }
   .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #1a56db; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #e2e8f0; }
-  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; }
-  .info-item { display: flex; flex-direction: column; }
+  .info-grid { overflow: hidden; }
+  .info-item { float: left; width: 48%; margin-right: 2%; margin-bottom: 8px; }
   .info-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; margin-bottom: 2px; }
   .info-value { font-size: 13px; font-weight: 600; color: #1a2332; }
   table { width: 100%; border-collapse: collapse; }
   th { padding: 10px 12px; background: #f1f5f9; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; }
-  .resultado-box { background: #f8fafc; border: 2px solid ${corClass}; border-radius: 10px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+  .resultado-box { background: #f8fafc; border: 2px solid ${corClass}; border-radius: 10px; padding: 20px 24px; overflow: hidden; margin-bottom: 20px; }
   .resultado-total { font-size: 40px; font-weight: 800; color: ${corClass}; }
   .resultado-label { font-size: 13px; font-weight: 600; color: ${corClass}; margin-top: 4px; }
-  .resultado-info { text-align: right; }
+  .resultado-info { float: right; text-align: right; }
   .resultado-cutoff { font-size: 11px; color: #64748b; margin-top: 4px; }
   .nota { background: #fffbeb; border-left: 3px solid #f59e0b; padding: 12px 16px; font-size: 11px; color: #78350f; line-height: 1.6; margin-top: 20px; }
   .footer { margin-top: 32px; padding-top: 16px; border-top: 1px solid #e2e8f0; font-size: 10px; color: #94a3b8; text-align: center; }
@@ -772,19 +772,23 @@
         setMsg("A formatar o relatório em PDF…");
 
         const opt = {
-          margin: [10, 10, 10, 10],
+          margin: [8, 8, 8, 8],
           filename: "resultado_aq.pdf",
-          image: { type: "jpeg", quality: 1.0 },
+          image: { type: "jpeg", quality: 0.95 },
           html2canvas: {
-            scale: 3, useCORS: true, allowTaint: true,
-            scrollX: 0, scrollY: 0, x: 0, y: 0,
-            width: 794, height: captureHeight,
-            windowWidth: 794, windowHeight: captureHeight, logging: false
+            scale: 2, useCORS: true, allowTaint: true,
+            scrollX: 0, scrollY: 0, logging: false,
+            backgroundColor: "#ffffff"
           },
           jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
         };
 
-        const pdfUri = await html2pdf().set(opt).from(repDiv).outputPdf("datauristring");
+        // Timeout de segurança — se html2pdf travar por mais de 30s, abortar
+        const pdfPromise = html2pdf().set(opt).from(repDiv).outputPdf("datauristring");
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout ao gerar PDF (30s). Tente novamente.")), 30000)
+        );
+        const pdfUri = await Promise.race([pdfPromise, timeoutPromise]);
         const base64 = pdfUri.split(",")[1];
 
         repDiv.style.left = "-9999px";
