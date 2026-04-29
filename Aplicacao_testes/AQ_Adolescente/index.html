@@ -848,94 +848,80 @@
         timestamp: new Date().toISOString(),
       };
 
-      const btn = document.getElementById("btnEnviar");
+      var btn = document.getElementById("btnEnviar");
       btn.disabled = true;
       btn.textContent = "A processar…";
 
-      // Gerar HTML e renderizar em div criado dinamicamente
-      const htmlRelatorio = gerarHTMLRelatorio(payload, facetas, total);
-      const repDiv = document.createElement("div");
-      repDiv.style.cssText = "position:fixed;left:-9999px;top:0;width:750px;min-height:100px;background:#fff;z-index:1;pointer-events:none;";
-      repDiv.innerHTML = htmlRelatorio;
-      document.body.appendChild(repDiv);
-
-      // Aguardar layout e fontes
-      await new Promise(r => setTimeout(r, 600));
-      const captureHeight = Math.max(repDiv.scrollHeight, 1000);
-
-      // Cortina — cobre a tela enquanto processa (repDiv fica por baixo)
-      const cortina = document.createElement("div");
-      cortina.style.cssText = "position:fixed;inset:0;background:#1a56db;z-index:999999;display:flex;align-items:center;justify-content:center;";
-      cortina.innerHTML = `
-        <div style="background:#fff;border-radius:20px;padding:40px 48px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35);max-width:340px;width:90%;">
-          <div style="width:52px;height:52px;border:5px solid #dbeafe;border-top-color:#1a56db;border-radius:50%;animation:sp 0.8s linear infinite;margin:0 auto 20px;"></div>
-          <div id="__msg__" style="font-size:16px;font-weight:800;color:#1a56db;margin-bottom:6px;">A processar as suas respostas…</div>
-          <div style="font-size:13px;color:#64748b;">Por favor, não feche esta página.</div>
-        </div>
-        <style>@keyframes sp{to{transform:rotate(360deg)}}</style>`;
-      document.body.appendChild(cortina);
-
-      const setMsg = t => { const el = document.getElementById("__msg__"); if(el) el.textContent = t; };
-
       try {
-        // Mover repDiv para posição visível (atrás da cortina) para html2pdf capturar
-        repDiv.style.left = "0";
-        repDiv.style.top  = "0";
-        repDiv.style.zIndex = "1";
-        await new Promise(r => setTimeout(r, 150));
+        // 1. Gerar HTML do relatório
+        var htmlRelatorio = gerarHTMLRelatorio(payload, facetas, total);
 
-        setMsg("A formatar o relatório em PDF…");
+        // 2. Criar container fora do ecrã (padrão QCP)
+        var container = document.createElement('div');
+        container.style.cssText = 'position:absolute;left:-9999px;top:0;width:740px;background:#fff;font-family:Arial,sans-serif;z-index:0;pointer-events:none;';
+        container.innerHTML = htmlRelatorio;
+        document.body.appendChild(container);
 
-        const opt = {
-          margin: [8, 8, 8, 8],
-          filename: "resultado_aq.pdf",
-          image: { type: "jpeg", quality: 0.95 },
+        // 3. Aguardar layout
+        await new Promise(function(r) { requestAnimationFrame(function() { setTimeout(r, 400); }); });
+        if (document.fonts && document.fonts.ready) await document.fonts.ready;
+
+        var captureHeight = container.scrollHeight;
+
+        // 4. Mover para posição visível (html2canvas precisa)
+        container.style.left = '0';
+        container.style.top  = '0';
+        await new Promise(function(r) { setTimeout(r, 300); });
+
+        // 5. Gerar PDF (padrão QCP)
+        var opt = {
+          margin: [12, 12, 12, 12],
+          image: { type: 'jpeg', quality: 1.0 },
           html2canvas: {
-            scale: 2, useCORS: true, allowTaint: true,
-            scrollX: 0, scrollY: 0, logging: false,
-            backgroundColor: "#ffffff"
+            scale: 4,
+            useCORS: true,
+            allowTaint: true,
+            scrollX: 0, scrollY: 0,
+            x: 0, y: 0,
+            width: 740,
+            height: captureHeight,
+            windowWidth: 740,
+            windowHeight: captureHeight,
+            logging: false,
+            backgroundColor: '#ffffff'
           },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
 
-        // Timeout de segurança — se html2pdf travar por mais de 30s, abortar
-        const pdfPromise = html2pdf().set(opt).from(repDiv).outputPdf("datauristring");
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Timeout ao gerar PDF (30s). Tente novamente.")), 30000)
-        );
-        const pdfUri = await Promise.race([pdfPromise, timeoutPromise]);
-        const base64 = pdfUri.split(",")[1];
+        var pdfUri = await html2pdf().set(opt).from(container).outputPdf('datauristring');
+        document.body.removeChild(container);
 
-        document.body.removeChild(repDiv);
+        var base64 = pdfUri.split(',')[1];
 
-        setMsg("A enviar com segurança…");
-
-        const res = await fetch(URL_DO_GOOGLE_SCRIPT, {
+        // 6. Enviar ao Drive
+        var res = await fetch(URL_DO_GOOGLE_SCRIPT, {
           method: "POST",
           body: JSON.stringify({ pdf: base64, nome: paciente, form: "aq-adolescente" })
         });
-        const data = await res.json();
+        var data = await res.json().catch(function() { return {}; });
 
         if (data.status === "sucesso" || data.status === "ok") {
-          document.body.innerHTML = `
-            <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#1a56db;padding:24px;">
-              <div style="background:#fff;border-radius:20px;padding:56px 44px;text-align:center;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);">
-                <div style="width:72px;height:72px;background:#dbeafe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:32px;">✅</div>
-                <h1 style="font-size:22px;font-weight:800;color:#1a56db;margin:0 0 12px;">Questionário Enviado!</h1>
-                <p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 8px;">As suas respostas foram processadas e enviadas com segurança.</p>
-                <p style="font-size:13px;color:#94a3b8;margin:24px 0 0;">Já pode fechar esta janela.</p>
-              </div>
-            </div>`;
+          document.body.innerHTML = '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#1a56db;padding:24px;">' +
+            '<div style="background:#fff;border-radius:20px;padding:56px 44px;text-align:center;max-width:480px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3);">' +
+            '<div style="width:72px;height:72px;background:#dbeafe;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 24px;font-size:32px;">✅</div>' +
+            '<h1 style="font-size:22px;font-weight:800;color:#1a56db;margin:0 0 12px;">Question\u00e1rio Enviado!</h1>' +
+            '<p style="font-size:15px;color:#374151;line-height:1.6;margin:0 0 8px;">As respostas foram processadas e enviadas com seguran\u00e7a.</p>' +
+            '<p style="font-size:13px;color:#94a3b8;margin:24px 0 0;">J\u00e1 pode fechar esta janela.</p>' +
+            '</div></div>';
         } else {
           throw new Error(data.mensagem || data.message || "Resposta inesperada do servidor.");
         }
 
       } catch(err) {
-        cortina.remove();
-        try { document.body.removeChild(repDiv); } catch(_) {}
+        try { document.body.removeChild(document.querySelector('div[style*="-9999px"]')); } catch(_) {}
         btn.disabled = false;
         btn.textContent = "📤 Enviar Respostas";
-        alert("Não foi possível enviar as respostas.\n\nVerifique a sua ligação à internet e tente novamente.\n\nDetalhe: " + err.message);
+        alert("Não foi possível enviar as respostas.\n\nDetalhe: " + err.message);
       }
     });
 
