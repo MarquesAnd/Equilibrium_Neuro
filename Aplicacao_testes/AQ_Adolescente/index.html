@@ -542,6 +542,120 @@
     // ─── CALCULAR PONTUAÇÃO ──────────────────────────────────────────────────
     // ─── GERAR HTML DO RELATÓRIO ─────────────────────────────────────────────
     function gerarHTMLRelatorio(payload, facetas, total) {
+      const cutoff = 26;
+      const indicativo = total >= cutoff;
+      const corClass = indicativo ? "#c0392b" : "#27ae60";
+      const bgClass  = indicativo ? "#fdf2f2" : "#f0fdf4";
+      const classificacao = indicativo
+        ? "Indicativo de perfil autista (≥26)"
+        : "Abaixo do ponto de corte (<26)";
+
+      const hoje = new Date().toLocaleDateString('pt-BR');
+
+      const nascStr = payload.dataNascimento
+        ? new Date(payload.dataNascimento + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+      const avalStr = payload.dataAvaliacao
+        ? new Date(payload.dataAvaliacao + 'T00:00:00').toLocaleDateString('pt-BR') : '—';
+
+      const facetaRows = Object.entries(facetas).map(([nome, f]) =>
+        '<tr>' +
+        '<td style="padding:8px 12px;border-bottom:1px solid #e8ecf0;font-size:13px;">' + nome + '</td>' +
+        '<td style="padding:8px 12px;border-bottom:1px solid #e8ecf0;text-align:center;font-weight:700;font-size:14px;">' + f.score + '</td>' +
+        '<td style="padding:8px 12px;border-bottom:1px solid #e8ecf0;text-align:center;font-size:13px;">10</td>' +
+        '</tr>'
+      ).join('');
+
+      return '<!DOCTYPE html>' +
+        '<html><head><meta charset="UTF-8">' +
+        '<style>' +
+        '* { box-sizing:border-box; margin:0; padding:0; }' +
+        'body { font-family:Arial,Helvetica,sans-serif; background:#fff; color:#1a2332; font-size:13px; }' +
+        'table { width:100%; border-collapse:collapse; }' +
+        '</style>' +
+        '</head><body>' +
+        '<div style="width:700px;padding:40px 48px;background:#fff;">' +
+
+        // Header
+        '<div style="overflow:hidden;margin-bottom:28px;padding-bottom:16px;border-bottom:2px solid #1a56db;">' +
+        '<div style="float:left;">' +
+        '<div style="font-size:18px;font-weight:800;color:#1a56db;">Equilibrium Neuropsicologia</div>' +
+        '<div style="font-size:11px;color:#64748b;margin-top:2px;">CRP-04 53832 · Wessilon Marques de Sousa</div>' +
+        '</div>' +
+        '<div style="float:right;text-align:right;font-size:11px;color:#64748b;">' +
+        '<div>Data de geração: ' + hoje + '</div>' +
+        '<div style="margin-top:2px;">AQ-50 Adolescente</div>' +
+        '</div>' +
+        '</div>' +
+
+        // Título
+        '<div style="font-size:17px;font-weight:800;color:#1a2332;margin-bottom:4px;">AQ-50 — Quociente do Espectro Autista</div>' +
+        '<div style="font-size:12px;color:#64748b;margin-bottom:24px;">Versão Adolescente · Baron-Cohen et al. (2001)</div>' +
+
+        // Identificação
+        '<div style="margin-bottom:20px;">' +
+        '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#1a56db;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #e2e8f0;">Identificação</div>' +
+        '<div style="overflow:hidden;">' +
+        '<div style="float:left;width:48%;margin-right:2%;margin-bottom:8px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;">Paciente</div><div style="font-size:13px;font-weight:600;">' + payload.paciente + '</div></div>' +
+        '<div style="float:left;width:48%;margin-bottom:8px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;">Data de Nascimento</div><div style="font-size:13px;font-weight:600;">' + nascStr + '</div></div>' +
+        '<div style="float:left;width:48%;margin-right:2%;margin-bottom:8px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;">Sexo</div><div style="font-size:13px;font-weight:600;">' + (payload.sexo||'—') + '</div></div>' +
+        '<div style="float:left;width:48%;margin-bottom:8px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;">Escolaridade</div><div style="font-size:13px;font-weight:600;">' + (payload.escolaridade||'—') + '</div></div>' +
+        '<div style="float:left;width:48%;margin-right:2%;margin-bottom:8px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;">Data da Avaliação</div><div style="font-size:13px;font-weight:600;">' + avalStr + '</div></div>' +
+        '<div style="float:left;width:48%;margin-bottom:8px;"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;">Respondente</div><div style="font-size:13px;font-weight:600;">' + (payload.respondente||'—') + '</div></div>' +
+        '</div>' +
+        '</div>' +
+
+        // Resultado
+        '<div style="margin-bottom:20px;">' +
+        '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#1a56db;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #e2e8f0;">Resultado</div>' +
+        '<div style="background:' + bgClass + ';border:2px solid ' + corClass + ';border-radius:8px;padding:18px 22px;overflow:hidden;">' +
+        '<div style="float:left;">' +
+        '<div style="font-size:11px;color:#64748b;margin-bottom:4px;">PONTUAÇÃO TOTAL</div>' +
+        '<div style="font-size:42px;font-weight:800;color:' + corClass + ';line-height:1;">' + total + '</div>' +
+        '<div style="font-size:13px;font-weight:700;color:' + corClass + ';margin-top:6px;">' + classificacao + '</div>' +
+        '</div>' +
+        '<div style="float:right;text-align:right;">' +
+        '<div style="font-size:11px;color:#64748b;">Ponto de corte</div>' +
+        '<div style="font-size:28px;font-weight:800;color:#1a2332;">≥26</div>' +
+        '<div style="font-size:11px;color:#64748b;margin-top:2px;">Máximo: 50 pontos</div>' +
+        '</div>' +
+        '</div>' +
+        '</div>' +
+
+        // Tabela por domínio
+        '<div style="margin-bottom:20px;">' +
+        '<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#1a56db;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #e2e8f0;">Pontuação por Domínio</div>' +
+        '<table>' +
+        '<thead><tr style="background:#f1f5f9;">' +
+        '<th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;">Domínio</th>' +
+        '<th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;">Pontuação</th>' +
+        '<th style="padding:10px 12px;text-align:center;font-size:11px;font-weight:700;text-transform:uppercase;color:#64748b;">Máximo</th>' +
+        '</tr></thead>' +
+        '<tbody>' + facetaRows + '</tbody>' +
+        '<tfoot><tr style="background:#f1f5f9;">' +
+        '<td style="padding:10px 12px;font-weight:800;font-size:14px;">TOTAL</td>' +
+        '<td style="padding:10px 12px;text-align:center;font-weight:800;font-size:18px;color:' + corClass + ';">' + total + '</td>' +
+        '<td style="padding:10px 12px;text-align:center;font-weight:700;">50</td>' +
+        '</tr></tfoot>' +
+        '</table>' +
+        '</div>' +
+
+        // Nota
+        '<div style="background:#fffbeb;border-left:3px solid #f59e0b;padding:12px 16px;font-size:11px;color:#78350f;line-height:1.6;margin-top:16px;">' +
+        '<strong>Nota técnica:</strong> O AQ-50 é uma medida de rastreio, não um instrumento diagnóstico. Pontuações acima do ponto de corte indicam necessidade de avaliação clínica aprofundada. O diagnóstico de TEA requer avaliação multidisciplinar.' +
+        '</div>' +
+
+        // Footer
+        '<div style="margin-top:28px;padding-top:14px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;text-align:center;">' +
+        'Equilibrium Med Center Ltda · CNPJ 34.032.586/0001-98 · Uberlandia, MG<br>' +
+        'Documento gerado em ' + hoje + ' · Uso exclusivamente clínico' +
+        '</div>' +
+
+        '</div></body></html>';
+    }
+
+        // ─── CALCULAR PONTUAÇÃO ──────────────────────────────────────────────────
+    // ─── GERAR HTML DO RELATÓRIO ─────────────────────────────────────────────
+    function gerarHTMLRelatorio(payload, facetas, total) {
       const cutoff = 26; // AQ-50 adolescente: ≥26 indica perfil autista
       const indicativo = total >= cutoff;
       const classificacao = indicativo
